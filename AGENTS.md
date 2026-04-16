@@ -24,6 +24,7 @@ Then load only the task-relevant reference:
 - [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md) for multi-agent lane planning
 - [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md) when writing or updating a specialist brief
 - [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md) for capture/replay/benchmark work
+- [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md) for hosting, release, domain, or production-repair work
 - [documentation-operations.md](C:/dev/GitHub/visulive/docs/documentation-operations.md) only when changing doc structure or canon
 
 ## Current Truth
@@ -41,6 +42,11 @@ The current blockers are:
 - conductor certainty still lags behind the strength of the visual event-spend we want
 - low-energy living-music states still need fresh proof that they stay readable, colorful, and stage-active in both `Music On This PC` and `Music In The Room`
 - safe-tier quality must stay authored, vivid, and premium
+
+Current hosting truth:
+- the live site is `visulive.xylent.studio`
+- production releases are intentionally manual
+- future agents should not treat missing GitHub-triggered auto deploy as a defect unless explicitly asked to change release policy
 
 One important current clue from live screenshots:
 - the wireframe, seam, and rim direction is stronger than the old filled-shell read
