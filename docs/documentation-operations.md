@@ -28,8 +28,9 @@ When docs disagree, use this order of authority:
 12. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
 13. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
 14. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-15. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
-16. historical baseline docs
+15. [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
+16. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
+17. historical baseline docs
 
 Interpretation:
 - `product-charter.md` defines product identity, taste, anti-goals, and the north-star show doctrine
@@ -46,6 +47,7 @@ Interpretation:
 - `project-status.md` defines the current implementation snapshot and open work
 - `control-system-audit.md` defines the current truth about public controls
 - `tuning-workflow.md` defines how to evaluate and tune changes
+- `deployment-operations.md` defines how the live site is hosted, released, verified, and repaired
 - `captures/README.md` defines how saved evidence and generated reports should be organized
 - `product-charter.md` remains the taste and product north star and should move rarely
 - older phase docs remain reference material, not current marching orders
@@ -69,8 +71,9 @@ If context is lost, read in this order:
 13. [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
 14. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
 15. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-16. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
-17. historical baselines only as needed
+16. [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
+17. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
+18. historical baselines only as needed
 
 ## Document Roles
 
@@ -214,6 +217,20 @@ Update it when:
 - replay tooling is added
 - the canonical scenario pack changes
 
+### [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
+Use for:
+- hosting stack truth
+- release workflow
+- Netlify and Cloudflare ownership boundaries
+- custom-domain repair
+- post-release verification
+
+Update it when:
+- hosting provider or site target changes
+- release policy changes
+- domain workflow changes
+- production verification expectations change
+
 ### [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
 Use for:
 - evidence library rules
@@ -288,9 +305,10 @@ When making project-level changes:
 9. update `specialist-brief-template.md` if the standard specialist brief format changes
 10. update `control-system-audit.md` if public controls changed
 11. update `tuning-workflow.md` if evaluation method changed
-12. update `captures/README.md` if evidence storage or analysis workflow changed
-13. update `README.md` only if operator setup or usage changed
-14. update `docs/README.md` if document classification or read order changed
+12. update `deployment-operations.md` if hosting, release, or domain workflow changed
+13. update `captures/README.md` if evidence storage or analysis workflow changed
+14. update `README.md` only if operator setup or usage changed
+15. update `docs/README.md` if document classification or read order changed
 
 This keeps the docs proportional and avoids rewriting everything every pass.
 
@@ -312,6 +330,7 @@ A new maintainer should be able to answer these questions quickly:
 - what are the taste and anti-cheapness rules
 - which controls are real and what they do
 - how to run and evaluate the app
+- how the live site is hosted and released
 - which docs are historical versus active
 
 If the docs stop answering those clearly, fix the routing before adding more material.

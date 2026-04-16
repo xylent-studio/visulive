@@ -26,6 +26,7 @@ That means:
 - the visual system works
 - the controls are usable
 - the docs are navigable
+- the live site now has a real manual production release path
 - the repo now has an explicit specialist-agent operating model for future parallel work
 - the next source of truth is real testing and captured evidence, not more speculative planning
 
@@ -130,6 +131,16 @@ The current public operator model now includes:
 - deeper `Live Shaping`, `Look Shaping`, `Advanced Look Tuning`, `Input & Detection`, and `System` controls in the full menu
 - input device selection
 - input trim and band bias controls kept behind an explicit `Input Repair` path instead of front-loading them into the normal operator flow
+
+### Hosting and release operations
+
+The current maintainer-facing production path now includes:
+
+- a live public hostname at `visulive.xylent.studio`
+- Netlify as the static production host
+- Cloudflare as the DNS authority for `xylent.studio`
+- an intentional manual release flow instead of automatic deploys on every GitHub push
+- a repo runbook at [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
 
 ### Tuning infrastructure
 

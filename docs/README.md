@@ -16,6 +16,7 @@ If you are entering the repo fresh, start with the minimum active spine:
 3. One task-specific reference:
    - [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md) for visual/art behavior
    - [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md) for capture/replay/benchmark work
+   - [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md) for hosting, release, and domain work
    - [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md) for specialist lane planning
    - [documentation-operations.md](C:/dev/GitHub/visulive/docs/documentation-operations.md) only when editing doc structure
 
@@ -148,6 +149,16 @@ Defines:
 - what the public controls actually mean
 - recommended first settings
 - what good behavior should feel like
+
+### [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
+Active hosting and release runbook.
+
+Defines:
+- the live hosting stack
+- the manual release policy
+- Netlify and Cloudflare responsibilities
+- domain repair and verification workflow
+- what must stay true when production changes
 
 ### [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
 Active evidence library guide.

@@ -4,6 +4,9 @@ VisuLive is a big-screen generative showpiece for Chrome on Windows.
 
 It can listen to the room, to audio playing on the computer, or to both at once, and turns that input into a cinematic visual performance system: dark, authored, reactive, and capable of spectacle without collapsing into noise soup.
 
+Live site:
+- [visulive.xylent.studio](https://visulive.xylent.studio)
+
 The current visual pass is no longer color-reserved by default. It now spends a much more aggressive neon show palette when the music drives it:
 - laser cyan
 - tron blue
@@ -43,6 +46,7 @@ Use:
 - [Agent guide](C:/dev/GitHub/visulive/AGENTS.md)
 - [Project status](C:/dev/GitHub/visulive/docs/project-status.md)
 - [Current program](C:/dev/GitHub/visulive/docs/current-program.md)
+- [Deployment operations](C:/dev/GitHub/visulive/docs/deployment-operations.md) for hosting, release, and domain work
 - [Show language](C:/dev/GitHub/visulive/docs/show-language.md)
 - [Agent operating model](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
 - [Agent workstreams](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
