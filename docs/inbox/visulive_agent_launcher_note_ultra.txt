@@ -1,0 +1,21 @@
+You have the right foundation now. Do not continue timidly.
+
+Read the full master packet before coding.
+Use multiple subagents with hard lane ownership.
+Do not let the project slip back into hero-first polish or generic reactivity.
+Do not assume the right values, routing, or behaviors without documenting them.
+
+We want you to exploit every useful lever:
+- architecture
+- cue logic
+- chamber/world authority
+- screen-space consequence
+- audio feature expansion
+- reference-driven principle extraction
+- performance-aware renderer policy
+- proof packs and validation
+
+Think like a creative technical director, systems architect, VJ/show designer, graphics lead, and elite integrator at once.
+
+Return the production map first.
+Then execute.

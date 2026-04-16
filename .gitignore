@@ -1,0 +1,21 @@
+node_modules
+dist
+.DS_Store
+coverage
+*.log
+
+# Evidence and generated review payloads stay local.
+captures/archive/**
+captures/canonical/**
+captures/inbox/**
+captures/reports/**
+
+# Keep the lightweight capture workflow docs and manifests in repo.
+!captures/README.md
+!captures/benchmark-manifest.json
+!captures/review-note-template.md
+!captures/scenario-pack-checklist.md
+!captures/archive/README.md
+!captures/canonical/README.md
+!captures/inbox/README.md
+!captures/reports/README.md

@@ -1,0 +1,276 @@
+import type { ReplayCapture } from './types';
+
+const DB_NAME = 'visulive-storage';
+const STORE_NAME = 'handles';
+const CAPTURE_DIRECTORY_KEY = 'capture-directory';
+
+type HandleRecord = {
+  key: string;
+  value: FileSystemDirectoryHandle;
+};
+
+type FileSystemPermissionModeLike = 'read' | 'readwrite';
+type FileSystemPermissionStateLike = 'granted' | 'denied' | 'prompt';
+type DirectoryHandleWithPermission = FileSystemDirectoryHandle & {
+  queryPermission?: (
+    options?: { mode?: FileSystemPermissionModeLike }
+  ) => Promise<FileSystemPermissionStateLike>;
+  requestPermission?: (
+    options?: { mode?: FileSystemPermissionModeLike }
+  ) => Promise<FileSystemPermissionStateLike>;
+};
+type WindowWithDirectoryPicker = Window &
+  typeof globalThis & {
+    showDirectoryPicker?: (
+      options?: { mode?: FileSystemPermissionModeLike }
+    ) => Promise<FileSystemDirectoryHandle>;
+  };
+
+export type CaptureDirectoryBlobFile = {
+  fileName: string;
+  blob: Blob;
+};
+
+function supportsFileSystemAccess(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    'showDirectoryPicker' in window &&
+    'indexedDB' in window
+  );
+}
+
+function openDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = window.indexedDB.open(DB_NAME, 1);
+
+    request.onupgradeneeded = () => {
+      const database = request.result;
+
+      if (!database.objectStoreNames.contains(STORE_NAME)) {
+        database.createObjectStore(STORE_NAME, { keyPath: 'key' });
+      }
+    };
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error ?? new Error('Failed to open capture directory storage.'));
+    };
+  });
+}
+
+async function withStore<T>(
+  mode: IDBTransactionMode,
+  run: (store: IDBObjectStore) => Promise<T> | T
+): Promise<T> {
+  const database = await openDatabase();
+
+  try {
+    return await new Promise<T>((resolve, reject) => {
+      const transaction = database.transaction(STORE_NAME, mode);
+      const store = transaction.objectStore(STORE_NAME);
+
+      Promise.resolve(run(store)).then(resolve, reject);
+
+      transaction.onerror = () => {
+        reject(transaction.error ?? new Error('Capture directory storage transaction failed.'));
+      };
+    });
+  } finally {
+    database.close();
+  }
+}
+
+export async function loadStoredCaptureDirectoryHandle(): Promise<FileSystemDirectoryHandle | null> {
+  if (!supportsFileSystemAccess()) {
+    return null;
+  }
+
+  return withStore('readonly', async (store) => {
+    const request = store.get(CAPTURE_DIRECTORY_KEY);
+
+    return new Promise<FileSystemDirectoryHandle | null>((resolve, reject) => {
+      request.onsuccess = () => {
+        const result = request.result as HandleRecord | undefined;
+        resolve(result?.value ?? null);
+      };
+
+      request.onerror = () => {
+        reject(request.error ?? new Error('Failed to load stored capture directory.'));
+      };
+    });
+  });
+}
+
+export async function persistCaptureDirectoryHandle(
+  handle: FileSystemDirectoryHandle
+): Promise<void> {
+  if (!supportsFileSystemAccess()) {
+    return;
+  }
+
+  await withStore('readwrite', async (store) => {
+    const request = store.put({
+      key: CAPTURE_DIRECTORY_KEY,
+      value: handle
+    } satisfies HandleRecord);
+
+    return new Promise<void>((resolve, reject) => {
+      request.onsuccess = () => resolve();
+      request.onerror = () => {
+        reject(request.error ?? new Error('Failed to persist capture directory.'));
+      };
+    });
+  });
+}
+
+export async function clearStoredCaptureDirectoryHandle(): Promise<void> {
+  if (!supportsFileSystemAccess()) {
+    return;
+  }
+
+  await withStore('readwrite', async (store) => {
+    const request = store.delete(CAPTURE_DIRECTORY_KEY);
+
+    return new Promise<void>((resolve, reject) => {
+      request.onsuccess = () => resolve();
+      request.onerror = () => {
+        reject(request.error ?? new Error('Failed to clear stored capture directory.'));
+      };
+    });
+  });
+}
+
+export async function pickCaptureDirectoryHandle(): Promise<FileSystemDirectoryHandle> {
+  if (!supportsFileSystemAccess()) {
+    throw new Error('Capture folder saving is not supported in this browser.');
+  }
+
+  const pickerWindow = window as WindowWithDirectoryPicker;
+
+  if (!pickerWindow.showDirectoryPicker) {
+    throw new Error('Capture folder saving is not supported in this browser.');
+  }
+
+  return pickerWindow.showDirectoryPicker({
+    mode: 'readwrite'
+  });
+}
+
+export async function ensureCaptureDirectoryPermission(
+  handle: FileSystemDirectoryHandle,
+  requestWrite = false
+): Promise<boolean> {
+  const permissionHandle = handle as DirectoryHandleWithPermission;
+  const mode: FileSystemPermissionModeLike = 'readwrite';
+  const options = { mode };
+  const current = await permissionHandle.queryPermission?.(options);
+
+  if (current === 'granted') {
+    return true;
+  }
+
+  if (!requestWrite) {
+    return false;
+  }
+
+  const next = await permissionHandle.requestPermission?.(options);
+  return next === 'granted';
+}
+
+export function getCaptureDirectoryDisplayName(
+  handle: FileSystemDirectoryHandle
+): string {
+  return handle.name === 'captures' ? 'captures/inbox' : handle.name;
+}
+
+async function resolveCaptureDirectoryTarget(
+  handle: FileSystemDirectoryHandle
+): Promise<{
+  directoryHandle: FileSystemDirectoryHandle;
+  folderLabel: string;
+}> {
+  if (handle.name !== 'captures') {
+    return {
+      directoryHandle: handle,
+      folderLabel: handle.name
+    };
+  }
+
+  const inboxHandle = await handle.getDirectoryHandle('inbox', { create: true });
+
+  return {
+    directoryHandle: inboxHandle,
+    folderLabel: 'captures/inbox'
+  };
+}
+
+export async function saveReplayCaptureToDirectory(
+  handle: FileSystemDirectoryHandle,
+  capture: ReplayCapture
+): Promise<{ fileName: string; folderLabel: string }> {
+  const { directoryHandle, folderLabel } =
+    await resolveCaptureDirectoryTarget(handle);
+  const fileName = `${capture.metadata.label}.json`;
+  const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+  const writable = await fileHandle.createWritable();
+
+  try {
+    await writable.write(JSON.stringify(capture, null, 2));
+  } finally {
+    await writable.close();
+  }
+
+  return {
+    fileName,
+    folderLabel
+  };
+}
+
+export async function saveCaptureBlobsToDirectory(
+  handle: FileSystemDirectoryHandle,
+  files: CaptureDirectoryBlobFile[]
+): Promise<{
+  folderLabel: string;
+  savedFileNames: string[];
+  warning?: string;
+}> {
+  const { directoryHandle, folderLabel } =
+    await resolveCaptureDirectoryTarget(handle);
+  const savedFileNames: string[] = [];
+  let failedCount = 0;
+
+  for (const file of files) {
+    try {
+      const fileHandle = await directoryHandle.getFileHandle(file.fileName, {
+        create: true
+      });
+      const writable = await fileHandle.createWritable();
+
+      try {
+        await writable.write(file.blob);
+      } finally {
+        await writable.close();
+      }
+
+      savedFileNames.push(file.fileName);
+    } catch {
+      failedCount += 1;
+    }
+  }
+
+  return {
+    folderLabel,
+    savedFileNames,
+    warning:
+      failedCount > 0
+        ? `Failed to save ${failedCount} proof still${failedCount === 1 ? '' : 's'} alongside the capture JSON.`
+        : undefined
+  };
+}
+
+export function fileSystemAccessSupported(): boolean {
+  return supportsFileSystemAccess();
+}

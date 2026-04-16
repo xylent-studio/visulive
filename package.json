@@ -1,0 +1,37 @@
+{
+  "name": "visulive",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:live-loop": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/live-tuning-loop.ps1",
+    "build": "tsc --noEmit && vite build",
+    "check": "npm run test && npm run build",
+    "preview": "vite preview",
+    "analyze:captures": "node ./scripts/analyze-captures.mjs",
+    "watch:captures": "node ./scripts/watch-captures.mjs",
+    "benchmark:validate": "node ./scripts/validate-benchmark-manifest.mjs",
+    "benchmark:promote": "node ./scripts/promote-benchmark.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "three": "0.183.2"
+  },
+  "devDependencies": {
+    "@types/three": "0.183.1",
+    "@types/node": "24.7.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "typescript": "6.0.2",
+    "vite": "8.0.7",
+    "vitest": "4.1.3"
+  }
+}

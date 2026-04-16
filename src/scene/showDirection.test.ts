@@ -1,0 +1,1375 @@
+import { describe, expect, it } from 'vitest';
+import { DEFAULT_LISTENING_FRAME } from '../types/audio';
+import {
+  buildShowActScores,
+  buildPaletteStateScores,
+  chooseShowAct,
+  choosePaletteState,
+  deriveStageCuePlan,
+  deriveVisualCue,
+  deriveTemporalWindows
+} from './showDirection';
+
+describe('showDirection', () => {
+  it('keeps palette changes deliberate until a strong new winner appears', () => {
+    const frame: Parameters<typeof buildPaletteStateScores>[0] = {
+      ...DEFAULT_LISTENING_FRAME,
+      showState: 'tactile',
+      performanceIntent: 'gather',
+      harmonicColor: 0.28,
+      shimmer: 0.82,
+      transientConfidence: 0.62,
+      musicConfidence: 0.7,
+      resonance: 0.28,
+      releaseTail: 0.04,
+      sectionChange: 0.08,
+      dropImpact: 0.1,
+      air: 0.42
+    };
+    const scores = buildPaletteStateScores(frame, 'matrix-storm');
+
+    expect(scores['acid-lime']).toBeGreaterThan(scores['solar-magenta']);
+
+    const holdScores = {
+      'void-cyan': 0.18,
+      'tron-blue': 0.24,
+      'acid-lime': 0.46,
+      'solar-magenta': 0.2,
+      'ghost-white': 0.16
+    } as const;
+
+    const held = choosePaletteState({
+      currentState: 'solar-magenta',
+      secondsSinceLastChange: 0.8,
+      scores: holdScores,
+      minimumHoldSeconds: 2.2,
+      switchThreshold: 0.16
+    });
+
+    expect(held).toBe('solar-magenta');
+
+    const switched = choosePaletteState({
+      currentState: 'solar-magenta',
+      secondsSinceLastChange: 3,
+      scores: holdScores,
+      minimumHoldSeconds: 2.2,
+      switchThreshold: 0.16
+    });
+
+    expect(switched).toBe('acid-lime');
+  });
+
+  it('keeps act changes deliberate until a stronger act wins', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'surge' as const,
+      performanceIntent: 'detonate' as const,
+      musicConfidence: 0.82,
+      peakConfidence: 0.74,
+      beatConfidence: 0.72,
+      preDropTension: 0.78,
+      dropImpact: 0.68,
+      sectionChange: 0.44,
+      releaseTail: 0.1,
+      resonance: 0.3,
+      shimmer: 0.36,
+      air: 0.28,
+      subPressure: 0.7,
+      bassBody: 0.62,
+      speechConfidence: 0.02
+    };
+    const scores = buildShowActScores(frame);
+
+    expect(scores['eclipse-rupture']).toBeGreaterThan(scores['void-chamber']);
+
+    const held = chooseShowAct({
+      currentAct: 'void-chamber',
+      secondsSinceLastChange: 1.6,
+      scores,
+      minimumHoldSeconds: 4.2,
+      switchThreshold: 0.08
+    });
+
+    expect(held).toBe('eclipse-rupture');
+
+    const resisted = chooseShowAct({
+      currentAct: 'laser-bloom',
+      secondsSinceLastChange: 1,
+      scores: {
+        'void-chamber': 0.18,
+        'laser-bloom': 0.44,
+        'matrix-storm': 0.46,
+        'eclipse-rupture': 0.49,
+        'ghost-afterimage': 0.2
+      },
+      minimumHoldSeconds: 4.2,
+      switchThreshold: 0.08
+    });
+
+    expect(resisted).toBe('laser-bloom');
+  });
+
+  it('lets rhythmic system-audio surge resolve into a non-rupture authored act instead of defaulting to matrix lock', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'surge' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.86,
+      peakConfidence: 0.46,
+      beatConfidence: 0.9,
+      preDropTension: 0.42,
+      dropImpact: 0.18,
+      sectionChange: 0.16,
+      releaseTail: 0.04,
+      resonance: 0.24,
+      shimmer: 0.88,
+      air: 0.34,
+      subPressure: 0.12,
+      bassBody: 0.28,
+      speechConfidence: 0.02
+    };
+
+    const scores = buildShowActScores(frame);
+
+    expect(
+      Math.max(scores['matrix-storm'], scores['laser-bloom'])
+    ).toBeGreaterThan(scores['eclipse-rupture']);
+
+    const act = chooseShowAct({
+      currentAct: 'void-chamber',
+      secondsSinceLastChange: 6,
+      scores
+    });
+
+    expect(['matrix-storm', 'laser-bloom']).toContain(act);
+  });
+
+  it('keeps eclipse-rupture from monopolizing every strong rhythmic surge', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'surge' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.88,
+      peakConfidence: 0.52,
+      beatConfidence: 0.86,
+      preDropTension: 0.46,
+      dropImpact: 0.22,
+      sectionChange: 0.18,
+      releaseTail: 0.06,
+      resonance: 0.28,
+      shimmer: 0.82,
+      air: 0.3,
+      subPressure: 0.18,
+      bassBody: 0.34,
+      speechConfidence: 0.02
+    };
+    const scores = buildShowActScores(frame);
+
+    expect(scores['matrix-storm']).toBeGreaterThan(scores['eclipse-rupture']);
+    expect(scores['laser-bloom']).toBeGreaterThan(0.5);
+  });
+
+  it('keeps non-impact generative motion in non-rupture authored acts', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.84,
+      peakConfidence: 0.36,
+      beatConfidence: 0.84,
+      preDropTension: 0.14,
+      dropImpact: 0.06,
+      sectionChange: 0.08,
+      releaseTail: 0.04,
+      resonance: 0.16,
+      momentum: 0.72,
+      shimmer: 0.28,
+      air: 0.14,
+      harmonicColor: 0.22,
+      tonalStability: 0.42,
+      subPressure: 0.08,
+      bassBody: 0.22,
+      speechConfidence: 0.02
+    };
+
+    const scores = buildShowActScores(frame);
+
+    expect(
+      Math.max(scores['matrix-storm'], scores['laser-bloom'])
+    ).toBeGreaterThan(scores['eclipse-rupture']);
+
+    const act = chooseShowAct({
+      currentAct: 'laser-bloom',
+      secondsSinceLastChange: 6,
+      scores
+    });
+
+    expect(['matrix-storm', 'laser-bloom']).toContain(act);
+  });
+
+  it('lets section-driven system-audio generative motion open into laser-bloom', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.82,
+      peakConfidence: 0.34,
+      beatConfidence: 0.42,
+      preDropTension: 0.22,
+      dropImpact: 0.08,
+      sectionChange: 0.34,
+      releaseTail: 0.1,
+      resonance: 0.2,
+      momentum: 0.58,
+      shimmer: 0.44,
+      air: 0.3,
+      subPressure: 0.1,
+      bassBody: 0.26,
+      speechConfidence: 0.02
+    };
+
+    const scores = buildShowActScores(frame);
+
+    expect(scores['laser-bloom']).toBeGreaterThan(scores['matrix-storm']);
+
+    const act = chooseShowAct({
+      currentAct: 'matrix-storm',
+      secondsSinceLastChange: 6,
+      scores
+    });
+
+    expect(act).toBe('laser-bloom');
+  });
+
+  it('lets structured system-audio ambient passages leave matrix-storm for void or bloom', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'hold' as const,
+      musicConfidence: 0.76,
+      peakConfidence: 0.22,
+      beatConfidence: 0.36,
+      preDropTension: 0.14,
+      dropImpact: 0.04,
+      sectionChange: 0.28,
+      releaseTail: 0.26,
+      resonance: 0.42,
+      momentum: 0.46,
+      shimmer: 0.24,
+      air: 0.44,
+      body: 0.32,
+      tonalStability: 0.74,
+      harmonicColor: 0.22,
+      subPressure: 0.06,
+      bassBody: 0.24,
+      speechConfidence: 0.02
+    };
+    const scores = buildShowActScores(frame);
+
+    expect(
+      Math.max(scores['void-chamber'], scores['laser-bloom'])
+    ).toBeGreaterThan(scores['matrix-storm']);
+
+    const act = chooseShowAct({
+      currentAct: 'matrix-storm',
+      secondsSinceLastChange: 6.2,
+      scores
+    });
+
+    expect(['void-chamber', 'laser-bloom']).toContain(act);
+  });
+
+  it('lets system-audio palette scoring break out of tron-blue lock on warmer section changes', () => {
+    const frame: Parameters<typeof buildPaletteStateScores>[0] = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio',
+      showState: 'generative',
+      performanceIntent: 'ignite',
+      harmonicColor: 0.58,
+      shimmer: 0.42,
+      dropImpact: 0.1,
+      sectionChange: 0.34,
+      releaseTail: 0.08,
+      musicConfidence: 0.8,
+      resonance: 0.22,
+      transientConfidence: 0.34,
+      beatConfidence: 0.44,
+      air: 0.22,
+      body: 0.34,
+      tonalStability: 0.62,
+      speechConfidence: 0.02
+    };
+    const scores = buildPaletteStateScores(frame, 'laser-bloom');
+
+    expect(scores['solar-magenta']).toBeGreaterThan(scores['tron-blue']);
+  });
+
+  it('gives matrix recovery palettes colder and ghostlier escape routes', () => {
+    const frame: Parameters<typeof buildPaletteStateScores>[0] = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio',
+      showState: 'generative',
+      performanceIntent: 'hold',
+      harmonicColor: 0.24,
+      shimmer: 0.18,
+      dropImpact: 0.08,
+      sectionChange: 0.24,
+      releaseTail: 0.34,
+      musicConfidence: 0.74,
+      resonance: 0.42,
+      transientConfidence: 0.22,
+      beatConfidence: 0.38,
+      air: 0.42,
+      body: 0.28,
+      tonalStability: 0.78,
+      speechConfidence: 0.02
+    };
+    const scores = buildPaletteStateScores(frame, 'matrix-storm', {
+      family: 'release',
+      worldMode: 'ghost-chamber',
+      paletteTargets: {
+        'void-cyan': 0.32,
+        'tron-blue': 0.22,
+        'acid-lime': 0.08,
+        'solar-magenta': 0.08,
+        'ghost-white': 0.3
+      },
+      paletteHoldSeconds: 3.8
+    });
+
+    expect(
+      Math.max(scores['void-cyan'], scores['tron-blue'], scores['ghost-white'])
+    ).toBeGreaterThan(scores['acid-lime']);
+    expect(
+      Math.max(scores['void-cyan'], scores['tron-blue'], scores['ghost-white'])
+    ).toBeGreaterThan(scores['solar-magenta']);
+  });
+
+  it('lets long-lived matrix-storm and tron-blue dwell yield to close challengers', () => {
+    const act = chooseShowAct({
+      currentAct: 'matrix-storm',
+      secondsSinceLastChange: 9.5,
+      scores: {
+        'void-chamber': 0.22,
+        'laser-bloom': 0.71,
+        'matrix-storm': 0.67,
+        'eclipse-rupture': 0.28,
+        'ghost-afterimage': 0.16
+      },
+      minimumHoldSeconds: 5.6,
+      switchThreshold: 0.1
+    });
+
+    expect(act).toBe('laser-bloom');
+
+    const palette = choosePaletteState({
+      currentState: 'tron-blue',
+      secondsSinceLastChange: 5.2,
+      scores: {
+        'void-cyan': 0.34,
+        'tron-blue': 0.48,
+        'acid-lime': 0.22,
+        'solar-magenta': 0.54,
+        'ghost-white': 0.16
+      },
+      minimumHoldSeconds: 3.2,
+      switchThreshold: 0.1
+    });
+
+    expect(palette).toBe('solar-magenta');
+  });
+
+  it('keeps spectral ghost-afterimage available during long aftermath dwell', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'aftermath' as const,
+      performanceIntent: 'haunt' as const,
+      musicConfidence: 0.72,
+      peakConfidence: 0.28,
+      beatConfidence: 0.44,
+      preDropTension: 0.16,
+      dropImpact: 0.1,
+      sectionChange: 0.26,
+      releaseTail: 0.68,
+      resonance: 0.54,
+      momentum: 0.66,
+      momentKind: 'release' as const,
+      momentAmount: 0.58,
+      shimmer: 0.44,
+      air: 0.36,
+      subPressure: 0.08,
+      bassBody: 0.24,
+      speechConfidence: 0.02
+    };
+    const scores = buildShowActScores(frame);
+
+    expect(scores['ghost-afterimage']).toBeGreaterThan(scores['matrix-storm']);
+
+    const act = chooseShowAct({
+      currentAct: 'ghost-afterimage',
+      secondsSinceLastChange: 8,
+      scores,
+      minimumHoldSeconds: 4.2,
+      switchThreshold: 0.08
+    });
+
+    expect(['ghost-afterimage', 'void-chamber', 'laser-bloom']).toContain(act);
+  });
+
+  it('builds meaningful between-beat temporal windows', () => {
+    const windows = deriveTemporalWindows({
+      beatPhase: 0.82,
+      barPhase: 0.03,
+      phrasePhase: 0.98,
+      beatConfidence: 0.74,
+      preDropTension: 0.62,
+      dropImpact: 0.28,
+      releaseTail: 0.44,
+      musicConfidence: 0.7,
+      resonance: 0.48,
+      sectionChange: 0.36
+    });
+
+    expect(windows.preBeatLift).toBeGreaterThan(0.3);
+    expect(windows.barTurn).toBeGreaterThan(0.4);
+    expect(windows.phraseResolve).toBeGreaterThan(0.4);
+    expect(windows.interBeatFloat).toBeGreaterThanOrEqual(0);
+  });
+
+  it('derives rupture cues for detonation moments', () => {
+    const cue = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        musicConfidence: 0.84,
+        peakConfidence: 0.78,
+        beatConfidence: 0.72,
+        preDropTension: 0.66,
+        dropImpact: 0.74,
+        sectionChange: 0.52,
+        releaseTail: 0.08,
+        resonance: 0.24,
+        momentKind: 'strike',
+        momentAmount: 0.88
+      },
+      'eclipse-rupture',
+      {
+        preBeatLift: 0.42,
+        beatStrike: 0.86,
+        postBeatRelease: 0.12,
+        interBeatFloat: 0.1,
+        barTurn: 0.34,
+        phraseResolve: 0.22
+      }
+    );
+
+    expect(cue.cueClass).toBe('rupture');
+    expect(cue.screenWeight).toBeGreaterThan(0.8);
+    expect(cue.heroWeight).toBeLessThan(cue.worldWeight);
+    expect(cue.eventDensity).toBeGreaterThan(0.7);
+  });
+
+  it('derives afterglow cues with strong residue for aftermath', () => {
+    const cue = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'hold',
+        musicConfidence: 0.48,
+        peakConfidence: 0.22,
+        beatConfidence: 0.18,
+        preDropTension: 0.08,
+        dropImpact: 0.06,
+        sectionChange: 0.18,
+        releaseTail: 0.64,
+        resonance: 0.58,
+        momentKind: 'release',
+        momentAmount: 0.52
+      },
+      'ghost-afterimage',
+      {
+        preBeatLift: 0.04,
+        beatStrike: 0.08,
+        postBeatRelease: 0.44,
+        interBeatFloat: 0.26,
+        barTurn: 0.18,
+        phraseResolve: 0.62
+      }
+    );
+
+    expect(cue.cueClass).toBe('afterglow');
+    expect(cue.residueWeight).toBeGreaterThan(0.6);
+    expect(cue.heroWeight).toBeLessThan(0.45);
+    expect(cue.decay).toBeGreaterThan(0.45);
+  });
+
+  it('lets afterglow reach release instead of getting swallowed by haunt', () => {
+    const cue = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'hold',
+        musicConfidence: 0.56,
+        peakConfidence: 0.24,
+        beatConfidence: 0.2,
+        preDropTension: 0.1,
+        dropImpact: 0.06,
+        sectionChange: 0.2,
+        releaseTail: 0.48,
+        resonance: 0.32,
+        momentKind: 'release',
+        momentAmount: 0.56
+      },
+      'matrix-storm',
+      {
+        preBeatLift: 0.06,
+        beatStrike: 0.12,
+        postBeatRelease: 0.5,
+        interBeatFloat: 0.2,
+        barTurn: 0.22,
+        phraseResolve: 0.58
+      }
+    );
+
+    expect(cue.cueClass).toBe('afterglow');
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'hold',
+        mode: 'system-audio',
+        musicConfidence: 0.56,
+        peakConfidence: 0.24,
+        beatConfidence: 0.2,
+        preDropTension: 0.1,
+        dropImpact: 0.06,
+        sectionChange: 0.2,
+        releaseTail: 0.48
+      },
+      cueState: cue,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 1.4
+    });
+
+    expect(plan.family).toBe('release');
+    expect(plan.dominance).toBe('hybrid');
+    expect(plan.spendProfile).toBe('earned');
+    expect(plan.worldMode).toBe('field-bloom');
+    expect(plan.compositorMode).toBe('afterimage');
+      expect(plan.residueMode).toBe('afterglow');
+  });
+
+  it('prefers release before haunt when phrase resolve and section change recover', () => {
+    const cue = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'haunt',
+        musicConfidence: 0.6,
+        peakConfidence: 0.24,
+        beatConfidence: 0.28,
+        preDropTension: 0.14,
+        dropImpact: 0.12,
+        sectionChange: 0.3,
+        releaseTail: 0.54,
+        resonance: 0.38,
+        momentum: 0.58,
+        momentKind: 'release',
+        momentAmount: 0.62
+      },
+      'ghost-afterimage',
+      {
+        preBeatLift: 0.08,
+        beatStrike: 0.1,
+        postBeatRelease: 0.48,
+        interBeatFloat: 0.22,
+        barTurn: 0.2,
+        phraseResolve: 0.54
+      }
+    );
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'haunt',
+        mode: 'system-audio',
+        musicConfidence: 0.6,
+        peakConfidence: 0.24,
+        beatConfidence: 0.28,
+        preDropTension: 0.14,
+        dropImpact: 0.12,
+        sectionChange: 0.3,
+        releaseTail: 0.54,
+        momentum: 0.58,
+        momentKind: 'release'
+      },
+      cueState: cue,
+      showAct: 'ghost-afterimage',
+      cueFamilySeconds: 2.2
+    });
+
+    expect(plan.family).toBe('release');
+    expect(plan.dominance).toBe('hybrid');
+    expect(plan.spendProfile).toBe('earned');
+    expect(plan.worldMode).toBe('field-bloom');
+    expect(plan.residueMode).toBe('afterglow');
+  });
+
+  it('makes reset reachable on clean phrase handoffs after heavier material', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'generative',
+        performanceIntent: 'hold',
+        musicConfidence: 0.52,
+        peakConfidence: 0.18,
+        beatConfidence: 0.34,
+        preDropTension: 0.14,
+        dropImpact: 0.08,
+        sectionChange: 0.3,
+        releaseTail: 0.18,
+        resonance: 0.24,
+        momentKind: 'release',
+        momentAmount: 0.42
+      },
+      'laser-bloom',
+      {
+        preBeatLift: 0.06,
+        beatStrike: 0.08,
+        postBeatRelease: 0.22,
+        interBeatFloat: 0.26,
+        barTurn: 0.42,
+        phraseResolve: 0.44
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'generative',
+        performanceIntent: 'hold',
+        mode: 'system-audio',
+        musicConfidence: 0.52,
+        peakConfidence: 0.18,
+        beatConfidence: 0.34,
+        preDropTension: 0.14,
+        dropImpact: 0.08,
+        sectionChange: 0.3,
+        releaseTail: 0.18
+      },
+      cueState,
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.8
+    });
+
+    expect(plan.family).toBe('reset');
+    expect(plan.dominance).toBe('chamber');
+    expect(plan.compositorMode).toBe('wipe');
+  });
+
+  it('keeps a strong rupture earned, centered, and chamber-led instead of shoving hero right', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        musicConfidence: 0.8,
+        peakConfidence: 0.72,
+        beatConfidence: 0.7,
+        preDropTension: 0.62,
+        dropImpact: 0.76,
+        sectionChange: 0.48,
+        releaseTail: 0.1,
+        resonance: 0.22,
+        momentKind: 'strike',
+        momentAmount: 0.86
+      },
+      'eclipse-rupture',
+      {
+        preBeatLift: 0.34,
+        beatStrike: 0.8,
+        postBeatRelease: 0.1,
+        interBeatFloat: 0.08,
+        barTurn: 0.24,
+        phraseResolve: 0.12
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        mode: 'system-audio',
+        musicConfidence: 0.8,
+        peakConfidence: 0.72,
+        beatConfidence: 0.7,
+        preDropTension: 0.62,
+        dropImpact: 0.76,
+        sectionChange: 0.48,
+        releaseTail: 0.1
+      },
+      cueState,
+      showAct: 'eclipse-rupture',
+      cueFamilySeconds: 0.6
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.dominance).toBe('world');
+    expect(plan.spendProfile).toBe('earned');
+    expect(plan.worldMode).toBe('collapse-well');
+    expect(plan.compositorMode).toBe('flash');
+    expect(plan.heroScaleMax).toBeLessThan(1.4);
+    expect(plan.exposureCeiling).toBeLessThanOrEqual(0.9);
+    expect(plan.bloomCeiling).toBeLessThan(0.8);
+    expect(plan.subtractiveAmount).toBeGreaterThan(0.3);
+    expect(plan.heroScaleBias).toBeLessThan(0.35);
+    expect(plan.heroAnchorLane).toBe('center');
+    expect(Math.abs(plan.heroStageX)).toBeLessThan(0.12);
+    expect(plan.heroStageY).toBeGreaterThan(0);
+    expect(plan.heroDepthBias).toBeLessThan(0.4);
+    expect(plan.heroMorphBias).toBeLessThan(0.74);
+    expect(plan.chamberWeight).toBeGreaterThan(plan.heroWeight);
+    expect(plan.worldWeight).toBeGreaterThan(plan.heroWeight);
+  });
+
+  it('still allows a stricter rupture to reach peak without defaulting to right shove', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        musicConfidence: 0.94,
+        peakConfidence: 0.88,
+        beatConfidence: 0.86,
+        preDropTension: 0.82,
+        dropImpact: 0.9,
+        sectionChange: 0.68,
+        releaseTail: 0.03,
+        resonance: 0.18,
+        momentKind: 'strike',
+        momentAmount: 0.96
+      },
+      'eclipse-rupture',
+      {
+        preBeatLift: 0.42,
+        beatStrike: 0.88,
+        postBeatRelease: 0.06,
+        interBeatFloat: 0.04,
+        barTurn: 0.2,
+        phraseResolve: 0.1
+      }
+    );
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        mode: 'system-audio',
+        musicConfidence: 0.94,
+        peakConfidence: 0.88,
+        beatConfidence: 0.86,
+        preDropTension: 0.82,
+        dropImpact: 0.9,
+        sectionChange: 0.68,
+        releaseTail: 0.03
+      },
+      cueState,
+      showAct: 'eclipse-rupture',
+      cueFamilySeconds: 0.36
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.spendProfile).toBe('peak');
+    expect(plan.heroAnchorLane).toBe('center');
+    expect(plan.heroScaleMax).toBeLessThan(1.4);
+    expect(plan.heroScaleBias).toBeLessThan(0.45);
+    expect(Math.abs(plan.heroStageX)).toBeLessThan(0.12);
+    expect(plan.heroDepthBias).toBeLessThan(0.42);
+    expect(plan.chamberWeight).toBeGreaterThan(plan.heroWeight);
+    expect(plan.worldWeight).toBeGreaterThan(plan.heroWeight);
+  });
+
+  it('routes matrix-storm energy into reveal or gather instead of forcing rupture', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'ignite',
+        musicConfidence: 0.84,
+        peakConfidence: 0.48,
+        beatConfidence: 0.9,
+        preDropTension: 0.42,
+        dropImpact: 0.18,
+        sectionChange: 0.16,
+        releaseTail: 0.04,
+        resonance: 0.22,
+        momentKind: 'lift',
+        momentAmount: 0.58
+      },
+      'matrix-storm',
+      {
+        preBeatLift: 0.22,
+        beatStrike: 0.72,
+        postBeatRelease: 0.08,
+        interBeatFloat: 0.34,
+        barTurn: 0.24,
+        phraseResolve: 0.16
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'ignite',
+        mode: 'system-audio',
+        musicConfidence: 0.84,
+        peakConfidence: 0.48,
+        beatConfidence: 0.9,
+        preDropTension: 0.42,
+        dropImpact: 0.18,
+        sectionChange: 0.16,
+        releaseTail: 0.04
+      },
+      cueState,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 0.9
+    });
+
+    expect(plan.family).not.toBe('rupture');
+    expect(['gather', 'reveal']).toContain(plan.family);
+    expect(plan.compositorMode).toMatch(/precharge|wipe/);
+  });
+
+  it('keeps matrix-storm reveal in a lighter hybrid world mode instead of cathedral lock', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'gather' as const,
+      musicConfidence: 0.46,
+      peakConfidence: 0.24,
+      beatConfidence: 0.34,
+      preDropTension: 0.18,
+      dropImpact: 0.08,
+      sectionChange: 0.14,
+      releaseTail: 0.06,
+      resonance: 0.18,
+      momentum: 0.32,
+      body: 0.22,
+      tonalStability: 0.42,
+      harmonicColor: 0.64,
+      shimmer: 0.24,
+      air: 0.22,
+      momentKind: 'lift' as const,
+      momentAmount: 0.26,
+      speechConfidence: 0.02
+    };
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 0.82,
+        barPhase: 0.24,
+        phrasePhase: 0.38
+      },
+      cueState: deriveVisualCue(
+        frame,
+        'matrix-storm',
+        deriveTemporalWindows({
+          beatPhase: 0.82,
+          barPhase: 0.24,
+          phrasePhase: 0.38,
+          beatConfidence: frame.beatConfidence,
+          preDropTension: frame.preDropTension,
+          dropImpact: frame.dropImpact,
+          releaseTail: frame.releaseTail,
+          musicConfidence: frame.musicConfidence,
+          resonance: frame.resonance,
+          sectionChange: frame.sectionChange
+        })
+      ),
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 0.8
+    });
+
+    expect(plan.family).toBe('reveal');
+    expect(plan.dominance).toBe('hybrid');
+    expect(plan.worldMode).toBe('field-bloom');
+    expect(plan.heroScaleBias).toBeLessThan(0.3);
+    expect(plan.worldWeight).toBeLessThan(0.76);
+  });
+
+  it('gives structured matrix recovery a non-pressure brood path', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'hold' as const,
+      musicConfidence: 0.74,
+      peakConfidence: 0.26,
+      beatConfidence: 0.76,
+      preDropTension: 0.18,
+      dropImpact: 0.12,
+      sectionChange: 0.32,
+      releaseTail: 0.14,
+      resonance: 0.3,
+      momentum: 0.7,
+      momentKind: 'release' as const,
+      momentAmount: 0.44,
+      shimmer: 0.4,
+      air: 0.42,
+      subPressure: 0.08,
+      bassBody: 0.24,
+      speechConfidence: 0.02
+    };
+    const windows = deriveTemporalWindows({
+      beatPhase: 0.34,
+      barPhase: 0.14,
+      phrasePhase: 0.42,
+      beatConfidence: 0.76,
+      preDropTension: 0.18,
+      dropImpact: 0.12,
+      releaseTail: 0.14,
+      musicConfidence: 0.74,
+      resonance: 0.3,
+      sectionChange: 0.32
+    });
+
+    const cue = deriveVisualCue(frame, 'matrix-storm', windows);
+    expect(cue.cueClass).toBe('brood');
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 0.34,
+        barPhase: 0.14,
+        phrasePhase: 0.42
+      },
+      cueState: cue,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 0.8
+    });
+
+    expect(plan.family).toBe('brood');
+    expect(plan.compositorMode).toBe('none');
+  });
+
+  it('keeps matrix recovery hero forms from collapsing back to mushroom', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      showState: 'generative' as const,
+      performanceIntent: 'hold' as const,
+      mode: 'system-audio' as const,
+      musicConfidence: 0.72,
+      peakConfidence: 0.24,
+      beatConfidence: 0.7,
+      preDropTension: 0.18,
+      dropImpact: 0.1,
+      sectionChange: 0.2,
+      releaseTail: 0.18,
+      resonance: 0.28,
+      momentum: 0.64,
+      harmonicColor: 0.22,
+      shimmer: 0.38,
+      air: 0.34,
+      momentKind: 'release' as const,
+      momentAmount: 0.34,
+      speechConfidence: 0.02
+    };
+    const cue = deriveVisualCue(
+      frame,
+      'matrix-storm',
+      deriveTemporalWindows({
+        beatPhase: 0.36,
+        barPhase: 0.14,
+        phrasePhase: 0.42,
+        beatConfidence: frame.beatConfidence,
+        preDropTension: frame.preDropTension,
+        dropImpact: frame.dropImpact,
+        releaseTail: frame.releaseTail,
+        musicConfidence: frame.musicConfidence,
+        resonance: frame.resonance,
+        sectionChange: frame.sectionChange
+      })
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 0.36,
+        barPhase: 0.14,
+        phrasePhase: 0.42
+      },
+      cueState: cue,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 1.1
+    });
+
+    expect(['brood', 'release']).toContain(plan.family);
+    expect(plan.heroForm).not.toBe('mushroom');
+    expect(['orb', 'cube', 'prism', 'diamond']).toContain(plan.heroForm);
+  });
+
+  it('builds a ghost-chamber stage plan for haunt cues when recovery is weak', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'haunt',
+        musicConfidence: 0.36,
+        peakConfidence: 0.16,
+        beatConfidence: 0.14,
+        preDropTension: 0.06,
+        dropImpact: 0.04,
+        sectionChange: 0.06,
+        releaseTail: 0.22,
+        resonance: 0.64,
+        momentum: 0.08,
+        momentKind: 'none',
+        momentAmount: 0.18
+      },
+      'ghost-afterimage',
+      {
+        preBeatLift: 0.02,
+        beatStrike: 0.06,
+        postBeatRelease: 0.12,
+        interBeatFloat: 0.12,
+        barTurn: 0.1,
+        phraseResolve: 0.08
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'aftermath',
+        performanceIntent: 'haunt',
+        mode: 'system-audio',
+        musicConfidence: 0.36,
+        peakConfidence: 0.16,
+        beatConfidence: 0.14,
+        preDropTension: 0.06,
+        dropImpact: 0.04,
+        sectionChange: 0.06,
+        releaseTail: 0.22,
+        momentum: 0.08,
+        momentKind: 'none'
+      },
+      cueState,
+      showAct: 'ghost-afterimage',
+      cueFamilySeconds: 4.0
+    });
+
+    expect(plan.family).toBe('haunt');
+    expect(plan.dominance).toBe('chamber');
+    expect(plan.spendProfile).toBe('withheld');
+    expect(plan.worldMode).toBe('ghost-chamber');
+    expect(plan.residueMode).toBe('ghost');
+    expect(plan.heroScaleMax).toBeLessThan(0.8);
+    expect(plan.heroAnchorLane).toBe('high');
+    expect(plan.heroWeight).toBeLessThan(0.3);
+    expect(plan.heroForm).toBe('diamond');
+    expect(plan.heroScaleBias).toBeLessThan(-0.2);
+    expect(plan.heroStageY).toBeGreaterThan(0.1);
+    expect(plan.heroMorphBias).toBeGreaterThan(0.6);
+  });
+
+  it('downgrades long rupture windows from peak to earned', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        musicConfidence: 0.78,
+        peakConfidence: 0.7,
+        beatConfidence: 0.68,
+        preDropTension: 0.58,
+        dropImpact: 0.72,
+        sectionChange: 0.42,
+        releaseTail: 0.08,
+        resonance: 0.24,
+        momentKind: 'strike',
+        momentAmount: 0.84
+      },
+      'eclipse-rupture',
+      {
+        preBeatLift: 0.32,
+        beatStrike: 0.78,
+        postBeatRelease: 0.1,
+        interBeatFloat: 0.08,
+        barTurn: 0.22,
+        phraseResolve: 0.14
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'surge',
+        performanceIntent: 'detonate',
+        mode: 'system-audio',
+        musicConfidence: 0.78,
+        peakConfidence: 0.7,
+        beatConfidence: 0.68,
+        preDropTension: 0.58,
+        dropImpact: 0.72,
+        sectionChange: 0.42,
+        releaseTail: 0.08
+      },
+      cueState,
+      showAct: 'eclipse-rupture',
+      cueFamilySeconds: 3.2
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.spendProfile).toBe('earned');
+    expect(plan.heroScaleMax).toBeLessThan(1.2);
+    expect(plan.heroAnchorLane).toBe('center');
+    expect(Math.abs(plan.heroStageX)).toBeLessThan(0.08);
+    expect(plan.chamberWeight).toBeGreaterThan(plan.heroWeight);
+    expect(plan.worldWeight).toBeGreaterThan(plan.heroWeight);
+  });
+
+  it('keeps reset windows out of peak spend', () => {
+    const cueState = deriveVisualCue(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'generative',
+        performanceIntent: 'hold',
+        musicConfidence: 0.6,
+        peakConfidence: 0.28,
+        beatConfidence: 0.32,
+        preDropTension: 0.08,
+        dropImpact: 0.06,
+        sectionChange: 0.44,
+        releaseTail: 0.12,
+        resonance: 0.2,
+        momentKind: 'none',
+        momentAmount: 0
+      },
+      'laser-bloom',
+      {
+        preBeatLift: 0.08,
+        beatStrike: 0.1,
+        postBeatRelease: 0.18,
+        interBeatFloat: 0.22,
+        barTurn: 0.36,
+        phraseResolve: 0.28
+      }
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        showState: 'generative',
+        performanceIntent: 'hold',
+        mode: 'system-audio',
+        musicConfidence: 0.6,
+        peakConfidence: 0.28,
+        beatConfidence: 0.32,
+        preDropTension: 0.08,
+        dropImpact: 0.06,
+        sectionChange: 0.44,
+        releaseTail: 0.12
+      },
+      cueState,
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.3
+    });
+
+    expect(plan.family).toBe('reset');
+    expect(plan.spendProfile).toBe('withheld');
+    expect(plan.exposureCeiling).toBeLessThan(0.84);
+    expect(plan.bloomCeiling).toBeLessThan(0.6);
+  });
+
+  it('keeps quiet room music out of ghost and brood monopoly', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'room-mic' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'gather' as const,
+      musicConfidence: 0.32,
+      peakConfidence: 0.16,
+      beatConfidence: 0.14,
+      preDropTension: 0.12,
+      dropImpact: 0.06,
+      sectionChange: 0.08,
+      releaseTail: 0.08,
+      resonance: 0.2,
+      momentum: 0.28,
+      momentKind: 'none' as const,
+      momentAmount: 0,
+      shimmer: 0.18,
+      air: 0.18,
+      subPressure: 0.04,
+      bassBody: 0.14,
+      speechConfidence: 0.08
+    };
+    const scores = buildShowActScores(frame);
+
+    expect(scores['ghost-afterimage']).toBeLessThan(scores['laser-bloom']);
+    expect(scores['void-chamber']).toBeLessThan(scores['laser-bloom']);
+
+    const windows = deriveTemporalWindows({
+      beatPhase: 0.28,
+      barPhase: 0.2,
+      phrasePhase: 0.34,
+      beatConfidence: frame.beatConfidence,
+      preDropTension: frame.preDropTension,
+      dropImpact: frame.dropImpact,
+      releaseTail: frame.releaseTail,
+      musicConfidence: frame.musicConfidence,
+      resonance: frame.resonance,
+      sectionChange: frame.sectionChange
+    });
+    const cue = deriveVisualCue(
+      frame,
+      'laser-bloom',
+      windows
+    );
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 0.28,
+        barPhase: 0.2,
+        phrasePhase: 0.34
+      },
+      cueState: cue,
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.6
+    });
+
+    expect(['gather', 'reveal']).toContain(plan.family);
+    expect(plan.family).not.toBe('brood');
+    expect(plan.screenWeight).toBeGreaterThan(0.2);
+    expect(plan.heroScaleBias).toBeGreaterThan(0);
+  });
+
+  it('lets color-rich quiet room music escalate into a restrained reveal floor', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'room-mic' as const,
+      showState: 'atmosphere' as const,
+      performanceIntent: 'gather' as const,
+      musicConfidence: 0.21,
+      peakConfidence: 0.19,
+      beatConfidence: 0.07,
+      preDropTension: 0.24,
+      dropImpact: 0,
+      sectionChange: 0.01,
+      releaseTail: 0.07,
+      resonance: 0.15,
+      momentum: 0.17,
+      brightness: 0.16,
+      harmonicColor: 0.58,
+      shimmer: 0.08,
+      air: 0.08,
+      subPressure: 0.04,
+      bassBody: 0.04,
+      speechConfidence: 0.01
+    };
+
+    const scores = buildShowActScores(frame);
+    expect(scores['laser-bloom']).toBeGreaterThan(scores['void-chamber']);
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 1,
+        barPhase: 0.5,
+        phrasePhase: 0.62
+      },
+      cueState: deriveVisualCue(
+        frame,
+        'laser-bloom',
+        deriveTemporalWindows({
+          beatPhase: 1,
+          barPhase: 0.5,
+          phrasePhase: 0.62,
+          beatConfidence: frame.beatConfidence,
+          preDropTension: frame.preDropTension,
+          dropImpact: frame.dropImpact,
+          releaseTail: frame.releaseTail,
+          musicConfidence: frame.musicConfidence,
+          resonance: frame.resonance,
+          sectionChange: frame.sectionChange
+        })
+      ),
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.8
+    });
+
+    expect(plan.family).toBe('reveal');
+    expect(plan.stageWeight).toBeGreaterThan(0.5);
+    expect(plan.screenWeight).toBeGreaterThan(0.25);
+  });
+
+  it('keeps low-impact musical floors readable and neon outside quiet-room special casing', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'generative' as const,
+      performanceIntent: 'gather' as const,
+      musicConfidence: 0.34,
+      peakConfidence: 0.12,
+      beatConfidence: 0.18,
+      preDropTension: 0.14,
+      dropImpact: 0.02,
+      sectionChange: 0.06,
+      releaseTail: 0.08,
+      resonance: 0.14,
+      momentum: 0.26,
+      body: 0.18,
+      tonalStability: 0.34,
+      brightness: 0.18,
+      harmonicColor: 0.62,
+      shimmer: 0.2,
+      air: 0.18,
+      subPressure: 0.06,
+      bassBody: 0.12,
+      speechConfidence: 0.01
+    };
+
+    const scores = buildShowActScores(frame);
+    expect(scores['laser-bloom']).toBeGreaterThan(scores['void-chamber']);
+
+    const plan = deriveStageCuePlan({
+      frame: {
+        ...frame,
+        beatPhase: 0.82,
+        barPhase: 0.36,
+        phrasePhase: 0.42,
+        momentKind: 'none'
+      },
+      cueState: deriveVisualCue(
+        frame,
+        'laser-bloom',
+        deriveTemporalWindows({
+          beatPhase: 0.82,
+          barPhase: 0.36,
+          phrasePhase: 0.42,
+          beatConfidence: frame.beatConfidence,
+          preDropTension: frame.preDropTension,
+          dropImpact: frame.dropImpact,
+          releaseTail: frame.releaseTail,
+          musicConfidence: frame.musicConfidence,
+          resonance: frame.resonance,
+          sectionChange: frame.sectionChange
+        })
+      ),
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.5
+    });
+
+    expect(['gather', 'reveal']).toContain(plan.family);
+    expect(plan.heroScaleBias).toBeGreaterThan(0);
+    expect(plan.stageWeight).toBeGreaterThan(0.42);
+    expect(plan.screenWeight).toBeGreaterThan(0.2);
+  });
+});

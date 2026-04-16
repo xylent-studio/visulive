@@ -1,0 +1,28 @@
+{
+  "activeBenchmarkId": "afqr-post-aftermath-proof-2026-04-09",
+  "primaryBenchmarkId": "afqr-post-aftermath-proof-2026-04-09",
+  "secondaryScenarioIds": [
+    "room-floor-quiet-music-floor-2026-04-09"
+  ],
+  "benchmarks": [
+    {
+      "id": "afqr-post-aftermath-proof-2026-04-09",
+      "kind": "primary-correction",
+      "label": "AFQR post-aftermath correction proof benchmark",
+      "capturePaths": [
+        "captures/inbox/archive/room-capture_2026-04-09_02-51-04.json"
+      ],
+      "trackPath": "C:/Users/jjdog/Music/AFQR.mp3",
+      "notes": "Primary AFQR proof run after aftermath-lock correction. Older sessions are historical context only."
+    },
+    {
+      "id": "room-floor-quiet-music-floor-2026-04-09",
+      "kind": "secondary-floor",
+      "label": "Quiet room-mic music floor benchmark",
+      "capturePaths": [
+        "captures/inbox/archive/room-capture_2026-04-09_10-22-43.json"
+      ],
+      "notes": "Secondary quiet room-mic floor benchmark for low-background music. Treat this as a required room-floor scenario, not a replacement for AFQR."
+    }
+  ]
+}
