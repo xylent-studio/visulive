@@ -235,6 +235,55 @@ describe('ListeningInterpreter', () => {
     expect(frame.performanceIntent).toBe('ignite');
   });
 
+  it('promotes structured room music into ignite once sustained musical body is present', () => {
+    const interpreter = new ListeningInterpreter();
+    const frames = Array.from({ length: 72 }, (_, index) => {
+      const onBeat = index % 4 === 0;
+
+      return onBeat
+        ? {
+            rms: 0.038,
+            peak: 0.062,
+            envelopeFast: 0.044,
+            envelopeSlow: 0.03,
+            lowEnergy: 0.028,
+            midEnergy: 0.024,
+            highEnergy: 0.012,
+            brightness: 0.18,
+            lowFlux: 0.016,
+            midFlux: 0.012,
+            highFlux: 0.006,
+            modulation: 0.14,
+            transient: 0.032,
+            crestFactor: 2.3,
+            lowStability: 0.5
+          }
+        : {
+            rms: 0.024,
+            peak: 0.034,
+            envelopeFast: 0.026,
+            envelopeSlow: 0.028,
+            lowEnergy: 0.018,
+            midEnergy: 0.018,
+            highEnergy: 0.008,
+            brightness: 0.14,
+            lowFlux: 0.004,
+            midFlux: 0.006,
+            highFlux: 0.003,
+            modulation: 0.1,
+            transient: 0.008,
+            crestFactor: 1.7,
+            lowStability: 0.68
+          };
+    });
+    const frame = stepInterpreter(interpreter, frames, 1000, 'room-mic');
+
+    expect(['generative', 'surge']).toContain(frame.showState);
+    expect(frame.musicConfidence).toBeGreaterThan(0.3);
+    expect(frame.beatConfidence).toBeGreaterThan(0.12);
+    expect(frame.performanceIntent).toBe('ignite');
+  });
+
   it('builds beat and drop intent for repeated bass-led impacts', () => {
     const interpreter = new ListeningInterpreter();
     const frames = Array.from({ length: 48 }, (_, index) => {
