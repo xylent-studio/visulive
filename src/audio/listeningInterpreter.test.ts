@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { ListeningInterpreter } from './listeningInterpreter';
 import { DEFAULT_ANALYSIS_FRAME, type ListeningMode } from '../types/audio';
-import { DEFAULT_RUNTIME_TUNING } from '../types/tuning';
+import {
+  DEFAULT_RUNTIME_TUNING,
+  DEFAULT_USER_CONTROL_STATE,
+  applyQuickStartToControlState,
+  deriveRuntimeTuning
+} from '../types/tuning';
 
 function stepInterpreter(
   interpreter: ListeningInterpreter,
   frames: Array<Partial<typeof DEFAULT_ANALYSIS_FRAME>>,
   startTimestampMs = 1000,
-  mode: ListeningMode = 'room-mic'
+  mode: ListeningMode = 'room-mic',
+  tuning = DEFAULT_RUNTIME_TUNING
 ) {
   let timestampMs = startTimestampMs;
   let result = interpreter.update({
@@ -20,7 +26,7 @@ function stepInterpreter(
     noiseFloor: 0.01,
     adaptiveCeiling: 0.1,
     rawPathGranted: true,
-    tuning: DEFAULT_RUNTIME_TUNING
+    tuning
   });
 
   for (const frame of frames) {
@@ -36,7 +42,7 @@ function stepInterpreter(
       noiseFloor: 0.01,
       adaptiveCeiling: 0.1,
       rawPathGranted: true,
-      tuning: DEFAULT_RUNTIME_TUNING
+      tuning
     });
   }
 
@@ -804,6 +810,44 @@ describe('ListeningInterpreter', () => {
     expect(frame.showState).not.toBe('aftermath');
     expect(frame.performanceIntent).not.toBe('haunt');
     expect(['generative', 'tactile', 'atmosphere', 'cadence']).toContain(frame.showState);
+    expect(['gather', 'hold']).toContain(frame.performanceIntent);
+  });
+
+  it('wakes weaker room music with the authored room quick start instead of collapsing to void', () => {
+    const interpreter = new ListeningInterpreter();
+    const roomQuickStartTuning = deriveRuntimeTuning(
+      applyQuickStartToControlState(DEFAULT_USER_CONTROL_STATE, 'room-music')
+    );
+    const frame = stepInterpreter(
+      interpreter,
+      repeatFrame(
+        {
+          rms: 0.017,
+          peak: 0.024,
+          envelopeFast: 0.018,
+          envelopeSlow: 0.02,
+          lowEnergy: 0.013,
+          midEnergy: 0.017,
+          highEnergy: 0.006,
+          brightness: 0.12,
+          lowFlux: 0.002,
+          midFlux: 0.004,
+          highFlux: 0.002,
+          modulation: 0.08,
+          transient: 0.007,
+          crestFactor: 1.6,
+          lowStability: 0.72
+        },
+        96
+      ),
+      1000,
+      'room-mic',
+      roomQuickStartTuning
+    );
+
+    expect(frame.showState).not.toBe('void');
+    expect(frame.musicConfidence).toBeGreaterThan(0.12);
+    expect(frame.body).toBeGreaterThan(0.12);
     expect(['gather', 'hold']).toContain(frame.performanceIntent);
   });
 });

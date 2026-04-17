@@ -94,7 +94,6 @@ type RendererHandle = {
 };
 
 const CONTROL_STORAGE_KEY = 'visulive-user-controls';
-const INPUT_STORAGE_KEY = 'visulive-audio-input';
 const SOURCE_MODE_STORAGE_KEY = 'visulive-source-mode';
 const CAPTURE_AUTO_SAVE_STORAGE_KEY = 'visulive-capture-auto-save';
 const PROOF_STILLS_STORAGE_KEY = 'visulive-proof-stills';
@@ -331,13 +330,7 @@ export function App() {
       ? stored
       : 'room-mic';
   });
-  const [preferredInputId, setPreferredInputId] = useState<string>(() => {
-    if (typeof window === 'undefined') {
-      return '';
-    }
-
-    return window.localStorage.getItem(INPUT_STORAGE_KEY) ?? '';
-  });
+  const [preferredInputId, setPreferredInputId] = useState<string>('');
   const [controls, setControls] = useState<UserControlState>(() => {
     if (typeof window === 'undefined') {
       return DEFAULT_USER_CONTROL_STATE;
@@ -1122,11 +1115,6 @@ export function App() {
         serializeUserControlState(controls)
       );
       window.localStorage.setItem(SOURCE_MODE_STORAGE_KEY, sourceMode);
-      if (preferredInputId) {
-        window.localStorage.setItem(INPUT_STORAGE_KEY, preferredInputId);
-      } else {
-        window.localStorage.removeItem(INPUT_STORAGE_KEY);
-      }
     }
 
     audioRef.current?.setTuning(runtimeTuning);
@@ -1136,6 +1124,11 @@ export function App() {
   const handleStart = async () => {
     audioRef.current?.setTuning(runtimeTuning);
     await audioRef.current?.start();
+  };
+
+  const resetQuickStartMicOverride = () => {
+    setPreferredInputId('');
+    void audioRef.current?.setInputDevice(null);
   };
 
   const saveCaptureToConfiguredFolder = async (
@@ -1226,6 +1219,7 @@ export function App() {
     const profile = QUICK_START_PROFILES[quickStartId];
 
     setLaunchQuickStartId(quickStartId);
+    resetQuickStartMicOverride();
     setSourceMode(profile.sourceMode);
     void audioRef.current?.setSourceMode(profile.sourceMode);
     setControls((current) => applyQuickStartToControlState(current, quickStartId));
@@ -1751,6 +1745,7 @@ export function App() {
         onReset={() => {
           const recommendedQuickStartId =
             getRecommendedQuickStartProfileId(sourceMode);
+          resetQuickStartMicOverride();
           setLaunchQuickStartId(recommendedQuickStartId);
           setControls((current) =>
             applyQuickStartToControlState(

@@ -205,7 +205,7 @@ export class ListeningInterpreter {
       analysis.brightness * (0.88 + tuning.sensitivity * 0.28 + tuning.radiance * 0.1)
     );
     const sourceAggression =
-      mode === 'system-audio' ? 1 : mode === 'hybrid' ? 0.62 : 0;
+      mode === 'system-audio' ? 1 : mode === 'hybrid' ? 0.62 : 0.12;
     const crest = clamp01((analysis.crestFactor - 1.2) / 5);
     const modulation = clamp01(analysis.modulation * 4.3);
     const sensitivityScale =
@@ -555,11 +555,11 @@ export class ListeningInterpreter {
     );
     const roomMusicFloorActive =
       mode === 'room-mic' &&
-      roomMusicDrive > 0.26 &&
-      musicConfidence > 0.18 &&
-      speechConfidence < 0.26 &&
+      roomMusicDrive > 0.22 &&
+      musicConfidence > 0.14 &&
+      speechConfidence < 0.3 &&
       humRejection < 0.62 &&
-      (body > 0.12 || resonance > 0.16 || momentum > 0.12);
+      (body > 0.1 || resonance > 0.14 || momentum > 0.1);
     const previousMusicConfidence = this.frame.musicConfidence;
     const previousTransientConfidence = this.frame.transientConfidence;
     const previousPeakConfidence = this.frame.peakConfidence;
@@ -1325,7 +1325,7 @@ export class ListeningInterpreter {
       input.roomMusicFloorActive &&
       input.releaseEvidence < 0.16 &&
       input.sectionChange < 0.14 &&
-      input.musicConfidence > 0.2 &&
+      input.musicConfidence > 0.16 &&
       input.previousShowState !== 'surge' &&
       !recentQualifiedSection;
     const aftermathEligible =
@@ -1462,11 +1462,11 @@ export class ListeningInterpreter {
     const roomFloorGenerative =
       input.mode === 'room-mic' &&
       input.roomMusicFloorActive &&
-      input.speechConfidence < 0.16 &&
-      input.musicConfidence > 0.18 &&
-      (input.roomMusicDrive > 0.24 ||
-        input.beatConfidence > 0.06 ||
-        input.phraseTension > 0.16);
+      input.speechConfidence < 0.2 &&
+      input.musicConfidence > 0.16 &&
+      (input.roomMusicDrive > 0.18 ||
+        input.beatConfidence > 0.04 ||
+        input.phraseTension > 0.14);
 
     if (roomFloorGenerative) {
       return {

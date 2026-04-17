@@ -126,7 +126,9 @@ describe('tuning controls', () => {
     );
 
     expect(next.preset).toBe(QUICK_START_PROFILES['room-music'].preset);
-    expect(next.inputGain).toBeCloseTo(0.56);
+    expect(next.preset).toBe('pulse');
+    expect(next.inputGain).toBeCloseTo(0.88);
+    expect(next.sensitivity).toBeGreaterThan(0.95);
     expect(next.eqLow).toBeGreaterThan(0.5);
     expect(next.eqHigh).toBeGreaterThan(0.5);
     expect(isQuickStartActive(next, 'room-mic', 'room-music')).toBe(true);
