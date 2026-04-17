@@ -115,7 +115,7 @@ export type RequestedMicConstraints = {
   echoCancellation: boolean;
   noiseSuppression: boolean;
   autoGainControl: boolean;
-  channelCount: number;
+  channelCount: number | null;
 };
 
 export type SupportedMicConstraints = {
@@ -206,7 +206,7 @@ export const REQUESTED_MIC_CONSTRAINTS: RequestedMicConstraints = {
   echoCancellation: false,
   noiseSuppression: false,
   autoGainControl: false,
-  channelCount: 1
+  channelCount: null
 };
 
 export const DEFAULT_SUPPORTED_MIC_CONSTRAINTS: SupportedMicConstraints = {

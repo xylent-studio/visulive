@@ -26,20 +26,30 @@ class AudioFeatureProcessor extends AudioWorkletProcessor {
     const input = inputs[0];
     const output = outputs[0];
 
-    if (input && output) {
-      for (let channelIndex = 0; channelIndex < output.length; channelIndex += 1) {
-        const sourceChannel = input[channelIndex] ?? input[0];
+    const activeChannels =
+      input?.filter((channel) => channel && channel.length > 0) ?? [];
+    const frameLength = activeChannels[0]?.length ?? 0;
 
-        if (sourceChannel) {
-          output[channelIndex].set(sourceChannel);
-        }
-      }
+    if (frameLength === 0) {
+      return true;
     }
 
-    const channel = input?.[0];
+    const mixed = new Float32Array(frameLength);
 
-    if (!channel || channel.length === 0) {
-      return true;
+    for (let index = 0; index < frameLength; index += 1) {
+      let sampleSum = 0;
+
+      for (let channelIndex = 0; channelIndex < activeChannels.length; channelIndex += 1) {
+        sampleSum += activeChannels[channelIndex][index];
+      }
+
+      mixed[index] = sampleSum / activeChannels.length;
+    }
+
+    if (output) {
+      for (let channelIndex = 0; channelIndex < output.length; channelIndex += 1) {
+        output[channelIndex].set(mixed);
+      }
     }
 
     let sumSquares = 0;
@@ -48,8 +58,8 @@ class AudioFeatureProcessor extends AudioWorkletProcessor {
     let highSquares = 0;
     let peak = 0;
 
-    for (let index = 0; index < channel.length; index += 1) {
-      const sample = channel[index];
+    for (let index = 0; index < mixed.length; index += 1) {
+      const sample = mixed[index];
       const absolute = Math.abs(sample);
 
       sumSquares += sample * sample;
@@ -70,10 +80,10 @@ class AudioFeatureProcessor extends AudioWorkletProcessor {
       highSquares += highBand * highBand;
     }
 
-    const rms = Math.sqrt(sumSquares / channel.length);
-    const lowEnergy = Math.sqrt(lowSquares / channel.length);
-    const midEnergy = Math.sqrt(midSquares / channel.length);
-    const highEnergy = Math.sqrt(highSquares / channel.length);
+    const rms = Math.sqrt(sumSquares / mixed.length);
+    const lowEnergy = Math.sqrt(lowSquares / mixed.length);
+    const midEnergy = Math.sqrt(midSquares / mixed.length);
+    const highEnergy = Math.sqrt(highSquares / mixed.length);
     const spectralTotal = lowEnergy + midEnergy + highEnergy;
     const brightness =
       spectralTotal > 0

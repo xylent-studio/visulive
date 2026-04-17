@@ -1,7 +1,8 @@
 import {
   clamp01,
   summarizeCalibrationSamples,
-  updateAdaptiveCeiling
+  updateAdaptiveCeiling,
+  updateAdaptiveNoiseFloor
 } from './audioMath';
 import { ListeningInterpreter } from './listeningInterpreter';
 import {
@@ -79,6 +80,7 @@ export class AudioEngine implements ListeningSource {
   private calibrationRms: number[] = [];
   private calibrationPeaks: number[] = [];
   private noiseFloor = 0.02;
+  private calibrationNoiseFloor = 0.02;
   private minimumCeiling = 0.06;
   private calibrationPeak = 0.06;
   private adaptiveCeiling = 0.06;
@@ -387,6 +389,7 @@ export class AudioEngine implements ListeningSource {
       this.calibrationRms = [];
       this.calibrationPeaks = [];
       this.noiseFloor = 0.02;
+      this.calibrationNoiseFloor = 0.02;
       this.minimumCeiling = 0.06;
       this.calibrationPeak = 0.06;
       this.adaptiveCeiling = 0.06;
@@ -476,6 +479,7 @@ export class AudioEngine implements ListeningSource {
     );
 
     this.noiseFloor = Math.max(profile.noiseFloor, 0.0025);
+    this.calibrationNoiseFloor = this.noiseFloor;
     this.minimumCeiling = Math.max(profile.ceiling, this.noiseFloor + 0.028);
     this.calibrationPeak = Math.max(profile.peak, this.minimumCeiling);
     this.adaptiveCeiling = this.minimumCeiling;
@@ -498,6 +502,26 @@ export class AudioEngine implements ListeningSource {
   private updateListeningFrame(): void {
     const debugSpectrum = this.sampleDebugSpectrum();
     const calibrated = this.status.phase === 'live';
+
+    if (calibrated && this.sourceMode === 'room-mic') {
+      const quietWindow =
+        this.workletPacket.modulation < 0.045 &&
+        this.workletPacket.transient < 0.016 &&
+        this.workletPacket.peak <
+          Math.max(this.calibrationPeak * 0.82, this.calibrationNoiseFloor + 0.022);
+      const floorProbe = Math.min(
+        this.workletPacket.rms,
+        this.workletPacket.envelopeSlow * 0.98
+      );
+
+      this.noiseFloor = updateAdaptiveNoiseFloor(
+        this.noiseFloor,
+        floorProbe,
+        this.calibrationNoiseFloor,
+        quietWindow
+      );
+    }
+
     const analysisFrame = this.shapeAnalysisFrame(this.workletPacket);
 
     if (calibrated) {
@@ -631,10 +655,36 @@ export class AudioEngine implements ListeningSource {
 
   private shapeAnalysisFrame(packet: AnalysisFrame): AnalysisFrame {
     const hybridGainLift = this.sourceMode === 'hybrid' ? 0.9 : 1;
-    const gainScale = (0.55 + this.tuning.inputGain * 0.9) * hybridGainLift;
-    const lowScale = 1 + (this.tuning.eqLow - 0.5) * 1.2;
-    const midScale = 1 + (this.tuning.eqMid - 0.5) * 1.2;
-    const highScale = 1 + (this.tuning.eqHigh - 0.5) * 1.2;
+    const roomMode = this.sourceMode === 'room-mic';
+    const quietRoomFactor = roomMode
+      ? clamp01((0.026 - packet.rms) / 0.018)
+      : 0;
+    const structuredRoomFactor = roomMode
+      ? clamp01(
+          packet.envelopeSlow * 18 +
+            (packet.lowFlux + packet.midFlux) * 10 +
+            packet.modulation * 6
+        )
+      : 0;
+    const roomGainLift = roomMode
+      ? 1.04 +
+        quietRoomFactor * 0.12 +
+        structuredRoomFactor * 0.1 +
+        this.tuning.sensitivity * 0.06
+      : 1;
+    const roomBodyLift = roomMode
+      ? 1 + quietRoomFactor * 0.12 + structuredRoomFactor * 0.08
+      : 1;
+    const roomMidLift = roomMode
+      ? 1 + quietRoomFactor * 0.08 + structuredRoomFactor * 0.06
+      : 1;
+    const gainScale =
+      (0.55 + this.tuning.inputGain * 0.9) * hybridGainLift * roomGainLift;
+    const lowScale = (1 + (this.tuning.eqLow - 0.5) * 1.2) * roomBodyLift;
+    const midScale = (1 + (this.tuning.eqMid - 0.5) * 1.2) * roomMidLift;
+    const highScale =
+      (1 + (this.tuning.eqHigh - 0.5) * 1.2) *
+      (roomMode ? 0.98 + quietRoomFactor * 0.04 : 1);
     const rms = packet.rms * gainScale;
     const peak = Math.min(1, packet.peak * gainScale);
     const envelopeFast = packet.envelopeFast * gainScale;
@@ -667,7 +717,12 @@ export class AudioEngine implements ListeningSource {
 
   private buildAudioConstraints(): MediaTrackConstraints {
     return {
-      ...REQUESTED_MIC_CONSTRAINTS,
+      echoCancellation: REQUESTED_MIC_CONSTRAINTS.echoCancellation,
+      noiseSuppression: REQUESTED_MIC_CONSTRAINTS.noiseSuppression,
+      autoGainControl: REQUESTED_MIC_CONSTRAINTS.autoGainControl,
+      ...(REQUESTED_MIC_CONSTRAINTS.channelCount !== null
+        ? { channelCount: REQUESTED_MIC_CONSTRAINTS.channelCount }
+        : {}),
       ...(this.preferredInputId
         ? { deviceId: { exact: this.preferredInputId } }
         : {})
@@ -692,7 +747,7 @@ export class AudioEngine implements ListeningSource {
       this.selectedInputId = null;
 
       return navigator.mediaDevices.getUserMedia({
-        audio: REQUESTED_MIC_CONSTRAINTS,
+        audio: this.buildAudioConstraints(),
         video: false
       });
     }

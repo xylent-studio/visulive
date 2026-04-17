@@ -372,6 +372,19 @@ export class ListeningInterpreter {
     const steadyHumPenalty =
       humRejection * 0.18 +
       analysis.lowStability * low * (1 - modulation) * 0.24;
+    const roomMusicSignature = clamp01(
+      mode === 'room-mic'
+        ? lowMidBody * 0.28 +
+            bassBody * 0.18 +
+            tonalStability * 0.14 +
+            modulation * 0.1 +
+            lowFlux * 0.08 +
+            midFlux * 0.12 +
+            roomness * 0.04 -
+            speech * 0.04 -
+            humRejection * 0.08
+        : 0
+    );
 
     const musicTarget = clamp01(
       (slow * 0.24 +
@@ -382,7 +395,8 @@ export class ListeningInterpreter {
         midFlux * 0.18 +
         highFlux * 0.14 +
         modulation * 0.18 +
-        tonalStability * 0.12) *
+        tonalStability * 0.12 +
+        roomMusicSignature * 0.16) *
         sensitivityScale *
         energyScale *
         (1 + sourceAggression * 0.14) -
@@ -544,6 +558,7 @@ export class ListeningInterpreter {
     const roomMusicDrive = clamp01(
       mode === 'room-mic'
         ? musicConfidence * 0.42 +
+            roomMusicSignature * 0.18 +
             body * 0.16 +
             tonalStability * 0.1 +
             momentum * 0.12 +

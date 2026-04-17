@@ -47,7 +47,7 @@ describe('audioTruth', () => {
       true
     );
     expect(result.warnings.some((warning) => warning.includes('channelCount'))).toBe(
-      true
+      false
     );
   });
 
@@ -65,5 +65,30 @@ describe('audioTruth', () => {
     expect(applied.sampleRate).toBe(44100);
     expect(applied.sampleSize).toBeNull();
     expect(applied.latency).toBeNull();
+  });
+
+  it('does not treat multi-channel input as a channel-count mismatch when channel count is not requested', () => {
+    const result = evaluateMicTruth(
+      {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: true
+      },
+      {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        channelCount: 2,
+        sampleRate: 48000,
+        sampleSize: 16,
+        latency: 0.01
+      }
+    );
+
+    expect(result.rawPathGranted).toBe(true);
+    expect(result.warnings.some((warning) => warning.includes('channelCount'))).toBe(
+      false
+    );
   });
 });

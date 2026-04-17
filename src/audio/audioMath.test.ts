@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   estimateCalibration,
   normalizeLevel,
-  updateAdaptiveCeiling
+  updateAdaptiveCeiling,
+  updateAdaptiveNoiseFloor
 } from './audioMath';
 
 describe('audioMath', () => {
@@ -31,5 +32,21 @@ describe('audioMath', () => {
     expect(lifted).toBeGreaterThan(0.08);
     expect(settled).toBeLessThan(0.2);
     expect(settled).toBeGreaterThan(0.08);
+  });
+
+  it('lets the room noise floor drift down during quieter steady windows', () => {
+    let lowered = 0.012;
+
+    for (let index = 0; index < 20; index += 1) {
+      lowered = updateAdaptiveNoiseFloor(lowered, 0.004, 0.01, true);
+    }
+
+    const recovered = updateAdaptiveNoiseFloor(lowered, 0.02, 0.01, false);
+
+    expect(lowered).toBeLessThan(0.012);
+    expect(lowered).toBeLessThan(0.01);
+    expect(lowered).toBeGreaterThan(0.004);
+    expect(recovered).toBeGreaterThan(lowered);
+    expect(recovered).toBeLessThan(0.01);
   });
 });

@@ -102,3 +102,23 @@ export function updateAdaptiveCeiling(
 
   return current + (floor - current) * 0.012;
 }
+
+export function updateAdaptiveNoiseFloor(
+  current: number,
+  observedRms: number,
+  calibrationFloor: number,
+  quietWindow: boolean
+): number {
+  const anchor = Math.max(calibrationFloor, 0.0025);
+  const minimumFloor = Math.max(anchor * 0.55, 0.0015);
+  const maximumFloor = Math.max(anchor * 1.6, minimumFloor + 0.001);
+  const target = Math.min(maximumFloor, Math.max(minimumFloor, observedRms));
+
+  if (quietWindow) {
+    const rate = target < current ? 0.12 : 0.018;
+
+    return current + (target - current) * rate;
+  }
+
+  return current + (anchor - current) * 0.004;
+}

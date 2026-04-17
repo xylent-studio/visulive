@@ -29,7 +29,7 @@ export function buildMicSupportWarnings(
 
   if (!supported.channelCount) {
     warnings.push(
-      'channelCount support is unavailable; mono analysis cannot be requested explicitly.'
+      'channelCount support is unavailable; native multi-channel capture cannot be requested explicitly.'
     );
   }
 
@@ -85,6 +85,7 @@ export function evaluateMicTruth(
 
   if (
     supported.channelCount &&
+    REQUESTED_MIC_CONSTRAINTS.channelCount !== null &&
     applied.channelCount !== null &&
     applied.channelCount !== REQUESTED_MIC_CONSTRAINTS.channelCount
   ) {

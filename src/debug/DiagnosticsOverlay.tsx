@@ -573,7 +573,7 @@ export function DiagnosticsOverlay({
           requested: ec={String(audio.requestedConstraints.echoCancellation)} ns=
           {String(audio.requestedConstraints.noiseSuppression)} agc=
           {String(audio.requestedConstraints.autoGainControl)} channels=
-          {audio.requestedConstraints.channelCount}
+          {audio.requestedConstraints.channelCount ?? 'auto'}
         </div>
         <div className="diagnostics-code">
           supported: ec={String(audio.supportedConstraints.echoCancellation)} ns=
