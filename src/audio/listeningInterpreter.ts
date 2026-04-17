@@ -204,7 +204,7 @@ export class ListeningInterpreter {
     const brightness = clamp01(
       analysis.brightness * (0.88 + tuning.sensitivity * 0.28 + tuning.radiance * 0.1)
     );
-    const sourceAggressionBase =
+    const sourceAggression =
       mode === 'system-audio' ? 1 : mode === 'hybrid' ? 0.62 : 0;
     const crest = clamp01((analysis.crestFactor - 1.2) / 5);
     const modulation = clamp01(analysis.modulation * 4.3);
@@ -373,7 +373,7 @@ export class ListeningInterpreter {
       humRejection * 0.18 +
       analysis.lowStability * low * (1 - modulation) * 0.24;
 
-    const baseMusicTarget = clamp01(
+    const musicTarget = clamp01(
       (slow * 0.24 +
         bassBody * 0.16 +
         lowMidBody * 0.24 +
@@ -385,31 +385,11 @@ export class ListeningInterpreter {
         tonalStability * 0.12) *
         sensitivityScale *
         energyScale *
-        (1 + sourceAggressionBase * 0.14) -
-        humRejection * (0.24 - sourceAggressionBase * 0.08) -
+        (1 + sourceAggression * 0.14) -
+        humRejection * (0.24 - sourceAggression * 0.08) -
         steadyHumPenalty -
-        speech * (0.16 - sourceAggressionBase * 0.04) -
+        speech * (0.16 - sourceAggression * 0.04) -
         transientBase * 0.04
-    );
-    const roomMusicSignature = clamp01(
-      mode === 'room-mic'
-        ? baseMusicTarget * 0.54 +
-            bassBody * 0.14 +
-            lowMidBody * 0.18 +
-            tonalStability * 0.12 +
-            modulation * 0.08 +
-            midFlux * 0.08 +
-            highFlux * 0.04 -
-            humRejection * 0.18 -
-            speech * 0.12
-        : 0
-    );
-    const sourceAggression =
-      mode === 'room-mic'
-        ? clamp01(roomMusicSignature * 0.52 + modulation * 0.04)
-        : sourceAggressionBase;
-    const musicTarget = clamp01(
-      baseMusicTarget + roomMusicSignature * 0.1
     );
     const musicTrend = damp(
       this.diagnostics.musicTrend,
@@ -568,30 +548,17 @@ export class ListeningInterpreter {
             tonalStability * 0.1 +
             momentum * 0.12 +
             presence * 0.08 +
-            roomOperatorIntent * 0.16 +
-            roomMusicSignature * 0.14 -
+            roomOperatorIntent * 0.16 -
             speechConfidence * 0.26 -
             humRejection * 0.18
         : 0
     );
-    const roomMusicDriveThreshold = Math.max(
-      0.18,
-      0.23 - roomMusicSignature * 0.08
-    );
-    const roomMusicThreshold = Math.max(
-      0.14,
-      0.16 - sourceAggression * 0.04
-    );
-    const roomSpeechThreshold = Math.min(
-      0.34,
-      0.26 + roomMusicSignature * 0.08
-    );
     const roomMusicFloorActive =
       mode === 'room-mic' &&
-      roomMusicDrive > roomMusicDriveThreshold &&
-      musicConfidence > roomMusicThreshold &&
-      speechConfidence < roomSpeechThreshold &&
-      humRejection < 0.66 &&
+      roomMusicDrive > 0.26 &&
+      musicConfidence > 0.18 &&
+      speechConfidence < 0.26 &&
+      humRejection < 0.62 &&
       (body > 0.12 || resonance > 0.16 || momentum > 0.12);
     const previousMusicConfidence = this.frame.musicConfidence;
     const previousTransientConfidence = this.frame.transientConfidence;
