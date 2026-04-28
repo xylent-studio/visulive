@@ -25,6 +25,14 @@ async function writeJson(filePath, value) {
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
+function isRecoverableMoveError(error) {
+  return (
+    error?.code === 'EPERM' ||
+    error?.code === 'EXDEV' ||
+    error?.code === 'EBUSY'
+  );
+}
+
 function classifyRoot(rootPath) {
   if (rootPath === inboxRoot || rootPath.startsWith(`${inboxRoot}${path.sep}`)) {
     return 'inbox';
@@ -139,7 +147,25 @@ export async function moveRunPackage(runPackage, lifecycleState) {
       );
     }
 
-    await fs.rename(runPackage.runDirectory, targetDirectory);
+    try {
+      await fs.rename(runPackage.runDirectory, targetDirectory);
+    } catch (error) {
+      if (!isRecoverableMoveError(error)) {
+        throw error;
+      }
+
+      await fs.cp(runPackage.runDirectory, targetDirectory, {
+        recursive: true,
+        errorOnExist: true,
+        force: false
+      });
+      await fs.rm(runPackage.runDirectory, {
+        recursive: true,
+        force: false,
+        maxRetries: 3,
+        retryDelay: 250
+      });
+    }
   }
 
   runPackage.rootPath = targetRoot;

@@ -1,5 +1,6 @@
 import {
   analyzeCaptureTargets,
+  canonicalRoot,
   collectBenchmarkManifestHealth,
   inboxRoot,
   loadManifestBenchmarkSummaries,
@@ -11,7 +12,7 @@ const LATEST_REPORT_NAME = 'capture-analysis_latest.md';
 
 async function main() {
   const inputArgs = process.argv.slice(2);
-  const targetPaths = inputArgs.length > 0 ? inputArgs : [inboxRoot];
+  const targetPaths = inputArgs.length > 0 ? inputArgs : [inboxRoot, canonicalRoot];
   const summaries = await analyzeCaptureTargets(targetPaths);
   const manifestHealth = await collectBenchmarkManifestHealth();
   const benchmarkSummaries = await loadManifestBenchmarkSummaries(summaries);

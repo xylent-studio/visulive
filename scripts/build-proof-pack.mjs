@@ -5,6 +5,7 @@ import {
   collectBenchmarkManifestHealth,
   collectRunArtifacts,
   captureRoot,
+  canonicalRoot,
   inboxRoot,
   loadManifestBenchmarkSummaries,
   reportRoot,
@@ -25,7 +26,7 @@ import { collectMissedCaptureOpportunities } from './report-missed-opportunities
 
 function parseArgs(argv) {
   const args = {
-    captures: inboxRoot,
+    captures: null,
     report: path.join(reportRoot, 'capture-analysis_latest.md'),
     screenshots: path.join(captureRoot, 'inbox', 'screenshots'),
     output: null,
@@ -361,7 +362,38 @@ function isCurrentBenchmarkStatus(status) {
   return status === 'current-candidate' || status === 'current-canonical';
 }
 
-function isCurrentProofEligible(summary) {
+function buildRunProofEligibilityMap(runArtifacts = []) {
+  const eligibilityByRunId = new Map();
+
+  for (const entry of runArtifacts) {
+    if (entry.artifactType !== 'run-journal' && entry.artifactType !== 'run-manifest') {
+      continue;
+    }
+
+    const metadata = entry.artifact?.metadata ?? {};
+    const runId = metadata.runId;
+
+    if (typeof runId !== 'string' || runId.length === 0) {
+      continue;
+    }
+
+    const currentProofEligible =
+      metadata.proofMissionEligibility?.currentProofEligible === true ||
+      metadata.proofValidity?.currentProofEligible === true;
+
+    eligibilityByRunId.set(runId, currentProofEligible);
+  }
+
+  return eligibilityByRunId;
+}
+
+function isCurrentProofEligible(summary, runEligibilityById = new Map()) {
+  const runId = summary?.metadata?.runId;
+
+  if (typeof runId === 'string' && runEligibilityById.has(runId)) {
+    return runEligibilityById.get(runId) === true;
+  }
+
   const proofValidity = summary?.metadata?.proofValidity;
 
   if (proofValidity && typeof proofValidity === 'object') {
@@ -631,14 +663,20 @@ function normalizeScenarioKind(kind, active = false) {
   return active ? 'primary-benchmark' : 'historical';
 }
 
-function summarizeScenarioCoverage(summaries, benchmarkSummaries = []) {
+function summarizeScenarioCoverage(
+  summaries,
+  benchmarkSummaries = [],
+  runEligibilityById = new Map()
+) {
   const currentScenarioCounts = new Map();
   const historicalScenarioCounts = new Map();
   const currentReviewSummaries = [
-    ...summaries.filter((summary) => isCurrentProofEligible(summary)),
+    ...summaries.filter((summary) =>
+      isCurrentProofEligible(summary, runEligibilityById)
+    ),
     ...benchmarkSummaries.filter((summary) =>
       isCurrentBenchmarkStatus(summary?.benchmark?.status) &&
-      isCurrentProofEligible(summary)
+      isCurrentProofEligible(summary, runEligibilityById)
     )
   ];
   const historicalBaselineSummaries = benchmarkSummaries.filter((summary) =>
@@ -964,14 +1002,19 @@ function buildMarkdown({
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const capturesPath = path.resolve(workspaceRoot, args.captures);
+  const captureTargets = args.captures
+    ? [path.resolve(workspaceRoot, args.captures)]
+    : [inboxRoot, canonicalRoot];
   const reportPath = path.resolve(workspaceRoot, args.report);
   const screenshotsPath = path.resolve(workspaceRoot, args.screenshots);
-  const summaries = await analyzeCaptureTargets([capturesPath]);
-  const proofEligibleSummaries = summaries.filter((summary) => isCurrentProofEligible(summary));
+  const summaries = await analyzeCaptureTargets(captureTargets);
   const benchmarkSummaries = await loadManifestBenchmarkSummaries(summaries);
   const manifestHealth = await collectBenchmarkManifestHealth();
-  const runArtifacts = await collectRunArtifacts([capturesPath]);
+  const runArtifacts = await collectRunArtifacts(captureTargets);
+  const runEligibilityById = buildRunProofEligibilityMap(runArtifacts);
+  const proofEligibleSummaries = summaries.filter((summary) =>
+    isCurrentProofEligible(summary, runEligibilityById)
+  );
   const runIntegrityFailures = runArtifacts.filter((entry) => {
     if (entry.artifactType !== 'run-journal' && entry.artifactType !== 'run-manifest') {
       return false;
@@ -979,7 +1022,7 @@ async function main() {
 
     return entry.artifact?.metadata?.artifactIntegrity?.verdict === 'fail';
   });
-  const missedEntries = await collectMissedCaptureOpportunities([capturesPath]);
+  const missedEntries = await collectMissedCaptureOpportunities(captureTargets);
   const reportText = await readTextIfExists(reportPath);
   const looseScreenshots = await collectScreenshotInventory(screenshotsPath);
   const runStills = await collectRunStillInventory(runArtifacts);
@@ -998,7 +1041,11 @@ async function main() {
     Number.parseInt(reportText?.match(/^Capture count:\s*(\d+)$/m)?.[1] ?? '', 10) ||
     null;
   const aggregate = summarizeCoverage(proofEligibleSummaries);
-  const scenarioCoverage = summarizeScenarioCoverage(summaries, benchmarkSummaries);
+  const scenarioCoverage = summarizeScenarioCoverage(
+    summaries,
+    benchmarkSummaries,
+    runEligibilityById
+  );
   const evidenceFreshness = collectEvidenceFreshness(summaries, {
     benchmarkSummaries,
     evidencePolicy: manifestHealth.evidencePolicy
@@ -1199,7 +1246,7 @@ async function main() {
     sourceReportPath: reportPath,
     reportTimestamp,
     reportCaptureCount,
-    capturesPath,
+    capturesPaths: captureTargets,
     screenshotsPath,
     captureCount: summaries.length,
     proofEligibleCaptureCount: proofEligibleSummaries.length,
