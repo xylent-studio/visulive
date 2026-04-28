@@ -12,8 +12,31 @@ import {
   cloneReplayCaptureFrame,
   parseReplayCapture
 } from './session';
+import { isReplayBuildInfoValid } from './runJournal';
 
 describe('replay workflow', () => {
+  it('rejects proof build identity that is dev, dirty, or unverified', () => {
+    const strictBuildInfo = {
+      version: '1.0.0-test',
+      commit: 'abc1234',
+      branch: 'codex/full-version-foundation',
+      builtAt: '2026-04-23T13:00:00.000Z',
+      lane: 'stable' as const,
+      proofStatus: 'proof-pack' as const,
+      dirty: false
+    };
+
+    expect(isReplayBuildInfoValid(strictBuildInfo)).toBe(true);
+    expect(isReplayBuildInfoValid({ ...strictBuildInfo, lane: 'dev' })).toBe(false);
+    expect(
+      isReplayBuildInfoValid({
+        ...strictBuildInfo,
+        proofStatus: 'unverified'
+      })
+    ).toBe(false);
+    expect(isReplayBuildInfoValid({ ...strictBuildInfo, dirty: true })).toBe(false);
+  });
+
   it('builds and parses replay captures with diagnostics', () => {
     const firstFrame = cloneReplayCaptureFrame(
       {
@@ -90,12 +113,94 @@ describe('replay workflow', () => {
           qualityTier: 'balanced'
         }
       },
-      DEFAULT_USER_CONTROL_STATE
+      DEFAULT_USER_CONTROL_STATE,
+      {
+        routePolicy: 'auto',
+        resolvedRoute: 'the-room',
+        routeRecommendation: {
+          recommendedRoute: 'hybrid',
+          strength: 'soft',
+          reason: 'room-feed-limited',
+          headline: 'Hybrid could add a cleaner musical spine',
+          detail: 'The room feed is alive but still soft.'
+        },
+        showWorldId: 'pressure-chamber',
+        effectiveWorldId: 'storm-crown',
+        lookId: 'machine-halo',
+        effectiveLookId: 'acid-flare',
+        worldPoolId: 'pressure-worlds',
+        lookPoolId: 'electric-looks',
+        stanceId: 'autonomous',
+        launchSurfaceMode: 'launch',
+        livePanelMode: null,
+        interventionCount: 0,
+        firstInterventionTimestampMs: null,
+        noTouchWindowPassed: true,
+        proofScenarioKind: 'primary-benchmark',
+        buildInfo: {
+          version: '1.0.0-test',
+          commit: 'abc1234',
+          branch: 'codex/full-version-foundation',
+          builtAt: '2026-04-23T13:00:00.000Z',
+          lane: 'stable',
+          proofStatus: 'proof-pack',
+          dirty: false
+        },
+        runId: 'run-proof-001',
+        sessionStartedAt: '2026-04-23T13:01:00.000Z',
+        sessionElapsedMs: 32000,
+        proofReadiness: {
+          seriousRun: true,
+          ready: true,
+          checkedAt: '2026-04-23T13:00:59.000Z',
+          checks: [
+            {
+              id: 'capture-folder',
+              label: 'Capture folder',
+              passed: true,
+              reason: 'Capture folder is writable and points at the inbox.',
+              blocking: true
+            }
+          ]
+        },
+        proofValidity: {
+          verdict: 'valid',
+          currentProofEligible: true,
+          startedReady: true,
+          lastCheckedAt: '2026-04-23T13:01:32.000Z',
+          invalidations: [],
+          recoveryGuidance: null
+        },
+        runLifecycleState: 'reviewed-candidate',
+        directorBiasSnapshot: {
+          heroPresence: 0.44,
+          worldTakeover: 0.74,
+          scale: 0.82,
+          depth: 0.78,
+          motionAppetite: 0.72,
+          cameraAppetite: 0.66,
+          syncAppetite: 0.68,
+          drift: 0.62,
+          emission: 0.74,
+          paletteHeat: 0.58,
+          contrast: 0.72,
+          saturation: 0.7,
+          impactAppetite: 0.78,
+          aftermath: 0.66,
+          residueAppetite: 0.56,
+          eventAppetite: 0.72,
+          ritual: 0.46,
+          machine: 0.62,
+          elegance: 0.58,
+          danger: 0.62
+        }
+      }
     );
     const parsed = parseReplayCapture(JSON.stringify(capture));
 
-    expect(parsed.version).toBe(2);
+    expect(parsed.version).toBe(3);
     expect(parsed.frames).toHaveLength(2);
+    expect(parsed.metadata.artifactType).toBe('replay-capture');
     expect(parsed.metadata.captureMode).toBe('manual');
     expect(parsed.metadata.sourceMode).toBe('room-mic');
     expect(parsed.metadata.controls.preset).toBe(DEFAULT_USER_CONTROL_STATE.preset);
@@ -104,6 +209,23 @@ describe('replay workflow', () => {
     expect(parsed.metadata.inputDriftSummary?.noiseFloor.start).toBeCloseTo(
       DEFAULT_AUDIO_DIAGNOSTICS.noiseFloor
     );
+    expect(parsed.metadata.routePolicy).toBe('auto');
+    expect(parsed.metadata.resolvedRoute).toBe('the-room');
+    expect(parsed.metadata.routeRecommendation?.recommendedRoute).toBe('hybrid');
+    expect(parsed.metadata.effectiveWorldId).toBe('storm-crown');
+    expect(parsed.metadata.lookPoolId).toBe('electric-looks');
+    expect(parsed.metadata.noTouchWindowPassed).toBe(true);
+    expect(parsed.metadata.proofScenarioKind).toBe('primary-benchmark');
+    expect(parsed.metadata.buildInfo?.commit).toBe('abc1234');
+    expect(parsed.metadata.runId).toBe('run-proof-001');
+    expect(parsed.metadata.sessionElapsedMs).toBe(32000);
+    expect(parsed.metadata.scenarioAssessment?.declaredScenario).toBe(
+      'primary-benchmark'
+    );
+    expect(parsed.metadata.proofReadiness?.ready).toBe(true);
+    expect(parsed.metadata.proofValidity?.currentProofEligible).toBe(true);
+    expect(parsed.metadata.runLifecycleState).toBe('reviewed-candidate');
+    expect(parsed.metadata.directorBiasSnapshot?.worldTakeover).toBeCloseTo(0.74);
     expect(parsed.frames[1]?.diagnostics.momentReason).toBe('Lift moment triggered.');
     expect(parsed.frames[1]?.diagnostics.beatIntervalMs).toBe(480);
     expect(parsed.frames[1]?.diagnostics.conductorReason).toBe('Drop tension is climbing.');

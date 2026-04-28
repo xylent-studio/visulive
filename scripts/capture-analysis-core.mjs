@@ -74,6 +74,11 @@ const COVERAGE_POLICY = {
     supporting: ['haunt'],
     rare: ['reset']
   },
+  'canonical cue classes': {
+    core: ['hold', 'gather', 'tighten', 'reveal', 'rupture', 'recovery'],
+    supporting: ['orbit-widen', 'fan-sweep', 'laser-burst', 'collapse', 'haunt'],
+    rare: ['residue']
+  },
   'stage world modes': {
     core: [
       'hold',
@@ -152,6 +157,260 @@ export function formatPercent(value) {
   }
 
   return `${(value * 100).toFixed(1)}%`;
+}
+
+export function formatTimestamp(value) {
+  const normalized =
+    value instanceof Date ? value : typeof value === 'string' ? new Date(value) : null;
+
+  if (!normalized || Number.isNaN(normalized.getTime())) {
+    return 'n/a';
+  }
+
+  return normalized.toISOString();
+}
+
+export const PROOF_SCENARIO_KINDS = [
+  'primary-benchmark',
+  'room-floor',
+  'coverage',
+  'sparse-silence',
+  'operator-trust',
+  'steering'
+];
+
+export function isCurrentProofScenarioKind(value) {
+  return PROOF_SCENARIO_KINDS.includes(value);
+}
+
+export function formatProofScenarioKindLabel(kind) {
+  switch (kind) {
+    case 'primary-benchmark':
+      return 'Primary benchmark';
+    case 'room-floor':
+      return 'Room floor';
+    case 'coverage':
+      return 'Coverage';
+    case 'sparse-silence':
+      return 'Sparse / silence';
+    case 'operator-trust':
+      return 'Operator trust';
+    case 'steering':
+      return 'Steering';
+    default:
+      return 'Unassigned';
+  }
+}
+
+export function resolveCaptureReviewScenarioKind(summaryOrMetadata = {}) {
+  const metadata =
+    summaryOrMetadata?.metadata && typeof summaryOrMetadata.metadata === 'object'
+      ? summaryOrMetadata.metadata
+      : summaryOrMetadata;
+
+  const scenarioAssessment =
+    metadata?.scenarioAssessment && typeof metadata.scenarioAssessment === 'object'
+      ? metadata.scenarioAssessment
+      : null;
+
+  if (
+    scenarioAssessment?.validated === true &&
+    isCurrentProofScenarioKind(scenarioAssessment.derivedScenario)
+  ) {
+    return scenarioAssessment.derivedScenario;
+  }
+
+  if (scenarioAssessment && scenarioAssessment.validated !== true) {
+    return null;
+  }
+
+  if (isCurrentProofScenarioKind(metadata?.proofScenarioKind)) {
+    return metadata.proofScenarioKind;
+  }
+
+  const benchmarkKind = summaryOrMetadata?.benchmark?.kind;
+  return isCurrentProofScenarioKind(benchmarkKind) ? benchmarkKind : null;
+}
+
+function normalizeDateInput(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = new Date(value);
+    return Number.isNaN(normalized.getTime()) ? null : normalized;
+  }
+
+  return null;
+}
+
+function isHistoricalBenchmarkStatus(status) {
+  return status === 'historical-baseline';
+}
+
+function isCurrentBenchmarkStatus(status) {
+  return status === 'current-candidate' || status === 'current-canonical';
+}
+
+function resolveSummaryTimestamp(summary) {
+  return (
+    normalizeDateInput(summary?.sourceTimestamps?.effectiveCapturedAt) ??
+    normalizeDateInput(summary?.metadata?.capturedAt)
+  );
+}
+
+function buildSummaryTimestampRange(summaries = []) {
+  const timestamps = summaries
+    .map((summary) => resolveSummaryTimestamp(summary))
+    .filter((value) => value instanceof Date);
+
+  if (timestamps.length === 0) {
+    return {
+      count: 0,
+      oldest: null,
+      newest: null,
+      oldestIso: null,
+      newestIso: null
+    };
+  }
+
+  timestamps.sort((left, right) => left.getTime() - right.getTime());
+
+  return {
+    count: timestamps.length,
+    oldest: timestamps[0],
+    newest: timestamps[timestamps.length - 1],
+    oldestIso: timestamps[0].toISOString(),
+    newestIso: timestamps[timestamps.length - 1].toISOString()
+  };
+}
+
+function formatTimestampRange(range) {
+  if (!range?.count || !range.oldestIso || !range.newestIso) {
+    return 'none';
+  }
+
+  if (range.oldestIso === range.newestIso) {
+    return range.oldestIso;
+  }
+
+  return `${range.oldestIso} -> ${range.newestIso}`;
+}
+
+function formatAgeDays(milliseconds) {
+  if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+    return '0.0 day(s)';
+  }
+
+  return `${(milliseconds / (1000 * 60 * 60 * 24)).toFixed(1)} day(s)`;
+}
+
+export function collectEvidenceFreshness(currentSummaries = [], options = {}) {
+  const benchmarkSummaries = Array.isArray(options.benchmarkSummaries)
+    ? options.benchmarkSummaries
+    : [];
+  const evidencePolicy =
+    options.evidencePolicy && typeof options.evidencePolicy === 'object'
+      ? options.evidencePolicy
+      : {};
+  const now = normalizeDateInput(options.now) ?? new Date();
+  const seriousProofMaxAgeDays =
+    Number.isFinite(evidencePolicy.seriousProofMaxAgeDays) &&
+    evidencePolicy.seriousProofMaxAgeDays > 0
+      ? evidencePolicy.seriousProofMaxAgeDays
+      : 7;
+  const currentBranchProofCutoffAt = normalizeDateInput(
+    evidencePolicy.currentBranchProofCutoffAt
+  );
+  const currentReviewSummaries = [
+    ...currentSummaries.filter(
+      (summary) => !isHistoricalBenchmarkStatus(summary?.benchmark?.status)
+    ),
+    ...benchmarkSummaries.filter((summary) =>
+      isCurrentBenchmarkStatus(summary?.benchmark?.status)
+    )
+  ];
+  const historicalBaselineSummaries = benchmarkSummaries.filter((summary) =>
+    isHistoricalBenchmarkStatus(summary?.benchmark?.status)
+  );
+  const allAttachedSummaries = [...currentSummaries, ...benchmarkSummaries];
+  const currentBatchRange = buildSummaryTimestampRange(currentSummaries);
+  const currentReviewRange = buildSummaryTimestampRange(currentReviewSummaries);
+  const historicalBaselineRange = buildSummaryTimestampRange(historicalBaselineSummaries);
+  const allAttachedRange = buildSummaryTimestampRange(allAttachedSummaries);
+  const reasons = [];
+  let currentBranchProofFresh = true;
+
+  if (currentReviewRange.count === 0) {
+    currentBranchProofFresh = false;
+    reasons.push(
+      'No current candidate/current canonical captures are attached to this report.'
+    );
+  }
+
+  if (
+    currentBranchProofCutoffAt &&
+    currentReviewRange.newest &&
+    currentReviewRange.newest.getTime() < currentBranchProofCutoffAt.getTime()
+  ) {
+    currentBranchProofFresh = false;
+    reasons.push(
+      `Newest current review capture predates the current branch proof cutoff (${currentBranchProofCutoffAt.toISOString()}).`
+    );
+  }
+
+  if (currentReviewRange.newest) {
+    const ageMs = now.getTime() - currentReviewRange.newest.getTime();
+    const maxAgeMs = seriousProofMaxAgeDays * 24 * 60 * 60 * 1000;
+
+    if (ageMs > maxAgeMs) {
+      currentBranchProofFresh = false;
+      reasons.push(
+        `Newest current review capture is ${formatAgeDays(ageMs)} old, beyond the serious proof window of ${seriousProofMaxAgeDays} day(s).`
+      );
+    }
+  }
+
+  if (reasons.length === 0) {
+    reasons.push(
+      'Current review captures satisfy the current branch proof cutoff and freshness window.'
+    );
+  }
+
+  return {
+    currentBatchRange,
+    currentReviewRange,
+    historicalBaselineRange,
+    allAttachedRange,
+    currentReviewCount: currentReviewRange.count,
+    historicalBaselineCount: historicalBaselineRange.count,
+    currentBranchProofCutoffAt: currentBranchProofCutoffAt?.toISOString() ?? null,
+    seriousProofMaxAgeDays,
+    currentBranchProofFresh,
+    note:
+      typeof evidencePolicy.note === 'string' && evidencePolicy.note.trim().length > 0
+        ? evidencePolicy.note.trim()
+        : null,
+    reasons,
+    summaryLine: currentBranchProofFresh ? reasons[0] : reasons.join(' '),
+    lines: [
+      `- Attached source capture date range: ${formatTimestampRange(allAttachedRange)}`,
+      `- Current batch capture date range: ${formatTimestampRange(currentBatchRange)}`,
+      `- Current review capture date range: ${formatTimestampRange(currentReviewRange)}`,
+      `- Historical baseline capture date range: ${formatTimestampRange(historicalBaselineRange)}`,
+      `- Current branch proof cutoff: ${formatTimestamp(
+        currentBranchProofCutoffAt
+      )}`,
+      `- Serious proof max age: ${seriousProofMaxAgeDays} day(s)`,
+      `- Current branch proof freshness: ${
+        currentBranchProofFresh ? 'fresh' : 'stale'
+      } - ${reasons.join(' ')}`,
+      ...(typeof evidencePolicy.note === 'string' && evidencePolicy.note.trim().length > 0
+        ? [`- Evidence policy note: ${evidencePolicy.note.trim()}`]
+        : [])
+    ]
+  };
 }
 
 function incrementCounter(map, key) {
@@ -286,15 +545,30 @@ function formatLongestRun(label, run) {
 
 function normalizeBenchmarkKind(kind, active = false) {
   if (
-    kind === 'primary-correction' ||
-    kind === 'secondary-floor' ||
-    kind === 'contrast' ||
+    kind === 'primary-benchmark' ||
+    kind === 'room-floor' ||
+    kind === 'coverage' ||
+    kind === 'sparse-silence' ||
+    kind === 'operator-trust' ||
+    kind === 'steering' ||
     kind === 'historical'
   ) {
     return kind;
   }
 
-  return active ? 'primary-correction' : 'historical';
+  if (kind === 'primary-correction') {
+    return 'primary-benchmark';
+  }
+
+  if (kind === 'secondary-floor') {
+    return 'room-floor';
+  }
+
+  if (kind === 'contrast') {
+    return 'coverage';
+  }
+
+  return active ? 'primary-benchmark' : 'historical';
 }
 
 function resolveBenchmarkKind(summary) {
@@ -354,7 +628,19 @@ export function buildBenchmarkReadSections(summaries, options = {}) {
   );
   const activeBenchmarkSummaries = benchmarkReadSummaries.filter((summary) => summary.benchmark?.active);
   const secondaryBenchmarkSummaries = benchmarkReadSummaries.filter(
-    (summary) => resolveBenchmarkKind(summary) === 'secondary-floor'
+    (summary) =>
+      resolveBenchmarkKind(summary) === 'room-floor' &&
+      !isHistoricalBenchmarkStatus(summary?.benchmark?.status)
+  );
+  const historicalPrimaryBenchmarkSummaries = benchmarkReadSummaries.filter(
+    (summary) =>
+      resolveBenchmarkKind(summary) === 'primary-benchmark' &&
+      isHistoricalBenchmarkStatus(summary?.benchmark?.status)
+  );
+  const historicalRoomFloorSummaries = benchmarkReadSummaries.filter(
+    (summary) =>
+      resolveBenchmarkKind(summary) === 'room-floor' &&
+      isHistoricalBenchmarkStatus(summary?.benchmark?.status)
   );
   const activeBenchmarkStats =
     activeBenchmarkSummaries.length > 0 ? buildAggregateStats(activeBenchmarkSummaries) : null;
@@ -362,10 +648,26 @@ export function buildBenchmarkReadSections(summaries, options = {}) {
     secondaryBenchmarkSummaries.length > 0
       ? buildAggregateStats(secondaryBenchmarkSummaries)
       : null;
+  const historicalPrimaryBenchmarkStats =
+    historicalPrimaryBenchmarkSummaries.length > 0
+      ? buildAggregateStats(historicalPrimaryBenchmarkSummaries)
+      : null;
+  const historicalRoomFloorStats =
+    historicalRoomFloorSummaries.length > 0
+      ? buildAggregateStats(historicalRoomFloorSummaries)
+      : null;
   const activeBenchmarkRunSummary =
     activeBenchmarkSummaries.length === 1 ? activeBenchmarkSummaries[0].longestRuns : null;
   const secondaryBenchmarkRunSummary =
     secondaryBenchmarkSummaries.length === 1 ? secondaryBenchmarkSummaries[0].longestRuns : null;
+  const historicalPrimaryRunSummary =
+    historicalPrimaryBenchmarkSummaries.length === 1
+      ? historicalPrimaryBenchmarkSummaries[0].longestRuns
+      : null;
+  const historicalRoomFloorRunSummary =
+    historicalRoomFloorSummaries.length === 1
+      ? historicalRoomFloorSummaries[0].longestRuns
+      : null;
 
   return [
     ...(activeBenchmarkStats
@@ -375,6 +677,19 @@ export function buildBenchmarkReadSections(summaries, options = {}) {
           activeBenchmarkStats,
           activeBenchmarkRunSummary
         )
+      : historicalPrimaryBenchmarkStats
+      ? [
+          '### Active benchmark read',
+          '- No current active benchmark is selected.',
+          '',
+          ...formatBenchmarkReadSection(
+            'Historical primary baseline',
+            historicalPrimaryBenchmarkSummaries[0],
+            historicalPrimaryBenchmarkStats,
+            historicalPrimaryRunSummary
+          ),
+          '- Status: historical baseline only. Do not treat this as current branch proof.'
+        ]
       : ['### Active benchmark read', '- No active benchmark manifest or active benchmark captures were found.']),
     ...(secondaryBenchmarkStats
       ? [
@@ -385,6 +700,17 @@ export function buildBenchmarkReadSections(summaries, options = {}) {
             secondaryBenchmarkStats,
             secondaryBenchmarkRunSummary
           )
+        ]
+      : historicalRoomFloorStats
+      ? [
+          '',
+          ...formatBenchmarkReadSection(
+            'Historical room-floor baseline',
+            historicalRoomFloorSummaries[0],
+            historicalRoomFloorStats,
+            historicalRoomFloorRunSummary
+          ),
+          '- Status: historical baseline only. Do not treat this as current branch proof.'
         ]
       : [])
   ];
@@ -403,8 +729,55 @@ function createZeroAssetLayerSummary() {
   );
 }
 
+function hasPositiveSpread(spread = {}) {
+  return Object.values(spread).some((value) => typeof value === 'number' && value > 0);
+}
+
+function inferCanonicalCueClassFromStageFamily(stageCueFamily) {
+  switch (stageCueFamily) {
+    case 'gather':
+      return 'gather';
+    case 'reveal':
+      return 'reveal';
+    case 'rupture':
+      return 'rupture';
+    case 'haunt':
+      return 'haunt';
+    case 'release':
+    case 'reset':
+      return 'recovery';
+    case 'brood':
+    default:
+      return 'hold';
+  }
+}
+
 function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
   const metadataVisual = metadata.visualSummary ?? {};
+  const rawStageCueFamily =
+    visualSummary.dominantStageCueFamily ??
+    metadataVisual.dominantStageCueFamily ??
+    'brood';
+  const rawCanonicalCueClassSpread =
+    visualSummary.canonicalCueClassSpread ?? metadataVisual.canonicalCueClassSpread;
+  const fallbackCanonicalCueClass = inferCanonicalCueClassFromStageFamily(rawStageCueFamily);
+  const canonicalCueClassSpread = hasPositiveSpread(rawCanonicalCueClassSpread)
+    ? rawCanonicalCueClassSpread
+    : {
+        hold: 0,
+        gather: 0,
+        tighten: 0,
+        reveal: 0,
+        'orbit-widen': 0,
+        'fan-sweep': 0,
+        'laser-burst': 0,
+        rupture: 0,
+        collapse: 0,
+        haunt: 0,
+        residue: 0,
+        recovery: 0,
+        [fallbackCanonicalCueClass]: 1
+      };
 
   return {
     ...metadataVisual,
@@ -425,6 +798,55 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
       visualSummary.dominantStageCueFamily ??
       metadataVisual.dominantStageCueFamily ??
       'brood',
+    canonicalCueClassSpread,
+    dominantCanonicalCueClass:
+      (hasPositiveSpread(rawCanonicalCueClassSpread)
+        ? visualSummary.dominantCanonicalCueClass ?? metadataVisual.dominantCanonicalCueClass
+        : fallbackCanonicalCueClass) ?? 'hold',
+    performanceRegimeSpread:
+      visualSummary.performanceRegimeSpread ??
+      metadataVisual.performanceRegimeSpread ??
+      {
+        'silence-beauty': 0,
+        'room-floor': 0,
+        suspense: 0,
+        gathering: 0,
+        driving: 0,
+        surge: 0,
+        aftermath: 0
+      },
+    dominantPerformanceRegime:
+      visualSummary.dominantPerformanceRegime ??
+      metadataVisual.dominantPerformanceRegime ??
+      'silence-beauty',
+    stageIntentSpread:
+      visualSummary.stageIntentSpread ??
+      metadataVisual.stageIntentSpread ??
+      {
+        'hero-pressure': 0,
+        'chamber-pressure': 0,
+        'world-takeover': 0,
+        'residue-memory': 0,
+        'recovery-hold': 0,
+        hybrid: 0
+      },
+    dominantStageIntent:
+      visualSummary.dominantStageIntent ??
+      metadataVisual.dominantStageIntent ??
+      'hybrid',
+    silenceStateSpread:
+      visualSummary.silenceStateSpread ??
+      metadataVisual.silenceStateSpread ??
+      {
+        none: 0,
+        'room-floor': 0,
+        beauty: 0,
+        suspense: 0
+      },
+    dominantSilenceState:
+      visualSummary.dominantSilenceState ??
+      metadataVisual.dominantSilenceState ??
+      'beauty',
     stageWorldModeSpread:
       visualSummary.stageWorldModeSpread ??
       metadataVisual.stageWorldModeSpread ??
@@ -631,6 +1053,12 @@ function analyzeCoverageDebt(summaries) {
       summaries.length
     ),
     buildCoverageCategoryLines(
+      'canonical cue classes',
+      averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.canonicalCueClassSpread),
+      COVERAGE_POLICY['canonical cue classes'],
+      summaries.length
+    ),
+    buildCoverageCategoryLines(
       'stage world modes',
       averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.stageWorldModeSpread),
       COVERAGE_POLICY['stage world modes'],
@@ -687,7 +1115,12 @@ function buildGateLine(label, status, detail) {
   return `- ${label}: ${status.toUpperCase()} - ${detail}`;
 }
 
-function buildReviewGateLines({ summaries, aggregateStats, manifestHealth }) {
+function buildReviewGateLines({
+  summaries,
+  aggregateStats,
+  manifestHealth,
+  evidenceFreshness
+}) {
   if (summaries.length === 0) {
     return ['- No captures were available, so batch-level review gates could not be evaluated.'];
   }
@@ -698,9 +1131,37 @@ function buildReviewGateLines({ summaries, aggregateStats, manifestHealth }) {
   if (!manifestHealth?.valid) {
     truthIssues.push('benchmark manifest is missing, stale, or internally inconsistent');
   }
+  if (evidenceFreshness && !evidenceFreshness.currentBranchProofFresh) {
+    truthIssues.push(evidenceFreshness.summaryLine);
+  }
   if (aggregateStats.provenanceMismatchCount > 0) {
     truthIssues.push(
       `${aggregateStats.provenanceMismatchCount} capture(s) reported source provenance mismatches`
+    );
+  }
+  if (aggregateStats.invalidBuildIdentityCount > 0) {
+    truthIssues.push(
+      `${aggregateStats.invalidBuildIdentityCount} capture(s) have invalid or dirty build identity`
+    );
+  }
+  if (aggregateStats.proofInvalidCount > 0) {
+    truthIssues.push(
+      `${aggregateStats.proofInvalidCount} capture(s) came from invalidated proof runs`
+    );
+  }
+  if (aggregateStats.scenarioMismatchCount > 0) {
+    truthIssues.push(
+      `${aggregateStats.scenarioMismatchCount} capture(s) failed derived scenario validation`
+    );
+  }
+  if (aggregateStats.missingScenarioTagCount > 0) {
+    truthIssues.push(
+      `${aggregateStats.missingScenarioTagCount} serious capture(s) were started without a proof scenario`
+    );
+  }
+  if (aggregateStats.proofIneligibleCount > 0) {
+    truthWarnings.push(
+      `${aggregateStats.proofIneligibleCount} capture(s) are not current-proof eligible`
     );
   }
   if (aggregateStats.oversizedWindowCount > 0) {
@@ -1753,6 +2214,42 @@ export function summarizeCapture(capture, filePath) {
     );
   }
 
+  if (qualityFlags.includes('staleBuildIdentity')) {
+    findings.push(
+      'Build identity is missing or non-current, so this capture cannot count as trustworthy current-branch proof.'
+    );
+  }
+
+  if (qualityFlags.includes('scenarioMismatch')) {
+    findings.push(
+      'The declared proof scenario does not match the derived scenario evidence, so this clip should not satisfy scenario coverage on its label alone.'
+    );
+  }
+
+  if (qualityFlags.includes('weakWorldAuthorityDelivery')) {
+    findings.push(
+      `World/chamber authority delivery is weak (${formatNumber(visualSummary.worldDominanceDeliveredMean)} mean, hierarchy ${formatNumber(visualSummary.frameHierarchyMean)}).`
+    );
+  }
+
+  if (qualityFlags.includes('heroMonopolyRisk')) {
+    findings.push(
+      `Hero coverage is too dominant (${formatNumber(visualSummary.heroCoverageMean)} mean) relative to world delivery (${formatNumber(visualSummary.worldDominanceDeliveredMean)}).`
+    );
+  }
+
+  if (qualityFlags.includes('ringOverdrawRisk')) {
+    findings.push(
+      `Ring persistence or overdraw fallback is still too high (${formatNumber(visualSummary.ringBeltPersistenceMean)} mean / ${formatPercent(visualSummary.ringOverdrawFallbackRate)} fallback).`
+    );
+  }
+
+  if (qualityFlags.includes('lowChamberPresence')) {
+    findings.push(
+      `Chamber presence stayed too low (${formatNumber(visualSummary.chamberPresenceMean)} mean), so chamber/world ownership likely did not read clearly enough.`
+    );
+  }
+
   if ((visualSummary.compositionSafetyRate ?? 0) > 0.24) {
     findings.push(
       `Composition safety fallback was active in ${formatPercent(
@@ -2168,6 +2665,43 @@ function deriveQualityFlagsFromSummary({
     flags.add('weakPhraseRelease');
   }
 
+  if (metadata.buildInfo?.valid !== true) {
+    flags.add('staleBuildIdentity');
+  }
+
+  if (
+    metadata.scenarioAssessment &&
+    typeof metadata.scenarioAssessment === 'object' &&
+    metadata.scenarioAssessment.validated !== true
+  ) {
+    flags.add('scenarioMismatch');
+  }
+
+  if (
+    (visualSummary.worldDominanceDeliveredMean ?? 0) < 0.18 &&
+    (visualSummary.frameHierarchyMean ?? 1) < 0.72
+  ) {
+    flags.add('weakWorldAuthorityDelivery');
+  }
+
+  if (
+    (visualSummary.heroCoverageMean ?? 0) >= 0.28 &&
+    (visualSummary.worldDominanceDeliveredMean ?? 0) <= 0.16
+  ) {
+    flags.add('heroMonopolyRisk');
+  }
+
+  if (
+    (visualSummary.ringBeltPersistenceMean ?? 0) >= 0.28 ||
+    (visualSummary.ringOverdrawFallbackRate ?? 0) >= 0.12
+  ) {
+    flags.add('ringOverdrawRisk');
+  }
+
+  if ((visualSummary.chamberPresenceMean ?? 0) < 0.16) {
+    flags.add('lowChamberPresence');
+  }
+
   return [...flags];
 }
 
@@ -2250,6 +2784,11 @@ function buildAggregateStats(summaries) {
   let qualityTransitionSamples = 0;
   let provenanceMismatchCount = 0;
   let proofStillSavedCount = 0;
+  let invalidBuildIdentityCount = 0;
+  let proofInvalidCount = 0;
+  let proofIneligibleCount = 0;
+  let scenarioMismatchCount = 0;
+  let missingScenarioTagCount = 0;
 
   for (const finding of allFindings) {
     const bucket = finding
@@ -2429,6 +2968,26 @@ function buildAggregateStats(summaries) {
     }
     if (summary.metadata?.sourceSummary?.provenanceMismatch) {
       provenanceMismatchCount += 1;
+    }
+    if (summary.metadata?.buildInfo?.valid !== true) {
+      invalidBuildIdentityCount += 1;
+    }
+    if (summary.metadata?.proofValidity?.verdict === 'invalid') {
+      proofInvalidCount += 1;
+    }
+    if (summary.metadata?.proofValidity?.currentProofEligible === false) {
+      proofIneligibleCount += 1;
+    }
+    if (summary.metadata?.scenarioAssessment?.validated === false) {
+      scenarioMismatchCount += 1;
+    }
+    if (summary.metadata?.proofReadiness?.seriousRun === true) {
+      const scenarioCheck = summary.metadata.proofReadiness.checks?.find(
+        (check) => check?.id === 'scenario-tag'
+      );
+      if (scenarioCheck?.passed === false) {
+        missingScenarioTagCount += 1;
+      }
     }
     proofStillSavedCount += summary.metadata?.proofStills?.saved?.length ?? 0;
 
@@ -2757,6 +3316,11 @@ function buildAggregateStats(summaries) {
     launchedFromQuickStartCount,
     provenanceMismatchCount,
     proofStillSavedCount,
+    invalidBuildIdentityCount,
+    proofInvalidCount,
+    proofIneligibleCount,
+    scenarioMismatchCount,
+    missingScenarioTagCount,
     topFindingLines
   };
 }
@@ -2870,12 +3434,23 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     '',
     `- File: \`${path.relative(workspaceRoot, summary.filePath)}\``,
     `- Mode: \`${metadata.captureMode ?? 'manual'}\``,
+    `- Proof scenario: ${formatProofScenarioKindLabel(
+      resolveCaptureReviewScenarioKind(summary)
+    )}`,
     `- Trigger: \`${metadata.triggerKind ?? 'manual'}\``,
     `- Trigger reason: ${metadata.triggerReason ?? 'n/a'}`,
     `- Dominant state: \`${summary.dominantState}\``,
     `- Event archetype: \`${summary.eventArchetype}\``,
     `- Source: ${metadata.sourceLabel ?? 'Unknown source'}`,
       `- Source mode: \`${sourceMode}\``,
+      `- Build: ${metadata.buildInfo?.version ?? 'unknown'} / ${metadata.buildInfo?.commit ?? 'unknown'} / ${metadata.buildInfo?.lane ?? 'unknown'}${metadata.buildInfo?.proofStatus ? ` / ${metadata.buildInfo.proofStatus}` : ''}`,
+      `- Build identity valid: ${metadata.buildInfo?.valid === true ? 'yes' : 'no'}`,
+      `- Run id: ${metadata.runId ?? 'n/a'}`,
+      `- Scenario assessment: ${
+        metadata.scenarioAssessment
+          ? `${metadata.scenarioAssessment.declaredScenario ?? 'unassigned'} -> ${metadata.scenarioAssessment.derivedScenario ?? 'unresolved'} (${metadata.scenarioAssessment.validated ? 'validated' : 'mismatch/pending'}, confidence ${formatPercent(metadata.scenarioAssessment.confidence ?? 0)})`
+          : 'not recorded'
+      }`,
       ...(summary.benchmark?.active
         ? [`- Active benchmark: ${summary.benchmark.label ?? summary.benchmark.id ?? 'unknown'}`]
         : []),
@@ -2954,6 +3529,10 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant palette state: ${visual.dominantPaletteState}`,
     `- Dominant show family: ${visual.dominantShowFamily}`,
     `- Dominant macro event: ${visual.dominantMacroEvent}`,
+    `- Dominant canonical cue: ${visual.dominantCanonicalCueClass ?? 'unknown'}`,
+    `- Dominant performance regime: ${visual.dominantPerformanceRegime ?? 'unknown'}`,
+    `- Dominant stage intent: ${visual.dominantStageIntent ?? 'unknown'}`,
+    `- Dominant silence state: ${visual.dominantSilenceState ?? 'unknown'}`,
     `- Dominant spend profile: ${visual.dominantSpendProfile ?? 'unknown'}`,
     `- Dominant world mode: ${visual.dominantStageWorldMode ?? 'unknown'}`,
     `- Dominant atmosphere matter state: ${visual.dominantAtmosphereMatterState ?? 'gas'}`,
@@ -2979,6 +3558,10 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     '### Governance summary',
     `- Spend profile spread: ${Object.keys(spendProfileSpread).length > 0 ? Object.entries(spendProfileSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Stage cue-family spread: ${Object.keys(stageCueFamilySpread).length > 0 ? Object.entries(stageCueFamilySpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Canonical cue-class spread: ${Object.keys(visual.canonicalCueClassSpread ?? {}).length > 0 ? Object.entries(visual.canonicalCueClassSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Performance regime spread: ${Object.keys(visual.performanceRegimeSpread ?? {}).length > 0 ? Object.entries(visual.performanceRegimeSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Stage intent spread: ${Object.keys(visual.stageIntentSpread ?? {}).length > 0 ? Object.entries(visual.stageIntentSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Silence-state spread: ${Object.keys(visual.silenceStateSpread ?? {}).length > 0 ? Object.entries(visual.silenceStateSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Stage ring authority spread: ${Object.keys(stageRingAuthoritySpread).length > 0 ? Object.entries(stageRingAuthoritySpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Hero scale mean / peak: ${formatNumber(visual.heroScaleMean)} / ${formatNumber(visual.heroScalePeak)}`,
     `- Hero screen X / Y mean: ${formatNumber(visual.heroScreenXMean)} / ${formatNumber(visual.heroScreenYMean)}`,
@@ -3084,6 +3667,13 @@ export function buildAggregateSection(summaries, options = {}) {
     ? options.manifestHealthLines
     : [];
   const manifestHealth = options.manifestHealth ?? null;
+  const evidenceFreshness =
+    options.evidenceFreshness && typeof options.evidenceFreshness === 'object'
+      ? options.evidenceFreshness
+      : collectEvidenceFreshness(summaries, {
+          benchmarkSummaries: options.benchmarkSummaries,
+          evidencePolicy: manifestHealth?.evidencePolicy
+        });
   const benchmarkReadSummaries = collectBenchmarkReadSummaries(
     summaries,
     Array.isArray(options.benchmarkSummaries) ? options.benchmarkSummaries : []
@@ -3092,7 +3682,9 @@ export function buildAggregateSection(summaries, options = {}) {
   const freshSummaries = summaries.filter((summary) => !isLegacyCaptureSummary(summary));
   const activeBenchmarkSummaries = benchmarkReadSummaries.filter((summary) => summary.benchmark?.active);
   const secondaryBenchmarkSummaries = benchmarkReadSummaries.filter(
-    (summary) => resolveBenchmarkKind(summary) === 'secondary-floor'
+    (summary) =>
+      resolveBenchmarkKind(summary) === 'room-floor' &&
+      !isHistoricalBenchmarkStatus(summary?.benchmark?.status)
   );
   const aggregateStats = buildAggregateStats(summaries);
   const freshStats =
@@ -3113,10 +3705,29 @@ export function buildAggregateSection(summaries, options = {}) {
     secondaryBenchmarkSummaries[0]?.benchmark?.label ??
     secondaryBenchmarkSummaries[0]?.benchmark?.id ??
     null;
+  const proofScenarioCounts = new Map();
+
+  for (const summary of summaries) {
+    const proofScenarioKind = resolveCaptureReviewScenarioKind(summary);
+
+    if (!proofScenarioKind) {
+      continue;
+    }
+
+    incrementCounter(proofScenarioCounts, proofScenarioKind);
+  }
+
+  const proofScenarioLines = [...proofScenarioCounts.entries()]
+    .sort((left, right) => left[0].localeCompare(right[0]))
+    .map(
+      ([proofScenarioKind, count]) =>
+        `- ${formatProofScenarioKindLabel(proofScenarioKind)} (${count})`
+    );
   const reviewGateLines = buildReviewGateLines({
     summaries,
     aggregateStats,
-    manifestHealth
+    manifestHealth,
+    evidenceFreshness
   });
 
   return [
@@ -3127,6 +3738,11 @@ export function buildAggregateSection(summaries, options = {}) {
       ...(manifestHealthLines.length > 0
         ? ['', '## Manifest health', ...manifestHealthLines, '']
         : ['']),
+      '## Evidence freshness',
+      ...(Array.isArray(evidenceFreshness?.lines) && evidenceFreshness.lines.length > 0
+        ? evidenceFreshness.lines
+        : ['- Evidence freshness is unavailable.']),
+      '',
       ...(legacySummaries.length > 0
         ? [
             `Fresh non-legacy captures: ${freshSummaries.length}`,
@@ -3206,10 +3822,15 @@ export function buildAggregateSection(summaries, options = {}) {
         benchmarkSummaries: options.benchmarkSummaries
       }),
       '',
-      '### Quality-tier spread',
+    '### Quality-tier spread',
     ...(aggregateStats.qualityTierLines.length > 0
       ? aggregateStats.qualityTierLines
       : ['- No quality tiers were recorded.']),
+    '',
+    '### Proof scenario spread',
+    ...(proofScenarioLines.length > 0
+      ? proofScenarioLines
+      : ['- No proof scenarios were tagged on these captures.']),
     '',
     '### Act spread',
     ...(aggregateStats.actLines.length > 0

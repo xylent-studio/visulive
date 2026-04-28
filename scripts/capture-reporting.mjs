@@ -4,6 +4,7 @@ import {
   buildAggregateSection,
   buildBenchmarkReadSections,
   buildCaptureSection,
+  collectEvidenceFreshness,
   summarizeCapture,
   timestampLabel
 } from './capture-analysis-core.mjs';
@@ -17,6 +18,23 @@ export const legacyArchiveRoot = path.join(archiveRoot, 'legacy');
 export const reportRoot = path.join(captureRoot, 'reports');
 export const benchmarkManifestPath = path.join(captureRoot, 'benchmark-manifest.json');
 const VALID_EXTENSIONS = new Set(['.json']);
+const SCENARIO_KIND_VALUES = new Set([
+  'primary-benchmark',
+  'room-floor',
+  'coverage',
+  'sparse-silence',
+  'operator-trust',
+  'steering',
+  'historical',
+  'primary-correction',
+  'secondary-floor',
+  'contrast'
+]);
+const BENCHMARK_STATUS_VALUES = new Set([
+  'historical-baseline',
+  'current-candidate',
+  'current-canonical'
+]);
 
 function delay(ms) {
   return new Promise((resolve) => {
@@ -49,6 +67,34 @@ async function readAndParseCaptureFile(filePath) {
   throw lastError;
 }
 
+function classifyCaptureArtifact(parsed) {
+  const artifactType =
+    parsed?.metadata && typeof parsed.metadata === 'object'
+      ? parsed.metadata.artifactType
+      : null;
+
+  if (
+    artifactType === 'replay-capture' ||
+    (typeof parsed?.version === 'number' && Array.isArray(parsed?.frames))
+  ) {
+    return 'replay-capture';
+  }
+
+  if (artifactType === 'run-journal') {
+    return 'run-journal';
+  }
+
+  if (artifactType === 'run-manifest') {
+    return 'run-manifest';
+  }
+
+  if (artifactType === 'run-recommendations') {
+    return 'run-recommendations';
+  }
+
+  return 'unknown';
+}
+
 async function loadBenchmarkManifest() {
   try {
     const raw = await fs.readFile(benchmarkManifestPath, 'utf8');
@@ -68,11 +114,49 @@ async function loadBenchmarkManifest() {
     const secondaryScenarioIds = Array.isArray(parsed.secondaryScenarioIds)
       ? parsed.secondaryScenarioIds.filter((value) => typeof value === 'string')
       : [];
+    const scenarioIdsByKind =
+      parsed.scenarioIdsByKind && typeof parsed.scenarioIdsByKind === 'object'
+        ? Object.fromEntries(
+            Object.entries(parsed.scenarioIdsByKind)
+              .filter(
+                ([kind, ids]) =>
+                  SCENARIO_KIND_VALUES.has(kind) && Array.isArray(ids)
+              )
+              .map(([kind, ids]) => [
+                kind,
+                ids.filter((value) => typeof value === 'string')
+              ])
+          )
+        : {};
+    const evidencePolicy =
+      parsed.evidencePolicy && typeof parsed.evidencePolicy === 'object'
+        ? {
+            currentBranchProofCutoffAt:
+              typeof parsed.evidencePolicy.currentBranchProofCutoffAt === 'string'
+                ? parsed.evidencePolicy.currentBranchProofCutoffAt
+                : null,
+            seriousProofMaxAgeDays:
+              Number.isFinite(parsed.evidencePolicy.seriousProofMaxAgeDays) &&
+              parsed.evidencePolicy.seriousProofMaxAgeDays > 0
+                ? parsed.evidencePolicy.seriousProofMaxAgeDays
+                : 7,
+            note:
+              typeof parsed.evidencePolicy.note === 'string'
+                ? parsed.evidencePolicy.note
+                : null
+          }
+        : {
+            currentBranchProofCutoffAt: null,
+            seriousProofMaxAgeDays: 7,
+            note: null
+          };
 
     return {
       activeBenchmarkId,
       primaryBenchmarkId,
       secondaryScenarioIds,
+      scenarioIdsByKind,
+      evidencePolicy,
       benchmarks
     };
   } catch (error) {
@@ -87,6 +171,30 @@ async function loadBenchmarkManifest() {
   }
 }
 
+function normalizeBenchmarkStatus(status, benchmark, manifest) {
+  if (BENCHMARK_STATUS_VALUES.has(status)) {
+    return status;
+  }
+
+  const benchmarkId = typeof benchmark?.id === 'string' ? benchmark.id : null;
+  const currentScenarioIds = new Set(
+    [
+      manifest?.activeBenchmarkId,
+      manifest?.primaryBenchmarkId,
+      ...(Array.isArray(manifest?.secondaryScenarioIds)
+        ? manifest.secondaryScenarioIds
+        : []),
+      ...Object.values(manifest?.scenarioIdsByKind ?? {}).flat()
+    ].filter((value) => typeof value === 'string')
+  );
+
+  if (benchmarkId && currentScenarioIds.has(benchmarkId)) {
+    return 'current-canonical';
+  }
+
+  return 'historical-baseline';
+}
+
 async function pathExists(targetPath) {
   try {
     await fs.access(targetPath);
@@ -96,7 +204,8 @@ async function pathExists(targetPath) {
   }
 }
 
-export async function collectBenchmarkManifestHealth() {
+export async function collectBenchmarkManifestHealth(options = {}) {
+  const requireCurrentCanonical = options.requireCurrentCanonical === true;
   const manifest = await loadBenchmarkManifest();
 
   if (!manifest) {
@@ -104,6 +213,7 @@ export async function collectBenchmarkManifestHealth() {
       present: false,
       valid: false,
       missingCapturePaths: [],
+      nonCanonicalCapturePaths: [],
       invalidBenchmarkIds: [],
       lines: ['- No benchmark manifest was found.', '- Active benchmark truth is currently undefined.']
     };
@@ -115,7 +225,24 @@ export async function collectBenchmarkManifestHealth() {
       .map((benchmark) => [benchmark.id, benchmark])
   );
   const missingCapturePaths = [];
+  const nonCanonicalCapturePaths = [];
   const invalidBenchmarkIds = [];
+  const historicalBaselineIds = [];
+  const currentCandidateIds = [];
+  const currentCanonicalIds = [];
+
+  for (const benchmark of manifest.benchmarks) {
+    const status = normalizeBenchmarkStatus(benchmark?.status, benchmark, manifest);
+    const benchmarkLabel = benchmark?.label ?? benchmark?.id ?? 'unknown';
+
+    if (status === 'historical-baseline') {
+      historicalBaselineIds.push(benchmarkLabel);
+    } else if (status === 'current-candidate') {
+      currentCandidateIds.push(benchmarkLabel);
+    } else if (status === 'current-canonical') {
+      currentCanonicalIds.push(benchmarkLabel);
+    }
+  }
 
   for (const benchmark of manifest.benchmarks) {
     const capturePaths = Array.isArray(benchmark?.capturePaths)
@@ -130,6 +257,18 @@ export async function collectBenchmarkManifestHealth() {
       const resolvedCapturePath = path.resolve(workspaceRoot, capturePath);
       if (!(await pathExists(resolvedCapturePath))) {
         missingCapturePaths.push(capturePath);
+        continue;
+      }
+
+      const inCanonicalRoot =
+        resolvedCapturePath === canonicalRoot ||
+        resolvedCapturePath.startsWith(`${canonicalRoot}${path.sep}`);
+      const inArchiveRoot =
+        resolvedCapturePath === archiveRoot ||
+        resolvedCapturePath.startsWith(`${archiveRoot}${path.sep}`);
+
+      if (!inCanonicalRoot && !inArchiveRoot) {
+        nonCanonicalCapturePaths.push(capturePath);
       }
     }
   }
@@ -137,29 +276,94 @@ export async function collectBenchmarkManifestHealth() {
   for (const benchmarkId of [
     manifest.activeBenchmarkId,
     manifest.primaryBenchmarkId,
-    ...manifest.secondaryScenarioIds
+    ...manifest.secondaryScenarioIds,
+    ...Object.values(manifest.scenarioIdsByKind ?? {}).flat()
   ]) {
     if (benchmarkId && !benchmarksById.has(benchmarkId)) {
       invalidBenchmarkIds.push(benchmarkId);
     }
   }
+  const activeBenchmark = manifest.activeBenchmarkId
+    ? benchmarksById.get(manifest.activeBenchmarkId)
+    : null;
+  const primaryBenchmark = manifest.primaryBenchmarkId
+    ? benchmarksById.get(manifest.primaryBenchmarkId)
+    : null;
+  const activeBenchmarkStatus = activeBenchmark
+    ? normalizeBenchmarkStatus(activeBenchmark.status, activeBenchmark, manifest)
+    : null;
+  const primaryBenchmarkStatus = primaryBenchmark
+    ? normalizeBenchmarkStatus(primaryBenchmark.status, primaryBenchmark, manifest)
+    : null;
+  const currentBenchmarkMissingReasons = [];
+
+  if (!manifest.activeBenchmarkId) {
+    currentBenchmarkMissingReasons.push('No active benchmark id is set.');
+  } else if (activeBenchmarkStatus !== 'current-canonical') {
+    currentBenchmarkMissingReasons.push(
+      `Active benchmark "${manifest.activeBenchmarkId}" is not current-canonical.`
+    );
+  }
+
+  if (!manifest.primaryBenchmarkId) {
+    currentBenchmarkMissingReasons.push('No primary benchmark id is set.');
+  } else if (primaryBenchmarkStatus !== 'current-canonical') {
+    currentBenchmarkMissingReasons.push(
+      `Primary benchmark "${manifest.primaryBenchmarkId}" is not current-canonical.`
+    );
+  }
+
+  if (currentCanonicalIds.length === 0) {
+    currentBenchmarkMissingReasons.push('No current-canonical benchmark exists.');
+  }
 
   return {
     present: true,
-    valid: missingCapturePaths.length === 0 && invalidBenchmarkIds.length === 0,
+    valid:
+      missingCapturePaths.length === 0 &&
+      nonCanonicalCapturePaths.length === 0 &&
+      invalidBenchmarkIds.length === 0 &&
+      (!requireCurrentCanonical || currentBenchmarkMissingReasons.length === 0),
     missingCapturePaths,
+    nonCanonicalCapturePaths,
     invalidBenchmarkIds,
     activeBenchmarkId: manifest.activeBenchmarkId,
     primaryBenchmarkId: manifest.primaryBenchmarkId,
     secondaryScenarioIds: manifest.secondaryScenarioIds,
+    scenarioIdsByKind: manifest.scenarioIdsByKind,
+    evidencePolicy: manifest.evidencePolicy,
+    currentBenchmarkMissingReasons,
     lines: [
       `- Active benchmark id: ${manifest.activeBenchmarkId ?? 'none'}`,
       `- Primary benchmark id: ${manifest.primaryBenchmarkId ?? 'none'}`,
-      `- Secondary floor ids: ${manifest.secondaryScenarioIds.length > 0 ? manifest.secondaryScenarioIds.join(', ') : 'none'}`,
+      `- Room-floor ids: ${manifest.secondaryScenarioIds.length > 0 ? manifest.secondaryScenarioIds.join(', ') : 'none'}`,
+      `- Scenario ids by kind: ${
+        Object.keys(manifest.scenarioIdsByKind ?? {}).length > 0
+          ? Object.entries(manifest.scenarioIdsByKind)
+              .map(([kind, ids]) => `${kind}=[${ids.join(', ')}]`)
+              .join('; ')
+          : 'none'
+      }`,
+      `- Current proof cutoff: ${manifest.evidencePolicy.currentBranchProofCutoffAt ?? 'none'}`,
+      `- Serious proof max age: ${manifest.evidencePolicy.seriousProofMaxAgeDays} day(s)`,
+      `- Historical baseline benchmarks: ${historicalBaselineIds.length > 0 ? historicalBaselineIds.join(', ') : 'none'}`,
+      `- Current candidate benchmarks: ${currentCandidateIds.length > 0 ? currentCandidateIds.join(', ') : 'none'}`,
+      `- Current canonical benchmarks: ${currentCanonicalIds.length > 0 ? currentCanonicalIds.join(', ') : 'none'}`,
+      ...(requireCurrentCanonical
+        ? currentBenchmarkMissingReasons.length > 0
+          ? currentBenchmarkMissingReasons.map((reason) => `- Current benchmark requirement failed: ${reason}`)
+          : ['- Current benchmark requirement satisfied.']
+        : ['- Current benchmark requirement not enforced for this validation run.']),
       `- Benchmarks declared: ${manifest.benchmarks.length}`,
       ...(missingCapturePaths.length > 0
         ? missingCapturePaths.map((capturePath) => `- Missing benchmark capture path: \`${capturePath}\``)
         : ['- All benchmark capture paths currently resolve.']),
+      ...(nonCanonicalCapturePaths.length > 0
+        ? nonCanonicalCapturePaths.map(
+            (capturePath) =>
+              `- Benchmark capture path is not canonical/archive truth: \`${capturePath}\``
+          )
+        : ['- Benchmark capture paths live under canonical/archive storage.']),
       ...(invalidBenchmarkIds.length > 0
         ? invalidBenchmarkIds.map((benchmarkId) => `- Invalid benchmark pointer: \`${benchmarkId}\``)
         : ['- Benchmark pointers are internally consistent.'])
@@ -169,12 +373,27 @@ export async function collectBenchmarkManifestHealth() {
 
 function normalizeBenchmarkKind(kind, benchmark, manifest) {
   if (
-    kind === 'primary-correction' ||
-    kind === 'secondary-floor' ||
-    kind === 'contrast' ||
+    kind === 'primary-benchmark' ||
+    kind === 'room-floor' ||
+    kind === 'coverage' ||
+    kind === 'sparse-silence' ||
+    kind === 'operator-trust' ||
+    kind === 'steering' ||
     kind === 'historical'
   ) {
     return kind;
+  }
+
+  if (kind === 'primary-correction') {
+    return 'primary-benchmark';
+  }
+
+  if (kind === 'secondary-floor') {
+    return 'room-floor';
+  }
+
+  if (kind === 'contrast') {
+    return 'coverage';
   }
 
   const benchmarkId = typeof benchmark?.id === 'string' ? benchmark.id : null;
@@ -184,7 +403,7 @@ function normalizeBenchmarkKind(kind, benchmark, manifest) {
     (benchmarkId === manifest?.primaryBenchmarkId ||
       benchmarkId === manifest?.activeBenchmarkId)
   ) {
-    return 'primary-correction';
+    return 'primary-benchmark';
   }
 
   if (
@@ -192,7 +411,15 @@ function normalizeBenchmarkKind(kind, benchmark, manifest) {
     Array.isArray(manifest?.secondaryScenarioIds) &&
     manifest.secondaryScenarioIds.includes(benchmarkId)
   ) {
-    return 'secondary-floor';
+    return 'room-floor';
+  }
+
+  for (const [scenarioKind, scenarioIds] of Object.entries(
+    manifest?.scenarioIdsByKind ?? {}
+  )) {
+    if (benchmarkId && Array.isArray(scenarioIds) && scenarioIds.includes(benchmarkId)) {
+      return normalizeBenchmarkKind(scenarioKind, null, null);
+    }
   }
 
   return 'historical';
@@ -224,7 +451,12 @@ function resolveBenchmarkMatch(filePath, manifest) {
         return {
           id: typeof benchmark.id === 'string' ? benchmark.id : undefined,
           label: typeof benchmark.label === 'string' ? benchmark.label : undefined,
-          kind: normalizeBenchmarkKind(benchmark.kind, benchmark, manifest),
+          kind: normalizeBenchmarkKind(
+            benchmark.kind,
+            typeof benchmark.id === 'string' &&
+              benchmark.id === manifest.activeBenchmarkId
+          ),
+          status: normalizeBenchmarkStatus(benchmark.status, benchmark, manifest),
           active:
             typeof benchmark.id === 'string' &&
             benchmark.id === manifest.activeBenchmarkId
@@ -251,6 +483,9 @@ function reportCaptureReadError(filePath, error) {
 
 async function summarizeCaptureFile(filePath, manifest) {
   const capture = await readAndParseCaptureFile(filePath);
+  if (classifyCaptureArtifact(capture) !== 'replay-capture') {
+    return null;
+  }
   const summary = summarizeCapture(capture, filePath);
   const benchmark = resolveBenchmarkMatch(filePath, manifest);
 
@@ -344,13 +579,66 @@ export async function analyzeCaptureTargets(targetPaths = [inboxRoot]) {
   for (const filePath of uniqueFiles) {
     try {
       const summary = await summarizeCaptureFile(filePath, benchmarkManifest);
-      summaries.push(summary);
+      if (summary) {
+        summaries.push(summary);
+      }
     } catch (error) {
       reportCaptureReadError(filePath, error);
     }
   }
 
   return summaries;
+}
+
+export async function collectRunArtifacts(targetPaths = [inboxRoot]) {
+  const discoveredFiles = [];
+
+  for (const rawTarget of targetPaths) {
+    const resolvedTarget = path.resolve(workspaceRoot, rawTarget);
+
+    try {
+      const useDefaultFilters = resolvedTarget === inboxRoot;
+      discoveredFiles.push(
+        ...(await collectJsonFiles(resolvedTarget, {
+          ignoreReports: true,
+          ignoreArchive: useDefaultFilters,
+          ignoreCanonical: useDefaultFilters
+        }))
+      );
+    } catch (error) {
+      console.error(
+        `Skipping "${rawTarget}": ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  const uniqueFiles = [...new Set(discoveredFiles)].sort();
+  const artifacts = [];
+
+  for (const filePath of uniqueFiles) {
+    try {
+      const parsed = await readAndParseCaptureFile(filePath);
+      const artifactType = classifyCaptureArtifact(parsed);
+
+      if (
+        artifactType !== 'run-journal' &&
+        artifactType !== 'run-manifest' &&
+        artifactType !== 'run-recommendations'
+      ) {
+        continue;
+      }
+
+      artifacts.push({
+        filePath,
+        artifactType,
+        artifact: parsed
+      });
+    } catch (error) {
+      reportCaptureReadError(filePath, error);
+    }
+  }
+
+  return artifacts;
 }
 
 export async function loadManifestBenchmarkSummaries(existingSummaries = [], options = {}) {
@@ -399,11 +687,17 @@ export async function loadManifestBenchmarkSummaries(existingSummaries = [], opt
 }
 
 export function buildCaptureReportMarkdown(summaries, options = {}) {
+  const evidenceFreshness = collectEvidenceFreshness(summaries, {
+    benchmarkSummaries: options.benchmarkSummaries ?? [],
+    evidencePolicy: options.manifestHealth?.evidencePolicy
+  });
+
   return [
     buildAggregateSection(summaries, {
       manifestHealthLines: options.manifestHealth?.lines ?? [],
       manifestHealth: options.manifestHealth ?? null,
-      benchmarkSummaries: options.benchmarkSummaries ?? []
+      benchmarkSummaries: options.benchmarkSummaries ?? [],
+      evidenceFreshness
     }),
     ...summaries.map((summary) => buildCaptureSection(summary, workspaceRoot))
   ].join('\n');
@@ -417,6 +711,10 @@ export function buildEmptyCaptureReportMarkdown(options = {}) {
     manifestHealth,
     benchmarkSummaries = []
   } = options;
+  const evidenceFreshness = collectEvidenceFreshness([], {
+    benchmarkSummaries,
+    evidencePolicy: manifestHealth?.evidencePolicy
+  });
 
   return [
     '# Capture Analysis Report',
@@ -427,6 +725,9 @@ export function buildEmptyCaptureReportMarkdown(options = {}) {
     '## Manifest health',
     ...((manifestHealth?.lines ?? ['- No benchmark manifest diagnostics are available.'])),
     '',
+    '## Evidence freshness',
+    ...(evidenceFreshness.lines ?? ['- Evidence freshness is unavailable.']),
+    '',
     '## Benchmark truth',
     ...buildBenchmarkReadSections([], { benchmarkSummaries }),
     '',
@@ -434,14 +735,16 @@ export function buildEmptyCaptureReportMarkdown(options = {}) {
     '- No capture JSON files were found in the active inbox.',
     `- Active inbox: \`${inboxPath}\``,
     `- Historical captures remain archived under \`${archivePath}\`.`,
+    '- Historical baselines may still exist in the benchmark manifest, but they are not current branch proof.',
     '- Collect a fresh quick-start batch into the inbox, then rerun analysis.',
     '',
     '## Next steps',
     '- Restart the live loop if needed.',
     '- Launch from an authored quick start, not a manual/custom state.',
     '- Choose the repo `captures/inbox` folder in diagnostics.',
+    '- Set the diagnostics proof scenario tag before the serious run starts.',
     '- Record a focused batch: 3-5 build/drop moments, 1-2 release phrases, 1 quiet atmospheric section.',
-    '- Run `npm run analyze:captures` again after the new inbox files land.'
+    '- Run `npm run proof:current` again after the new inbox files land.'
   ].join('\n');
 }
 

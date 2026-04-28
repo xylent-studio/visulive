@@ -49,9 +49,10 @@ Every serious retuning pass should include:
 Each batch should be judged against:
 
 - `truth`
-- `governance`
+- `hierarchy`
 - `coverage`
 - `taste`
+- `operator trust`
 
 ## Capture Standard
 

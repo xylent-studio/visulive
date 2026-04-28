@@ -31,6 +31,10 @@ export type CaptureDirectoryBlobFile = {
   blob: Blob;
 };
 
+type CaptureDirectoryTargetOptions = {
+  subdirectories?: string[];
+};
+
 function supportsFileSystemAccess(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -187,38 +191,52 @@ export function getCaptureDirectoryDisplayName(
 }
 
 async function resolveCaptureDirectoryTarget(
-  handle: FileSystemDirectoryHandle
+  handle: FileSystemDirectoryHandle,
+  options?: CaptureDirectoryTargetOptions
 ): Promise<{
   directoryHandle: FileSystemDirectoryHandle;
   folderLabel: string;
 }> {
-  if (handle.name !== 'captures') {
-    return {
-      directoryHandle: handle,
-      folderLabel: handle.name
-    };
+  let directoryHandle = handle;
+  let folderLabel = handle.name;
+
+  if (handle.name === 'captures') {
+    directoryHandle = await handle.getDirectoryHandle('inbox', { create: true });
+    folderLabel = 'captures/inbox';
   }
 
-  const inboxHandle = await handle.getDirectoryHandle('inbox', { create: true });
+  for (const subdirectory of options?.subdirectories ?? []) {
+    if (typeof subdirectory !== 'string' || subdirectory.trim().length === 0) {
+      continue;
+    }
+
+    directoryHandle = await directoryHandle.getDirectoryHandle(subdirectory, {
+      create: true
+    });
+    folderLabel = `${folderLabel}/${subdirectory}`;
+  }
 
   return {
-    directoryHandle: inboxHandle,
-    folderLabel: 'captures/inbox'
+    directoryHandle,
+    folderLabel
   };
 }
 
-export async function saveReplayCaptureToDirectory(
+export async function saveJsonArtifactToDirectory(
   handle: FileSystemDirectoryHandle,
-  capture: ReplayCapture
+  fileName: string,
+  artifact: unknown,
+  options?: CaptureDirectoryTargetOptions
 ): Promise<{ fileName: string; folderLabel: string }> {
-  const { directoryHandle, folderLabel } =
-    await resolveCaptureDirectoryTarget(handle);
-  const fileName = `${capture.metadata.label}.json`;
+  const { directoryHandle, folderLabel } = await resolveCaptureDirectoryTarget(
+    handle,
+    options
+  );
   const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
   const writable = await fileHandle.createWritable();
 
   try {
-    await writable.write(JSON.stringify(capture, null, 2));
+    await writable.write(JSON.stringify(artifact, null, 2));
   } finally {
     await writable.close();
   }
@@ -229,16 +247,28 @@ export async function saveReplayCaptureToDirectory(
   };
 }
 
+export async function saveReplayCaptureToDirectory(
+  handle: FileSystemDirectoryHandle,
+  capture: ReplayCapture,
+  options?: CaptureDirectoryTargetOptions
+): Promise<{ fileName: string; folderLabel: string }> {
+  const fileName = `${capture.metadata.label}.json`;
+  return saveJsonArtifactToDirectory(handle, fileName, capture, options);
+}
+
 export async function saveCaptureBlobsToDirectory(
   handle: FileSystemDirectoryHandle,
-  files: CaptureDirectoryBlobFile[]
+  files: CaptureDirectoryBlobFile[],
+  options?: CaptureDirectoryTargetOptions
 ): Promise<{
   folderLabel: string;
   savedFileNames: string[];
   warning?: string;
 }> {
-  const { directoryHandle, folderLabel } =
-    await resolveCaptureDirectoryTarget(handle);
+  const { directoryHandle, folderLabel } = await resolveCaptureDirectoryTarget(
+    handle,
+    options
+  );
   const savedFileNames: string[] = [];
   let failedCount = 0;
 

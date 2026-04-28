@@ -1,28 +1,34 @@
 {
-  "activeBenchmarkId": "afqr-post-aftermath-proof-2026-04-09",
-  "primaryBenchmarkId": "afqr-post-aftermath-proof-2026-04-09",
-  "secondaryScenarioIds": [
-    "room-floor-quiet-music-floor-2026-04-09"
-  ],
+  "activeBenchmarkId": null,
+  "primaryBenchmarkId": null,
+  "secondaryScenarioIds": [],
+  "scenarioIdsByKind": {},
+  "evidencePolicy": {
+    "currentBranchProofCutoffAt": "2026-04-23T08:28:02.000Z",
+    "seriousProofMaxAgeDays": 7,
+    "note": "Fresh current proof must postdate the April 23, 2026 runtime ownership and authority wave. Older captures remain historical baseline context only."
+  },
   "benchmarks": [
     {
       "id": "afqr-post-aftermath-proof-2026-04-09",
-      "kind": "primary-correction",
+      "kind": "primary-benchmark",
+      "status": "historical-baseline",
       "label": "AFQR post-aftermath correction proof benchmark",
       "capturePaths": [
-        "captures/inbox/archive/room-capture_2026-04-09_02-51-04.json"
+        "captures/archive/benchmarks/room-capture_2026-04-09_02-51-04.json"
       ],
       "trackPath": "C:/Users/jjdog/Music/AFQR.mp3",
-      "notes": "Primary AFQR proof run after aftermath-lock correction. Older sessions are historical context only."
+      "notes": "Historical baseline only. This was the primary AFQR proof run after aftermath-lock correction, but it predates the April 23, 2026 runtime and authority wave."
     },
     {
       "id": "room-floor-quiet-music-floor-2026-04-09",
-      "kind": "secondary-floor",
+      "kind": "room-floor",
+      "status": "historical-baseline",
       "label": "Quiet room-mic music floor benchmark",
       "capturePaths": [
-        "captures/inbox/archive/room-capture_2026-04-09_10-22-43.json"
+        "captures/archive/benchmarks/room-capture_2026-04-09_10-22-43.json"
       ],
-      "notes": "Secondary quiet room-mic floor benchmark for low-background music. Treat this as a required room-floor scenario, not a replacement for AFQR."
+      "notes": "Historical baseline only. Keep this as the quiet room-mic floor reference until a fresh post-April-23 room-floor batch is captured."
     }
   ]
 }

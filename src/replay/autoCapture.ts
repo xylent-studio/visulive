@@ -1,6 +1,16 @@
 import type { AudioDiagnostics, ListeningFrame } from '../types/audio';
+import type { VisualTelemetryFrame, WorldAuthorityState } from '../types/visual';
 
-export type AutoCaptureTriggerKind = 'drop' | 'section' | 'release' | 'floor';
+export type AutoCaptureTriggerKind =
+  | 'drop'
+  | 'section'
+  | 'release'
+  | 'floor'
+  | 'authority-turn'
+  | 'governance-risk'
+  | 'quiet-beauty'
+  | 'operator-trust-clear'
+  | 'quality-downgrade';
 
 export type AutoCaptureTrigger = {
   kind: AutoCaptureTriggerKind;
@@ -18,6 +28,14 @@ export type AutoCaptureTimingProfile = {
   cooldownMs: number;
   maxExtensions: number;
   maxTriggerCount: number;
+};
+
+export type AutoCaptureDetectionContext = {
+  visualTelemetry?: VisualTelemetryFrame | null;
+  noTouchWindowPassed?: boolean;
+  previousNoTouchWindowPassed?: boolean;
+  previousWorldAuthorityState?: WorldAuthorityState | null;
+  previousQualityTier?: string | null;
 };
 
 export const AUTO_CAPTURE_TIMING_PROFILES: Record<
@@ -63,6 +81,56 @@ export const AUTO_CAPTURE_TIMING_PROFILES: Record<
     cooldownMs: 4000,
     maxExtensions: 2,
     maxTriggerCount: 4
+  },
+  'authority-turn': {
+    preRollMs: 2200,
+    postRollMs: 2600,
+    maxDurationMs: 7200,
+    extensionWindowMs: 800,
+    retriggerGapMs: 520,
+    cooldownMs: 5200,
+    maxExtensions: 1,
+    maxTriggerCount: 3
+  },
+  'governance-risk': {
+    preRollMs: 1800,
+    postRollMs: 2600,
+    maxDurationMs: 6800,
+    extensionWindowMs: 600,
+    retriggerGapMs: 540,
+    cooldownMs: 5400,
+    maxExtensions: 1,
+    maxTriggerCount: 2
+  },
+  'quiet-beauty': {
+    preRollMs: 3200,
+    postRollMs: 3600,
+    maxDurationMs: 9800,
+    extensionWindowMs: 1000,
+    retriggerGapMs: 900,
+    cooldownMs: 6800,
+    maxExtensions: 1,
+    maxTriggerCount: 2
+  },
+  'operator-trust-clear': {
+    preRollMs: 2400,
+    postRollMs: 2600,
+    maxDurationMs: 7200,
+    extensionWindowMs: 600,
+    retriggerGapMs: 1200,
+    cooldownMs: 12000,
+    maxExtensions: 0,
+    maxTriggerCount: 1
+  },
+  'quality-downgrade': {
+    preRollMs: 1800,
+    postRollMs: 2200,
+    maxDurationMs: 6200,
+    extensionWindowMs: 500,
+    retriggerGapMs: 1200,
+    cooldownMs: 8000,
+    maxExtensions: 0,
+    maxTriggerCount: 1
   }
 };
 
@@ -86,6 +154,16 @@ export function getAutoCaptureTriggerPriority(
     case 'release':
       return 2;
     case 'floor':
+      return 1;
+    case 'authority-turn':
+      return 5;
+    case 'governance-risk':
+      return 6;
+    case 'quality-downgrade':
+      return 5;
+    case 'operator-trust-clear':
+      return 2;
+    case 'quiet-beauty':
       return 1;
     default:
       return 0;
@@ -134,13 +212,183 @@ function detectFloorTrigger(
   };
 }
 
+function detectAuthorityTurnTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined,
+  previousWorldAuthorityState: WorldAuthorityState | null | undefined
+): AutoCaptureTrigger | null {
+  if (!visual) {
+    return null;
+  }
+
+  const currentWorldAuthority = visual.worldAuthorityState;
+  if (
+    (currentWorldAuthority !== 'shared' && currentWorldAuthority !== 'dominant') ||
+    currentWorldAuthority === previousWorldAuthorityState
+  ) {
+    return null;
+  }
+
+  if (
+    (visual.worldDominanceDelivered ?? 0) < 0.22 &&
+    (visual.chamberPresenceScore ?? 0) < 0.18
+  ) {
+    return null;
+  }
+
+  return {
+    kind: 'authority-turn',
+    label: 'Authority Turn',
+    reason: `world=${currentWorldAuthority} dominance=${(visual.worldDominanceDelivered ?? 0).toFixed(3)} chamber=${(visual.chamberPresenceScore ?? 0).toFixed(3)}`,
+    timestampMs: frame.timestampMs
+  };
+}
+
+function detectGovernanceRiskTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined
+): AutoCaptureTrigger | null {
+  if (!visual) {
+    return null;
+  }
+
+  const compositionRisk = visual.compositionSafetyFlag === true;
+  const overbrightRisk = (visual.overbright ?? 0) >= 0.22;
+  const heroRisk =
+    (visual.heroCoverageEstimate ?? 0) >= 0.28 &&
+    (visual.worldDominanceDelivered ?? 0) <= 0.16;
+  const ringRisk =
+    (visual.ringBeltPersistence ?? 0) >= 0.28 ||
+    visual.stageFallbackRingOverdraw === true;
+
+  if (!compositionRisk && !overbrightRisk && !heroRisk && !ringRisk) {
+    return null;
+  }
+
+  return {
+    kind: 'governance-risk',
+    label: 'Governance Risk',
+    reason: `safety=${visual.compositionSafetyFlag === true ? 'risk' : 'ok'} overbright=${(visual.overbright ?? 0).toFixed(3)} hero=${(visual.heroCoverageEstimate ?? 0).toFixed(3)} rings=${(visual.ringBeltPersistence ?? 0).toFixed(3)}`,
+    timestampMs: frame.timestampMs
+  };
+}
+
+function detectQuietBeautyTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined
+): AutoCaptureTrigger | null {
+  if (!visual) {
+    return null;
+  }
+
+  if (
+    frame.ambienceConfidence < 0.42 ||
+    frame.dropImpact > 0.14 ||
+    frame.sectionChange > 0.12 ||
+    frame.releaseTail > 0.18 ||
+    (visual.chamberPresenceScore ?? 0) < 0.18 ||
+    (visual.worldDominanceDelivered ?? 0) < 0.16 ||
+    (visual.compositionSafetyScore ?? 0.8) < 0.72
+  ) {
+    return null;
+  }
+
+  return {
+    kind: 'quiet-beauty',
+    label: 'Quiet Beauty',
+    reason: `ambience=${frame.ambienceConfidence.toFixed(3)} chamber=${(visual.chamberPresenceScore ?? 0).toFixed(3)} world=${(visual.worldDominanceDelivered ?? 0).toFixed(3)}`,
+    timestampMs: frame.timestampMs
+  };
+}
+
+function detectOperatorTrustClearTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined,
+  noTouchWindowPassed: boolean,
+  previousNoTouchWindowPassed: boolean
+): AutoCaptureTrigger | null {
+  if (
+    !noTouchWindowPassed ||
+    previousNoTouchWindowPassed ||
+    !visual ||
+    (visual.compositionSafetyScore ?? 0.8) < 0.74 ||
+    (visual.overbright ?? 0) > 0.18
+  ) {
+    return null;
+  }
+
+  return {
+    kind: 'operator-trust-clear',
+    label: 'Operator Trust Cleared',
+    reason: `no-touch cleared with safety=${(visual.compositionSafetyScore ?? 0).toFixed(3)} overbright=${(visual.overbright ?? 0).toFixed(3)}`,
+    timestampMs: frame.timestampMs
+  };
+}
+
+function detectQualityDowngradeTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined,
+  previousQualityTier: string | null | undefined
+): AutoCaptureTrigger | null {
+  const currentQualityTier = visual?.qualityTier ?? null;
+  if (
+    !currentQualityTier ||
+    !previousQualityTier ||
+    currentQualityTier === previousQualityTier
+  ) {
+    return null;
+  }
+
+  const downgraded =
+    (previousQualityTier === 'premium' &&
+      (currentQualityTier === 'balanced' || currentQualityTier === 'safe')) ||
+    (previousQualityTier === 'balanced' && currentQualityTier === 'safe');
+
+  if (!downgraded) {
+    return null;
+  }
+
+  return {
+    kind: 'quality-downgrade',
+    label: 'Quality Downgrade',
+    reason: `quality ${previousQualityTier} -> ${currentQualityTier}`,
+    timestampMs: frame.timestampMs
+  };
+}
+
 export function detectAutoCaptureTrigger(
   frame: ListeningFrame,
   diagnostics: Pick<
     AudioDiagnostics,
     'roomMusicFloorActive' | 'roomMusicDrive'
-  >
+  >,
+  context?: AutoCaptureDetectionContext
 ): AutoCaptureTrigger | null {
+  const visual = context?.visualTelemetry ?? null;
+
+  const governanceRiskTrigger = detectGovernanceRiskTrigger(frame, visual);
+  if (governanceRiskTrigger) {
+    return governanceRiskTrigger;
+  }
+
+  const qualityDowngradeTrigger = detectQualityDowngradeTrigger(
+    frame,
+    visual,
+    context?.previousQualityTier
+  );
+  if (qualityDowngradeTrigger) {
+    return qualityDowngradeTrigger;
+  }
+
+  const authorityTurnTrigger = detectAuthorityTurnTrigger(
+    frame,
+    visual,
+    context?.previousWorldAuthorityState
+  );
+  if (authorityTurnTrigger) {
+    return authorityTurnTrigger;
+  }
+
   if (
     frame.dropImpact > 0.34 &&
     frame.beatConfidence > 0.22 &&
@@ -179,6 +427,21 @@ export function detectAutoCaptureTrigger(
       reason: `release=${frame.releaseTail.toFixed(3)} resonance=${frame.resonance.toFixed(3)}`,
       timestampMs: frame.timestampMs
     };
+  }
+
+  const operatorTrustTrigger = detectOperatorTrustClearTrigger(
+    frame,
+    visual,
+    context?.noTouchWindowPassed === true,
+    context?.previousNoTouchWindowPassed === true
+  );
+  if (operatorTrustTrigger) {
+    return operatorTrustTrigger;
+  }
+
+  const quietBeautyTrigger = detectQuietBeautyTrigger(frame, visual);
+  if (quietBeautyTrigger) {
+    return quietBeautyTrigger;
   }
 
   return detectFloorTrigger(frame, diagnostics);

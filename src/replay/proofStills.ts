@@ -1,11 +1,19 @@
 import type { ReplayCaptureFrame } from './types';
 
-export type ProofStillKind = 'pre' | 'peak' | 'safety' | 'outro';
+export type ProofStillKind =
+  | 'pre'
+  | 'peak'
+  | 'authority'
+  | 'quiet'
+  | 'safety'
+  | 'outro';
 
 export type ProofStillSample = {
   timestampMs: number;
   blob: Blob;
   eventScore: number;
+  authorityScore: number;
+  quietScore: number;
   safetyScore: number;
   riskScore: number;
 };
@@ -26,6 +34,8 @@ export function buildProofStillFileName(
 
 export function evaluateProofStillFrame(frame: ReplayCaptureFrame): {
   eventScore: number;
+  authorityScore: number;
+  quietScore: number;
   safetyScore: number;
   riskScore: number;
 } {
@@ -37,6 +47,21 @@ export function evaluateProofStillFrame(frame: ReplayCaptureFrame): {
     listening.dropImpact * 1.4 +
     listening.sectionChange * 0.9 +
     listening.releaseTail * 0.5;
+  const authorityScore =
+    (visual.worldDominanceDelivered ?? 0) * 1.6 +
+    (visual.chamberPresenceScore ?? 0) * 1.3 +
+    (visual.frameHierarchyScore ?? 0) * 1.1 -
+    (visual.heroCoverageEstimate ?? 0) * 0.55 -
+    (visual.overbright ?? 0) * 0.65;
+  const quietScore =
+    (visual.chamberPresenceScore ?? 0) * 1.2 +
+    (visual.worldDominanceDelivered ?? 0) * 0.9 +
+    (visual.compositionSafetyScore ?? visual.stageCompositionSafety ?? 0.8) * 0.8 +
+    listening.ambienceConfidence * 1.4 +
+    (listening.musicConfidence ?? 0) * 0.45 -
+    listening.dropImpact * 0.8 -
+    listening.sectionChange * 0.55 -
+    (visual.overbright ?? 0) * 0.45;
   const safetyScore =
     typeof visual.compositionSafetyScore === 'number'
       ? visual.compositionSafetyScore
@@ -52,6 +77,8 @@ export function evaluateProofStillFrame(frame: ReplayCaptureFrame): {
 
   return {
     eventScore,
+    authorityScore,
+    quietScore,
     safetyScore,
     riskScore
   };

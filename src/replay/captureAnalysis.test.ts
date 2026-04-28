@@ -854,6 +854,7 @@ describe('capture analysis', () => {
         metadata: {
           label: 'drop-a',
           captureMode: 'auto',
+          proofScenarioKind: 'primary-benchmark',
           triggerKind: 'drop',
           triggerReason: 'drop-a',
           sourceLabel: 'PC Audio',
@@ -877,6 +878,7 @@ describe('capture analysis', () => {
         metadata: {
           label: 'release-a',
           captureMode: 'auto',
+          proofScenarioKind: 'coverage',
           triggerKind: 'release',
           triggerReason: 'release-a',
           sourceLabel: 'PC Audio',
@@ -924,12 +926,16 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('drop:collapse');
     expect(aggregate).toContain('release:ghost-trace');
     expect(aggregate).toContain('### Source mode spread');
+    expect(aggregate).toContain('### Proof scenario spread');
+    expect(aggregate).toContain('Primary benchmark (1)');
+    expect(aggregate).toContain('Coverage (1)');
     expect(aggregate).toContain('### Launch profile spread');
     expect(aggregate).toContain('### Active quick start spread');
     expect(aggregate).toContain('### Act spread');
     expect(aggregate).not.toContain('dropImpact=x');
     expect(section).toContain('Event archetype: `collapse`');
     expect(section).toContain('Dominant state: `surge`');
+    expect(section).toContain('Proof scenario: Primary benchmark');
     expect(section).toContain('Active quick start: Music On This PC');
     expect(section).toContain('Dominant act:');
   });

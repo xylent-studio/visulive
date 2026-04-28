@@ -1,22 +1,62 @@
 import type { AudioDiagnostics, AnalysisFrame, ListeningFrame } from '../types/audio';
+import type { BuildInfo } from '../buildInfo';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import { sanitizeUserControlState, type UserControlState } from '../types/tuning';
+import {
+  type AftermathState,
+  type AnthologyGraduationStatus,
+  type CameraPhrase,
+  type ConsequenceMode,
+  sanitizeDirectorBiasState,
+  type DirectorBiasState,
+  type DirectorStanceId,
+  type DirectorMusicPhase,
+  type HeroMutationVerb,
+  type HeroSpeciesId,
+  type InputRoutePolicy,
+  type LightingRigState,
+  type LookId,
+  type LookProfileId,
+  type LookPoolId,
+  type MixedMediaAssetId,
+  type MotifId,
+  type MusicSemanticRegime,
+  type ParticleFieldRole,
+  type ResolvedRouteId,
+  type ShowCapabilityMode,
+  type ShowConstraintState,
+  type ShowStartRoute,
+  type ShowWorldId,
+  type WorldFamilyId,
+  type WorldMutationVerb,
+  type WorldPoolId
+} from '../types/director';
 import {
   DEFAULT_VISUAL_TELEMETRY,
   DEFAULT_VISUAL_TELEMETRY_SUMMARY,
   VISUAL_ASSET_LAYERS,
   type CaptureQualityFlag,
   type AtmosphereMatterState,
+  type CueClass,
+  type HeroAuthorityState,
   type PaletteState,
+  type PerformanceRegime,
+  type PhraseConfidence,
+  type PostSpendIntent,
+  type SectionIntent,
   type ShowAct,
   type StageCueFamily,
+  type StageIntent,
   type StageShotClass,
   type StageWorldMode,
   type VisualTelemetryFrame,
-  type VisualTelemetrySummary
+  type VisualTelemetrySummary,
+  type WorldAuthorityState,
+  type SilenceState
 } from '../types/visual';
 import type {
   ReplayCapture,
+  ReplayBuildInfo,
   ReplayCaptureMetadata,
   ReplayCaptureFrame,
   ReplayDecisionBucketSummary,
@@ -25,8 +65,22 @@ import type {
   ReplayFrameDiagnostics,
   ReplayInputDriftSummary,
   ReplayMetricWindowSummary,
-  ReplayProofStillSummary
+  ReplayProofInvalidation,
+  ReplayProofReadiness,
+  ReplayProofReadinessCheck,
+  ReplayProofReadinessCheckId,
+  ReplayProofValidity,
+  ReplayRunLifecycleState,
+  ReplayProofScenarioKind,
+  ReplayProofStillSummary,
+  ReplayRouteRecommendation,
+  ReplayScenarioAssessment
 } from './types';
+import {
+  createReplayBuildInfo,
+  deriveReplayScenarioAssessment,
+  isReplayBuildInfoValid
+} from './runJournal';
 
 type BuildReplayCaptureOptions = {
   label?: string;
@@ -38,10 +92,55 @@ type BuildReplayCaptureOptions = {
   launchQuickStartProfileLabel?: string | null;
   quickStartProfileId?: string | null;
   quickStartProfileLabel?: string | null;
+  showStartRoute?: ShowStartRoute;
+  showCapabilityMode?: ShowCapabilityMode;
+  showConstraintState?: ShowConstraintState;
+  routePolicy?: InputRoutePolicy;
+  resolvedRoute?: ResolvedRouteId;
+  routeRecommendation?: ReplayRouteRecommendation;
+  showWorldId?: ShowWorldId;
+  effectiveWorldId?: ShowWorldId;
+  lookId?: LookId;
+  effectiveLookId?: LookId;
+  worldPoolId?: WorldPoolId;
+  lookPoolId?: LookPoolId;
+  stanceId?: DirectorStanceId;
+  anthologyWorldFamilyId?: WorldFamilyId;
+  anthologyLookProfileId?: LookProfileId;
+  anthologyHeroSpeciesId?: HeroSpeciesId;
+  anthologyHeroMutationVerb?: HeroMutationVerb;
+  anthologyWorldMutationVerb?: WorldMutationVerb;
+  anthologyConsequenceMode?: ConsequenceMode;
+  anthologyAftermathState?: AftermathState;
+  anthologyLightingRigState?: LightingRigState;
+  anthologyCameraPhrase?: CameraPhrase;
+  anthologyParticleFieldRole?: ParticleFieldRole;
+  anthologyMixedMediaAssetId?: MixedMediaAssetId;
+  anthologyMotifId?: MotifId;
+  anthologyGraduationStatus?: AnthologyGraduationStatus;
+  anthologyMusicPhase?: DirectorMusicPhase;
+  anthologyMusicRegime?: MusicSemanticRegime;
+  launchSurfaceMode?: 'launch' | 'explore';
+  livePanelMode?: 'deck' | 'backstage' | null;
+  advancedDrawerTab?: 'style' | 'steer' | 'backstage' | null;
+  interventionCount?: number;
+  interventionReasons?: string[] | null;
+  firstInterventionTimestampMs?: number | null;
+  noTouchWindowPassed?: boolean;
+  proofScenarioKind?: ReplayProofScenarioKind | null;
+  buildInfo?: BuildInfo | null;
+  runId?: string | null;
+  sessionStartedAt?: string | null;
+  sessionElapsedMs?: number | null;
+  scenarioAssessment?: ReplayScenarioAssessment | null;
+  directorBiasSnapshot?: DirectorBiasState | null;
   triggerCount?: number;
   extensionCount?: number;
   triggerTimestampMs?: number;
   proofStills?: ReplayProofStillSummary | null;
+  proofReadiness?: ReplayProofReadiness | null;
+  proofValidity?: ReplayProofValidity | null;
+  runLifecycleState?: ReplayRunLifecycleState | null;
 };
 
 type CaptureWindowJudgement = {
@@ -375,6 +474,76 @@ const STAGE_CUE_FAMILY_KEYS: StageCueFamily[] = [
   'release',
   'haunt',
   'reset'
+];
+const CANONICAL_CUE_CLASS_KEYS: CueClass[] = [
+  'hold',
+  'gather',
+  'tighten',
+  'reveal',
+  'orbit-widen',
+  'fan-sweep',
+  'laser-burst',
+  'rupture',
+  'collapse',
+  'haunt',
+  'residue',
+  'recovery'
+];
+const PERFORMANCE_REGIME_KEYS: PerformanceRegime[] = [
+  'silence-beauty',
+  'room-floor',
+  'suspense',
+  'gathering',
+  'driving',
+  'surge',
+  'aftermath'
+];
+const STAGE_INTENT_KEYS: StageIntent[] = [
+  'hero-pressure',
+  'chamber-pressure',
+  'world-takeover',
+  'residue-memory',
+  'recovery-hold',
+  'hybrid'
+];
+const WORLD_AUTHORITY_STATE_KEYS: WorldAuthorityState[] = [
+  'background',
+  'support',
+  'shared',
+  'dominant'
+];
+const HERO_AUTHORITY_STATE_KEYS: HeroAuthorityState[] = [
+  'subtracted',
+  'support',
+  'shared',
+  'dominant'
+];
+const POST_SPEND_INTENT_KEYS: PostSpendIntent[] = [
+  'withhold',
+  'trace',
+  'stress',
+  'memory',
+  'wipe',
+  'burn'
+];
+const SILENCE_STATE_KEYS: SilenceState[] = [
+  'none',
+  'room-floor',
+  'beauty',
+  'suspense'
+];
+const PHRASE_CONFIDENCE_KEYS: PhraseConfidence[] = [
+  'uncertain',
+  'forming',
+  'confident',
+  'locked'
+];
+const SECTION_INTENT_KEYS: SectionIntent[] = [
+  'hold',
+  'turn',
+  'drop',
+  'release',
+  'recovery'
 ];
 const STAGE_WORLD_MODE_KEYS: StageWorldMode[] = [
   'hold',
@@ -799,11 +968,39 @@ export function buildReplayCapture(
     options?.triggerKind,
     options?.triggerTimestampMs
   );
+  const replayBuildInfo = options?.buildInfo
+    ? createReplayBuildInfo(options.buildInfo)
+    : undefined;
+  const interventionReasons =
+    Array.isArray(options?.interventionReasons) &&
+    options.interventionReasons.some(
+      (reason) => typeof reason === 'string' && reason.trim().length > 0
+    )
+      ? options.interventionReasons.filter(
+          (reason): reason is string =>
+            typeof reason === 'string' && reason.trim().length > 0
+        )
+      : undefined;
+  const scenarioAssessment =
+    options?.scenarioAssessment ??
+    deriveReplayScenarioAssessment({
+      declaredScenario: options?.proofScenarioKind ?? null,
+      sourceMode: options?.sourceMode ?? audio.sourceMode,
+      showStartRoute: options?.showStartRoute,
+      noTouchWindowPassed: options?.noTouchWindowPassed,
+      interventionCount: options?.interventionCount,
+      interventionReasons,
+      visualSummary,
+      captureMode: options?.captureMode,
+      hasBuildIdentity: replayBuildInfo?.valid === true
+    });
   const qualityFlags = deriveCaptureQualityFlags({
     frames: normalizedFrames,
     renderer,
     launchQuickStartProfileId,
     quickStartProfileId,
+    buildInfo: replayBuildInfo,
+    scenarioAssessment,
     triggerKind: options?.triggerKind,
     durationMs,
     triggerCount: options?.triggerCount ?? 0,
@@ -812,9 +1009,10 @@ export function buildReplayCapture(
   });
 
   return {
-    version: 2,
+    version: 3,
     metadata: {
       app: 'visulive',
+      artifactType: 'replay-capture',
       label: options?.label ?? `room-capture_${buildTimestampLabel(capturedAt)}`,
       captureMode: options?.captureMode ?? 'manual',
       capturedAt: capturedAt.toISOString(),
@@ -831,6 +1029,113 @@ export function buildReplayCapture(
         options?.launchQuickStartProfileLabel ?? undefined,
       quickStartProfileId,
       quickStartProfileLabel: options?.quickStartProfileLabel ?? undefined,
+      showStartRoute:
+        options?.showStartRoute === 'pc-audio' ||
+        options?.showStartRoute === 'microphone' ||
+        options?.showStartRoute === 'combo'
+          ? options.showStartRoute
+          : undefined,
+      showCapabilityMode:
+        options?.showCapabilityMode === 'full-autonomous' ||
+        options?.showCapabilityMode === 'curated'
+          ? options.showCapabilityMode
+          : undefined,
+      showConstraintState: options?.showConstraintState
+        ? {
+            hasWorldPoolConstraint:
+              options.showConstraintState.hasWorldPoolConstraint === true,
+            hasLookPoolConstraint:
+              options.showConstraintState.hasLookPoolConstraint === true,
+            hasWorldAnchor: options.showConstraintState.hasWorldAnchor === true,
+            hasLookAnchor: options.showConstraintState.hasLookAnchor === true,
+            hasStanceOverride:
+              options.showConstraintState.hasStanceOverride === true,
+            hasSteeringOverride:
+              options.showConstraintState.hasSteeringOverride === true
+          }
+        : undefined,
+      routePolicy: options?.routePolicy,
+      resolvedRoute: options?.resolvedRoute,
+      routeRecommendation: options?.routeRecommendation ?? undefined,
+      showWorldId: options?.showWorldId,
+      effectiveWorldId: options?.effectiveWorldId,
+      lookId: options?.lookId,
+      effectiveLookId: options?.effectiveLookId,
+      worldPoolId: options?.worldPoolId,
+      lookPoolId: options?.lookPoolId,
+      stanceId: options?.stanceId,
+      anthologyWorldFamilyId: options?.anthologyWorldFamilyId,
+      anthologyLookProfileId: options?.anthologyLookProfileId,
+      anthologyHeroSpeciesId: options?.anthologyHeroSpeciesId,
+      anthologyHeroMutationVerb: options?.anthologyHeroMutationVerb,
+      anthologyWorldMutationVerb: options?.anthologyWorldMutationVerb,
+      anthologyConsequenceMode: options?.anthologyConsequenceMode,
+      anthologyAftermathState: options?.anthologyAftermathState,
+      anthologyLightingRigState: options?.anthologyLightingRigState,
+      anthologyCameraPhrase: options?.anthologyCameraPhrase,
+      anthologyParticleFieldRole: options?.anthologyParticleFieldRole,
+      anthologyMixedMediaAssetId: options?.anthologyMixedMediaAssetId,
+      anthologyMotifId: options?.anthologyMotifId,
+      anthologyGraduationStatus: options?.anthologyGraduationStatus,
+      anthologyMusicPhase: options?.anthologyMusicPhase,
+      anthologyMusicRegime: options?.anthologyMusicRegime,
+      launchSurfaceMode: options?.launchSurfaceMode,
+      livePanelMode:
+        options?.livePanelMode === 'deck' || options?.livePanelMode === 'backstage'
+          ? options.livePanelMode
+          : options?.livePanelMode === null
+            ? null
+            : undefined,
+      advancedDrawerTab:
+        options?.advancedDrawerTab === 'style' ||
+        options?.advancedDrawerTab === 'steer' ||
+        options?.advancedDrawerTab === 'backstage'
+          ? options.advancedDrawerTab
+          : options?.advancedDrawerTab === null
+            ? null
+            : undefined,
+      buildInfo: replayBuildInfo,
+      runId:
+        typeof options?.runId === 'string' && options.runId.trim().length > 0
+          ? options.runId
+          : undefined,
+      sessionStartedAt:
+        typeof options?.sessionStartedAt === 'string' &&
+        options.sessionStartedAt.trim().length > 0
+          ? options.sessionStartedAt
+          : undefined,
+      sessionElapsedMs:
+        typeof options?.sessionElapsedMs === 'number'
+          ? options.sessionElapsedMs
+          : undefined,
+      interventionCount:
+        typeof options?.interventionCount === 'number'
+          ? options.interventionCount
+          : undefined,
+      interventionReasons,
+      firstInterventionTimestampMs:
+        typeof options?.firstInterventionTimestampMs === 'number'
+          ? options.firstInterventionTimestampMs
+          : options?.firstInterventionTimestampMs === null
+            ? null
+            : undefined,
+      noTouchWindowPassed:
+        typeof options?.noTouchWindowPassed === 'boolean'
+          ? options.noTouchWindowPassed
+          : undefined,
+      proofScenarioKind:
+        options?.proofScenarioKind === 'primary-benchmark' ||
+        options?.proofScenarioKind === 'room-floor' ||
+        options?.proofScenarioKind === 'coverage' ||
+        options?.proofScenarioKind === 'sparse-silence' ||
+        options?.proofScenarioKind === 'operator-trust' ||
+        options?.proofScenarioKind === 'steering'
+          ? options.proofScenarioKind
+          : undefined,
+      scenarioAssessment,
+      directorBiasSnapshot: options?.directorBiasSnapshot
+        ? sanitizeDirectorBiasState(options.directorBiasSnapshot)
+        : undefined,
       triggerKind: options?.triggerKind,
       triggerReason: options?.triggerReason,
       triggerCount:
@@ -854,6 +1159,15 @@ export function buildReplayCapture(
       decisionSummary: summarizeDecisionReasons(normalizedFrames),
       inputDriftSummary: summarizeInputDrift(normalizedFrames),
       proofStills: options?.proofStills ?? undefined,
+      proofReadiness: options?.proofReadiness ?? undefined,
+      proofValidity: options?.proofValidity ?? undefined,
+      runLifecycleState:
+        options?.runLifecycleState === 'inbox' ||
+        options?.runLifecycleState === 'reviewed-candidate' ||
+        options?.runLifecycleState === 'canonical' ||
+        options?.runLifecycleState === 'archive'
+          ? options.runLifecycleState
+          : undefined,
       visualSummary,
       qualityFlags,
       eventTimingDisposition: eventTimingSummary.disposition,
@@ -875,6 +1189,337 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function normalizeResolvedRoute(value: unknown): ResolvedRouteId | undefined {
+  return value === 'this-computer' ||
+    value === 'the-room' ||
+    value === 'hybrid' ||
+    value === 'demo'
+    ? value
+    : undefined;
+}
+
+function normalizeReplayBuildInfo(value: unknown): ReplayBuildInfo | undefined {
+  if (!isObject(value)) {
+    return undefined;
+  }
+
+  if (
+    typeof value.version !== 'string' ||
+    typeof value.commit !== 'string' ||
+    typeof value.branch !== 'string' ||
+    typeof value.builtAt !== 'string' ||
+    (value.lane !== 'stable' && value.lane !== 'frontier' && value.lane !== 'dev') ||
+    (value.proofStatus !== 'unverified' &&
+      value.proofStatus !== 'proof-pack' &&
+      value.proofStatus !== 'promoted')
+  ) {
+    return undefined;
+  }
+
+  return {
+    version: value.version,
+    commit: value.commit,
+    branch: value.branch,
+    builtAt: value.builtAt,
+    lane: value.lane,
+    proofStatus: value.proofStatus,
+    dirty: value.dirty === true,
+    valid:
+      typeof value.valid === 'boolean'
+        ? value.valid
+        : isReplayBuildInfoValid(value as ReplayBuildInfo)
+  };
+}
+
+function normalizeReplayProofReadinessCheck(
+  value: unknown
+): ReplayProofReadinessCheck | null {
+  const check =
+    typeof value === 'object' && value !== null
+      ? (value as Partial<ReplayProofReadinessCheck>)
+      : null;
+
+  const id =
+    check?.id === 'capture-folder' ||
+    check?.id === 'build-identity' ||
+    check?.id === 'scenario-tag' ||
+    check?.id === 'replay-inactive' ||
+    check?.id === 'route-coherence'
+      ? (check.id as ReplayProofReadinessCheckId)
+      : null;
+
+  if (!id) {
+    return null;
+  }
+
+  return {
+    id,
+    label:
+      typeof check?.label === 'string' && check.label.trim().length > 0
+        ? check.label
+        : id,
+    passed: check?.passed === true,
+    reason:
+      typeof check?.reason === 'string' && check.reason.trim().length > 0
+        ? check.reason
+        : 'No readiness reason recorded.',
+    blocking: check?.blocking !== false
+  };
+}
+
+function normalizeReplayProofReadiness(
+  value: unknown
+): ReplayProofReadiness | undefined {
+  const readiness =
+    typeof value === 'object' && value !== null
+      ? (value as Partial<ReplayProofReadiness>)
+      : null;
+
+  if (!readiness) {
+    return undefined;
+  }
+
+  return {
+    seriousRun: readiness.seriousRun === true,
+    ready: readiness.ready === true,
+    checkedAt:
+      typeof readiness.checkedAt === 'string' && readiness.checkedAt.trim().length > 0
+        ? readiness.checkedAt
+        : new Date(0).toISOString(),
+    checks: Array.isArray(readiness.checks)
+      ? readiness.checks
+          .map((check) => normalizeReplayProofReadinessCheck(check))
+          .filter((check): check is ReplayProofReadinessCheck => check !== null)
+      : []
+  };
+}
+
+function normalizeReplayProofInvalidation(
+  value: unknown
+): ReplayProofInvalidation | null {
+  const invalidation =
+    typeof value === 'object' && value !== null
+      ? (value as Partial<ReplayProofInvalidation>)
+      : null;
+
+  const code =
+    invalidation?.code === 'start-blocked' ||
+    invalidation?.code === 'capture-folder-permission-lost' ||
+    invalidation?.code === 'capture-save-failed' ||
+    invalidation?.code === 'run-journal-save-failed' ||
+    invalidation?.code === 'replay-entered' ||
+    invalidation?.code === 'route-integrity-break' ||
+    invalidation?.code === 'scenario-drift'
+      ? invalidation.code
+      : null;
+
+  const recommendedDisposition =
+    invalidation?.recommendedDisposition === 'continue-exploratory' ||
+    invalidation?.recommendedDisposition === 'restart-run' ||
+    invalidation?.recommendedDisposition === 'archive-run'
+      ? invalidation.recommendedDisposition
+      : null;
+
+  if (!code || !recommendedDisposition) {
+    return null;
+  }
+
+  const normalizedInvalidation = invalidation as NonNullable<typeof invalidation>;
+
+  return {
+    code,
+    timestampMs:
+      typeof normalizedInvalidation.timestampMs === 'number'
+        ? normalizedInvalidation.timestampMs
+        : 0,
+    reason:
+      typeof normalizedInvalidation.reason === 'string' &&
+      normalizedInvalidation.reason.trim().length > 0
+        ? normalizedInvalidation.reason
+        : 'No invalidation reason recorded.',
+    recommendedDisposition
+  };
+}
+
+function normalizeReplayProofValidity(
+  value: unknown
+): ReplayProofValidity | undefined {
+  const validity =
+    typeof value === 'object' && value !== null
+      ? (value as Partial<ReplayProofValidity>)
+      : null;
+
+  if (!validity) {
+    return undefined;
+  }
+
+  const invalidations = Array.isArray(validity.invalidations)
+    ? validity.invalidations.reduce<ReplayProofInvalidation[]>((entries, invalidation) => {
+        const normalized = normalizeReplayProofInvalidation(invalidation);
+        if (normalized) {
+          entries.push(normalized);
+        }
+        return entries;
+      }, [])
+    : [];
+
+  return {
+    verdict:
+      validity.verdict === 'valid' ||
+      validity.verdict === 'invalid' ||
+      validity.verdict === 'exploratory'
+        ? validity.verdict
+        : 'exploratory',
+    currentProofEligible: validity.currentProofEligible === true,
+    startedReady: validity.startedReady === true,
+    lastCheckedAt:
+      typeof validity.lastCheckedAt === 'string' && validity.lastCheckedAt.trim().length > 0
+        ? validity.lastCheckedAt
+        : new Date(0).toISOString(),
+    invalidations,
+    recoveryGuidance:
+      typeof validity.recoveryGuidance === 'string'
+        ? validity.recoveryGuidance
+        : validity.recoveryGuidance === null
+          ? null
+          : null
+  };
+}
+
+function normalizeReplayScenarioAssessment(
+  value: unknown
+): ReplayScenarioAssessment | undefined {
+  if (!isObject(value)) {
+    return undefined;
+  }
+
+  const normalizeScenario = (
+    scenario: unknown
+  ): ReplayProofScenarioKind | null => {
+    return scenario === 'primary-benchmark' ||
+      scenario === 'room-floor' ||
+      scenario === 'coverage' ||
+      scenario === 'sparse-silence' ||
+      scenario === 'operator-trust' ||
+      scenario === 'steering'
+      ? scenario
+      : null;
+  };
+
+  return {
+    declaredScenario: normalizeScenario(value.declaredScenario),
+    derivedScenario: normalizeScenario(value.derivedScenario),
+    confidence:
+      typeof value.confidence === 'number'
+        ? Math.max(0, Math.min(1, value.confidence))
+        : 0,
+    mismatchReasons: Array.isArray(value.mismatchReasons)
+      ? value.mismatchReasons.filter(
+          (reason): reason is string =>
+            typeof reason === 'string' && reason.trim().length > 0
+        )
+      : [],
+    validated: value.validated === true
+  };
+}
+
+function normalizeRoutePolicy(value: unknown): InputRoutePolicy | undefined {
+  return value === 'auto' ||
+    value === 'this-computer' ||
+    value === 'the-room' ||
+    value === 'hybrid' ||
+    value === 'demo'
+    ? value
+    : undefined;
+}
+
+function normalizeWorldId(value: unknown): ShowWorldId | undefined {
+  return value === 'pressure-chamber' ||
+    value === 'portal-chamber' ||
+    value === 'cathedral-lattice' ||
+    value === 'storm-crown' ||
+    value === 'eclipse-chamber' ||
+    value === 'spectral-plume' ||
+    value === 'liquid-pressure' ||
+    value === 'haunted-residue'
+    ? value
+    : undefined;
+}
+
+function normalizeLookId(value: unknown): LookId | undefined {
+  return value === 'void-silk' ||
+    value === 'machine-halo' ||
+    value === 'neon-cathedral' ||
+    value === 'acid-flare' ||
+    value === 'ghost-signal' ||
+    value === 'ember-veil'
+    ? value
+    : undefined;
+}
+
+function normalizeWorldPoolId(value: unknown): WorldPoolId | undefined {
+  return value === 'autonomous-core' ||
+    value === 'pressure-worlds' ||
+    value === 'spectral-worlds' ||
+    value === 'architectural-worlds'
+    ? value
+    : undefined;
+}
+
+function normalizeLookPoolId(value: unknown): LookPoolId | undefined {
+  return value === 'autonomous-core' ||
+    value === 'electric-looks' ||
+    value === 'ghost-looks' ||
+    value === 'burn-looks'
+    ? value
+    : undefined;
+}
+
+function normalizeDirectorStanceId(value: unknown): DirectorStanceId | undefined {
+  return value === 'autonomous' ||
+    value === 'monumental' ||
+    value === 'volatile' ||
+    value === 'ritual' ||
+    value === 'spectral' ||
+    value === 'velvet-danger'
+    ? value
+    : undefined;
+}
+
+function normalizeReplayRouteRecommendation(
+  value: unknown
+): ReplayRouteRecommendation | undefined {
+  const recommendation = isObject(value) ? value : null;
+  const recommendedRoute = normalizeResolvedRoute(recommendation?.recommendedRoute);
+  const strength =
+    recommendation?.strength === 'soft' || recommendation?.strength === 'strong'
+      ? recommendation.strength
+      : undefined;
+
+  if (!recommendedRoute || !strength) {
+    return undefined;
+  }
+
+  const normalizedRecommendation = recommendation as Record<string, unknown>;
+
+  return {
+    recommendedRoute,
+    strength,
+    reason:
+      typeof normalizedRecommendation.reason === 'string'
+        ? normalizedRecommendation.reason
+        : 'unknown',
+    headline:
+      typeof normalizedRecommendation.headline === 'string'
+        ? normalizedRecommendation.headline
+        : 'Route recommendation',
+    detail:
+      typeof normalizedRecommendation.detail === 'string'
+        ? normalizedRecommendation.detail
+        : 'The director identified a stronger route for this session.'
+  };
+}
+
 function summarizeVisualTelemetry(
   frames: ReplayCaptureFrame[]
 ): VisualTelemetrySummary {
@@ -886,6 +1531,15 @@ function summarizeVisualTelemetry(
   const actCounts = new Map<ShowAct, number>();
   const paletteCounts = new Map<PaletteState, number>();
   const stageCueFamilyCounts = new Map<string, number>();
+  const canonicalCueClassCounts = new Map<CueClass, number>();
+  const performanceRegimeCounts = new Map<PerformanceRegime, number>();
+  const stageIntentCounts = new Map<StageIntent, number>();
+  const worldAuthorityStateCounts = new Map<WorldAuthorityState, number>();
+  const heroAuthorityStateCounts = new Map<HeroAuthorityState, number>();
+  const postSpendIntentCounts = new Map<PostSpendIntent, number>();
+  const silenceStateCounts = new Map<SilenceState, number>();
+  const phraseConfidenceCounts = new Map<PhraseConfidence, number>();
+  const sectionIntentCounts = new Map<SectionIntent, number>();
   const stageWorldModeCounts = new Map<StageWorldMode, number>();
   const atmosphereMatterStateCounts = new Map<AtmosphereMatterState, number>();
   const paletteByActCounts = new Map<ShowAct, Map<PaletteState, number>>();
@@ -1100,6 +1754,68 @@ function summarizeVisualTelemetry(
     stageCueFamilyCounts.set(
       stageCueFamily,
       (stageCueFamilyCounts.get(stageCueFamily) ?? 0) + 1
+    );
+    const canonicalCueClass =
+      telemetry.canonicalCueClass ?? DEFAULT_VISUAL_TELEMETRY.canonicalCueClass ?? 'hold';
+    canonicalCueClassCounts.set(
+      canonicalCueClass,
+      (canonicalCueClassCounts.get(canonicalCueClass) ?? 0) + 1
+    );
+    const performanceRegime =
+      telemetry.performanceRegime ??
+      DEFAULT_VISUAL_TELEMETRY.performanceRegime ??
+      'silence-beauty';
+    performanceRegimeCounts.set(
+      performanceRegime,
+      (performanceRegimeCounts.get(performanceRegime) ?? 0) + 1
+    );
+    const stageIntent =
+      telemetry.stageIntent ?? DEFAULT_VISUAL_TELEMETRY.stageIntent ?? 'hybrid';
+    stageIntentCounts.set(
+      stageIntent,
+      (stageIntentCounts.get(stageIntent) ?? 0) + 1
+    );
+    const worldAuthorityState =
+      telemetry.worldAuthorityState ??
+      DEFAULT_VISUAL_TELEMETRY.worldAuthorityState ??
+      'background';
+    worldAuthorityStateCounts.set(
+      worldAuthorityState,
+      (worldAuthorityStateCounts.get(worldAuthorityState) ?? 0) + 1
+    );
+    const heroAuthorityState =
+      telemetry.heroAuthorityState ??
+      DEFAULT_VISUAL_TELEMETRY.heroAuthorityState ??
+      'shared';
+    heroAuthorityStateCounts.set(
+      heroAuthorityState,
+      (heroAuthorityStateCounts.get(heroAuthorityState) ?? 0) + 1
+    );
+    const postSpendIntent =
+      telemetry.postSpendIntent ?? DEFAULT_VISUAL_TELEMETRY.postSpendIntent ?? 'withhold';
+    postSpendIntentCounts.set(
+      postSpendIntent,
+      (postSpendIntentCounts.get(postSpendIntent) ?? 0) + 1
+    );
+    const silenceState =
+      telemetry.silenceState ?? DEFAULT_VISUAL_TELEMETRY.silenceState ?? 'beauty';
+    silenceStateCounts.set(
+      silenceState,
+      (silenceStateCounts.get(silenceState) ?? 0) + 1
+    );
+    const phraseConfidence =
+      telemetry.phraseConfidence ??
+      DEFAULT_VISUAL_TELEMETRY.phraseConfidence ??
+      'uncertain';
+    phraseConfidenceCounts.set(
+      phraseConfidence,
+      (phraseConfidenceCounts.get(phraseConfidence) ?? 0) + 1
+    );
+    const sectionIntent =
+      telemetry.sectionIntent ?? DEFAULT_VISUAL_TELEMETRY.sectionIntent ?? 'hold';
+    sectionIntentCounts.set(
+      sectionIntent,
+      (sectionIntentCounts.get(sectionIntent) ?? 0) + 1
     );
     incrementNestedCounter(
       paletteByFamilyCounts,
@@ -1363,6 +2079,33 @@ function summarizeVisualTelemetry(
   const dominantStageCueFamily =
     [...stageCueFamilyCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
     'brood';
+  const dominantCanonicalCueClass =
+    [...canonicalCueClassCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'hold';
+  const dominantPerformanceRegime =
+    [...performanceRegimeCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'silence-beauty';
+  const dominantStageIntent =
+    [...stageIntentCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'hybrid';
+  const dominantWorldAuthorityState =
+    [...worldAuthorityStateCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'background';
+  const dominantHeroAuthorityState =
+    [...heroAuthorityStateCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'shared';
+  const dominantPostSpendIntent =
+    [...postSpendIntentCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'withhold';
+  const dominantSilenceState =
+    [...silenceStateCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'beauty';
+  const dominantPhraseConfidence =
+    [...phraseConfidenceCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'uncertain';
+  const dominantSectionIntent =
+    [...sectionIntentCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'hold';
   const dominantStageWorldMode =
     [...stageWorldModeCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
     'hold';
@@ -1407,6 +2150,77 @@ function summarizeVisualTelemetry(
     release: (stageCueFamilyCounts.get('release') ?? 0) / frames.length,
     haunt: (stageCueFamilyCounts.get('haunt') ?? 0) / frames.length,
     reset: (stageCueFamilyCounts.get('reset') ?? 0) / frames.length
+  };
+  const canonicalCueClassSpread: VisualTelemetrySummary['canonicalCueClassSpread'] = {
+    hold: (canonicalCueClassCounts.get('hold') ?? 0) / frames.length,
+    gather: (canonicalCueClassCounts.get('gather') ?? 0) / frames.length,
+    tighten: (canonicalCueClassCounts.get('tighten') ?? 0) / frames.length,
+    reveal: (canonicalCueClassCounts.get('reveal') ?? 0) / frames.length,
+    'orbit-widen': (canonicalCueClassCounts.get('orbit-widen') ?? 0) / frames.length,
+    'fan-sweep': (canonicalCueClassCounts.get('fan-sweep') ?? 0) / frames.length,
+    'laser-burst': (canonicalCueClassCounts.get('laser-burst') ?? 0) / frames.length,
+    rupture: (canonicalCueClassCounts.get('rupture') ?? 0) / frames.length,
+    collapse: (canonicalCueClassCounts.get('collapse') ?? 0) / frames.length,
+    haunt: (canonicalCueClassCounts.get('haunt') ?? 0) / frames.length,
+    residue: (canonicalCueClassCounts.get('residue') ?? 0) / frames.length,
+    recovery: (canonicalCueClassCounts.get('recovery') ?? 0) / frames.length
+  };
+  const performanceRegimeSpread: VisualTelemetrySummary['performanceRegimeSpread'] = {
+    'silence-beauty':
+      (performanceRegimeCounts.get('silence-beauty') ?? 0) / frames.length,
+    'room-floor': (performanceRegimeCounts.get('room-floor') ?? 0) / frames.length,
+    suspense: (performanceRegimeCounts.get('suspense') ?? 0) / frames.length,
+    gathering: (performanceRegimeCounts.get('gathering') ?? 0) / frames.length,
+    driving: (performanceRegimeCounts.get('driving') ?? 0) / frames.length,
+    surge: (performanceRegimeCounts.get('surge') ?? 0) / frames.length,
+    aftermath: (performanceRegimeCounts.get('aftermath') ?? 0) / frames.length
+  };
+  const stageIntentSpread: VisualTelemetrySummary['stageIntentSpread'] = {
+    'hero-pressure': (stageIntentCounts.get('hero-pressure') ?? 0) / frames.length,
+    'chamber-pressure': (stageIntentCounts.get('chamber-pressure') ?? 0) / frames.length,
+    'world-takeover': (stageIntentCounts.get('world-takeover') ?? 0) / frames.length,
+    'residue-memory': (stageIntentCounts.get('residue-memory') ?? 0) / frames.length,
+    'recovery-hold': (stageIntentCounts.get('recovery-hold') ?? 0) / frames.length,
+    hybrid: (stageIntentCounts.get('hybrid') ?? 0) / frames.length
+  };
+  const worldAuthorityStateSpread: VisualTelemetrySummary['worldAuthorityStateSpread'] = {
+    background: (worldAuthorityStateCounts.get('background') ?? 0) / frames.length,
+    support: (worldAuthorityStateCounts.get('support') ?? 0) / frames.length,
+    shared: (worldAuthorityStateCounts.get('shared') ?? 0) / frames.length,
+    dominant: (worldAuthorityStateCounts.get('dominant') ?? 0) / frames.length
+  };
+  const heroAuthorityStateSpread: VisualTelemetrySummary['heroAuthorityStateSpread'] = {
+    subtracted: (heroAuthorityStateCounts.get('subtracted') ?? 0) / frames.length,
+    support: (heroAuthorityStateCounts.get('support') ?? 0) / frames.length,
+    shared: (heroAuthorityStateCounts.get('shared') ?? 0) / frames.length,
+    dominant: (heroAuthorityStateCounts.get('dominant') ?? 0) / frames.length
+  };
+  const postSpendIntentSpread: VisualTelemetrySummary['postSpendIntentSpread'] = {
+    withhold: (postSpendIntentCounts.get('withhold') ?? 0) / frames.length,
+    trace: (postSpendIntentCounts.get('trace') ?? 0) / frames.length,
+    stress: (postSpendIntentCounts.get('stress') ?? 0) / frames.length,
+    memory: (postSpendIntentCounts.get('memory') ?? 0) / frames.length,
+    wipe: (postSpendIntentCounts.get('wipe') ?? 0) / frames.length,
+    burn: (postSpendIntentCounts.get('burn') ?? 0) / frames.length
+  };
+  const silenceStateSpread: VisualTelemetrySummary['silenceStateSpread'] = {
+    none: (silenceStateCounts.get('none') ?? 0) / frames.length,
+    'room-floor': (silenceStateCounts.get('room-floor') ?? 0) / frames.length,
+    beauty: (silenceStateCounts.get('beauty') ?? 0) / frames.length,
+    suspense: (silenceStateCounts.get('suspense') ?? 0) / frames.length
+  };
+  const phraseConfidenceSpread: VisualTelemetrySummary['phraseConfidenceSpread'] = {
+    uncertain: (phraseConfidenceCounts.get('uncertain') ?? 0) / frames.length,
+    forming: (phraseConfidenceCounts.get('forming') ?? 0) / frames.length,
+    confident: (phraseConfidenceCounts.get('confident') ?? 0) / frames.length,
+    locked: (phraseConfidenceCounts.get('locked') ?? 0) / frames.length
+  };
+  const sectionIntentSpread: VisualTelemetrySummary['sectionIntentSpread'] = {
+    hold: (sectionIntentCounts.get('hold') ?? 0) / frames.length,
+    turn: (sectionIntentCounts.get('turn') ?? 0) / frames.length,
+    drop: (sectionIntentCounts.get('drop') ?? 0) / frames.length,
+    release: (sectionIntentCounts.get('release') ?? 0) / frames.length,
+    recovery: (sectionIntentCounts.get('recovery') ?? 0) / frames.length
   };
   const stageWorldModeSpread: VisualTelemetrySummary['stageWorldModeSpread'] = {
     hold: (stageWorldModeCounts.get('hold') ?? 0) / frames.length,
@@ -1517,6 +2331,15 @@ function summarizeVisualTelemetry(
     paletteStateSpreadByAct,
     paletteStateSpreadByFamily,
     stageCueFamilySpread,
+    canonicalCueClassSpread,
+    performanceRegimeSpread,
+    stageIntentSpread,
+    worldAuthorityStateSpread,
+    heroAuthorityStateSpread,
+    postSpendIntentSpread,
+    silenceStateSpread,
+    phraseConfidenceSpread,
+    sectionIntentSpread,
     dominantStageCueFamily:
       dominantStageCueFamily === 'brood' ||
       dominantStageCueFamily === 'gather' ||
@@ -1527,6 +2350,85 @@ function summarizeVisualTelemetry(
       dominantStageCueFamily === 'reset'
         ? dominantStageCueFamily
         : 'brood',
+    dominantCanonicalCueClass:
+      dominantCanonicalCueClass === 'hold' ||
+      dominantCanonicalCueClass === 'gather' ||
+      dominantCanonicalCueClass === 'tighten' ||
+      dominantCanonicalCueClass === 'reveal' ||
+      dominantCanonicalCueClass === 'orbit-widen' ||
+      dominantCanonicalCueClass === 'fan-sweep' ||
+      dominantCanonicalCueClass === 'laser-burst' ||
+      dominantCanonicalCueClass === 'rupture' ||
+      dominantCanonicalCueClass === 'collapse' ||
+      dominantCanonicalCueClass === 'haunt' ||
+      dominantCanonicalCueClass === 'residue' ||
+      dominantCanonicalCueClass === 'recovery'
+        ? dominantCanonicalCueClass
+        : 'hold',
+    dominantPerformanceRegime:
+      dominantPerformanceRegime === 'silence-beauty' ||
+      dominantPerformanceRegime === 'room-floor' ||
+      dominantPerformanceRegime === 'suspense' ||
+      dominantPerformanceRegime === 'gathering' ||
+      dominantPerformanceRegime === 'driving' ||
+      dominantPerformanceRegime === 'surge' ||
+      dominantPerformanceRegime === 'aftermath'
+        ? dominantPerformanceRegime
+        : 'silence-beauty',
+    dominantStageIntent:
+      dominantStageIntent === 'hero-pressure' ||
+      dominantStageIntent === 'chamber-pressure' ||
+      dominantStageIntent === 'world-takeover' ||
+      dominantStageIntent === 'residue-memory' ||
+      dominantStageIntent === 'recovery-hold' ||
+      dominantStageIntent === 'hybrid'
+        ? dominantStageIntent
+        : 'hybrid',
+    dominantWorldAuthorityState:
+      dominantWorldAuthorityState === 'background' ||
+      dominantWorldAuthorityState === 'support' ||
+      dominantWorldAuthorityState === 'shared' ||
+      dominantWorldAuthorityState === 'dominant'
+        ? dominantWorldAuthorityState
+        : 'background',
+    dominantHeroAuthorityState:
+      dominantHeroAuthorityState === 'subtracted' ||
+      dominantHeroAuthorityState === 'support' ||
+      dominantHeroAuthorityState === 'shared' ||
+      dominantHeroAuthorityState === 'dominant'
+        ? dominantHeroAuthorityState
+        : 'shared',
+    dominantPostSpendIntent:
+      dominantPostSpendIntent === 'withhold' ||
+      dominantPostSpendIntent === 'trace' ||
+      dominantPostSpendIntent === 'stress' ||
+      dominantPostSpendIntent === 'memory' ||
+      dominantPostSpendIntent === 'wipe' ||
+      dominantPostSpendIntent === 'burn'
+        ? dominantPostSpendIntent
+        : 'withhold',
+    dominantSilenceState:
+      dominantSilenceState === 'none' ||
+      dominantSilenceState === 'room-floor' ||
+      dominantSilenceState === 'beauty' ||
+      dominantSilenceState === 'suspense'
+        ? dominantSilenceState
+        : 'beauty',
+    dominantPhraseConfidence:
+      dominantPhraseConfidence === 'uncertain' ||
+      dominantPhraseConfidence === 'forming' ||
+      dominantPhraseConfidence === 'confident' ||
+      dominantPhraseConfidence === 'locked'
+        ? dominantPhraseConfidence
+        : 'uncertain',
+    dominantSectionIntent:
+      dominantSectionIntent === 'hold' ||
+      dominantSectionIntent === 'turn' ||
+      dominantSectionIntent === 'drop' ||
+      dominantSectionIntent === 'release' ||
+      dominantSectionIntent === 'recovery'
+        ? dominantSectionIntent
+        : 'hold',
     stageWorldModeSpread,
     stageWorldModeSpreadByFamily,
     dominantStageWorldMode:
@@ -1759,6 +2661,8 @@ function deriveCaptureQualityFlags(input: {
   renderer: RendererDiagnostics;
   launchQuickStartProfileId?: string;
   quickStartProfileId?: string;
+  buildInfo?: ReplayBuildInfo;
+  scenarioAssessment?: ReplayScenarioAssessment | null;
   triggerKind?: string;
   durationMs: number;
   triggerCount: number;
@@ -1825,6 +2729,39 @@ function deriveCaptureQualityFlags(input: {
     flags.add('weakPhraseRelease');
   }
 
+  if (!input.buildInfo || !isReplayBuildInfoValid(input.buildInfo)) {
+    flags.add('staleBuildIdentity');
+  }
+
+  if (input.scenarioAssessment && !input.scenarioAssessment.validated) {
+    flags.add('scenarioMismatch');
+  }
+
+  if (
+    (input.visualSummary.worldDominanceDeliveredMean ?? 0) < 0.18 &&
+    (input.visualSummary.frameHierarchyMean ?? 1) < 0.72
+  ) {
+    flags.add('weakWorldAuthorityDelivery');
+  }
+
+  if (
+    (input.visualSummary.heroCoverageMean ?? 0) >= 0.28 &&
+    (input.visualSummary.worldDominanceDeliveredMean ?? 0) <= 0.16
+  ) {
+    flags.add('heroMonopolyRisk');
+  }
+
+  if (
+    (input.visualSummary.ringBeltPersistenceMean ?? 0) >= 0.28 ||
+    (input.visualSummary.ringOverdrawFallbackRate ?? 0) >= 0.12
+  ) {
+    flags.add('ringOverdrawRisk');
+  }
+
+  if ((input.visualSummary.chamberPresenceMean ?? 0) < 0.16) {
+    flags.add('lowChamberPresence');
+  }
+
   return [...flags];
 }
 
@@ -1833,7 +2770,7 @@ export function parseReplayCapture(raw: string): ReplayCapture {
 
   if (
     !isObject(parsed) ||
-    (parsed.version !== 1 && parsed.version !== 2) ||
+    (parsed.version !== 1 && parsed.version !== 2 && parsed.version !== 3) ||
     !Array.isArray(parsed.frames)
   ) {
     throw new Error('Invalid replay capture file.');
@@ -1843,7 +2780,8 @@ export function parseReplayCapture(raw: string): ReplayCapture {
     throw new Error('Replay capture metadata is missing or malformed.');
   }
 
-  const parsedVersion = parsed.version === 2 ? 2 : 1;
+  const parsedVersion =
+    parsed.version === 3 ? 3 : parsed.version === 2 ? 2 : 1;
 
   const frames = normalizeReplayCaptureFrameSequence(
     parsed.frames
@@ -1899,6 +2837,10 @@ export function parseReplayCapture(raw: string): ReplayCapture {
     version: parsedVersion,
     metadata: {
       app: 'visulive',
+      artifactType:
+        parsed.metadata.artifactType === 'replay-capture'
+          ? 'replay-capture'
+          : undefined,
       label: parsed.metadata.label,
       capturedAt:
         typeof parsed.metadata.capturedAt === 'string'
@@ -1954,6 +2896,189 @@ export function parseReplayCapture(raw: string): ReplayCapture {
         typeof parsed.metadata.quickStartProfileLabel === 'string'
           ? parsed.metadata.quickStartProfileLabel
           : undefined,
+      showStartRoute:
+        parsed.metadata.showStartRoute === 'pc-audio' ||
+        parsed.metadata.showStartRoute === 'microphone' ||
+        parsed.metadata.showStartRoute === 'combo'
+          ? parsed.metadata.showStartRoute
+          : undefined,
+      showCapabilityMode:
+        parsed.metadata.showCapabilityMode === 'full-autonomous' ||
+        parsed.metadata.showCapabilityMode === 'curated'
+          ? parsed.metadata.showCapabilityMode
+          : undefined,
+      showConstraintState:
+        isObject(parsed.metadata.showConstraintState)
+          ? {
+              hasWorldPoolConstraint:
+                parsed.metadata.showConstraintState.hasWorldPoolConstraint === true,
+              hasLookPoolConstraint:
+                parsed.metadata.showConstraintState.hasLookPoolConstraint === true,
+              hasWorldAnchor:
+                parsed.metadata.showConstraintState.hasWorldAnchor === true,
+              hasLookAnchor:
+                parsed.metadata.showConstraintState.hasLookAnchor === true,
+              hasStanceOverride:
+                parsed.metadata.showConstraintState.hasStanceOverride === true,
+              hasSteeringOverride:
+                parsed.metadata.showConstraintState.hasSteeringOverride === true
+            }
+          : undefined,
+      routePolicy: normalizeRoutePolicy(parsed.metadata.routePolicy),
+      resolvedRoute: normalizeResolvedRoute(parsed.metadata.resolvedRoute),
+      routeRecommendation: normalizeReplayRouteRecommendation(
+        parsed.metadata.routeRecommendation
+      ),
+      showWorldId: normalizeWorldId(parsed.metadata.showWorldId),
+      effectiveWorldId: normalizeWorldId(parsed.metadata.effectiveWorldId),
+      lookId: normalizeLookId(parsed.metadata.lookId),
+      effectiveLookId: normalizeLookId(parsed.metadata.effectiveLookId),
+      worldPoolId: normalizeWorldPoolId(parsed.metadata.worldPoolId),
+      lookPoolId: normalizeLookPoolId(parsed.metadata.lookPoolId),
+      stanceId: normalizeDirectorStanceId(parsed.metadata.stanceId),
+      anthologyWorldFamilyId:
+        typeof parsed.metadata.anthologyWorldFamilyId === 'string'
+          ? (parsed.metadata.anthologyWorldFamilyId as WorldFamilyId)
+          : undefined,
+      anthologyLookProfileId:
+        typeof parsed.metadata.anthologyLookProfileId === 'string'
+          ? (parsed.metadata.anthologyLookProfileId as LookProfileId)
+          : undefined,
+      anthologyHeroSpeciesId:
+        typeof parsed.metadata.anthologyHeroSpeciesId === 'string'
+          ? (parsed.metadata.anthologyHeroSpeciesId as HeroSpeciesId)
+          : undefined,
+      anthologyHeroMutationVerb:
+        typeof parsed.metadata.anthologyHeroMutationVerb === 'string'
+          ? (parsed.metadata.anthologyHeroMutationVerb as HeroMutationVerb)
+          : undefined,
+      anthologyWorldMutationVerb:
+        typeof parsed.metadata.anthologyWorldMutationVerb === 'string'
+          ? (parsed.metadata.anthologyWorldMutationVerb as WorldMutationVerb)
+          : undefined,
+      anthologyConsequenceMode:
+        typeof parsed.metadata.anthologyConsequenceMode === 'string'
+          ? (parsed.metadata.anthologyConsequenceMode as ConsequenceMode)
+          : undefined,
+      anthologyAftermathState:
+        typeof parsed.metadata.anthologyAftermathState === 'string'
+          ? (parsed.metadata.anthologyAftermathState as AftermathState)
+          : undefined,
+      anthologyLightingRigState:
+        typeof parsed.metadata.anthologyLightingRigState === 'string'
+          ? (parsed.metadata.anthologyLightingRigState as LightingRigState)
+          : undefined,
+      anthologyCameraPhrase:
+        typeof parsed.metadata.anthologyCameraPhrase === 'string'
+          ? (parsed.metadata.anthologyCameraPhrase as CameraPhrase)
+          : undefined,
+      anthologyParticleFieldRole:
+        typeof parsed.metadata.anthologyParticleFieldRole === 'string'
+          ? (parsed.metadata.anthologyParticleFieldRole as ParticleFieldRole)
+          : undefined,
+      anthologyMixedMediaAssetId:
+        typeof parsed.metadata.anthologyMixedMediaAssetId === 'string'
+          ? (parsed.metadata.anthologyMixedMediaAssetId as MixedMediaAssetId)
+          : undefined,
+      anthologyMotifId:
+        typeof parsed.metadata.anthologyMotifId === 'string'
+          ? (parsed.metadata.anthologyMotifId as MotifId)
+          : undefined,
+      anthologyGraduationStatus:
+        parsed.metadata.anthologyGraduationStatus === 'lab' ||
+        parsed.metadata.anthologyGraduationStatus === 'frontier' ||
+        parsed.metadata.anthologyGraduationStatus === 'flagship' ||
+        parsed.metadata.anthologyGraduationStatus === 'retired'
+          ? parsed.metadata.anthologyGraduationStatus
+          : undefined,
+      anthologyMusicPhase:
+        parsed.metadata.anthologyMusicPhase === 'quiet' ||
+        parsed.metadata.anthologyMusicPhase === 'gather' ||
+        parsed.metadata.anthologyMusicPhase === 'flow' ||
+        parsed.metadata.anthologyMusicPhase === 'surge' ||
+        parsed.metadata.anthologyMusicPhase === 'aftermath'
+          ? parsed.metadata.anthologyMusicPhase
+          : undefined,
+      anthologyMusicRegime:
+        parsed.metadata.anthologyMusicRegime === 'listening' ||
+        parsed.metadata.anthologyMusicRegime === 'gathering' ||
+        parsed.metadata.anthologyMusicRegime === 'driving' ||
+        parsed.metadata.anthologyMusicRegime === 'detonating' ||
+        parsed.metadata.anthologyMusicRegime === 'recovering'
+          ? parsed.metadata.anthologyMusicRegime
+          : undefined,
+      launchSurfaceMode:
+        parsed.metadata.launchSurfaceMode === 'launch' ||
+        parsed.metadata.launchSurfaceMode === 'explore'
+          ? parsed.metadata.launchSurfaceMode
+          : undefined,
+      livePanelMode:
+        parsed.metadata.livePanelMode === 'deck' ||
+        parsed.metadata.livePanelMode === 'backstage'
+          ? parsed.metadata.livePanelMode
+          : parsed.metadata.livePanelMode === null
+            ? null
+            : undefined,
+      advancedDrawerTab:
+        parsed.metadata.advancedDrawerTab === 'style' ||
+        parsed.metadata.advancedDrawerTab === 'steer' ||
+        parsed.metadata.advancedDrawerTab === 'backstage'
+          ? parsed.metadata.advancedDrawerTab
+          : parsed.metadata.advancedDrawerTab === null
+            ? null
+            : undefined,
+      buildInfo: normalizeReplayBuildInfo(parsed.metadata.buildInfo),
+      runId:
+        typeof parsed.metadata.runId === 'string' &&
+        parsed.metadata.runId.trim().length > 0
+          ? parsed.metadata.runId
+          : undefined,
+      sessionStartedAt:
+        typeof parsed.metadata.sessionStartedAt === 'string' &&
+        parsed.metadata.sessionStartedAt.trim().length > 0
+          ? parsed.metadata.sessionStartedAt
+          : undefined,
+      sessionElapsedMs:
+        typeof parsed.metadata.sessionElapsedMs === 'number'
+          ? parsed.metadata.sessionElapsedMs
+          : undefined,
+      interventionCount:
+        typeof parsed.metadata.interventionCount === 'number'
+          ? parsed.metadata.interventionCount
+          : undefined,
+      interventionReasons: Array.isArray(parsed.metadata.interventionReasons)
+        ? parsed.metadata.interventionReasons.filter(
+            (reason): reason is string =>
+              typeof reason === 'string' && reason.trim().length > 0
+          )
+        : undefined,
+      firstInterventionTimestampMs:
+        typeof parsed.metadata.firstInterventionTimestampMs === 'number'
+          ? parsed.metadata.firstInterventionTimestampMs
+          : parsed.metadata.firstInterventionTimestampMs === null
+            ? null
+            : undefined,
+      noTouchWindowPassed:
+        typeof parsed.metadata.noTouchWindowPassed === 'boolean'
+          ? parsed.metadata.noTouchWindowPassed
+          : undefined,
+      proofScenarioKind:
+        parsed.metadata.proofScenarioKind === 'primary-benchmark' ||
+        parsed.metadata.proofScenarioKind === 'room-floor' ||
+        parsed.metadata.proofScenarioKind === 'coverage' ||
+        parsed.metadata.proofScenarioKind === 'sparse-silence' ||
+        parsed.metadata.proofScenarioKind === 'operator-trust' ||
+        parsed.metadata.proofScenarioKind === 'steering'
+          ? parsed.metadata.proofScenarioKind
+          : undefined,
+      scenarioAssessment: normalizeReplayScenarioAssessment(
+        parsed.metadata.scenarioAssessment
+      ),
+      directorBiasSnapshot: isObject(parsed.metadata.directorBiasSnapshot)
+        ? sanitizeDirectorBiasState(
+            parsed.metadata.directorBiasSnapshot as Partial<DirectorBiasState>
+          )
+        : undefined,
       triggerKind:
         typeof parsed.metadata.triggerKind === 'string'
           ? parsed.metadata.triggerKind
@@ -1989,6 +3114,15 @@ export function parseReplayCapture(raw: string): ReplayCapture {
         parsed.metadata.inputDriftSummary
       ),
       proofStills: normalizeReplayProofStillSummary(parsed.metadata.proofStills),
+      proofReadiness: normalizeReplayProofReadiness(parsed.metadata.proofReadiness),
+      proofValidity: normalizeReplayProofValidity(parsed.metadata.proofValidity),
+      runLifecycleState:
+        parsed.metadata.runLifecycleState === 'inbox' ||
+        parsed.metadata.runLifecycleState === 'reviewed-candidate' ||
+        parsed.metadata.runLifecycleState === 'canonical' ||
+        parsed.metadata.runLifecycleState === 'archive'
+          ? parsed.metadata.runLifecycleState
+          : undefined,
       visualSummary: normalizeVisualTelemetrySummary(parsed.metadata.visualSummary),
       qualityFlags: Array.isArray(parsed.metadata.qualityFlags)
         ? parsed.metadata.qualityFlags.filter(
@@ -2202,6 +3336,85 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.cueClass === 'haunt'
         ? telemetry.cueClass
         : DEFAULT_VISUAL_TELEMETRY.cueClass,
+    canonicalCueClass:
+      telemetry?.canonicalCueClass === 'hold' ||
+      telemetry?.canonicalCueClass === 'gather' ||
+      telemetry?.canonicalCueClass === 'tighten' ||
+      telemetry?.canonicalCueClass === 'reveal' ||
+      telemetry?.canonicalCueClass === 'orbit-widen' ||
+      telemetry?.canonicalCueClass === 'fan-sweep' ||
+      telemetry?.canonicalCueClass === 'laser-burst' ||
+      telemetry?.canonicalCueClass === 'rupture' ||
+      telemetry?.canonicalCueClass === 'collapse' ||
+      telemetry?.canonicalCueClass === 'haunt' ||
+      telemetry?.canonicalCueClass === 'residue' ||
+      telemetry?.canonicalCueClass === 'recovery'
+        ? telemetry.canonicalCueClass
+        : DEFAULT_VISUAL_TELEMETRY.canonicalCueClass,
+    performanceRegime:
+      telemetry?.performanceRegime === 'silence-beauty' ||
+      telemetry?.performanceRegime === 'room-floor' ||
+      telemetry?.performanceRegime === 'suspense' ||
+      telemetry?.performanceRegime === 'gathering' ||
+      telemetry?.performanceRegime === 'driving' ||
+      telemetry?.performanceRegime === 'surge' ||
+      telemetry?.performanceRegime === 'aftermath'
+        ? telemetry.performanceRegime
+        : DEFAULT_VISUAL_TELEMETRY.performanceRegime,
+    stageIntent:
+      telemetry?.stageIntent === 'hero-pressure' ||
+      telemetry?.stageIntent === 'chamber-pressure' ||
+      telemetry?.stageIntent === 'world-takeover' ||
+      telemetry?.stageIntent === 'residue-memory' ||
+      telemetry?.stageIntent === 'recovery-hold' ||
+      telemetry?.stageIntent === 'hybrid'
+        ? telemetry.stageIntent
+        : DEFAULT_VISUAL_TELEMETRY.stageIntent,
+    worldAuthorityState:
+      telemetry?.worldAuthorityState === 'background' ||
+      telemetry?.worldAuthorityState === 'support' ||
+      telemetry?.worldAuthorityState === 'shared' ||
+      telemetry?.worldAuthorityState === 'dominant'
+        ? telemetry.worldAuthorityState
+        : DEFAULT_VISUAL_TELEMETRY.worldAuthorityState,
+    heroAuthorityState:
+      telemetry?.heroAuthorityState === 'subtracted' ||
+      telemetry?.heroAuthorityState === 'support' ||
+      telemetry?.heroAuthorityState === 'shared' ||
+      telemetry?.heroAuthorityState === 'dominant'
+        ? telemetry.heroAuthorityState
+        : DEFAULT_VISUAL_TELEMETRY.heroAuthorityState,
+    postSpendIntent:
+      telemetry?.postSpendIntent === 'withhold' ||
+      telemetry?.postSpendIntent === 'trace' ||
+      telemetry?.postSpendIntent === 'stress' ||
+      telemetry?.postSpendIntent === 'memory' ||
+      telemetry?.postSpendIntent === 'wipe' ||
+      telemetry?.postSpendIntent === 'burn'
+        ? telemetry.postSpendIntent
+        : DEFAULT_VISUAL_TELEMETRY.postSpendIntent,
+    silenceState:
+      telemetry?.silenceState === 'none' ||
+      telemetry?.silenceState === 'room-floor' ||
+      telemetry?.silenceState === 'beauty' ||
+      telemetry?.silenceState === 'suspense'
+        ? telemetry.silenceState
+        : DEFAULT_VISUAL_TELEMETRY.silenceState,
+    phraseConfidence:
+      telemetry?.phraseConfidence === 'uncertain' ||
+      telemetry?.phraseConfidence === 'forming' ||
+      telemetry?.phraseConfidence === 'confident' ||
+      telemetry?.phraseConfidence === 'locked'
+        ? telemetry.phraseConfidence
+        : DEFAULT_VISUAL_TELEMETRY.phraseConfidence,
+    sectionIntent:
+      telemetry?.sectionIntent === 'hold' ||
+      telemetry?.sectionIntent === 'turn' ||
+      telemetry?.sectionIntent === 'drop' ||
+      telemetry?.sectionIntent === 'release' ||
+      telemetry?.sectionIntent === 'recovery'
+        ? telemetry.sectionIntent
+        : DEFAULT_VISUAL_TELEMETRY.sectionIntent,
     cueIntensity:
       typeof telemetry?.cueIntensity === 'number'
         ? telemetry.cueIntensity
@@ -3141,6 +4354,121 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       summary.dominantStageCueFamily === 'reset'
         ? summary.dominantStageCueFamily
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantStageCueFamily,
+    canonicalCueClassSpread: normalizeFixedNumberRecord(
+      CANONICAL_CUE_CLASS_KEYS,
+      summary.canonicalCueClassSpread
+    ),
+    dominantCanonicalCueClass:
+      summary.dominantCanonicalCueClass === 'hold' ||
+      summary.dominantCanonicalCueClass === 'gather' ||
+      summary.dominantCanonicalCueClass === 'tighten' ||
+      summary.dominantCanonicalCueClass === 'reveal' ||
+      summary.dominantCanonicalCueClass === 'orbit-widen' ||
+      summary.dominantCanonicalCueClass === 'fan-sweep' ||
+      summary.dominantCanonicalCueClass === 'laser-burst' ||
+      summary.dominantCanonicalCueClass === 'rupture' ||
+      summary.dominantCanonicalCueClass === 'collapse' ||
+      summary.dominantCanonicalCueClass === 'haunt' ||
+      summary.dominantCanonicalCueClass === 'residue' ||
+      summary.dominantCanonicalCueClass === 'recovery'
+        ? summary.dominantCanonicalCueClass
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantCanonicalCueClass,
+    performanceRegimeSpread: normalizeFixedNumberRecord(
+      PERFORMANCE_REGIME_KEYS,
+      summary.performanceRegimeSpread
+    ),
+    dominantPerformanceRegime:
+      summary.dominantPerformanceRegime === 'silence-beauty' ||
+      summary.dominantPerformanceRegime === 'room-floor' ||
+      summary.dominantPerformanceRegime === 'suspense' ||
+      summary.dominantPerformanceRegime === 'gathering' ||
+      summary.dominantPerformanceRegime === 'driving' ||
+      summary.dominantPerformanceRegime === 'surge' ||
+      summary.dominantPerformanceRegime === 'aftermath'
+        ? summary.dominantPerformanceRegime
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPerformanceRegime,
+    stageIntentSpread: normalizeFixedNumberRecord(
+      STAGE_INTENT_KEYS,
+      summary.stageIntentSpread
+    ),
+    dominantStageIntent:
+      summary.dominantStageIntent === 'hero-pressure' ||
+      summary.dominantStageIntent === 'chamber-pressure' ||
+      summary.dominantStageIntent === 'world-takeover' ||
+      summary.dominantStageIntent === 'residue-memory' ||
+      summary.dominantStageIntent === 'recovery-hold' ||
+      summary.dominantStageIntent === 'hybrid'
+        ? summary.dominantStageIntent
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantStageIntent,
+    worldAuthorityStateSpread: normalizeFixedNumberRecord(
+      WORLD_AUTHORITY_STATE_KEYS,
+      summary.worldAuthorityStateSpread
+    ),
+    dominantWorldAuthorityState:
+      summary.dominantWorldAuthorityState === 'background' ||
+      summary.dominantWorldAuthorityState === 'support' ||
+      summary.dominantWorldAuthorityState === 'shared' ||
+      summary.dominantWorldAuthorityState === 'dominant'
+        ? summary.dominantWorldAuthorityState
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantWorldAuthorityState,
+    heroAuthorityStateSpread: normalizeFixedNumberRecord(
+      HERO_AUTHORITY_STATE_KEYS,
+      summary.heroAuthorityStateSpread
+    ),
+    dominantHeroAuthorityState:
+      summary.dominantHeroAuthorityState === 'subtracted' ||
+      summary.dominantHeroAuthorityState === 'support' ||
+      summary.dominantHeroAuthorityState === 'shared' ||
+      summary.dominantHeroAuthorityState === 'dominant'
+        ? summary.dominantHeroAuthorityState
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantHeroAuthorityState,
+    postSpendIntentSpread: normalizeFixedNumberRecord(
+      POST_SPEND_INTENT_KEYS,
+      summary.postSpendIntentSpread
+    ),
+    dominantPostSpendIntent:
+      summary.dominantPostSpendIntent === 'withhold' ||
+      summary.dominantPostSpendIntent === 'trace' ||
+      summary.dominantPostSpendIntent === 'stress' ||
+      summary.dominantPostSpendIntent === 'memory' ||
+      summary.dominantPostSpendIntent === 'wipe' ||
+      summary.dominantPostSpendIntent === 'burn'
+        ? summary.dominantPostSpendIntent
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPostSpendIntent,
+    silenceStateSpread: normalizeFixedNumberRecord(
+      SILENCE_STATE_KEYS,
+      summary.silenceStateSpread
+    ),
+    dominantSilenceState:
+      summary.dominantSilenceState === 'none' ||
+      summary.dominantSilenceState === 'room-floor' ||
+      summary.dominantSilenceState === 'beauty' ||
+      summary.dominantSilenceState === 'suspense'
+        ? summary.dominantSilenceState
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSilenceState,
+    phraseConfidenceSpread: normalizeFixedNumberRecord(
+      PHRASE_CONFIDENCE_KEYS,
+      summary.phraseConfidenceSpread
+    ),
+    dominantPhraseConfidence:
+      summary.dominantPhraseConfidence === 'uncertain' ||
+      summary.dominantPhraseConfidence === 'forming' ||
+      summary.dominantPhraseConfidence === 'confident' ||
+      summary.dominantPhraseConfidence === 'locked'
+        ? summary.dominantPhraseConfidence
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPhraseConfidence,
+    sectionIntentSpread: normalizeFixedNumberRecord(
+      SECTION_INTENT_KEYS,
+      summary.sectionIntentSpread
+    ),
+    dominantSectionIntent:
+      summary.dominantSectionIntent === 'hold' ||
+      summary.dominantSectionIntent === 'turn' ||
+      summary.dominantSectionIntent === 'drop' ||
+      summary.dominantSectionIntent === 'release' ||
+      summary.dominantSectionIntent === 'recovery'
+        ? summary.dominantSectionIntent
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSectionIntent,
     stageWorldModeSpread: {
       hold:
         typeof summary.stageWorldModeSpread?.hold === 'number'

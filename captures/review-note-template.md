@@ -6,6 +6,9 @@ Keep it short. The goal is not a diary. The goal is to make future retuning unde
 
 ## Capture
 
+- run id:
+- run lifecycle:
+- proof verdict:
 - file:
 - date:
 - batch type: primary benchmark / quiet room-floor / show coverage
@@ -17,6 +20,7 @@ Keep it short. The goal is not a diary. The goal is to make future retuning unde
 - raw-path status:
 - proof still bundle:
 - benchmark validation:
+- recommendation artifact:
 
 ## Scenario
 
@@ -75,8 +79,9 @@ Keep it short. The goal is not a diary. The goal is to make future retuning unde
 ## Decision
 
 - truth gate: pass / warn / fail
-- governance gate: pass / warn / fail
+- hierarchy gate: pass / warn / fail
 - coverage gate: pass / warn / fail
 - taste gate: pass / warn / fail
+- operator trust gate: pass / warn / fail
 - keep / revise / revert:
 - next adjustment:

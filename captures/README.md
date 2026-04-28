@@ -11,12 +11,31 @@ Current lifecycle:
 - [archive](C:/dev/GitHub/visulive/captures/archive) for learned historical batches
 - [reports](C:/dev/GitHub/visulive/captures/reports) for generated analysis only
 
+Run-package truth:
+- serious runs now live under `captures/inbox/runs/<runId>/`
+- each run package may contain a run journal, run manifest, clip JSON files, and stills
+- reviewed runs should also carry a review summary, optional attached review note, and recommendation JSON
+- loose clip JSON files still parse, but the new default evidence unit is the run package
+- run journals are local operator/dev evidence only, not hosted analytics
+
+Run lifecycle states:
+- `inbox`: freshly collected and not yet reviewed
+- `reviewed-candidate`: reviewed current-proof candidate retained for comparison
+- `canonical`: the currently accepted proof run for that scenario
+- `archive`: historical or invalidated material kept for lineage
+
 Current benchmark truth:
-- the active correction benchmark is defined in [benchmark-manifest.json](C:/dev/GitHub/visulive/captures/benchmark-manifest.json)
-- older captures are historical context only unless explicitly promoted back into the active benchmark set
+- benchmark status is defined in [benchmark-manifest.json](C:/dev/GitHub/visulive/captures/benchmark-manifest.json)
+- the manifest may intentionally contain only historical baselines while a fresh current proof batch is still missing
+- older captures are historical context only unless explicitly promoted back into the active current benchmark set
 - replay/capture remains internal AI/developer tuning infrastructure, not the intended end-user product loop
 - the manifest now separates a primary AFQR correction benchmark from secondary room-floor scenario entries so the reports can judge them independently
 - the current next-level wave also expects slower ambient proof to show motion variety, palette handoff, and screen-space consequence instead of the samey lock
+
+Evidence status labels:
+- `historical-baseline`: useful lineage and comparison material, not current branch proof
+- `current-candidate`: fresh current-pass evidence that is attached for review but not yet the settled benchmark truth
+- `current-canonical`: fresh current-pass evidence that is the active benchmark truth
 
 Use it for:
 - canonical room scenarios
@@ -95,28 +114,62 @@ Once captures exist, do not stop at "load replay and eyeball it."
 Use the full loop:
 
 1. collect the capture
-2. save it into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-3. if you want the low-friction path, choose that folder once in diagnostics and let the app write there automatically
-4. if you want rolling reports while music is still playing, run:
+2. arm `Proof Wave` in backstage for serious runs so auto-capture, auto-save, proof stills, and run journaling are enabled together
+3. save the run into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
+4. if you want the low-friction path, choose that folder once in diagnostics and let the app write there automatically
+5. if you want rolling reports while music is still playing, run:
 
 ```powershell
 npm run watch:captures
 ```
 
-5. for a one-shot report, run:
+6. for a one-shot report, run:
 
 ```powershell
 npm run analyze:captures
 ```
 
-6. review the generated markdown report in:
+7. review the generated markdown report in:
    - [reports](C:/dev/GitHub/visulive/captures/reports)
-7. use that report plus live visual judgment to decide the next retuning pass
+8. use that report plus live visual judgment to decide the next retuning pass
 
 The rolling watcher keeps this file current while new captures arrive:
 - [capture-analysis_latest.md](C:/dev/GitHub/visulive/captures/reports/capture-analysis_latest.md)
 
 `npm run analyze:captures` now refreshes that same latest report too.
+
+For the serious current-proof pass, prefer:
+
+```powershell
+npm run proof:current
+```
+
+That runs benchmark validation, refreshes the latest analyzer report, and rebuilds the latest proof pack serially.
+If you want a review note scaffold after that:
+
+```powershell
+npm run proof:review-note
+```
+
+Then classify the run package itself:
+
+```powershell
+npm run evidence:index
+npm run run:review -- --run-id <runId> --review-note <path-to-note>
+npm run run:promote -- --run-id <runId> --state reviewed-candidate
+```
+
+Only move a reviewed candidate to canonical when it should replace the standing truth:
+
+```powershell
+npm run run:promote -- --run-id <runId> --state canonical
+```
+
+Archive the whole run package when it is useful history but not current proof:
+
+```powershell
+npm run run:archive -- --run-id <runId>
+```
 
 Benchmark hygiene is now part of the capture loop:
 
@@ -131,6 +184,9 @@ npm run benchmark:promote -- <capture-path> --id <benchmark-id> --label "<label>
 ```
 
 Use `secondary-floor` when the capture exists to judge quiet room-floor behavior.
+
+Promotion default is now `current-candidate`.
+Only pass `--status current-canonical` when the fresh batch has cleared review and you want it to become the active benchmark truth.
 
 The latest report now distinguishes:
 - long-duration windows
@@ -147,12 +203,27 @@ The current standard is not just "does it react."
 It is also:
 - does it spend similar musical moments consistently
 - does the report confirm that the conductor and event system are classifying those moments coherently
+- does the run journal prove when authority turned, when no-touch cleared, and whether a clip was actually captured for those moments
+
+The local evidence catalog is now part of the workflow:
+
+```powershell
+npm run evidence:index
+npm run evidence:query -- --scenario operator-trust --no-touch
+npm run evidence:query -- --runs --scenario operator-trust --current-proof
+npm run evidence:query -- --recommendations --owner-lane runtime-governance
+npm run evidence:compare -- --scenario primary-benchmark
+npm run evidence:missed
+```
+
+Use that catalog to find proof-worthy examples without re-reading raw JSON by hand.
 
 Current capture policy:
 - active inbox batches are intentionally disposable
 - after a retune pass, move the learned inbox batch into [archive](C:/dev/GitHub/visulive/captures/archive) or [canonical](C:/dev/GitHub/visulive/captures/canonical) before collecting the next one
 - no active benchmark may point at missing files
 - no reviewed batch should remain in [inbox](C:/dev/GitHub/visulive/captures/inbox) after its pass
+- no nested `archive` or stale screenshot pile should remain under `inbox` once the batch has been learned
 - the current auto-capture rules are tuned for shorter windows, so anything over roughly `15s` or with repeated retriggers should be treated as weaker evidence
 
 ## Serious-Pass Standard
@@ -168,7 +239,7 @@ Each batch should yield:
 - analyzer report
 - optional proof-still bundle
 - one short review note
-- an explicit verdict against `truth`, `governance`, `coverage`, and `taste` gates
+- an explicit verdict against `truth`, `hierarchy`, `coverage`, `taste`, and `operator trust` gates
 
 ## Best Current Batch
 
@@ -194,6 +265,7 @@ The most useful extra context is a single short note such as:
 Use:
 - [scenario-pack-checklist.md](C:/dev/GitHub/visulive/captures/scenario-pack-checklist.md)
 - [review-note-template.md](C:/dev/GitHub/visulive/captures/review-note-template.md)
+- [reviews/README.md](C:/dev/GitHub/visulive/captures/reviews/README.md)
 - [reports/README.md](C:/dev/GitHub/visulive/captures/reports/README.md)
 
 These exist so capture-driven tuning turns into evidence instead of memory.
