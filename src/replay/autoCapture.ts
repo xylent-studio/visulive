@@ -28,6 +28,7 @@ export type AutoCaptureTimingProfile = {
   cooldownMs: number;
   maxExtensions: number;
   maxTriggerCount: number;
+  maxCapturesPerRun?: number;
 };
 
 export type AutoCaptureDetectionContext = {
@@ -98,9 +99,10 @@ export const AUTO_CAPTURE_TIMING_PROFILES: Record<
     maxDurationMs: 6800,
     extensionWindowMs: 600,
     retriggerGapMs: 540,
-    cooldownMs: 5400,
+    cooldownMs: 18000,
     maxExtensions: 1,
-    maxTriggerCount: 2
+    maxTriggerCount: 2,
+    maxCapturesPerRun: 3
   },
   'quiet-beauty': {
     preRollMs: 3200,
@@ -158,7 +160,7 @@ export function getAutoCaptureTriggerPriority(
     case 'authority-turn':
       return 5;
     case 'governance-risk':
-      return 6;
+      return 2;
     case 'quality-downgrade':
       return 5;
     case 'operator-trust-clear':
@@ -366,11 +368,6 @@ export function detectAutoCaptureTrigger(
 ): AutoCaptureTrigger | null {
   const visual = context?.visualTelemetry ?? null;
 
-  const governanceRiskTrigger = detectGovernanceRiskTrigger(frame, visual);
-  if (governanceRiskTrigger) {
-    return governanceRiskTrigger;
-  }
-
   const qualityDowngradeTrigger = detectQualityDowngradeTrigger(
     frame,
     visual,
@@ -444,5 +441,10 @@ export function detectAutoCaptureTrigger(
     return quietBeautyTrigger;
   }
 
-  return detectFloorTrigger(frame, diagnostics);
+  const floorTrigger = detectFloorTrigger(frame, diagnostics);
+  if (floorTrigger) {
+    return floorTrigger;
+  }
+
+  return detectGovernanceRiskTrigger(frame, visual);
 }

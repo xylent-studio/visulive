@@ -36,6 +36,10 @@ async function main() {
   runPackage.manifest.metadata.artifactIntegrity = integrity;
   runPackage.journal.metadata.updatedAt = new Date().toISOString();
   runPackage.manifest.metadata.updatedAt = runPackage.journal.metadata.updatedAt;
+  for (const recommendationFile of runPackage.recommendationFiles ?? []) {
+    recommendationFile.artifact.metadata.lifecycleState = 'archive';
+    recommendationFile.artifact.metadata.updatedAt = runPackage.journal.metadata.updatedAt;
+  }
 
   await moveRunPackage(runPackage, 'archive');
   await updateRunPackageArtifacts(runPackage);

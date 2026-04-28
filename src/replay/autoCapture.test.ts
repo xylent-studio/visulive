@@ -65,5 +65,31 @@ describe('auto capture helpers', () => {
     expect(resolveAutoCaptureTimingProfile('release').maxTriggerCount).toBe(4);
     expect(resolveAutoCaptureTimingProfile('floor').postRollMs).toBe(5500);
     expect(resolveAutoCaptureTimingProfile('floor').cooldownMs).toBe(4000);
+    expect(resolveAutoCaptureTimingProfile('governance-risk').maxCapturesPerRun).toBe(3);
+    expect(resolveAutoCaptureTimingProfile('governance-risk').cooldownMs).toBe(18000);
+  });
+
+  it('does not let persistent governance risk starve musical event captures', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 1000,
+        mode: 'system-audio',
+        beatConfidence: 0.62,
+        dropImpact: 0.58,
+        sectionChange: 0.46,
+        performanceIntent: 'detonate'
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        visualTelemetry: {
+          overbright: 0.72,
+          ringBeltPersistence: 0.62,
+          compositionSafetyFlag: true
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).toBe('drop');
   });
 });

@@ -298,6 +298,52 @@ async function writeTextFileWithRetry(
     : new Error(`Failed to write ${fileName}.`);
 }
 
+async function writeBlobFileWithRetry(
+  directoryHandle: FileSystemDirectoryHandle,
+  fileName: string,
+  blob: Blob,
+  options?: CaptureDirectoryTargetOptions
+): Promise<void> {
+  const attempts = Math.max(
+    1,
+    Math.floor(options?.retry?.attempts ?? DEFAULT_JSON_WRITE_RETRY_ATTEMPTS)
+  );
+  const delayMs = Math.max(
+    0,
+    Math.floor(options?.retry?.delayMs ?? DEFAULT_JSON_WRITE_RETRY_DELAY_MS)
+  );
+  let latestError: unknown = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const fileHandle = await directoryHandle.getFileHandle(fileName, {
+        create: true
+      });
+      const writable = await fileHandle.createWritable();
+
+      try {
+        await writable.write(blob);
+      } finally {
+        await writable.close();
+      }
+
+      return;
+    } catch (error) {
+      latestError = error;
+
+      if (attempt >= attempts || !isTransientCaptureDirectoryWriteError(error)) {
+        break;
+      }
+
+      await delay(delayMs * attempt);
+    }
+  }
+
+  throw latestError instanceof Error
+    ? latestError
+    : new Error(`Failed to write ${fileName}.`);
+}
+
 export async function saveJsonArtifactToDirectory(
   handle: FileSystemDirectoryHandle,
   fileName: string,
@@ -345,17 +391,7 @@ export async function saveCaptureBlobsToDirectory(
 
   for (const file of files) {
     try {
-      const fileHandle = await directoryHandle.getFileHandle(file.fileName, {
-        create: true
-      });
-      const writable = await fileHandle.createWritable();
-
-      try {
-        await writable.write(file.blob);
-      } finally {
-        await writable.close();
-      }
-
+      await writeBlobFileWithRetry(directoryHandle, file.fileName, file.blob, options);
       savedFileNames.push(file.fileName);
     } catch {
       failedCount += 1;

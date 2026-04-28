@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-04-28T20:37:42.922Z",
+  "generatedAt": "2026-04-28T23:25:40.695Z",
   "sourceReportPath": "C:\\dev\\GitHub\\visulive\\captures\\reports\\capture-analysis_latest.md",
-  "reportTimestamp": "2026-04-28T20:37:26.835Z",
-  "reportCaptureCount": null,
+  "reportTimestamp": "2026-04-28T23:25:24.799Z",
+  "reportCaptureCount": 28,
   "capturesPath": "C:\\dev\\GitHub\\visulive\\captures\\inbox",
   "screenshotsPath": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\screenshots",
-  "captureCount": 0,
+  "captureCount": 28,
   "proofEligibleCaptureCount": 0,
   "benchmarkScenarioCount": 2,
   "evidenceFreshness": {
     "currentBatchRange": {
-      "count": 0,
-      "oldest": null,
-      "newest": null,
-      "oldestIso": null,
-      "newestIso": null
+      "count": 28,
+      "oldest": "2026-04-28T21:03:42.763Z",
+      "newest": "2026-04-28T21:08:39.842Z",
+      "oldestIso": "2026-04-28T21:03:42.763Z",
+      "newestIso": "2026-04-28T21:08:39.842Z"
     },
     "currentReviewRange": {
-      "count": 0,
-      "oldest": null,
-      "newest": null,
-      "oldestIso": null,
-      "newestIso": null
+      "count": 28,
+      "oldest": "2026-04-28T21:03:42.763Z",
+      "newest": "2026-04-28T21:08:39.842Z",
+      "oldestIso": "2026-04-28T21:03:42.763Z",
+      "newestIso": "2026-04-28T21:08:39.842Z"
     },
     "historicalBaselineRange": {
       "count": 2,
@@ -31,30 +31,30 @@
       "newestIso": "2026-04-09T14:22:43.998Z"
     },
     "allAttachedRange": {
-      "count": 2,
+      "count": 30,
       "oldest": "2026-04-09T06:51:04.103Z",
-      "newest": "2026-04-09T14:22:43.998Z",
+      "newest": "2026-04-28T21:08:39.842Z",
       "oldestIso": "2026-04-09T06:51:04.103Z",
-      "newestIso": "2026-04-09T14:22:43.998Z"
+      "newestIso": "2026-04-28T21:08:39.842Z"
     },
-    "currentReviewCount": 0,
+    "currentReviewCount": 28,
     "historicalBaselineCount": 2,
     "currentBranchProofCutoffAt": "2026-04-23T08:28:02.000Z",
     "seriousProofMaxAgeDays": 7,
-    "currentBranchProofFresh": false,
+    "currentBranchProofFresh": true,
     "note": "Fresh current proof must postdate the April 23, 2026 runtime ownership and authority wave. Older captures remain historical baseline context only.",
     "reasons": [
-      "No current candidate/current canonical captures are attached to this report."
+      "Current review captures satisfy the current branch proof cutoff and freshness window."
     ],
-    "summaryLine": "No current candidate/current canonical captures are attached to this report.",
+    "summaryLine": "Current review captures satisfy the current branch proof cutoff and freshness window.",
     "lines": [
-      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z",
-      "- Current batch capture date range: none",
-      "- Current review capture date range: none",
+      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-28T21:08:39.842Z",
+      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-28T21:08:39.842Z",
+      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-28T21:08:39.842Z",
       "- Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z",
       "- Current branch proof cutoff: 2026-04-23T08:28:02.000Z",
       "- Serious proof max age: 7 day(s)",
-      "- Current branch proof freshness: stale - No current candidate/current canonical captures are attached to this report.",
+      "- Current branch proof freshness: fresh - Current review captures satisfy the current branch proof cutoff and freshness window.",
       "- Evidence policy note: Fresh current proof must postdate the April 23, 2026 runtime ownership and authority wave. Older captures remain historical baseline context only."
     ]
   },
@@ -107,17 +107,12 @@
     "primaryBenchmarkNoTouchAuthorityCount": 0,
     "operatorTrustCount": 0
   },
+  "runArtifactIntegrityFailureCount": 0,
   "missedOpportunityCount": 0,
   "releaseReady": false,
-  "strictGateFailureCount": 9,
+  "strictGateFailureCount": 8,
   "warningGateCount": 6,
   "blockingGateFailures": [
-    {
-      "label": "current-branch freshness",
-      "status": "fail",
-      "required": true,
-      "rationale": "No current candidate/current canonical captures are attached to this report."
-    },
     {
       "label": "build identity",
       "status": "fail",
@@ -170,9 +165,9 @@
   "gates": [
     {
       "label": "current-branch freshness",
-      "status": "fail",
+      "status": "pass",
       "required": true,
-      "rationale": "No current candidate/current canonical captures are attached to this report."
+      "rationale": "Current review captures satisfy the current branch proof cutoff and freshness window."
     },
     {
       "label": "safe-tier discipline",
@@ -251,6 +246,12 @@
       "status": "fail",
       "required": true,
       "rationale": "No current operator-trust scenario is attached to this pack yet."
+    },
+    {
+      "label": "run artifact integrity",
+      "status": "pass",
+      "required": true,
+      "rationale": "Run journals/manifests do not report artifact-integrity failures."
     },
     {
       "label": "missed capture opportunities",

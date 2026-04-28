@@ -112,6 +112,10 @@ export async function loadRunPackage(runId) {
 export async function updateRunPackageArtifacts(runPackage) {
   await writeJson(runPackage.journalPath, runPackage.journal);
   await writeJson(runPackage.manifestPath, runPackage.manifest);
+
+  for (const recommendationFile of runPackage.recommendationFiles ?? []) {
+    await writeJson(recommendationFile.filePath, recommendationFile.artifact);
+  }
 }
 
 export function resolveLifecycleTargetRoot(lifecycleState) {
@@ -143,6 +147,12 @@ export async function moveRunPackage(runPackage, lifecycleState) {
   runPackage.runDirectory = targetDirectory;
   runPackage.journalPath = path.join(targetDirectory, path.basename(runPackage.journalPath));
   runPackage.manifestPath = path.join(targetDirectory, path.basename(runPackage.manifestPath));
+  runPackage.recommendationFiles = (runPackage.recommendationFiles ?? []).map(
+    (recommendationFile) => ({
+      ...recommendationFile,
+      filePath: path.join(targetDirectory, path.basename(recommendationFile.filePath))
+    })
+  );
 
   return runPackage;
 }

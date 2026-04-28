@@ -33,6 +33,7 @@ import {
   detectAutoCaptureTrigger,
   getAutoCaptureTriggerPriority,
   resolveAutoCaptureTimingProfile,
+  type AutoCaptureTriggerKind,
   type AutoCaptureTimingProfile,
   type AutoCaptureTrigger
 } from '../replay/autoCapture';
@@ -498,13 +499,15 @@ export function App() {
     cooldownUntilMs: number;
     lastProofStillSampleMs: number;
     proofStillCaptureInFlight: boolean;
+    captureCountsByKind: Partial<Record<AutoCaptureTriggerKind, number>>;
   }>({
     ring: [],
     proofStillRing: [],
     pending: null,
     cooldownUntilMs: 0,
     lastProofStillSampleMs: Number.NEGATIVE_INFINITY,
-    proofStillCaptureInFlight: false
+    proofStillCaptureInFlight: false,
+    captureCountsByKind: {}
   });
   const [status, setStatus] = useState<AudioEngineStatus>(DEFAULT_AUDIO_STATUS);
   const [frame, setFrame] = useState<ListeningFrame>(DEFAULT_LISTENING_FRAME);
@@ -1303,6 +1306,14 @@ export function App() {
       : undefined;
     const journalRoute = proofMission?.expectedRoute ?? showStartRoute;
     const journalScenarioKind = proofMission?.scenarioKind ?? null;
+    const autoCaptureState = autoCaptureRef.current;
+    autoCaptureState.ring = [];
+    autoCaptureState.proofStillRing = [];
+    autoCaptureState.pending = null;
+    autoCaptureState.cooldownUntilMs = 0;
+    autoCaptureState.lastProofStillSampleMs = Number.NEGATIVE_INFINITY;
+    autoCaptureState.proofStillCaptureInFlight = false;
+    autoCaptureState.captureCountsByKind = {};
     const proofReadiness = deriveReplayProofReadiness({
       proofWaveArmed: proofWaveArmedRef.current,
       captureFolderLabel: captureFolderStatusRef.current.folderName,
@@ -1875,6 +1886,7 @@ export function App() {
         autoCaptureState.cooldownUntilMs = 0;
         autoCaptureState.lastProofStillSampleMs = Number.NEGATIVE_INFINITY;
         autoCaptureState.proofStillCaptureInFlight = false;
+        autoCaptureState.captureCountsByKind = {};
 
         if (autoCaptureState.pending) {
           clearAutoCapturePending();
@@ -2186,6 +2198,18 @@ export function App() {
         nextTimestampMs >= autoCaptureState.cooldownUntilMs
       ) {
         const timingProfile = resolveAutoCaptureTimingProfile(trigger.kind);
+        const currentRunTriggerCount =
+          autoCaptureState.captureCountsByKind[trigger.kind] ?? 0;
+        const underRunCaptureLimit =
+          timingProfile.maxCapturesPerRun === undefined ||
+          currentRunTriggerCount < timingProfile.maxCapturesPerRun;
+
+        if (!underRunCaptureLimit) {
+          autoCaptureState.cooldownUntilMs =
+            nextTimestampMs + timingProfile.cooldownMs;
+          return;
+        }
+
         const preRollFrames = autoCaptureState.ring.filter(
           (frameItem) =>
             frameItem.timestampMs >= nextTimestampMs - timingProfile.preRollMs
@@ -2215,6 +2239,8 @@ export function App() {
           triggerCount: 1,
           extensionCount: 0
         };
+        autoCaptureState.captureCountsByKind[trigger.kind] =
+          currentRunTriggerCount + 1;
         setAutoCaptureStatus((current) => ({
           ...current,
           pending: true,
