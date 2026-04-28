@@ -139,7 +139,7 @@
       "priority": "High",
       "state": "Done",
       "labels": ["linear-ops", "docs"],
-      "description": "Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.\n\nOwner lane: Repo Operations.\n\nAcceptance:\n- Dirty workspace is converted into focused commits.\n- `git status --short` is empty.\n- `npm run proof:preflight` passes without `--allow-dirty`.\n- Checkpoint records commit stack and next proof steps.\n\nStatus note:\n- Current clean local proof-ops commit is `581571e Set up VisuLive proof operating loop`."
+      "description": "Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.\n\nOwner lane: Repo Operations.\n\nAcceptance:\n- Dirty workspace is converted into focused commits.\n- `git status --short` is empty.\n- `npm run proof:preflight` passes without `--allow-dirty`.\n- Checkpoint records commit stack and next proof steps.\n\nStatus note:\n- The proof-ops stack is committed and clean; use `git rev-parse --short HEAD` or `npm run proof:preflight` for the exact launch commit."
     },
     {
       "title": "Close release/proof gate findings",
@@ -184,7 +184,7 @@
       "priority": "Urgent",
       "state": "In Progress",
       "labels": ["proof-gate", "evidence", "operator-ux"],
-      "description": "Run a short proof canary before spending operator time on a full no-touch benchmark.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 60-90 seconds.\n- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.\n- Canary is archived or reviewed before the full benchmark run starts.\n\nCurrent repo truth:\n- Local commit: `581571e Set up VisuLive proof operating loop`.\n- `npm run proof:preflight` passes.\n- `captures/inbox/runs` is empty.\n- The invalid April 28 run is archived and must be used only as debugging evidence."
+      "description": "Run a short proof canary before spending operator time on a full no-touch benchmark.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 60-90 seconds.\n- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.\n- Canary is archived or reviewed before the full benchmark run starts.\n\nCurrent repo truth:\n- `npm run proof:preflight` must pass immediately before launch and prints the exact clean commit.\n- `captures/inbox/runs` is empty.\n- The invalid April 28 run is archived and must be used only as debugging evidence."
     },
     {
       "title": "Collect clean primary-benchmark proof",

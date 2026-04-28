@@ -28,7 +28,7 @@ Acceptance:
 - Checkpoint records commit stack and next proof steps.
 
 Status note:
-- Current clean local proof-ops commit is `581571e Set up VisuLive proof operating loop`.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","linear-ops, docs","High","Done",""
+- The proof-ops stack is committed and clean; use `git rev-parse --short HEAD` or `npm run proof:preflight` for the exact launch commit.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","linear-ops, docs","High","Done",""
 "Close release/proof gate findings","Release verification must not pass when proof gates fail.
 
 Owner lane: Release / Evidence.
@@ -77,8 +77,7 @@ Acceptance:
 - Canary is archived or reviewed before the full benchmark run starts.
 
 Current repo truth:
-- Local commit: `581571e Set up VisuLive proof operating loop`.
-- `npm run proof:preflight` passes.
+- `npm run proof:preflight` must pass immediately before launch and prints the exact clean commit.
 - `captures/inbox/runs` is empty.
 - The invalid April 28 run is archived and must be used only as debugging evidence.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, evidence, operator-ux","Urgent","In Progress",""
 "Collect clean primary-benchmark proof","Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.

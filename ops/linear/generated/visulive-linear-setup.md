@@ -89,7 +89,7 @@ Acceptance:
 - Checkpoint records commit stack and next proof steps.
 
 Status note:
-- Current clean local proof-ops commit is `581571e Set up VisuLive proof operating loop`.
+- The proof-ops stack is committed and clean; use `git rev-parse --short HEAD` or `npm run proof:preflight` for the exact launch commit.
 
 ### Close release/proof gate findings
 
@@ -178,8 +178,7 @@ Acceptance:
 - Canary is archived or reviewed before the full benchmark run starts.
 
 Current repo truth:
-- Local commit: `581571e Set up VisuLive proof operating loop`.
-- `npm run proof:preflight` passes.
+- `npm run proof:preflight` must pass immediately before launch and prints the exact clean commit.
 - `captures/inbox/runs` is empty.
 - The invalid April 28 run is archived and must be used only as debugging evidence.
 
