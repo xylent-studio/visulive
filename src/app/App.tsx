@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { AudioEngine } from '../audio/AudioEngine';
+import { BUILD_INFO } from '../buildInfo';
 import { DiagnosticsOverlay } from '../debug/DiagnosticsOverlay';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import {
@@ -22,6 +23,7 @@ import {
   persistCaptureDirectoryHandle,
   pickCaptureDirectoryHandle,
   saveCaptureBlobsToDirectory,
+  saveJsonArtifactToDirectory,
   saveReplayCaptureToDirectory
 } from '../replay/captureDirectory';
 import {
@@ -49,26 +51,77 @@ import {
   downloadReplayCapture,
   parseReplayCapture
 } from '../replay/session';
-import type { ReplayCaptureFrame, ReplayStatus } from '../replay/types';
+import {
+  buildReplayProofInvalidation,
+  buildReplayRunEventMarker,
+  buildReplayRunJournalSample,
+  buildReplayRunManifest,
+  createReplayBuildInfo,
+  createReplayRunId,
+  createReplayRunJournal,
+  deriveReplayProofReadiness,
+  deriveReplayProofValidity,
+  deriveReplayScenarioAssessment,
+  isReplayBuildInfoValid,
+  registerReplayRunClip,
+  registerReplayRunStill
+} from '../replay/runJournal';
+import type {
+  ReplayCaptureFrame,
+  ReplayProofInvalidationCode,
+  ReplayProofReadiness,
+  ReplayProofReadinessCheck,
+  ReplayProofValidity,
+  ReplayProofScenarioKind,
+  ReplayRunJournal,
+  ReplayRunEventMarkerKind,
+  ReplayRunLifecycleState,
+  ReplayRunStillKind,
+  ReplayScenarioAssessment,
+  ReplayStatus
+} from '../replay/types';
+import {
+  createSavedStance,
+  DEFAULT_ADVANCED_CURATION_STATE,
+  DEFAULT_ADVANCED_STEERING_STATE,
+  detectRouteCapabilities,
+  extractAdvancedSteeringFromBiasState,
+  getCompatibilityQuickStartProfileIdFromShowStartRoute,
+  LOOK_POOL_DEFINITIONS,
+  parseStoredAdvancedCurationState,
+  parseStoredAdvancedSteeringState,
+  parseStoredSavedStances,
+  resolveAutoRouteRecommendation,
+  resolveAppliedShowIntent,
+  resolveInputRoutePolicyFromShowStartRoute,
+  resolveListeningModeFromShowStartRoute,
+  resolveRouteIdFromListeningMode,
+  sanitizeAdvancedCurationState,
+  sanitizeAdvancedSteeringState,
+  serializeAdvancedCurationState,
+  serializeAdvancedSteeringState,
+  serializeDirectorIntent,
+  serializeSavedStances,
+  WORLD_POOL_DEFINITIONS,
+  type AdvancedCurationState,
+  type AdvancedSteeringKey,
+  type AdvancedSteeringState,
+  type SavedStance,
+  type ShowStartRoute
+} from '../types/director';
 import { DEFAULT_VISUAL_TELEMETRY } from '../types/visual';
-import { ActivationOverlay } from '../ui/ActivationOverlay';
-import { SettingsPanel } from '../ui/SettingsPanel';
+import { BackstagePanel } from '../ui/BackstagePanel';
+import { ShowHud } from '../ui/ShowHud';
+import { ShowLaunchSurface } from '../ui/ShowLaunchSurface';
 import {
   DEFAULT_USER_CONTROL_STATE,
-  applyPresetToControlState,
-  applyQuickStartToControlState,
-  getActiveQuickStartProfile,
-  getRecommendedQuickStartProfileId,
-  QUICK_START_PROFILES,
   deriveRuntimeTuning,
-  parseStoredUserControlState,
-  sanitizeUserControlState,
+  getActiveQuickStartProfile,
+  QUICK_START_PROFILES,
   serializeUserControlState,
-  type AccentBias,
   type QuickStartProfileId,
   type RuntimeTuning,
-  type UserControlState,
-  type UserTuningPreset
+  type UserControlState
 } from '../types/tuning';
 
 const INITIAL_RENDERER_STATE: RendererDiagnostics = {
@@ -94,13 +147,23 @@ type RendererHandle = {
 };
 
 const CONTROL_STORAGE_KEY = 'visulive-user-controls';
+const DIRECTOR_INTENT_STORAGE_KEY = 'visulive-director-intent-v1';
+const SHOW_START_ROUTE_STORAGE_KEY = 'visulive-show-start-route-v1';
+const ADVANCED_CURATION_STORAGE_KEY = 'visulive-advanced-curation-v1';
+const ADVANCED_STEERING_STORAGE_KEY = 'visulive-advanced-steering-v1';
+const SAVED_STANCES_STORAGE_KEY = 'visulive-saved-stances-v1';
 const INPUT_STORAGE_KEY = 'visulive-audio-input';
 const SOURCE_MODE_STORAGE_KEY = 'visulive-source-mode';
 const CAPTURE_AUTO_SAVE_STORAGE_KEY = 'visulive-capture-auto-save';
 const PROOF_STILLS_STORAGE_KEY = 'visulive-proof-stills';
+const PROOF_SCENARIO_STORAGE_KEY = 'visulive-proof-scenario-v1';
+const PROOF_WAVE_STORAGE_KEY = 'visulive-proof-wave-v1';
 const MAX_CAPTURE_FRAMES = 36000;
 const MAX_AUTO_CAPTURE_HISTORY = 32;
 const RECENT_AUTO_CAPTURE_DISPLAY_LIMIT = 8;
+const RUN_JOURNAL_SAMPLE_INTERVAL_MS = 250;
+const RUN_JOURNAL_PERSIST_INTERVAL_MS = 3_000;
+const RUN_CHECKPOINT_STILL_INTERVAL_MS = 12_000;
 const MAX_AUTO_CAPTURE_PRE_ROLL_MS = Math.max(
   ...Object.values(AUTO_CAPTURE_TIMING_PROFILES).map((profile) => profile.preRollMs)
 );
@@ -172,6 +235,39 @@ type CaptureFolderStatus = {
   lastSavedLabel: string | null;
 };
 
+type AdvancedDrawerTab = 'style' | 'steer' | 'backstage' | null;
+type SessionInterventionSummary = {
+  sessionStartedAtMs: number | null;
+  interventionCount: number;
+  firstInterventionTimestampMs: number | null;
+  lastInterventionReason: string | null;
+  interventionReasons: string[];
+};
+
+type RunJournalStatus = {
+  active: boolean;
+  proofWaveArmed: boolean;
+  runId: string | null;
+  sampleCount: number;
+  markerCount: number;
+  clipCount: number;
+  checkpointStillCount: number;
+  lastPersistedAt: string | null;
+  buildIdentityValid: boolean;
+  scenarioAssessment: ReplayScenarioAssessment | null;
+  readiness: ReplayProofReadiness | null;
+  proofValidity: ReplayProofValidity | null;
+  lifecycleState: ReplayRunLifecycleState;
+};
+
+const INITIAL_SESSION_INTERVENTION_SUMMARY: SessionInterventionSummary = {
+  sessionStartedAtMs: null,
+  interventionCount: 0,
+  firstInterventionTimestampMs: null,
+  lastInterventionReason: null,
+  interventionReasons: []
+};
+
 const INITIAL_RECORDING_SUMMARY: RecordingSummary = {
   active: false,
   frameCount: 0,
@@ -206,6 +302,35 @@ const INITIAL_CAPTURE_FOLDER_STATUS: CaptureFolderStatus = {
   error: null,
   lastSavedLabel: null
 };
+
+const INITIAL_RUN_JOURNAL_STATUS: RunJournalStatus = {
+  active: false,
+  proofWaveArmed: false,
+  runId: null,
+  sampleCount: 0,
+  markerCount: 0,
+  clipCount: 0,
+  checkpointStillCount: 0,
+  lastPersistedAt: null,
+  buildIdentityValid: isReplayBuildInfoValid(BUILD_INFO),
+  scenarioAssessment: null,
+  readiness: null,
+  proofValidity: null,
+  lifecycleState: 'inbox'
+};
+
+function parseStoredProofScenarioKind(value: string | null): ReplayProofScenarioKind | null {
+  return value === 'primary-benchmark' ||
+    value === 'room-floor' ||
+    value === 'coverage' ||
+    value === 'sparse-silence' ||
+    value === 'operator-trust' ||
+    value === 'steering'
+    ? value
+    : null;
+}
+
+const NO_TOUCH_PROOF_WINDOW_MS = 60_000;
 
 function buildReplayAudioDiagnostics(
   liveDiagnostics: AudioDiagnostics,
@@ -269,6 +394,44 @@ export function App() {
   const replayRef = useRef(new ReplayController());
   const captureDirectoryRef = useRef<FileSystemDirectoryHandle | null>(null);
   const controlsRef = useRef<UserControlState>(DEFAULT_USER_CONTROL_STATE);
+  const sessionInterventionRef = useRef<SessionInterventionSummary>(
+    INITIAL_SESSION_INTERVENTION_SUMMARY
+  );
+  const runJournalRef = useRef<{
+    journal: ReplayRunJournal | null;
+    lastSampleTimestampMs: number;
+    lastPersistedAtMs: number;
+    persistInFlight: Promise<boolean> | null;
+    persistQueued: boolean;
+    lastCheckpointStillTimestampMs: number;
+    checkpointStillCaptureInFlight: boolean;
+    lastWorldAuthorityState: string | null;
+    lastQualityTier: string | null;
+    lastShowState: string | null;
+    lastCueFamily: string | null;
+    lastStageIntent: string | null;
+    lastRouteId: string | null;
+    lastNoTouchWindowPassed: boolean;
+    lastGovernanceRisk: boolean;
+    lastQuietBeauty: boolean;
+  }>({
+    journal: null,
+    lastSampleTimestampMs: Number.NEGATIVE_INFINITY,
+    lastPersistedAtMs: 0,
+    persistInFlight: null,
+    persistQueued: false,
+    lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
+    checkpointStillCaptureInFlight: false,
+    lastWorldAuthorityState: null,
+    lastQualityTier: null,
+    lastShowState: null,
+    lastCueFamily: null,
+    lastStageIntent: null,
+    lastRouteId: null,
+    lastNoTouchWindowPassed: false,
+    lastGovernanceRisk: false,
+    lastQuietBeauty: false
+  });
   const recordingRef = useRef<{
     active: boolean;
     frames: ReplayCaptureFrame[];
@@ -307,6 +470,8 @@ export function App() {
   const [recordingSummary, setRecordingSummary] = useState<RecordingSummary>(
     INITIAL_RECORDING_SUMMARY
   );
+  const [sessionInterventionSummary, setSessionInterventionSummary] =
+    useState<SessionInterventionSummary>(INITIAL_SESSION_INTERVENTION_SUMMARY);
   const [autoCaptureStatus, setAutoCaptureStatus] = useState<AutoCaptureStatus>(
     INITIAL_AUTO_CAPTURE_STATUS
   );
@@ -316,10 +481,22 @@ export function App() {
   const [captureFolderStatus, setCaptureFolderStatus] =
     useState<CaptureFolderStatus>(INITIAL_CAPTURE_FOLDER_STATUS);
   const captureFolderStatusRef = useRef(INITIAL_CAPTURE_FOLDER_STATUS);
+  const [proofWaveArmed, setProofWaveArmed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.localStorage.getItem(PROOF_WAVE_STORAGE_KEY) === '1';
+  });
+  const proofWaveArmedRef = useRef(false);
+  const [runJournalStatus, setRunJournalStatus] =
+    useState<RunJournalStatus>(INITIAL_RUN_JOURNAL_STATUS);
   const [replayError, setReplayError] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
   const [diagnosticsVisible, setDiagnosticsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [controlsOpen, setControlsOpen] = useState(false);
+  const [advancedDrawerTab, setAdvancedDrawerTab] =
+    useState<AdvancedDrawerTab>(null);
   const [sourceMode, setSourceMode] = useState<ListeningMode>(() => {
     if (typeof window === 'undefined') {
       return 'room-mic';
@@ -338,19 +515,113 @@ export function App() {
 
     return window.localStorage.getItem(INPUT_STORAGE_KEY) ?? '';
   });
-  const [controls, setControls] = useState<UserControlState>(() => {
+  const [showStartRoute, setShowStartRoute] = useState<ShowStartRoute>(() => {
     if (typeof window === 'undefined') {
-      return DEFAULT_USER_CONTROL_STATE;
+      return 'pc-audio';
     }
 
-    return parseStoredUserControlState(
-      window.localStorage.getItem(CONTROL_STORAGE_KEY)
+    const stored = window.localStorage.getItem(SHOW_START_ROUTE_STORAGE_KEY);
+
+    if (stored === 'pc-audio' || stored === 'microphone' || stored === 'combo') {
+      return stored;
+    }
+
+    const storedMode = window.localStorage.getItem(SOURCE_MODE_STORAGE_KEY);
+
+    return storedMode === 'hybrid'
+      ? 'combo'
+      : storedMode === 'room-mic'
+        ? 'microphone'
+        : 'pc-audio';
+  });
+  const [proofScenarioKind, setProofScenarioKind] = useState<ReplayProofScenarioKind | null>(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    return parseStoredProofScenarioKind(
+      window.localStorage.getItem(PROOF_SCENARIO_STORAGE_KEY)
     );
   });
-  const runtimeTuning = deriveRuntimeTuning(controls);
-  const activeQuickStart = getActiveQuickStartProfile(controls, sourceMode);
+  const [advancedCuration, setAdvancedCuration] = useState<AdvancedCurationState>(() => {
+    if (typeof window === 'undefined') {
+      return DEFAULT_ADVANCED_CURATION_STATE;
+    }
+
+    return parseStoredAdvancedCurationState(
+      window.localStorage.getItem(ADVANCED_CURATION_STORAGE_KEY)
+    );
+  });
+  const [advancedSteering, setAdvancedSteering] = useState<AdvancedSteeringState>(() => {
+    if (typeof window === 'undefined') {
+      return DEFAULT_ADVANCED_STEERING_STATE;
+    }
+
+    return parseStoredAdvancedSteeringState(
+      window.localStorage.getItem(ADVANCED_STEERING_STORAGE_KEY)
+    );
+  });
+  const [savedStances, setSavedStances] = useState<SavedStance[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
+    return parseStoredSavedStances(
+      window.localStorage.getItem(SAVED_STANCES_STORAGE_KEY)
+    );
+  });
+  const routeCapabilities = detectRouteCapabilities();
+  const appliedShowIntent = resolveAppliedShowIntent(
+    showStartRoute,
+    advancedCuration,
+    advancedSteering,
+    frame,
+    sourceMode
+  );
+  const directorBase = appliedShowIntent.base;
+  const directorRuntime = appliedShowIntent.resolution;
+  const compatibilityIntent = appliedShowIntent.compatibilityIntent;
+  const routeRecommendation = resolveAutoRouteRecommendation({
+    routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+    currentMode: sourceMode,
+    statusPhase: status.phase,
+    diagnostics: {
+      rawRms: audioDiagnostics.rawRms,
+      noiseFloor: audioDiagnostics.noiseFloor,
+      roomMusicFloorActive: audioDiagnostics.roomMusicFloorActive
+    },
+    frame,
+    capabilities: routeCapabilities
+  });
+  const controls: UserControlState = directorBase.baseControls;
+  const audioTuning = deriveRuntimeTuning(controls);
+  const runtimeTuning = directorRuntime.runtimeTuning;
+  const activeQuickStart = getActiveQuickStartProfile(
+    controls,
+    sourceMode
+  );
   const [launchQuickStartId, setLaunchQuickStartId] =
     useState<QuickStartProfileId | null>(null);
+  const replayActive = replayStatus.mode !== 'idle';
+  const runtimeActive = status.phase === 'live' || replayActive;
+  const activationVisible = status.phase !== 'live' && !replayActive;
+  const currentProofReadiness = deriveReplayProofReadiness({
+    proofWaveArmed,
+    captureFolderLabel: captureFolderStatus.folderName,
+    captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
+    showStartRoute,
+    sourceMode,
+    proofScenarioKind,
+    buildInfo: BUILD_INFO,
+    replayActive,
+    routeCapabilities
+  });
+  const currentProofValidity = deriveReplayProofValidity({
+    proofWaveArmed,
+    readiness: currentProofReadiness,
+    startedReady: currentProofReadiness.ready,
+    invalidations: []
+  });
 
   const queueProofStillSample = (
     timestampMs: number,
@@ -453,6 +724,12 @@ export function App() {
     );
     const peakSelection =
       [...samples].sort((left, right) => right.eventScore - left.eventScore)[0] ?? null;
+    const authoritySelection =
+      [...samples].sort(
+        (left, right) => right.authorityScore - left.authorityScore
+      )[0] ?? null;
+    const quietSelection =
+      [...samples].sort((left, right) => right.quietScore - left.quietScore)[0] ?? null;
     const safetySelection =
       [...samples].sort((left, right) => {
         if (left.safetyScore === right.safetyScore) {
@@ -469,6 +746,12 @@ export function App() {
           : null,
         peakSelection
           ? { kind: 'peak', sample: peakSelection }
+          : null,
+        authoritySelection
+          ? { kind: 'authority', sample: authoritySelection }
+          : null,
+        quietSelection
+          ? { kind: 'quiet', sample: quietSelection }
           : null,
         safetySelection
           ? { kind: 'safety', sample: safetySelection }
@@ -531,6 +814,476 @@ export function App() {
     });
   };
 
+  const updateSessionInterventionSummary = (
+    nextSummary: SessionInterventionSummary
+  ) => {
+    sessionInterventionRef.current = nextSummary;
+    setSessionInterventionSummary(nextSummary);
+  };
+
+  const updateRunJournalStatusFromJournal = (
+    journal: ReplayRunJournal | null,
+    nextScenarioAssessment?: ReplayScenarioAssessment | null
+  ) => {
+    setRunJournalStatus({
+      active: journal !== null,
+      proofWaveArmed:
+        journal?.metadata.proofWaveArmed ?? proofWaveArmedRef.current,
+      runId: journal?.metadata.runId ?? null,
+      sampleCount: journal?.samples.length ?? 0,
+      markerCount: journal?.markers.length ?? 0,
+      clipCount: journal?.clips.length ?? 0,
+      checkpointStillCount: journal?.checkpointStills.length ?? 0,
+      lastPersistedAt:
+        runJournalRef.current.lastPersistedAtMs > 0
+          ? new Date(runJournalRef.current.lastPersistedAtMs).toISOString()
+          : null,
+      buildIdentityValid:
+        journal?.metadata.buildInfo.valid === true ||
+        (journal === null && isReplayBuildInfoValid(BUILD_INFO)),
+      scenarioAssessment:
+        nextScenarioAssessment ?? journal?.metadata.scenarioAssessment ?? null,
+      readiness: journal?.metadata.proofReadiness ?? currentProofReadiness,
+      proofValidity: journal?.metadata.proofValidity ?? currentProofValidity,
+      lifecycleState: journal?.metadata.lifecycleState ?? 'inbox'
+    });
+  };
+
+  const getRunSubdirectories = (suffix: string[] = []): string[] | undefined => {
+    const runId = runJournalRef.current.journal?.metadata.runId;
+    return runId ? ['runs', runId, ...suffix] : undefined;
+  };
+
+  const persistRunJournalArtifacts = async (force = false): Promise<boolean> => {
+    if (runJournalRef.current.persistInFlight) {
+      if (force) {
+        runJournalRef.current.persistQueued = true;
+      }
+      return runJournalRef.current.persistInFlight;
+    }
+
+    const persistTask = (async (): Promise<boolean> => {
+      const journal = runJournalRef.current.journal;
+      const handle = captureDirectoryRef.current;
+
+      if (
+        !journal ||
+        !handle ||
+        !captureFolderStatusRef.current.autoSave ||
+        !captureFolderStatusRef.current.ready
+      ) {
+        return false;
+      }
+
+      const now = Date.now();
+      if (
+        !force &&
+        now - runJournalRef.current.lastPersistedAtMs < RUN_JOURNAL_PERSIST_INTERVAL_MS
+      ) {
+        return false;
+      }
+
+      const ready = await ensureCaptureDirectoryPermission(handle, false);
+      if (!ready) {
+        invalidateActiveProofRun(
+          'run-journal-save-failed',
+          journal.samples[journal.samples.length - 1]?.timestampMs ?? 0,
+          'Run-journal persistence lost write access to the capture folder.',
+          'restart-run'
+        );
+        return false;
+      }
+
+      const clipFiles = journal.clips.map((clip) => `clips/${clip.fileName}`);
+      const stillFiles = journal.checkpointStills.map(
+        (still) => `stills/${still.fileName}`
+      );
+      const journalFileName = `${journal.metadata.runId}__run-journal.json`;
+      const manifestFileName = `${journal.metadata.runId}__run-manifest.json`;
+      const runSubdirectories = getRunSubdirectories();
+
+      try {
+        await saveJsonArtifactToDirectory(handle, journalFileName, journal, {
+          subdirectories: runSubdirectories
+        });
+        await saveJsonArtifactToDirectory(
+          handle,
+          manifestFileName,
+          buildReplayRunManifest(journal, {
+            journalFileName,
+            clipFiles,
+            stillFiles
+          }),
+          {
+            subdirectories: runSubdirectories
+          }
+        );
+      } catch (error) {
+        invalidateActiveProofRun(
+          'run-journal-save-failed',
+          journal.samples[journal.samples.length - 1]?.timestampMs ?? 0,
+          error instanceof Error
+            ? `Run-journal persistence failed: ${error.message}`
+            : 'Run-journal persistence failed.',
+          'restart-run'
+        );
+        return false;
+      }
+
+      runJournalRef.current.lastPersistedAtMs = now;
+      updateRunJournalStatusFromJournal(journal);
+      return true;
+    })();
+
+    runJournalRef.current.persistInFlight = persistTask;
+
+    let persisted = false;
+    try {
+      persisted = await persistTask;
+    } finally {
+      if (runJournalRef.current.persistInFlight === persistTask) {
+        runJournalRef.current.persistInFlight = null;
+      }
+    }
+
+    if (runJournalRef.current.persistQueued) {
+      runJournalRef.current.persistQueued = false;
+      const queuedPersisted = await persistRunJournalArtifacts(true);
+      return queuedPersisted || persisted;
+    }
+
+    return persisted;
+  };
+
+  const appendRunJournalMarker = (
+    kind: ReplayRunEventMarkerKind,
+    timestampMs: number,
+    reason: string,
+    metadata?: Record<string, string | number | boolean | null | undefined>
+  ) => {
+    const journal = runJournalRef.current.journal;
+
+    if (!journal) {
+      return;
+    }
+
+    const sanitizedMetadata = metadata
+      ? (Object.fromEntries(
+          Object.entries(metadata).filter(([, value]) => value !== undefined)
+        ) as Record<string, string | number | boolean | null>)
+      : undefined;
+
+    journal.markers.push(
+      buildReplayRunEventMarker(kind, timestampMs, reason, sanitizedMetadata)
+    );
+    journal.metadata.updatedAt = new Date().toISOString();
+    updateRunJournalStatusFromJournal(journal);
+  };
+
+  const refreshRunJournalProofState = (
+    journal: ReplayRunJournal,
+    options?: {
+      sourceMode?: ListeningMode;
+      replayActive?: boolean;
+    }
+  ) => {
+    const readiness = deriveReplayProofReadiness({
+      proofWaveArmed: journal.metadata.proofWaveArmed,
+      captureFolderLabel: captureFolderStatusRef.current.folderName,
+      captureFolderReady:
+        captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
+      showStartRoute: journal.metadata.showStartRoute,
+      sourceMode: options?.sourceMode ?? journal.metadata.sourceMode,
+      proofScenarioKind: journal.metadata.proofScenarioKind ?? null,
+      buildInfo: journal.metadata.buildInfo,
+      replayActive: options?.replayActive ?? replayRef.current.hasCapture(),
+      routeCapabilities
+    });
+
+    journal.metadata.proofReadiness = readiness;
+    journal.metadata.proofValidity = deriveReplayProofValidity({
+      proofWaveArmed: journal.metadata.proofWaveArmed,
+      readiness,
+      startedReady:
+        journal.metadata.proofValidity?.startedReady ?? readiness.ready,
+      invalidations: journal.metadata.proofValidity?.invalidations ?? []
+    });
+    journal.metadata.updatedAt = new Date().toISOString();
+  };
+
+  const invalidateActiveProofRun = (
+    code: ReplayProofInvalidationCode,
+    timestampMs: number,
+    reason: string,
+    recommendedDisposition: 'continue-exploratory' | 'restart-run' | 'archive-run'
+  ) => {
+    const journal = runJournalRef.current.journal;
+
+    if (!journal || journal.metadata.proofWaveArmed !== true) {
+      return false;
+    }
+
+    const existingInvalidation = journal.metadata.proofValidity?.invalidations.find(
+      (invalidation) => invalidation.code === code
+    );
+
+    if (existingInvalidation) {
+      return false;
+    }
+
+    const invalidations = [
+      ...(journal.metadata.proofValidity?.invalidations ?? []),
+      buildReplayProofInvalidation(code, timestampMs, reason, recommendedDisposition)
+    ];
+
+    journal.metadata.proofValidity = deriveReplayProofValidity({
+      proofWaveArmed: true,
+      readiness: journal.metadata.proofReadiness ?? currentProofReadiness,
+      startedReady:
+        journal.metadata.proofValidity?.startedReady ??
+        journal.metadata.proofReadiness?.ready === true,
+      invalidations
+    });
+    journal.metadata.updatedAt = new Date().toISOString();
+    appendRunJournalMarker('proof-invalidated', timestampMs, reason, {
+      code,
+      recommendedDisposition
+    });
+    updateRunJournalStatusFromJournal(journal);
+    return true;
+  };
+
+  const captureRunCheckpointStill = (
+    timestampMs: number,
+    frameForStill: ReplayCaptureFrame,
+    kind: ReplayRunStillKind
+  ) => {
+    const journal = runJournalRef.current.journal;
+    const canvas = canvasRef.current;
+
+    if (
+      !journal ||
+      !proofWaveArmedRef.current ||
+      !canvas ||
+      runJournalRef.current.checkpointStillCaptureInFlight
+    ) {
+      return;
+    }
+
+    runJournalRef.current.checkpointStillCaptureInFlight = true;
+
+    canvas.toBlob((blob) => {
+      runJournalRef.current.checkpointStillCaptureInFlight = false;
+
+      if (!blob) {
+        invalidateActiveProofRun(
+          'capture-save-failed',
+          timestampMs,
+          `Checkpoint still capture returned no image data for ${kind}.`,
+          'restart-run'
+        );
+        void persistRunJournalArtifacts(true);
+        return;
+      }
+
+      if (!runJournalRef.current.journal) {
+        return;
+      }
+
+      const activeJournal = runJournalRef.current.journal;
+      const stillFileName = `${activeJournal.metadata.runId}__${kind}_${Math.round(
+        timestampMs
+      )}.png`;
+
+      void (async () => {
+        const handle = captureDirectoryRef.current;
+        const folderReady =
+          handle !== null &&
+          captureFolderStatusRef.current.autoSave &&
+          captureFolderStatusRef.current.ready &&
+          (await ensureCaptureDirectoryPermission(handle, false));
+
+        if (!handle || !folderReady) {
+          invalidateActiveProofRun(
+            'capture-save-failed',
+            timestampMs,
+            `Checkpoint still ${stillFileName} could not save because the proof capture folder is not writable.`,
+            'restart-run'
+          );
+          await persistRunJournalArtifacts(true);
+          return;
+        }
+
+        const stillSaveResult = await saveCaptureBlobsToDirectory(
+          handle,
+          [{ fileName: stillFileName, blob }],
+          {
+            subdirectories: getRunSubdirectories(['stills'])
+          }
+        );
+
+        if (!stillSaveResult.savedFileNames.includes(stillFileName)) {
+          invalidateActiveProofRun(
+            'capture-save-failed',
+            timestampMs,
+            stillSaveResult.warning ??
+              `Checkpoint still ${stillFileName} failed to save into the run package.`,
+            'restart-run'
+          );
+          await persistRunJournalArtifacts(true);
+          return;
+        }
+
+        registerReplayRunStill(activeJournal, {
+          kind,
+          timestampMs,
+          fileName: stillFileName
+        });
+        updateRunJournalStatusFromJournal(activeJournal);
+        await persistRunJournalArtifacts(true);
+      })();
+    }, 'image/png');
+  };
+
+  const startRunJournal = (
+    nextSourceMode: ListeningMode,
+    diagnostics: AudioDiagnostics
+  ) => {
+    const sessionStartedAtMs = Date.now();
+    const runId = createReplayRunId(new Date(sessionStartedAtMs));
+    const proofReadiness = deriveReplayProofReadiness({
+      proofWaveArmed: proofWaveArmedRef.current,
+      captureFolderLabel: captureFolderStatusRef.current.folderName,
+      captureFolderReady:
+        captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
+      showStartRoute,
+      sourceMode: nextSourceMode,
+      proofScenarioKind,
+      buildInfo: BUILD_INFO,
+      replayActive: false,
+      routeCapabilities
+    });
+    const scenarioAssessment = deriveReplayScenarioAssessment({
+      declaredScenario: proofScenarioKind,
+      sourceMode: nextSourceMode,
+      showStartRoute,
+      noTouchWindowPassed: false,
+      interventionCount: 0,
+      interventionReasons: [],
+      captureMode: proofWaveArmedRef.current ? 'auto' : 'manual',
+      hasBuildIdentity: isReplayBuildInfoValid(BUILD_INFO)
+    });
+    const proofValidity = deriveReplayProofValidity({
+      proofWaveArmed: proofWaveArmedRef.current,
+      readiness: proofReadiness,
+      startedReady: proofReadiness.ready,
+      invalidations: []
+    });
+    const journal = createReplayRunJournal({
+      buildInfo: createReplayBuildInfo(BUILD_INFO),
+      runId,
+      sourceMode: nextSourceMode,
+      sourceLabel: diagnostics.deviceLabel || 'Unknown source',
+      showStartRoute,
+      routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+      resolvedRoute: resolveRouteIdFromListeningMode(nextSourceMode),
+      showCapabilityMode: appliedShowIntent.showCapabilityMode,
+      proofWaveArmed: proofWaveArmedRef.current,
+      proofScenarioKind,
+      scenarioAssessment,
+      proofReadiness,
+      proofValidity,
+      lifecycleState: 'inbox',
+      sessionStartedAt: new Date(sessionStartedAtMs).toISOString(),
+      sessionElapsedMs: 0,
+      interventionCount: 0,
+      interventionReasons: [],
+      noTouchWindowPassed: false
+    });
+
+    runJournalRef.current = {
+      journal,
+      lastSampleTimestampMs: Number.NEGATIVE_INFINITY,
+      lastPersistedAtMs: 0,
+      persistInFlight: null,
+      persistQueued: false,
+      lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
+      checkpointStillCaptureInFlight: false,
+      lastWorldAuthorityState: null,
+      lastQualityTier: null,
+      lastShowState: null,
+      lastCueFamily: null,
+      lastStageIntent: null,
+      lastRouteId: resolveRouteIdFromListeningMode(nextSourceMode),
+      lastNoTouchWindowPassed: false,
+      lastGovernanceRisk: false,
+      lastQuietBeauty: false
+    };
+
+    appendRunJournalMarker(
+      'run-start',
+      0,
+      `Start Show via ${showStartRoute}`,
+      {
+        route: showStartRoute,
+        sourceMode: nextSourceMode,
+        proofWaveArmed: proofWaveArmedRef.current
+      }
+    );
+    updateRunJournalStatusFromJournal(journal, scenarioAssessment);
+    void persistRunJournalArtifacts(true);
+  };
+
+  const beginNoTouchSession = () => {
+    updateSessionInterventionSummary({
+      sessionStartedAtMs: Date.now(),
+      interventionCount: 0,
+      firstInterventionTimestampMs: null,
+      lastInterventionReason: null,
+      interventionReasons: []
+    });
+  };
+
+  const markSessionIntervention = (reason: string) => {
+    const current = sessionInterventionRef.current;
+
+    if (current.sessionStartedAtMs === null) {
+      return;
+    }
+
+    const elapsedMs = Math.max(0, Date.now() - current.sessionStartedAtMs);
+
+    const nextSummary = {
+      sessionStartedAtMs: current.sessionStartedAtMs,
+      interventionCount: current.interventionCount + 1,
+      firstInterventionTimestampMs:
+        current.firstInterventionTimestampMs ?? elapsedMs,
+      lastInterventionReason: reason,
+      interventionReasons: [...current.interventionReasons, reason]
+    };
+
+    updateSessionInterventionSummary(nextSummary);
+
+    if (runJournalRef.current.journal) {
+      runJournalRef.current.journal.metadata.interventionCount =
+        nextSummary.interventionCount;
+      runJournalRef.current.journal.metadata.interventionReasons = [
+        ...nextSummary.interventionReasons
+      ];
+      runJournalRef.current.journal.metadata.sessionElapsedMs = elapsedMs;
+      appendRunJournalMarker(
+        'intervention',
+        elapsedMs,
+        reason,
+        { interventionCount: nextSummary.interventionCount }
+      );
+      refreshRunJournalProofState(runJournalRef.current.journal, {
+        sourceMode: runJournalRef.current.journal.metadata.sourceMode
+      });
+      void persistRunJournalArtifacts(true);
+    }
+  };
+
   useEffect(() => {
     controlsRef.current = controls;
   }, [controls]);
@@ -548,6 +1301,30 @@ export function App() {
   useEffect(() => {
     autoCaptureStatusRef.current = autoCaptureStatus;
   }, [autoCaptureStatus]);
+
+  useEffect(() => {
+    proofWaveArmedRef.current = proofWaveArmed;
+
+    if (runJournalRef.current.journal) {
+      runJournalRef.current.journal.metadata.proofWaveArmed = proofWaveArmed;
+      refreshRunJournalProofState(runJournalRef.current.journal);
+      updateRunJournalStatusFromJournal(runJournalRef.current.journal);
+      void persistRunJournalArtifacts(true);
+    } else {
+      setRunJournalStatus((current) => ({
+        ...current,
+        proofWaveArmed,
+        readiness: currentProofReadiness,
+        proofValidity: currentProofValidity
+      }));
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(PROOF_WAVE_STORAGE_KEY, proofWaveArmed ? '1' : '0');
+  }, [proofWaveArmed]);
 
   useEffect(() => {
     captureFolderStatusRef.current = captureFolderStatus;
@@ -574,6 +1351,81 @@ export function App() {
       autoCaptureStatus.proofStillsEnabled ? '1' : '0'
     );
   }, [autoCaptureStatus.proofStillsEnabled]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (proofScenarioKind === null) {
+      window.localStorage.removeItem(PROOF_SCENARIO_STORAGE_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(PROOF_SCENARIO_STORAGE_KEY, proofScenarioKind);
+  }, [proofScenarioKind]);
+
+  useEffect(() => {
+    const journal = runJournalRef.current.journal;
+    if (!journal) {
+      return;
+    }
+
+    journal.metadata.proofScenarioKind = proofScenarioKind;
+    journal.metadata.scenarioAssessment = deriveReplayScenarioAssessment({
+      declaredScenario: proofScenarioKind,
+      sourceMode: journal.metadata.sourceMode,
+      showStartRoute: journal.metadata.showStartRoute,
+      noTouchWindowPassed: journal.metadata.noTouchWindowPassed,
+      interventionCount: journal.metadata.interventionCount,
+      interventionReasons: journal.metadata.interventionReasons,
+      captureMode: proofWaveArmedRef.current ? 'auto' : 'manual',
+      hasBuildIdentity: journal.metadata.buildInfo.valid === true
+    });
+    refreshRunJournalProofState(journal);
+    updateRunJournalStatusFromJournal(
+      journal,
+      journal.metadata.scenarioAssessment ?? null
+    );
+    void persistRunJournalArtifacts(true);
+  }, [proofScenarioKind]);
+
+  useEffect(() => {
+    const journal = runJournalRef.current.journal;
+
+    if (journal) {
+      refreshRunJournalProofState(journal, {
+        sourceMode: journal.metadata.sourceMode,
+        replayActive
+      });
+      updateRunJournalStatusFromJournal(journal);
+      void persistRunJournalArtifacts(true);
+      return;
+    }
+
+    setRunJournalStatus((current) => ({
+      ...current,
+      proofWaveArmed,
+      readiness: currentProofReadiness,
+      proofValidity: currentProofValidity,
+      buildIdentityValid: isReplayBuildInfoValid(BUILD_INFO)
+    }));
+  }, [
+    captureFolderStatus.autoSave,
+    captureFolderStatus.folderName,
+    captureFolderStatus.ready,
+    proofWaveArmed,
+    replayActive,
+    proofScenarioKind,
+    showStartRoute,
+    sourceMode
+  ]);
+
+  useEffect(() => {
+    if (startError && (!proofWaveArmed || currentProofReadiness.ready)) {
+      setStartError(null);
+    }
+  }, [currentProofReadiness.ready, proofWaveArmed, startError]);
 
   useEffect(() => {
     if (!fileSystemAccessSupported()) {
@@ -637,6 +1489,12 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    if (!runtimeActive && advancedDrawerTab === 'steer') {
+      setAdvancedDrawerTab(null);
+    }
+  }, [advancedDrawerTab, runtimeActive]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const tagName = target?.tagName;
@@ -655,7 +1513,32 @@ export function App() {
 
       if (event.key.toLowerCase() === 'm') {
         event.preventDefault();
-        setControlsOpen((current) => !current);
+        if (activationVisible) {
+          setAdvancedDrawerTab((current) => {
+            const nextMode = current === 'style' ? null : 'style';
+
+            if (nextMode === 'style') {
+              markSessionIntervention('advanced:style');
+            }
+
+            return nextMode;
+          });
+        } else {
+          setAdvancedDrawerTab((current) => {
+            const nextMode = current === 'steer' ? null : 'steer';
+
+            if (nextMode === 'steer') {
+              markSessionIntervention('advanced:steer');
+            }
+
+            return nextMode;
+          });
+        }
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        setAdvancedDrawerTab(null);
         return;
       }
 
@@ -670,7 +1553,7 @@ export function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [activationVisible]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -682,7 +1565,7 @@ export function App() {
     const audio = new AudioEngine();
     audioRef.current = audio;
     void audio.setSourceMode(sourceMode);
-    audio.setTuning(runtimeTuning);
+    audio.setTuning(audioTuning);
     if (preferredInputId) {
       void audio.setInputDevice(preferredInputId);
     }
@@ -772,7 +1655,259 @@ export function App() {
         autoCaptureState.ring.shift();
       }
 
+      const liveSession = sessionInterventionRef.current;
+      const sessionElapsedMs =
+        liveSession.sessionStartedAtMs === null
+          ? 0
+          : Math.max(0, Date.now() - liveSession.sessionStartedAtMs);
+      const noTouchWindowPassed =
+        liveSession.sessionStartedAtMs !== null &&
+        liveSession.interventionCount === 0 &&
+        sessionElapsedMs >= NO_TOUCH_PROOF_WINDOW_MS;
+      const runJournalState = runJournalRef.current;
+      const runJournal = runJournalState.journal;
+      const previousWorldAuthorityState = runJournalState.lastWorldAuthorityState;
+      const previousQualityTier = runJournalState.lastQualityTier;
+      const previousNoTouchWindowPassed = runJournalState.lastNoTouchWindowPassed;
+
+      if (!replayActiveNow && runJournal) {
+        const resolvedRouteId = resolveRouteIdFromListeningMode(
+          snapshot.diagnostics.sourceMode
+        );
+
+        runJournal.metadata.updatedAt = new Date().toISOString();
+        runJournal.metadata.sourceMode = snapshot.diagnostics.sourceMode;
+        runJournal.metadata.sourceLabel =
+          snapshot.diagnostics.deviceLabel || 'Unknown source';
+        runJournal.metadata.resolvedRoute = resolvedRouteId;
+        runJournal.metadata.sessionElapsedMs = sessionElapsedMs;
+        runJournal.metadata.interventionCount = liveSession.interventionCount;
+        runJournal.metadata.interventionReasons = [
+          ...liveSession.interventionReasons
+        ];
+        runJournal.metadata.noTouchWindowPassed = noTouchWindowPassed;
+        refreshRunJournalProofState(runJournal, {
+          sourceMode: snapshot.diagnostics.sourceMode,
+          replayActive: false
+        });
+
+        const routeCoherenceCheck = runJournal.metadata.proofReadiness?.checks.find(
+          (check) => check.id === 'route-coherence'
+        );
+        if (routeCoherenceCheck && !routeCoherenceCheck.passed) {
+          invalidateActiveProofRun(
+            'route-integrity-break',
+            nextTimestampMs,
+            routeCoherenceCheck.reason,
+            'restart-run'
+          );
+        }
+
+        const captureFolderCheck = runJournal.metadata.proofReadiness?.checks.find(
+          (check) => check.id === 'capture-folder'
+        );
+        if (
+          captureFolderCheck &&
+          !captureFolderCheck.passed &&
+          runJournal.metadata.proofValidity?.startedReady
+        ) {
+          invalidateActiveProofRun(
+            'capture-folder-permission-lost',
+            nextTimestampMs,
+            captureFolderCheck.reason,
+            'restart-run'
+          );
+        }
+
+        if (
+          nextTimestampMs - runJournalState.lastSampleTimestampMs >=
+          RUN_JOURNAL_SAMPLE_INTERVAL_MS
+        ) {
+          runJournal.samples.push(
+            buildReplayRunJournalSample({
+              diagnostics: snapshot.diagnostics,
+              renderer: rendererRef.current?.getDiagnostics() ?? INITIAL_RENDERER_STATE,
+              listeningFrame: snapshot.listeningFrame,
+              showStartRoute,
+              routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+              resolvedRoute: resolvedRouteId,
+              showCapabilityMode: appliedShowIntent.showCapabilityMode,
+              showWorldId: appliedShowIntent.compatibilityIntent.showWorldId ?? undefined,
+              effectiveWorldId: directorRuntime.effectiveWorldId ?? undefined,
+              lookId: appliedShowIntent.compatibilityIntent.lookId ?? undefined,
+              effectiveLookId: directorRuntime.effectiveLookId ?? undefined,
+              worldPoolId:
+                appliedShowIntent.compatibilityIntent.worldPoolId ?? undefined,
+              lookPoolId:
+                appliedShowIntent.compatibilityIntent.lookPoolId ?? undefined,
+              stanceId: appliedShowIntent.compatibilityIntent.stanceId ?? undefined,
+              proofWaveArmed: proofWaveArmedRef.current,
+              proofScenarioKind,
+              interventionCount: liveSession.interventionCount,
+              noTouchWindowPassed
+            })
+          );
+          runJournalState.lastSampleTimestampMs = nextTimestampMs;
+          updateRunJournalStatusFromJournal(runJournal);
+          void persistRunJournalArtifacts();
+        }
+
+        if (snapshot.listeningFrame.showState !== runJournalState.lastShowState) {
+          appendRunJournalMarker(
+            'show-state-change',
+            nextTimestampMs,
+            `showState=${snapshot.listeningFrame.showState}`,
+            {
+              showState: snapshot.listeningFrame.showState
+            }
+          );
+          runJournalState.lastShowState = snapshot.listeningFrame.showState;
+        }
+
+        if (
+          nextFrame.visualTelemetry.stageCueFamily &&
+          nextFrame.visualTelemetry.stageCueFamily !== runJournalState.lastCueFamily
+        ) {
+          appendRunJournalMarker(
+            'cue-change',
+            nextTimestampMs,
+            `cueFamily=${nextFrame.visualTelemetry.stageCueFamily}`,
+            {
+              cueFamily: nextFrame.visualTelemetry.stageCueFamily
+            }
+          );
+          runJournalState.lastCueFamily = nextFrame.visualTelemetry.stageCueFamily;
+        }
+
+        if (
+          nextFrame.visualTelemetry.worldAuthorityState &&
+          nextFrame.visualTelemetry.worldAuthorityState !==
+            previousWorldAuthorityState
+        ) {
+          const authorityReason = `world=${nextFrame.visualTelemetry.worldAuthorityState} delivered=${(
+            nextFrame.visualTelemetry.worldDominanceDelivered ?? 0
+          ).toFixed(3)}`;
+
+          if (
+            nextFrame.visualTelemetry.worldAuthorityState === 'shared' ||
+            nextFrame.visualTelemetry.worldAuthorityState === 'dominant'
+          ) {
+            appendRunJournalMarker('authority-turn', nextTimestampMs, authorityReason, {
+              worldAuthorityState: nextFrame.visualTelemetry.worldAuthorityState
+            });
+            captureRunCheckpointStill(nextTimestampMs, nextFrame, 'authority');
+          } else {
+            appendRunJournalMarker('cue-change', nextTimestampMs, authorityReason, {
+              worldAuthorityState: nextFrame.visualTelemetry.worldAuthorityState
+            });
+          }
+
+          runJournalState.lastWorldAuthorityState =
+            nextFrame.visualTelemetry.worldAuthorityState;
+        }
+
+        if (
+          runJournalState.lastQualityTier === null &&
+          nextFrame.visualTelemetry.qualityTier
+        ) {
+          runJournalState.lastQualityTier = nextFrame.visualTelemetry.qualityTier;
+        }
+
+        if (
+          previousQualityTier !== null &&
+          nextFrame.visualTelemetry.qualityTier &&
+          nextFrame.visualTelemetry.qualityTier !== previousQualityTier
+        ) {
+          appendRunJournalMarker(
+            'quality-downgrade',
+            nextTimestampMs,
+            `quality=${previousQualityTier ?? 'unknown'} -> ${nextFrame.visualTelemetry.qualityTier}`,
+            {
+              qualityTier: nextFrame.visualTelemetry.qualityTier
+            }
+          );
+          runJournalState.lastQualityTier = nextFrame.visualTelemetry.qualityTier;
+        }
+
+        if (resolvedRouteId !== runJournalState.lastRouteId) {
+          appendRunJournalMarker(
+            'route-change',
+            nextTimestampMs,
+            `route=${resolvedRouteId}`,
+            {
+              route: resolvedRouteId
+            }
+          );
+          runJournalState.lastRouteId = resolvedRouteId;
+        }
+
+        const governanceRisk =
+          nextFrame.visualTelemetry.compositionSafetyFlag === true ||
+          (nextFrame.visualTelemetry.overbright ?? 0) >= 0.22 ||
+          nextFrame.visualTelemetry.stageFallbackHeroOverreach === true ||
+          nextFrame.visualTelemetry.stageFallbackRingOverdraw === true;
+        if (governanceRisk && !runJournalState.lastGovernanceRisk) {
+          appendRunJournalMarker(
+            'governance-risk',
+            nextTimestampMs,
+            `safety=${nextFrame.visualTelemetry.compositionSafetyFlag === true ? 'risk' : 'ok'} overbright=${(nextFrame.visualTelemetry.overbright ?? 0).toFixed(3)}`,
+            {
+              overbright: nextFrame.visualTelemetry.overbright ?? 0,
+              compositionSafetyFlag:
+                nextFrame.visualTelemetry.compositionSafetyFlag === true
+            }
+          );
+        }
+        runJournalState.lastGovernanceRisk = governanceRisk;
+
+        const quietBeauty =
+          snapshot.listeningFrame.ambienceConfidence >= 0.42 &&
+          (nextFrame.visualTelemetry.chamberPresenceScore ?? 0) >= 0.18 &&
+          (nextFrame.visualTelemetry.worldDominanceDelivered ?? 0) >= 0.16 &&
+          (nextFrame.visualTelemetry.compositionSafetyScore ?? 0.8) >= 0.72;
+        if (quietBeauty && !runJournalState.lastQuietBeauty) {
+          appendRunJournalMarker(
+            'quiet-beauty',
+            nextTimestampMs,
+            `ambience=${snapshot.listeningFrame.ambienceConfidence.toFixed(3)} chamber=${(nextFrame.visualTelemetry.chamberPresenceScore ?? 0).toFixed(3)}`,
+            {
+              ambienceConfidence: snapshot.listeningFrame.ambienceConfidence
+            }
+          );
+          captureRunCheckpointStill(nextTimestampMs, nextFrame, 'quiet');
+        }
+        runJournalState.lastQuietBeauty = quietBeauty;
+
+        if (noTouchWindowPassed && !previousNoTouchWindowPassed) {
+          appendRunJournalMarker(
+            'operator-trust-clear',
+            nextTimestampMs,
+            'No-touch proof window cleared.',
+            {
+              noTouchWindowPassed: true
+            }
+          );
+          captureRunCheckpointStill(nextTimestampMs, nextFrame, 'trust');
+        }
+        runJournalState.lastNoTouchWindowPassed = noTouchWindowPassed;
+
+        if (
+          proofWaveArmedRef.current &&
+          nextTimestampMs - runJournalState.lastCheckpointStillTimestampMs >=
+            RUN_CHECKPOINT_STILL_INTERVAL_MS
+        ) {
+          captureRunCheckpointStill(nextTimestampMs, nextFrame, 'checkpoint');
+          runJournalState.lastCheckpointStillTimestampMs = nextTimestampMs;
+        }
+      }
+
       if (replayActiveNow) {
+        invalidateActiveProofRun(
+          'replay-entered',
+          nextTimestampMs,
+          'Replay mode was entered during an armed proof run.',
+          'continue-exploratory'
+        );
         if (autoCaptureState.pending) {
           clearAutoCapturePending();
         }
@@ -783,7 +1918,19 @@ export function App() {
       const liveAutoCaptureStatus = autoCaptureStatusRef.current;
       const trigger = detectAutoCaptureTrigger(
         snapshot.listeningFrame,
-        snapshot.diagnostics
+        snapshot.diagnostics,
+        {
+          visualTelemetry: nextFrame.visualTelemetry,
+          noTouchWindowPassed,
+          previousNoTouchWindowPassed,
+          previousWorldAuthorityState: previousWorldAuthorityState as
+              | 'background'
+              | 'support'
+              | 'shared'
+              | 'dominant'
+              | null,
+          previousQualityTier
+        }
       );
 
       if (
@@ -968,7 +2115,12 @@ export function App() {
           if (permissionGranted) {
             const proofSaveResult = await saveCaptureBlobsToDirectory(
               captureDirectoryRef.current,
-              proofStillFiles
+              proofStillFiles,
+              {
+                subdirectories: pendingCapture.trigger.kind
+                  ? getRunSubdirectories(['stills'])
+                  : undefined
+              }
             );
 
             proofStillSummary = {
@@ -1012,7 +2164,12 @@ export function App() {
             triggerCount: pendingCapture.triggerCount,
             extensionCount: pendingCapture.extensionCount,
             triggerTimestampMs: pendingCapture.trigger.timestampMs,
-            proofStills: proofStillSummary
+            proofStills: proofStillSummary,
+            ...buildDirectorCaptureContext(
+              finalizedDiagnostics,
+              finalizedSourceMode,
+              finalizedDiagnostics.listeningFrame
+            )
           }
         );
         const summary: AutoCaptureSummary = {
@@ -1033,6 +2190,49 @@ export function App() {
           capture
         };
 
+        const activeRunJournal = runJournalRef.current.journal;
+        if (
+          activeRunJournal &&
+          capture.metadata.runId &&
+          activeRunJournal.metadata.runId === capture.metadata.runId
+        ) {
+          const captureFileName = `${capture.metadata.label}.json`;
+          registerReplayRunClip(activeRunJournal, {
+            captureLabel: capture.metadata.label,
+            fileName: captureFileName,
+            captureMode: capture.metadata.captureMode,
+            capturedAt: capture.metadata.capturedAt,
+            triggerKind: capture.metadata.triggerKind,
+            triggerTimestampMs: capture.metadata.triggerTimestampMs,
+            qualityFlags: capture.metadata.qualityFlags,
+            scenarioAssessment: capture.metadata.scenarioAssessment
+          });
+          activeRunJournal.metadata.scenarioAssessment =
+            capture.metadata.scenarioAssessment ?? activeRunJournal.metadata.scenarioAssessment;
+          appendRunJournalMarker(
+            'clip-saved',
+            pendingCapture.trigger.timestampMs,
+            `${pendingCapture.trigger.kind} clip saved`,
+            {
+              triggerKind: pendingCapture.trigger.kind,
+              captureLabel: capture.metadata.label
+            }
+          );
+          updateRunJournalStatusFromJournal(
+            activeRunJournal,
+            capture.metadata.scenarioAssessment ?? null
+          );
+
+          if (capture.metadata.scenarioAssessment?.validated !== true) {
+            invalidateActiveProofRun(
+              'scenario-drift',
+              capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
+              `Declared proof scenario no longer matches the saved clip evidence for ${capture.metadata.label}.`,
+              'restart-run'
+            );
+          }
+        }
+
         setAutoCaptures((current) =>
           [summary, ...current].slice(0, MAX_AUTO_CAPTURE_HISTORY)
         );
@@ -1048,8 +2248,19 @@ export function App() {
         }));
 
         if (captureFolderStatusRef.current.autoSave) {
-          await saveCaptureToConfiguredFolder(capture);
+          const saved = await saveCaptureToConfiguredFolder(capture);
+
+          if (!saved) {
+            invalidateActiveProofRun(
+              'capture-save-failed',
+              capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
+              `Capture ${capture.metadata.label} failed to save into the run package.`,
+              'restart-run'
+            );
+          }
         }
+
+        await persistRunJournalArtifacts(true);
 
         if (liveAutoCaptureStatus.autoDownload) {
           downloadReplayCapture(capture);
@@ -1118,6 +2329,23 @@ export function App() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(
+        DIRECTOR_INTENT_STORAGE_KEY,
+        serializeDirectorIntent(compatibilityIntent)
+      );
+      window.localStorage.setItem(SHOW_START_ROUTE_STORAGE_KEY, showStartRoute);
+      window.localStorage.setItem(
+        ADVANCED_CURATION_STORAGE_KEY,
+        serializeAdvancedCurationState(advancedCuration)
+      );
+      window.localStorage.setItem(
+        ADVANCED_STEERING_STORAGE_KEY,
+        serializeAdvancedSteeringState(advancedSteering)
+      );
+      window.localStorage.setItem(
+        SAVED_STANCES_STORAGE_KEY,
+        serializeSavedStances(savedStances)
+      );
+      window.localStorage.setItem(
         CONTROL_STORAGE_KEY,
         serializeUserControlState(controls)
       );
@@ -1128,14 +2356,172 @@ export function App() {
         window.localStorage.removeItem(INPUT_STORAGE_KEY);
       }
     }
+  }, [
+    advancedCuration,
+    advancedSteering,
+    compatibilityIntent,
+    controls,
+    preferredInputId,
+    savedStances,
+    showStartRoute,
+    sourceMode
+  ]);
 
-    audioRef.current?.setTuning(runtimeTuning);
+  useEffect(() => {
+    audioRef.current?.setTuning(audioTuning);
     rendererRef.current?.setTuning(runtimeTuning);
-  }, [controls, preferredInputId, runtimeTuning, sourceMode]);
+  }, [audioTuning, runtimeTuning]);
 
   const handleStart = async () => {
-    audioRef.current?.setTuning(runtimeTuning);
+    const nextSourceMode = resolveListeningModeFromShowStartRoute(showStartRoute);
+    const diagnostics = audioRef.current?.getDiagnostics() ?? audioDiagnostics;
+    const proofStartReadiness = deriveReplayProofReadiness({
+      proofWaveArmed,
+      captureFolderLabel: captureFolderStatus.folderName,
+      captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
+      showStartRoute,
+      sourceMode: nextSourceMode,
+      proofScenarioKind,
+      buildInfo: BUILD_INFO,
+      replayActive,
+      routeCapabilities
+    });
+
+    if (proofWaveArmed && !proofStartReadiness.ready) {
+      const blockingReasons = proofStartReadiness.checks
+        .filter((check) => check.blocking && !check.passed)
+        .map((check) => check.reason);
+      const nextError =
+        blockingReasons.length > 0
+          ? `Proof Wave is armed, but this run is not ready: ${blockingReasons.join(' ')}`
+          : 'Proof Wave is armed, but the serious-run readiness contract is not satisfied.';
+
+      setStartError(nextError);
+      setReplayError(nextError);
+      setAdvancedDrawerTab('backstage');
+      return;
+    }
+
+    setLaunchQuickStartId(
+      getCompatibilityQuickStartProfileIdFromShowStartRoute(showStartRoute)
+    );
+    setStartError(null);
+    setSourceMode(nextSourceMode);
+    setAdvancedDrawerTab(null);
+    setReplayError(null);
+    beginNoTouchSession();
+    startRunJournal(nextSourceMode, diagnostics);
+    await audioRef.current?.setSourceMode(nextSourceMode);
+    audioRef.current?.setTuning(audioTuning);
     await audioRef.current?.start();
+  };
+
+  const buildDirectorCaptureContext = (
+    captureDiagnostics: AudioDiagnostics,
+    captureSourceMode: ListeningMode,
+    captureFrame: ListeningFrame
+  ) => {
+    const appliedAtCapture = resolveAppliedShowIntent(
+      showStartRoute,
+      advancedCuration,
+      advancedSteering,
+      captureFrame,
+      captureSourceMode
+    );
+    const runtimeAtCapture = appliedAtCapture.resolution;
+    const routeRecommendationAtCapture = resolveAutoRouteRecommendation({
+      routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+      currentMode: captureSourceMode,
+      statusPhase: status.phase,
+      diagnostics: {
+        rawRms: captureDiagnostics.rawRms,
+        noiseFloor: captureDiagnostics.noiseFloor,
+        roomMusicFloorActive: captureDiagnostics.roomMusicFloorActive
+      },
+      frame: captureFrame,
+      capabilities: routeCapabilities
+    });
+    const session = sessionInterventionRef.current;
+    const elapsedSinceStartMs =
+      session.sessionStartedAtMs === null
+        ? 0
+        : Math.max(0, Date.now() - session.sessionStartedAtMs);
+
+    return {
+      routePolicy: appliedAtCapture.compatibilityIntent.routePolicy,
+      resolvedRoute: resolveRouteIdFromListeningMode(captureSourceMode),
+      showStartRoute,
+      showCapabilityMode: appliedAtCapture.showCapabilityMode,
+      showConstraintState: appliedAtCapture.constraintState,
+      routeRecommendation: routeRecommendationAtCapture
+        ? {
+            recommendedRoute: routeRecommendationAtCapture.recommendedRoute,
+            strength: routeRecommendationAtCapture.strength,
+            reason: routeRecommendationAtCapture.reason,
+            headline: routeRecommendationAtCapture.headline,
+            detail: routeRecommendationAtCapture.detail
+          }
+        : undefined,
+      showWorldId: appliedAtCapture.compatibilityIntent.showWorldId,
+      effectiveWorldId: runtimeAtCapture.effectiveWorldId,
+      lookId: appliedAtCapture.compatibilityIntent.lookId,
+      effectiveLookId: runtimeAtCapture.effectiveLookId,
+      worldPoolId: appliedAtCapture.compatibilityIntent.worldPoolId,
+      lookPoolId: appliedAtCapture.compatibilityIntent.lookPoolId,
+      stanceId: appliedAtCapture.compatibilityIntent.stanceId,
+      anthologyWorldFamilyId: appliedAtCapture.anthologyDirectorState.worldFamilyId,
+      anthologyLookProfileId: appliedAtCapture.anthologyDirectorState.lookProfileId,
+      anthologyHeroSpeciesId: appliedAtCapture.anthologyDirectorState.heroSpeciesId,
+      anthologyHeroMutationVerb:
+        appliedAtCapture.anthologyDirectorState.heroMutationVerb,
+      anthologyWorldMutationVerb:
+        appliedAtCapture.anthologyDirectorState.worldMutationVerb,
+      anthologyConsequenceMode:
+        appliedAtCapture.anthologyDirectorState.consequenceMode,
+      anthologyAftermathState: appliedAtCapture.anthologyDirectorState.aftermathState,
+      anthologyLightingRigState:
+        appliedAtCapture.anthologyDirectorState.lightingRigState,
+      anthologyCameraPhrase: appliedAtCapture.anthologyDirectorState.cameraPhrase,
+      anthologyParticleFieldRole:
+        appliedAtCapture.anthologyDirectorState.particleFieldRole,
+      anthologyMixedMediaAssetId:
+        appliedAtCapture.anthologyDirectorState.mixedMediaAssetId,
+      anthologyMotifId: appliedAtCapture.anthologyDirectorState.motifId,
+      anthologyGraduationStatus:
+        appliedAtCapture.anthologyDirectorState.graduationStatus,
+      anthologyMusicPhase: appliedAtCapture.anthologyDirectorState.music.phase,
+      anthologyMusicRegime: appliedAtCapture.anthologyDirectorState.music.regime,
+      launchSurfaceMode: 'launch' as const,
+      livePanelMode:
+        advancedDrawerTab === 'backstage'
+          ? ('backstage' as const)
+          : advancedDrawerTab === null
+            ? null
+            : ('deck' as const),
+      advancedDrawerTab,
+      buildInfo: BUILD_INFO,
+      runId: runJournalRef.current.journal?.metadata.runId ?? null,
+      sessionStartedAt:
+        session.sessionStartedAtMs === null
+          ? null
+          : new Date(session.sessionStartedAtMs).toISOString(),
+      sessionElapsedMs: elapsedSinceStartMs,
+      interventionCount: session.interventionCount,
+      interventionReasons: session.interventionReasons,
+      firstInterventionTimestampMs: session.firstInterventionTimestampMs,
+      noTouchWindowPassed:
+        session.interventionCount === 0 &&
+        session.sessionStartedAtMs !== null &&
+        elapsedSinceStartMs >= NO_TOUCH_PROOF_WINDOW_MS,
+      proofScenarioKind,
+      proofReadiness:
+        runJournalRef.current.journal?.metadata.proofReadiness ?? currentProofReadiness,
+      proofValidity:
+        runJournalRef.current.journal?.metadata.proofValidity ?? currentProofValidity,
+      runLifecycleState:
+        runJournalRef.current.journal?.metadata.lifecycleState ?? 'inbox',
+      directorBiasSnapshot: appliedAtCapture.compatibilityIntent.biases
+    };
   };
 
   const saveCaptureToConfiguredFolder = async (
@@ -1168,10 +2554,11 @@ export function App() {
         return false;
       }
 
-      const { fileName, folderLabel } = await saveReplayCaptureToDirectory(
-        handle,
-        capture
-      );
+      const { fileName, folderLabel } = await saveReplayCaptureToDirectory(handle, capture, {
+        subdirectories: capture.metadata.runId
+          ? ['runs', capture.metadata.runId, 'clips']
+          : undefined
+      });
 
       setCaptureFolderStatus((current) => ({
         ...current,
@@ -1209,101 +2596,169 @@ export function App() {
     await document.documentElement.requestFullscreen();
   };
 
-  const updateControls = (patch: Partial<UserControlState>) => {
-    setControls((current) =>
-      sanitizeUserControlState({
+  const handleShowStartRouteChange = (nextRoute: ShowStartRoute) => {
+    markSessionIntervention(`start-route:${nextRoute}`);
+    setShowStartRoute(nextRoute);
+    const nextMode = resolveListeningModeFromShowStartRoute(nextRoute);
+    setSourceMode(nextMode);
+    void audioRef.current?.setSourceMode(nextMode);
+  };
+
+  const handleWorldPoolChange = (worldPoolId: AdvancedCurationState['worldPoolId']) => {
+    markSessionIntervention(`world-pool:${worldPoolId}`);
+    setAdvancedCuration((current) => {
+      const pool = WORLD_POOL_DEFINITIONS[worldPoolId];
+      const nextWorldId =
+        current.showWorldId === null
+          ? null
+          : pool.worldIds.includes(current.showWorldId)
+            ? current.showWorldId
+            : pool.defaultWorldId;
+      return {
         ...current,
-        ...patch
-      })
+        worldPoolId,
+        showWorldId: nextWorldId
+      };
+    });
+  };
+
+  const handleWorldChange = (showWorldId: AdvancedCurationState['showWorldId']) => {
+    markSessionIntervention(`world:${showWorldId ?? 'auto'}`);
+    setAdvancedCuration((current) => ({
+      ...current,
+      showWorldId
+    }));
+  };
+
+  const handleLookPoolChange = (lookPoolId: AdvancedCurationState['lookPoolId']) => {
+    markSessionIntervention(`look-pool:${lookPoolId}`);
+    setAdvancedCuration((current) => {
+      const pool = LOOK_POOL_DEFINITIONS[lookPoolId];
+      const nextLookId =
+        current.lookId === null
+          ? null
+          : pool.lookIds.includes(current.lookId)
+            ? current.lookId
+            : pool.defaultLookId;
+      return {
+        ...current,
+        lookPoolId,
+        lookId: nextLookId
+      };
+    });
+  };
+
+  const handleLookChange = (lookId: AdvancedCurationState['lookId']) => {
+    markSessionIntervention(`look:${lookId ?? 'auto'}`);
+    setAdvancedCuration((current) => ({
+      ...current,
+      lookId
+    }));
+  };
+
+  const handleStanceChange = (stanceId: AdvancedCurationState['stanceId']) => {
+    markSessionIntervention(`stance:${stanceId ?? 'auto'}`);
+    setAdvancedCuration((current) => ({
+      ...current,
+      stanceId
+    }));
+  };
+
+  const handleDirectorBiasChange = (
+    key: AdvancedSteeringKey,
+    value: number
+  ) => {
+    const nextValue = Math.max(0, Math.min(1, value));
+    markSessionIntervention(`bias:${key}`);
+
+    setAdvancedSteering((current) => ({
+      ...current,
+      [key]: nextValue
+    }));
+  };
+
+  const handleResetAdvanced = () => {
+    markSessionIntervention('advanced:reset');
+    setAdvancedCuration(DEFAULT_ADVANCED_CURATION_STATE);
+    setAdvancedSteering(DEFAULT_ADVANCED_STEERING_STATE);
+  };
+
+  const handleResetAdvancedSteering = () => {
+    markSessionIntervention('advanced:reset-steering');
+    setAdvancedSteering(DEFAULT_ADVANCED_STEERING_STATE);
+  };
+
+  const handleSaveCurrentStance = (name: string) => {
+    markSessionIntervention('save-stance');
+    const nextStance = createSavedStance(name, compatibilityIntent);
+
+    setSavedStances((current) =>
+      [nextStance, ...current.filter((stance) => stance.id !== nextStance.id)].slice(0, 24)
     );
   };
 
-  const applyPreset = (preset: UserTuningPreset) => {
-    setControls((current) => applyPresetToControlState(current, preset));
+  const handleLoadSavedStance = (stanceId: string) => {
+    const saved = savedStances.find((stance) => stance.id === stanceId);
+
+    if (!saved) {
+      return;
+    }
+
+    markSessionIntervention(`load-stance:${stanceId}`);
+    setAdvancedCuration(
+      sanitizeAdvancedCurationState({
+        worldPoolId: saved.worldPoolId,
+        lookPoolId: saved.lookPoolId,
+        showWorldId: saved.showWorldId,
+        lookId: saved.lookId,
+        stanceId: saved.stanceId
+      })
+    );
+    setAdvancedSteering(extractAdvancedSteeringFromBiasState(saved.biases));
+    setAdvancedDrawerTab('style');
   };
 
-  const applyQuickStart = (quickStartId: QuickStartProfileId) => {
-    const profile = QUICK_START_PROFILES[quickStartId];
-
-    setLaunchQuickStartId(quickStartId);
-    setSourceMode(profile.sourceMode);
-    void audioRef.current?.setSourceMode(profile.sourceMode);
-    setControls((current) => applyQuickStartToControlState(current, quickStartId));
+  const handleDeleteSavedStance = (stanceId: string) => {
+    setSavedStances((current) =>
+      current.filter((stance) => stance.id !== stanceId)
+    );
   };
 
-  const handleSensitivityChange = (value: number) => {
-    updateControls({ sensitivity: value });
+  const applyRouteRecommendation = () => {
+    if (!routeRecommendation) {
+      return;
+    }
+
+    const recommendedStartRoute: ShowStartRoute =
+      routeRecommendation.recommendedRoute === 'hybrid'
+        ? 'combo'
+        : routeRecommendation.recommendedRoute === 'the-room'
+          ? 'microphone'
+          : 'pc-audio';
+    handleShowStartRouteChange(recommendedStartRoute);
   };
 
-  const handleEnergyChange = (value: number) => {
-    updateControls({ energy: value });
+  const openAdvancedDrawer = (tab: Exclude<AdvancedDrawerTab, null>) => {
+    markSessionIntervention(`advanced:${tab}`);
+    setAdvancedDrawerTab(tab);
   };
 
-  const handleFramingChange = (value: number) => {
-    updateControls({ framing: value });
+  const closeAdvancedDrawer = () => {
+    setAdvancedDrawerTab(null);
   };
 
-  const handleWorldActivityChange = (value: number) => {
-    updateControls({ worldActivity: value });
+  const handleApplyStyleAnchorFromAuto = () => {
+    markSessionIntervention('advanced:anchor-auto-state');
+    setAdvancedCuration((current) => ({
+      ...current,
+      showWorldId: directorRuntime.effectiveWorldId,
+      lookId: directorRuntime.effectiveLookId
+    }));
   };
-
-  const handleInputGainChange = (value: number) => {
-    updateControls({ inputGain: value });
-  };
-
-  const handleEqLowChange = (value: number) => {
-    updateControls({ eqLow: value });
-  };
-
-  const handleEqMidChange = (value: number) => {
-    updateControls({ eqMid: value });
-  };
-
-  const handleEqHighChange = (value: number) => {
-    updateControls({ eqHigh: value });
-  };
-
-  const handleSpectacleChange = (value: number) => {
-    updateControls({ spectacle: value });
-  };
-
-  const handleGeometryChange = (value: number) => {
-    updateControls({ geometry: value });
-  };
-
-  const handleRadianceChange = (value: number) => {
-    updateControls({ radiance: value });
-  };
-
-  const handleBeatDriveChange = (value: number) => {
-    updateControls({ beatDrive: value });
-  };
-
-  const handleEventfulnessChange = (value: number) => {
-    updateControls({ eventfulness: value });
-  };
-
-  const handleAtmosphereChange = (value: number) => {
-    updateControls({ atmosphere: value });
-  };
-
-  const handleColorBiasChange = (value: number) => {
-    updateControls({ colorBias: value });
-  };
-
-  const handleAccentBiasChange = (accentBias: AccentBias) => {
-    updateControls({ accentBias });
-  };
-
   const handleInputDeviceChange = (deviceId: string) => {
+    markSessionIntervention(deviceId ? `input-device:${deviceId}` : 'input-device:default');
     setPreferredInputId(deviceId);
     void audioRef.current?.setInputDevice(deviceId || null);
-  };
-
-  const handleSourceModeChange = (mode: ListeningMode) => {
-    setLaunchQuickStartId(null);
-    setSourceMode(mode);
-    void audioRef.current?.setSourceMode(mode);
   };
 
   const handleStartCapture = () => {
@@ -1314,6 +2769,7 @@ export function App() {
       return;
     }
 
+    markSessionIntervention('manual-capture:start');
     recordingRef.current = {
       active: true,
       frames: [],
@@ -1377,7 +2833,70 @@ export function App() {
     });
   };
 
+  const handleProofScenarioChange = (nextScenario: ReplayProofScenarioKind | null) => {
+    setStartError(null);
+    setProofScenarioKind(nextScenario);
+  };
+
+  const handleArmProofWave = async () => {
+    try {
+      let handle = captureDirectoryRef.current;
+
+      if (!handle) {
+        handle = await pickCaptureDirectoryHandle();
+      }
+
+      const ready = await ensureCaptureDirectoryPermission(handle, true);
+      if (!ready) {
+        setCaptureFolderStatus((current) => ({
+          ...current,
+          ready: false,
+          autoSave: false,
+          error:
+            'Proof Wave requires a writable capture folder. Grant write access to continue.'
+        }));
+        return;
+      }
+
+      captureDirectoryRef.current = handle;
+      await persistCaptureDirectoryHandle(handle);
+      setCaptureFolderStatus((current) => ({
+        ...current,
+        folderName: getCaptureDirectoryDisplayName(handle),
+        ready: true,
+        autoSave: true,
+        error: null
+      }));
+      setAutoCaptureStatus((current) => {
+        const nextStatus = {
+          ...current,
+          enabled: true,
+          proofStillsEnabled: true
+        };
+
+        autoCaptureStatusRef.current = nextStatus;
+        return nextStatus;
+      });
+      setProofWaveArmed(true);
+      setStartError(null);
+      setReplayError(null);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+
+      setCaptureFolderStatus((current) => ({
+        ...current,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to arm the proof wave.'
+      }));
+    }
+  };
+
   const handleChooseCaptureFolder = async () => {
+    markSessionIntervention('capture-folder:choose');
     try {
       const handle = await pickCaptureDirectoryHandle();
       const ready = await ensureCaptureDirectoryPermission(handle, true);
@@ -1394,6 +2913,7 @@ export function App() {
 
       captureDirectoryRef.current = handle;
       await persistCaptureDirectoryHandle(handle);
+      setStartError(null);
       setCaptureFolderStatus((current) => ({
         ...current,
         folderName: getCaptureDirectoryDisplayName(handle),
@@ -1434,15 +2954,40 @@ export function App() {
         };
       }
 
+      const nextAutoSave = !current.autoSave;
+      const latestRunTimestamp =
+        runJournalRef.current.journal?.samples[
+          Math.max(0, (runJournalRef.current.journal?.samples.length ?? 1) - 1)
+        ]?.timestampMs ?? 0;
+
+      if (!nextAutoSave) {
+        invalidateActiveProofRun(
+          'capture-folder-permission-lost',
+          latestRunTimestamp,
+          'Auto-save-to-folder was turned off during an armed proof run.',
+          'restart-run'
+        );
+      }
+
       return {
         ...current,
-        autoSave: !current.autoSave,
+        autoSave: nextAutoSave,
         error: null
       };
     });
   };
 
   const handleForgetCaptureFolder = () => {
+    const latestRunTimestamp =
+      runJournalRef.current.journal?.samples[
+        Math.max(0, (runJournalRef.current.journal?.samples.length ?? 1) - 1)
+      ]?.timestampMs ?? 0;
+    invalidateActiveProofRun(
+      'capture-folder-permission-lost',
+      latestRunTimestamp,
+      'The capture folder was forgotten during an armed proof run.',
+      'restart-run'
+    );
     captureDirectoryRef.current = null;
     void clearStoredCaptureDirectoryHandle();
     setCaptureFolderStatus((current) => ({
@@ -1456,6 +3001,7 @@ export function App() {
   };
 
   const handleStopCapture = () => {
+    markSessionIntervention('manual-capture:stop');
     const recording = recordingRef.current;
 
     recording.active = false;
@@ -1481,13 +3027,59 @@ export function App() {
           ? QUICK_START_PROFILES[launchQuickStartIdRef.current]?.label ?? null
           : activeQuickStart?.label ?? null,
         quickStartProfileId: activeQuickStart?.id ?? null,
-        quickStartProfileLabel: activeQuickStart?.label ?? null
+        quickStartProfileLabel: activeQuickStart?.label ?? null,
+        ...buildDirectorCaptureContext(
+          audioRef.current?.getDiagnostics() ?? audioDiagnostics,
+          sourceMode,
+          frame
+        )
       }
     );
 
     const replay = replayRef.current;
     replay.load(capture);
     setReplayStatus(replay.getStatus());
+    const activeRunJournal = runJournalRef.current.journal;
+    if (
+      activeRunJournal &&
+      capture.metadata.runId &&
+      activeRunJournal.metadata.runId === capture.metadata.runId
+    ) {
+      registerReplayRunClip(activeRunJournal, {
+        captureLabel: capture.metadata.label,
+        fileName: `${capture.metadata.label}.json`,
+        captureMode: capture.metadata.captureMode,
+        capturedAt: capture.metadata.capturedAt,
+        triggerKind: capture.metadata.triggerKind,
+        triggerTimestampMs: capture.metadata.triggerTimestampMs,
+        qualityFlags: capture.metadata.qualityFlags,
+        scenarioAssessment: capture.metadata.scenarioAssessment
+      });
+      activeRunJournal.metadata.scenarioAssessment =
+        capture.metadata.scenarioAssessment ?? activeRunJournal.metadata.scenarioAssessment;
+      appendRunJournalMarker(
+        'clip-saved',
+        capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
+        'manual clip saved',
+        {
+          captureLabel: capture.metadata.label,
+          captureMode: capture.metadata.captureMode
+        }
+      );
+      updateRunJournalStatusFromJournal(
+        activeRunJournal,
+        capture.metadata.scenarioAssessment ?? null
+      );
+      if (capture.metadata.scenarioAssessment?.validated !== true) {
+        invalidateActiveProofRun(
+          'scenario-drift',
+          capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
+          `Declared proof scenario no longer matches the saved clip evidence for ${capture.metadata.label}.`,
+          'restart-run'
+        );
+      }
+      void persistRunJournalArtifacts(true);
+    }
     setRecordingSummary({
       active: false,
       frameCount: recording.frames.length,
@@ -1506,6 +3098,12 @@ export function App() {
     if (captureFolderStatusRef.current.autoSave) {
       void saveCaptureToConfiguredFolder(capture).then((saved) => {
         if (!saved) {
+          invalidateActiveProofRun(
+            'capture-save-failed',
+            capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
+            `Capture ${capture.metadata.label} failed to save into the run package.`,
+            'restart-run'
+          );
           downloadReplayCapture(capture);
         }
       });
@@ -1516,6 +3114,7 @@ export function App() {
   };
 
   const handleOpenReplayFile = () => {
+    markSessionIntervention('replay:open-file');
     replayFileInputRef.current?.click();
   };
 
@@ -1534,6 +3133,14 @@ export function App() {
       const raw = await file.text();
       const capture = parseReplayCapture(raw);
 
+      invalidateActiveProofRun(
+        'replay-entered',
+        runJournalRef.current.journal?.samples[
+          Math.max(0, (runJournalRef.current.journal?.samples.length ?? 1) - 1)
+        ]?.timestampMs ?? 0,
+        'A replay capture was loaded during an armed proof run.',
+        'continue-exploratory'
+      );
       clearAutoCapturePending();
       replayRef.current.load(capture);
       setReplayStatus(replayRef.current.getStatus());
@@ -1546,6 +3153,7 @@ export function App() {
   };
 
   const handleToggleReplayPlayback = () => {
+    markSessionIntervention('replay:toggle-playback');
     const replay = replayRef.current;
     const nextStatus = replay.getStatus();
 
@@ -1559,23 +3167,32 @@ export function App() {
   };
 
   const handleStopReplay = () => {
+    markSessionIntervention('replay:stop');
     replayRef.current.stop();
     setReplayStatus(replayRef.current.getStatus());
   };
 
   const handleClearReplay = () => {
+    markSessionIntervention('replay:clear');
     replayRef.current.clear();
     setReplayStatus(replayRef.current.getStatus());
     setReplayError(null);
   };
 
   const handleLoadLatestAutoCapture = () => {
+    markSessionIntervention('replay:load-latest-auto');
     const latestCapture = autoCaptures[0];
 
     if (!latestCapture) {
       return;
     }
 
+    invalidateActiveProofRun(
+      'replay-entered',
+      latestCapture.capture.metadata.triggerTimestampMs ?? 0,
+      'A saved auto capture was loaded during an armed proof run.',
+      'continue-exploratory'
+    );
     clearAutoCapturePending();
     replayRef.current.load(latestCapture.capture);
     setReplayStatus(replayRef.current.getStatus());
@@ -1603,12 +3220,19 @@ export function App() {
   };
 
   const handleLoadAutoCapture = (captureId: string) => {
+    markSessionIntervention(`replay:load-auto:${captureId}`);
     const selectedCapture = autoCaptures.find((capture) => capture.id === captureId);
 
     if (!selectedCapture) {
       return;
     }
 
+    invalidateActiveProofRun(
+      'replay-entered',
+      selectedCapture.capture.metadata.triggerTimestampMs ?? 0,
+      'A saved auto capture was loaded during an armed proof run.',
+      'continue-exploratory'
+    );
     clearAutoCapturePending();
     replayRef.current.load(selectedCapture.capture);
     setReplayStatus(replayRef.current.getStatus());
@@ -1655,12 +3279,6 @@ export function App() {
     setReplayStatus(replayRef.current.getStatus());
   };
 
-  const rendererLabel =
-    rendererDiagnostics.backend === 'webgl2-fallback'
-      ? 'WebGL2 fallback'
-      : rendererDiagnostics.backend;
-  const replayActive = replayStatus.mode !== 'idle';
-  const runtimeActive = status.phase === 'live' || replayActive;
   const latestAutoCapture = autoCaptures[0] ?? null;
   const liveAutoCaptureStatus: AutoCaptureStatus = {
     ...autoCaptureStatus,
@@ -1672,12 +3290,14 @@ export function App() {
     latestTriggerReason:
       latestAutoCapture?.triggerReason ?? autoCaptureStatus.latestTriggerReason
   };
+  const advancedDrawerOpen = advancedDrawerTab !== null;
   const immersiveView =
     fullscreen &&
     runtimeActive &&
-    !controlsOpen &&
+    !advancedDrawerOpen &&
     !diagnosticsVisible;
-  const activationVisible = status.phase !== 'live' && !replayActive;
+  const launchSurfaceVisible = activationVisible;
+  const backstagePanelOpen = advancedDrawerOpen;
   const topStatusLabel = replayActive
     ? `replay ${replayStatus.mode}`
     : status.phase === 'live'
@@ -1702,84 +3322,111 @@ export function App() {
         ref={canvasRef}
       />
 
-      {runtimeActive && !immersiveView && !activationVisible ? (
-        <div className="top-chrome">
-          <div className="status-pill">
-            <span className="status-label">Status</span>
-            <strong>{topStatusLabel}</strong>
-          </div>
-          <div className="status-pill">
-            <span className="status-label">Renderer</span>
-            <strong>{rendererLabel}</strong>
-          </div>
-        </div>
-      ) : null}
-
-      <SettingsPanel
-        activeInputLabel={audioDiagnostics.deviceLabel}
-        audio={audioDiagnostics}
-        audioInputs={audioDiagnostics.availableInputs}
-        controls={controls}
-        immersive={immersiveView}
-        isFullscreen={fullscreen}
-        live={runtimeActive}
-        onSourceModeChange={handleSourceModeChange}
-        onAccentBiasChange={handleAccentBiasChange}
-        onApplyPreset={applyPreset}
-        onApplyQuickStart={applyQuickStart}
-        onAtmosphereChange={handleAtmosphereChange}
-        onBeatDriveChange={handleBeatDriveChange}
-        onColorBiasChange={handleColorBiasChange}
-        onEnergyChange={handleEnergyChange}
-        onFramingChange={handleFramingChange}
-        onEqHighChange={handleEqHighChange}
-        onEqLowChange={handleEqLowChange}
-        onEqMidChange={handleEqMidChange}
-        onEventfulnessChange={handleEventfulnessChange}
-        onGeometryChange={handleGeometryChange}
-        onInputDeviceChange={handleInputDeviceChange}
-        onInputGainChange={handleInputGainChange}
-        onRadianceChange={handleRadianceChange}
-        onRecalibrate={() => {
-          void handleRecalibrate();
+      <ShowHud
+        currentRouteId={resolveRouteIdFromListeningMode(sourceMode)}
+        onApplyRouteRecommendation={applyRouteRecommendation}
+        onOpenAdvanced={() => {
+          openAdvancedDrawer('steer');
         }}
-        onSpectacleChange={handleSpectacleChange}
-        onToggleFullscreen={() => {
-          void toggleFullscreen();
-        }}
-        onWorldActivityChange={handleWorldActivityChange}
-        onReset={() => {
-          const recommendedQuickStartId =
-            getRecommendedQuickStartProfileId(sourceMode);
-          setLaunchQuickStartId(recommendedQuickStartId);
-          setControls((current) =>
-            applyQuickStartToControlState(
-              current,
-              recommendedQuickStartId
-            )
-          );
-        }}
-        onSensitivityChange={handleSensitivityChange}
-        open={controlsOpen}
-        qualityTier={rendererDiagnostics.qualityTier}
-        selectedInputId={(audioDiagnostics.selectedInputId ?? preferredInputId) || null}
-        setOpen={setControlsOpen}
-        sourceMode={sourceMode}
+        routeRecommendation={routeRecommendation}
+        showCapabilityMode={appliedShowIntent.showCapabilityMode}
+        statusLabel={topStatusLabel}
+        visible={runtimeActive && !activationVisible && !immersiveView}
       />
 
-      <ActivationOverlay
-        bootStep={audioDiagnostics.bootStep}
+      <ShowLaunchSurface
+        onOpenAdvanced={() => {
+          openAdvancedDrawer('style');
+        }}
+        onStartRouteChange={handleShowStartRouteChange}
         onStart={() => {
           void handleStart();
         }}
-        activeQuickStartId={activeQuickStart?.id ?? null}
-        onApplyQuickStart={applyQuickStart}
-        preset={controls.preset}
-        onSourceModeChange={handleSourceModeChange}
         renderer={rendererDiagnostics}
-        suppressed={replayActive}
+        startError={startError}
+        startRoute={showStartRoute}
+        status={status}
+        visible={launchSurfaceVisible}
+      />
+
+      <BackstagePanel
+        activeAdvancedTab={advancedDrawerTab ?? 'style'}
+        activeInputLabel={audioDiagnostics.deviceLabel}
+        curation={advancedCuration}
+        audio={audioDiagnostics}
+        audioInputs={audioDiagnostics.availableInputs}
+        autoCaptureStatus={liveAutoCaptureStatus}
+        capabilityMode={appliedShowIntent.showCapabilityMode}
+        captureFolder={captureFolderStatus}
+        diagnosticsVisible={diagnosticsVisible}
+        effectiveLookId={directorRuntime.effectiveLookId}
+        effectiveWorldId={directorRuntime.effectiveWorldId}
+        isFullscreen={fullscreen}
+        proofWaveArmed={proofWaveArmed}
+        proofScenarioKind={proofScenarioKind}
+        onAdvancedTabChange={(tab) => {
+          setAdvancedDrawerTab(tab);
+        }}
+        onApplyCurrentDriftAnchors={handleApplyStyleAnchorFromAuto}
+        onArmProofWave={() => {
+          void handleArmProofWave();
+        }}
+        onChooseCaptureFolder={() => {
+          void handleChooseCaptureFolder();
+        }}
+        onClearReplay={handleClearReplay}
+        onClose={closeAdvancedDrawer}
+        onDeleteSavedStance={handleDeleteSavedStance}
+        onForgetCaptureFolder={handleForgetCaptureFolder}
+        onApplyRouteRecommendation={applyRouteRecommendation}
+        onBiasChange={handleDirectorBiasChange}
+        onInputDeviceChange={handleInputDeviceChange}
+        onLoadSavedStance={handleLoadSavedStance}
+        onLoadReplay={handleOpenReplayFile}
+        onLookChange={handleLookChange}
+        onLookPoolChange={handleLookPoolChange}
+        onProofScenarioChange={handleProofScenarioChange}
+        onRecalibrate={() => {
+          void handleRecalibrate();
+        }}
+        onResetAdvanced={handleResetAdvanced}
+        onResetSteering={handleResetAdvancedSteering}
+        onSaveCurrentStance={handleSaveCurrentStance}
+        onShowStartRouteChange={handleShowStartRouteChange}
+        onStartCapture={handleStartCapture}
+        onStanceChange={handleStanceChange}
+        onStopCapture={handleStopCapture}
+        onStopReplay={handleStopReplay}
+        onToggleAutoCapture={handleToggleAutoCapture}
+        onToggleAutoDownload={handleToggleAutoDownload}
+        onToggleAutoSaveToFolder={handleToggleAutoSaveToFolder}
+        onToggleDiagnostics={() => {
+          setDiagnosticsVisible((current) => !current);
+        }}
+        onToggleFullscreen={() => {
+          void toggleFullscreen();
+        }}
+        onToggleProofStills={handleToggleProofStills}
+        onToggleReplayPlayback={handleToggleReplayPlayback}
+        onWorldChange={handleWorldChange}
+        onWorldPoolChange={handleWorldPoolChange}
+        open={backstagePanelOpen}
+        routeId={resolveRouteIdFromListeningMode(sourceMode)}
+        recording={recordingSummary}
+        renderer={rendererDiagnostics}
+        replay={replayStatus}
+        replayError={replayError}
+        runJournalStatus={runJournalStatus}
+        routeRecommendation={routeRecommendation}
+        savedStances={savedStances}
+        selectedInputId={(audioDiagnostics.selectedInputId ?? preferredInputId) || null}
+        showStartRoute={showStartRoute}
+        stanceId={compatibilityIntent.stanceId}
         sourceMode={sourceMode}
         status={status}
+        steering={advancedSteering}
+        lookId={compatibilityIntent.lookId}
+        worldId={compatibilityIntent.showWorldId}
       />
 
       <DiagnosticsOverlay
@@ -1792,6 +3439,8 @@ export function App() {
             ? QUICK_START_PROFILES[launchQuickStartId]?.label ?? null
             : null
         }
+        noTouchProofWindowMs={NO_TOUCH_PROOF_WINDOW_MS}
+        onProofScenarioChange={handleProofScenarioChange}
         recentAutoCaptures={autoCaptures.slice(0, RECENT_AUTO_CAPTURE_DISPLAY_LIMIT)}
         controls={controls}
         onChooseCaptureFolder={handleChooseCaptureFolder}
@@ -1813,10 +3462,13 @@ export function App() {
         onToggleProofStills={handleToggleProofStills}
         onToggleAutoSaveToFolder={handleToggleAutoSaveToFolder}
         onToggleReplayPlayback={handleToggleReplayPlayback}
+        proofScenarioKind={proofScenarioKind}
         replay={replayStatus}
         replayError={replayError}
         recording={recordingSummary}
         renderer={rendererDiagnostics}
+        runJournalStatus={runJournalStatus}
+        sessionInterventionSummary={sessionInterventionSummary}
         status={status}
         visible={diagnosticsVisible && import.meta.env.DEV}
       />

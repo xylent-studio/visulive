@@ -96,21 +96,25 @@ Why this matters:
 
 Current workflow:
 
-1. on Windows, run `npm run dev:live-loop` if you want the browser app and rolling analyzer together
-2. otherwise run `npm run dev` and `npm run watch:captures` in separate terminals
-3. start the chosen listening path and calibrate cleanly
-4. open diagnostics with `Shift + D`
-5. choose [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) as the capture folder once
-6. turn on `Auto Capture`
-7. turn on `Auto Save To Folder`
-8. run one scenario cleanly
-9. if using manual capture, click `Stop + Save`
-10. if using auto capture, let the app write new `.json` captures directly into [captures](C:/dev/GitHub/visulive/captures)
-11. use `Load Latest Auto`, `Load`, `Play`, `Pause`, `Restart`, `Return To Live`, and the scrub bar to review the capture
+1. for serious proof, run `npm run proof:preflight`; fix any dirty-workspace or capture-folder blocker before opening the browser
+2. start serious proof with `npm run dev:proof`; use `npm run dev` only for casual/exploratory work
+3. on Windows, run `npm run dev:live-loop` only when you want the older browser app plus rolling analyzer loop for exploratory tuning
+4. otherwise run `npm run watch:captures` in a separate terminal if you want live report refreshes
+5. start the chosen listening path and calibrate cleanly
+6. open diagnostics with `Shift + D` if deeper telemetry is needed
+7. choose [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) as the capture folder once
+8. for a serious proof pass, arm `Proof Wave` instead of manually enabling each capture toggle
+9. set `Backstage -> Capture -> Proof Scenario` before the run starts; the diagnostics `Proof scenario tag` is the same value
+10. verify the proof-readiness checks are green before pressing `Start Show`
+11. run one scenario cleanly
+12. if using manual capture, click `Stop + Save`
+13. if using auto capture, let the app write the run package and clip `.json` captures into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
+14. use `Load Latest Auto`, `Load`, `Play`, `Pause`, `Restart`, `Return To Live`, and the scrub bar to review the capture
 
 Important:
 - manual capture and auto evidence capture are intentionally paused while replay mode is active
 - return to live mode before expecting new evidence to be recorded
+- serious proof is now hard-gated; `Start Show` should not count as a serious run when folder, build identity, scenario, replay, or route-coherence checks fail
 - fresh auto captures should now save with real wall-clock labels such as `auto_drop_2026-04-07_21-50-53.json`
 - if you still see new captures saving as `1969-12-31...`, refresh the app before collecting more evidence
 - newer captures now store source mode, quick-start profile, trigger count, and extension count
@@ -174,6 +178,7 @@ The report summarizes:
 - proof-still filenames when a capture saved synchronized stills
 - coverage debt and monopoly findings across show language and asset layers
 - review-gate guidance for `truth`, `governance`, `coverage`, and `taste`
+- review-gate guidance for `truth`, `hierarchy`, `coverage`, `taste`, and `operator trust`
 - inferred tuning flags and likely weak spots
 - fresh-capture metrics separated from legacy pre-wall-clock captures when both are present
 
@@ -186,7 +191,32 @@ Do not leave benchmark truth implicit.
 Before accepting a serious batch, run:
 
 ```powershell
-npm run benchmark:validate
+npm run proof:current
+```
+
+Then refresh and review the run packages:
+
+```powershell
+npm run evidence:index
+npm run run:review -- --run-id <runId> --review-note <path-to-note>
+```
+
+If the run is a valid candidate:
+
+```powershell
+npm run run:promote -- --run-id <runId> --state reviewed-candidate
+```
+
+Only move it to canonical when it truly deserves to replace the standing truth:
+
+```powershell
+npm run run:promote -- --run-id <runId> --state canonical
+```
+
+If it was useful but invalid as proof, archive the whole run package instead:
+
+```powershell
+npm run run:archive -- --run-id <runId>
 ```
 
 If the batch becomes new benchmark truth, promote it intentionally:
@@ -196,6 +226,7 @@ npm run benchmark:promote -- <capture-path> --id <benchmark-id> --label "<label>
 ```
 
 Use `secondary-floor` for quiet room-floor truth.
+Promotion now defaults to `current-candidate`; only pass `--status current-canonical` after review if the batch deserves to become active benchmark truth.
 
 Hard rule:
 
@@ -213,6 +244,7 @@ Every serious tuning pass now has three required evidence batches:
 Each batch should produce:
 
 - analyzer report
+- recommendation JSON
 - optional proof-still bundle
 - one short review note
 - an explicit pass/fail verdict against the review gates
@@ -222,13 +254,14 @@ Each batch should produce:
 Treat these as the standing acceptance system:
 
 - `truth`: benchmark manifest valid, source provenance coherent, capture integrity intact
-- `governance`: hero coverage, ring-belt persistence, wirefield density, composition safety, and world delivery remain within the current band
+- `hierarchy`: hero coverage, ring-belt persistence, wirefield density, composition safety, and world delivery remain within the current band
 - `coverage`: no major monopoly and no dormant core lanes across the batch
 - `taste`: fullscreen across-room authority, mid-distance chamber read, and up-close reward still feel premium
+- `operator trust`: route, fullscreen, recovery, and diagnostics still make sense to a non-repo operator
 - `motion`: the wave shows clear multi-axis travel and camera phrasing instead of one-axis wobble
 - `color`: palette holds and handoffs read as authored by act and family, not by twitch
 
-The analyzer can automate most of `truth`, `governance`, and `coverage`.
+The analyzer can automate most of `truth`, `hierarchy`, and `coverage`.
 `taste` still requires a human review note.
 
 ## Target-Machine Discipline

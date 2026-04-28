@@ -2,9 +2,15 @@ import type {
   AudioDiagnostics,
   AudioEngineStatus
 } from '../types/audio';
+import { BUILD_INFO, BUILD_LABEL } from '../buildInfo';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import { formatReplayDuration } from '../replay/session';
-import type { ReplayStatus } from '../replay/types';
+import type {
+  ReplayProofReadiness,
+  ReplayProofScenarioKind,
+  ReplayProofValidity,
+  ReplayStatus
+} from '../replay/types';
 import {
   formatControlValue,
   getActiveQuickStartProfile,
@@ -43,6 +49,36 @@ type CaptureFolderStatus = {
   lastSavedLabel: string | null;
 };
 
+type SessionInterventionSummary = {
+  sessionStartedAtMs: number | null;
+  interventionCount: number;
+  firstInterventionTimestampMs: number | null;
+  lastInterventionReason: string | null;
+  interventionReasons: string[];
+};
+
+type RunJournalStatus = {
+  active: boolean;
+  proofWaveArmed: boolean;
+  runId: string | null;
+  sampleCount: number;
+  markerCount: number;
+  clipCount: number;
+  checkpointStillCount: number;
+  lastPersistedAt: string | null;
+  buildIdentityValid: boolean;
+  scenarioAssessment: {
+    declaredScenario: string | null;
+    derivedScenario: string | null;
+    confidence: number;
+    mismatchReasons: string[];
+    validated: boolean;
+  } | null;
+  readiness: ReplayProofReadiness | null;
+  proofValidity: ReplayProofValidity | null;
+  lifecycleState: 'inbox' | 'reviewed-candidate' | 'canonical' | 'archive';
+};
+
 type AutoCaptureSummary = {
   id: string;
   label: string;
@@ -68,6 +104,10 @@ type DiagnosticsOverlayProps = {
   captureFolder: CaptureFolderStatus;
   latestAutoCapture: AutoCaptureSummary | null;
   launchQuickStartLabel: string | null;
+  proofScenarioKind: ReplayProofScenarioKind | null;
+  sessionInterventionSummary: SessionInterventionSummary;
+  runJournalStatus: RunJournalStatus;
+  noTouchProofWindowMs: number;
   recentAutoCaptures: AutoCaptureSummary[];
   replayError: string | null;
   onChooseCaptureFolder: () => void;
@@ -89,9 +129,29 @@ type DiagnosticsOverlayProps = {
   onStopReplay: () => void;
   onClearReplay: () => void;
   onSeekReplay: (ratio: number) => void;
+  onProofScenarioChange: (kind: ReplayProofScenarioKind | null) => void;
 };
 
 const formatNumber = (value: number): string => value.toFixed(3);
+
+function formatProofScenarioLabel(kind: ReplayProofScenarioKind | null): string {
+  switch (kind) {
+    case 'primary-benchmark':
+      return 'Primary benchmark';
+    case 'room-floor':
+      return 'Room floor';
+    case 'coverage':
+      return 'Coverage';
+    case 'sparse-silence':
+      return 'Sparse / silence';
+    case 'operator-trust':
+      return 'Operator trust';
+    case 'steering':
+      return 'Steering';
+    default:
+      return 'Unassigned';
+  }
+}
 
 export function DiagnosticsOverlay({
   visible,
@@ -105,6 +165,10 @@ export function DiagnosticsOverlay({
   captureFolder,
   latestAutoCapture,
   launchQuickStartLabel,
+  proofScenarioKind,
+  sessionInterventionSummary,
+  runJournalStatus,
+  noTouchProofWindowMs,
   recentAutoCaptures,
   replayError,
   onChooseCaptureFolder,
@@ -125,7 +189,8 @@ export function DiagnosticsOverlay({
   onToggleReplayPlayback,
   onStopReplay,
   onClearReplay,
-  onSeekReplay
+  onSeekReplay,
+  onProofScenarioChange
 }: DiagnosticsOverlayProps) {
   if (!visible) {
     return null;
@@ -140,6 +205,24 @@ export function DiagnosticsOverlay({
   const visual = renderer.visualTelemetry;
   const lowerConfidenceEvidence =
     launchQuickStartLabel === null || activeQuickStart === null;
+  const noTouchElapsedMs =
+    sessionInterventionSummary.sessionStartedAtMs === null
+      ? 0
+      : Math.max(0, Date.now() - sessionInterventionSummary.sessionStartedAtMs);
+  const noTouchWindowCleared =
+    sessionInterventionSummary.sessionStartedAtMs !== null &&
+    sessionInterventionSummary.interventionCount === 0 &&
+    noTouchElapsedMs >= noTouchProofWindowMs;
+  const noTouchWindowLabel =
+    sessionInterventionSummary.sessionStartedAtMs === null
+      ? 'not started'
+      : sessionInterventionSummary.interventionCount > 0
+        ? `broken (${sessionInterventionSummary.interventionCount})`
+        : noTouchWindowCleared
+          ? 'cleared'
+          : `${formatReplayDuration(noTouchElapsedMs)} / ${formatReplayDuration(
+              noTouchProofWindowMs
+            )}`;
 
   return (
     <aside className="diagnostics-overlay">
@@ -162,6 +245,66 @@ export function DiagnosticsOverlay({
         <div>
           <span>boot step</span>
           <strong>{audio.bootStep}</strong>
+        </div>
+        <div>
+          <span>proof wave</span>
+          <strong>{runJournalStatus.proofWaveArmed ? 'armed' : 'idle'}</strong>
+        </div>
+        <div>
+          <span>run id</span>
+          <strong>{runJournalStatus.runId ?? 'n/a'}</strong>
+        </div>
+        <div>
+          <span>build identity</span>
+          <strong>{runJournalStatus.buildIdentityValid ? 'valid' : 'missing / dev'}</strong>
+        </div>
+        <div>
+          <span>scenario validation</span>
+          <strong>
+            {runJournalStatus.scenarioAssessment?.validated === true
+              ? 'validated'
+              : runJournalStatus.scenarioAssessment
+                ? 'mismatch / pending'
+                : 'pending'}
+          </strong>
+        </div>
+        <div>
+          <span>run journal</span>
+          <strong>
+            {runJournalStatus.active
+              ? `${runJournalStatus.sampleCount} samples / ${runJournalStatus.markerCount} markers`
+              : 'inactive'}
+          </strong>
+        </div>
+        <div>
+          <span>proof ready</span>
+          <strong>
+            {runJournalStatus.readiness?.ready
+              ? 'yes'
+              : runJournalStatus.proofWaveArmed
+                ? 'blocked'
+                : 'idle'}
+          </strong>
+        </div>
+        <div>
+          <span>proof verdict</span>
+          <strong>{runJournalStatus.proofValidity?.verdict ?? 'exploratory'}</strong>
+        </div>
+        <div>
+          <span>lifecycle</span>
+          <strong>{runJournalStatus.lifecycleState}</strong>
+        </div>
+        <div>
+          <span>build</span>
+          <strong>{BUILD_LABEL}</strong>
+        </div>
+        <div>
+          <span>lane</span>
+          <strong>{BUILD_INFO.lane}</strong>
+        </div>
+        <div>
+          <span>proof</span>
+          <strong>{BUILD_INFO.proofStatus}</strong>
         </div>
         <div>
           <span>backend</span>
@@ -244,6 +387,26 @@ export function DiagnosticsOverlay({
             <strong>
               {frame.momentKind} {frame.momentAmount > 0 ? formatNumber(frame.momentAmount) : ''}
             </strong>
+          </div>
+          <div>
+            <span>regime</span>
+            <strong>{visual.performanceRegime ?? 'n/a'}</strong>
+          </div>
+          <div>
+            <span>cue</span>
+            <strong>{visual.canonicalCueClass ?? visual.cueClass ?? 'n/a'}</strong>
+          </div>
+          <div>
+            <span>silence</span>
+            <strong>{visual.silenceState ?? 'n/a'}</strong>
+          </div>
+          <div>
+            <span>phrase</span>
+            <strong>{visual.phraseConfidence ?? 'n/a'}</strong>
+          </div>
+          <div>
+            <span>section</span>
+            <strong>{visual.sectionIntent ?? 'n/a'}</strong>
           </div>
           <div>
             <span>sub</span>
@@ -731,6 +894,74 @@ export function DiagnosticsOverlay({
         </label>
         {replayError ? (
           <div className="diagnostics-error">{replayError}</div>
+        ) : null}
+      </div>
+
+      <div className="diagnostics-section">
+        <div className="diagnostics-section-title">Proof wave</div>
+        <div className="diagnostics-grid diagnostics-grid--dense">
+          <div>
+            <span>scenario</span>
+            <strong>{formatProofScenarioLabel(proofScenarioKind)}</strong>
+          </div>
+          <div>
+            <span>session</span>
+            <strong>
+              {sessionInterventionSummary.sessionStartedAtMs === null ? 'idle' : 'active'}
+            </strong>
+          </div>
+          <div>
+            <span>no-touch</span>
+            <strong>{noTouchWindowLabel}</strong>
+          </div>
+          <div>
+            <span>interventions</span>
+            <strong>{sessionInterventionSummary.interventionCount}</strong>
+          </div>
+        </div>
+        <label className="diagnostics-field">
+          <span>Proof scenario tag</span>
+          <select
+            className="diagnostics-select"
+            onChange={(event) => {
+              const nextValue = event.target.value;
+              onProofScenarioChange(
+                nextValue === '' ? null : (nextValue as ReplayProofScenarioKind)
+              );
+            }}
+            value={proofScenarioKind ?? ''}
+          >
+            <option value="">Unassigned</option>
+            <option value="primary-benchmark">Primary benchmark</option>
+            <option value="room-floor">Room floor</option>
+            <option value="coverage">Coverage</option>
+            <option value="sparse-silence">Sparse / silence</option>
+            <option value="operator-trust">Operator trust</option>
+            <option value="steering">Steering</option>
+          </select>
+        </label>
+        <div className="diagnostics-code">
+          Scenario tagging affects proof coverage and review honesty only. It does not steer
+          the show.
+        </div>
+        <div className="diagnostics-code">
+          Last intervention:{' '}
+          {sessionInterventionSummary.lastInterventionReason ?? 'none since Start Show'}
+        </div>
+        {runJournalStatus.readiness &&
+        runJournalStatus.readiness.checks.some((check) => !check.passed) ? (
+          <div className="diagnostics-code">
+            readiness blockers:{' '}
+            {runJournalStatus.readiness.checks
+              .filter((check) => !check.passed)
+              .map((check) => check.reason)
+              .join(' | ')}
+          </div>
+        ) : null}
+        {runJournalStatus.proofValidity?.recoveryGuidance ? (
+          <div className="diagnostics-code">
+            recovery: {runJournalStatus.proofValidity.recoveryGuidance}
+          </div>
         ) : null}
       </div>
 

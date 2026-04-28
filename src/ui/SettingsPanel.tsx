@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { AudioDiagnostics, ListeningMode, SourceDescriptor } from '../types/audio';
+import { BUILD_INFO, BUILD_LABEL } from '../buildInfo';
 import {
   deriveSettingsHealthSummary,
   formatControlValue,
@@ -12,7 +13,7 @@ import {
   type UserControlState,
   type UserTuningPreset
 } from '../types/tuning';
-import type { QualityTier } from '../engine/VisualizerEngine';
+import type { QualityTier } from '../types/rendering';
 
 type SettingsPanelProps = {
   controls: UserControlState;
@@ -809,6 +810,22 @@ export function SettingsPanel({
               <div>
                 <span>quality tier</span>
                 <strong>{qualityTier}</strong>
+              </div>
+              <div>
+                <span>build</span>
+                <strong>{BUILD_LABEL}</strong>
+              </div>
+              <div>
+                <span>branch</span>
+                <strong>{BUILD_INFO.branch}</strong>
+              </div>
+              <div>
+                <span>lane</span>
+                <strong>{BUILD_INFO.lane}</strong>
+              </div>
+              <div>
+                <span>proof</span>
+                <strong>{BUILD_INFO.proofStatus}</strong>
               </div>
               <div>
                 <span>shortcuts</span>
