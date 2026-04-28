@@ -742,7 +742,7 @@ export function buildEmptyCaptureReportMarkdown(options = {}) {
     '- Restart the live loop if needed.',
     '- Launch from an authored quick start, not a manual/custom state.',
     '- Choose the repo `captures/inbox` folder in diagnostics.',
-    '- Set the diagnostics proof scenario tag before the serious run starts.',
+    '- Select Backstage -> Capture -> Proof Mission, then arm Proof Wave before the serious run starts.',
     '- Record a focused batch: 3-5 build/drop moments, 1-2 release phrases, 1 quiet atmospheric section.',
     '- Run `npm run proof:current` again after the new inbox files land.'
   ].join('\n');

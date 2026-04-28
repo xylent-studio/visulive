@@ -88,7 +88,7 @@ function printResult({ failures, warnings, branch, commit, dirtyCount, inboxPath
 
   console.log('\nStart the local proof app with:');
   console.log('npm run dev:proof');
-  console.log('\nThen select Backstage -> Capture -> Proof Scenario before Start Show.');
+  console.log('\nThen select Backstage -> Capture -> Proof Mission before Start Show.');
 }
 
 async function main() {
