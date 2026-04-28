@@ -33,7 +33,14 @@ export type CaptureDirectoryBlobFile = {
 
 type CaptureDirectoryTargetOptions = {
   subdirectories?: string[];
+  retry?: {
+    attempts?: number;
+    delayMs?: number;
+  };
 };
+
+const DEFAULT_JSON_WRITE_RETRY_ATTEMPTS = 3;
+const DEFAULT_JSON_WRITE_RETRY_DELAY_MS = 120;
 
 function supportsFileSystemAccess(): boolean {
   return (
@@ -222,6 +229,75 @@ async function resolveCaptureDirectoryTarget(
   };
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, ms);
+  });
+}
+
+export function isTransientCaptureDirectoryWriteError(error: unknown): boolean {
+  const message =
+    error instanceof Error
+      ? `${error.name} ${error.message}`
+      : typeof error === 'string'
+        ? error
+        : '';
+
+  return [
+    'InvalidStateError',
+    'NoModificationAllowedError',
+    'state cached in an interface object',
+    'state had changed since it was read from disk',
+    'operation is insecure'
+  ].some((pattern) => message.toLowerCase().includes(pattern.toLowerCase()));
+}
+
+async function writeTextFileWithRetry(
+  directoryHandle: FileSystemDirectoryHandle,
+  fileName: string,
+  contents: string,
+  options?: CaptureDirectoryTargetOptions
+): Promise<void> {
+  const attempts = Math.max(
+    1,
+    Math.floor(options?.retry?.attempts ?? DEFAULT_JSON_WRITE_RETRY_ATTEMPTS)
+  );
+  const delayMs = Math.max(
+    0,
+    Math.floor(options?.retry?.delayMs ?? DEFAULT_JSON_WRITE_RETRY_DELAY_MS)
+  );
+  let latestError: unknown = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const fileHandle = await directoryHandle.getFileHandle(fileName, {
+        create: true
+      });
+      const writable = await fileHandle.createWritable();
+
+      try {
+        await writable.write(contents);
+      } finally {
+        await writable.close();
+      }
+
+      return;
+    } catch (error) {
+      latestError = error;
+
+      if (attempt >= attempts || !isTransientCaptureDirectoryWriteError(error)) {
+        break;
+      }
+
+      await delay(delayMs * attempt);
+    }
+  }
+
+  throw latestError instanceof Error
+    ? latestError
+    : new Error(`Failed to write ${fileName}.`);
+}
+
 export async function saveJsonArtifactToDirectory(
   handle: FileSystemDirectoryHandle,
   fileName: string,
@@ -232,14 +308,9 @@ export async function saveJsonArtifactToDirectory(
     handle,
     options
   );
-  const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
-  const writable = await fileHandle.createWritable();
+  const contents = JSON.stringify(artifact, null, 2);
 
-  try {
-    await writable.write(JSON.stringify(artifact, null, 2));
-  } finally {
-    await writable.close();
-  }
+  await writeTextFileWithRetry(directoryHandle, fileName, contents, options);
 
   return {
     fileName,

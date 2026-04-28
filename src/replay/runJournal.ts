@@ -735,6 +735,50 @@ export function buildReplayRunManifest(
   };
 }
 
+export function cloneReplayRunJournalForPersistence(
+  journal: ReplayRunJournal
+): ReplayRunJournal {
+  return JSON.parse(JSON.stringify(journal)) as ReplayRunJournal;
+}
+
+export function hasReplayProofInvalidation(
+  journal: ReplayRunJournal,
+  code: ReplayProofInvalidationCode
+): boolean {
+  return (
+    journal.metadata.proofValidity?.invalidations.some(
+      (invalidation) => invalidation.code === code
+    ) ?? false
+  );
+}
+
+export function buildReplayRunPersistenceArtifacts(
+  journal: ReplayRunJournal,
+  options: {
+    journalFileName: string;
+    reviewNoteFileName?: string;
+  }
+): {
+  journalSnapshot: ReplayRunJournal;
+  manifestSnapshot: ReplayRunManifest;
+} {
+  const journalSnapshot = cloneReplayRunJournalForPersistence(journal);
+  const clipFiles = journalSnapshot.clips.map((clip) => `clips/${clip.fileName}`);
+  const stillFiles = journalSnapshot.checkpointStills.map(
+    (still) => `stills/${still.fileName}`
+  );
+
+  return {
+    journalSnapshot,
+    manifestSnapshot: buildReplayRunManifest(journalSnapshot, {
+      journalFileName: options.journalFileName,
+      clipFiles,
+      stillFiles,
+      reviewNoteFileName: options.reviewNoteFileName
+    })
+  };
+}
+
 export function registerReplayRunStill(
   journal: ReplayRunJournal,
   still: ReplayRunStillDescriptor

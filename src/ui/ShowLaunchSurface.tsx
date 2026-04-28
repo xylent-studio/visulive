@@ -1,5 +1,9 @@
 import type { AudioEngineStatus } from '../types/audio';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
+import type {
+  ReplayProofReadiness,
+  ReplayProofScenarioKind
+} from '../replay/types';
 import {
   SHOW_START_ROUTE_DEFINITIONS,
   type ShowStartRoute
@@ -11,6 +15,9 @@ type ShowLaunchSurfaceProps = {
   renderer: RendererDiagnostics;
   startRoute: ShowStartRoute;
   startError?: string | null;
+  proofWaveArmed: boolean;
+  proofReadiness: ReplayProofReadiness | null;
+  proofScenarioKind: ReplayProofScenarioKind | null;
   onStartRouteChange: (route: ShowStartRoute) => void;
   onStart: () => void;
   onOpenAdvanced: () => void;
@@ -22,6 +29,9 @@ export function ShowLaunchSurface({
   renderer,
   startRoute,
   startError,
+  proofWaveArmed,
+  proofReadiness,
+  proofScenarioKind,
   onStartRouteChange,
   onStart,
   onOpenAdvanced
@@ -35,6 +45,10 @@ export function ShowLaunchSurface({
     status.phase === 'requesting-permission' ||
     status.phase === 'booting' ||
     status.phase === 'calibrating';
+  const blockingProofReasons =
+    proofReadiness?.checks
+      .filter((check) => check.blocking && !check.passed)
+      .map((check) => check.reason) ?? [];
 
   return (
     <div className="show-launch">
@@ -84,7 +98,27 @@ export function ShowLaunchSurface({
             <span>renderer</span>
             <strong>{renderer.backend}</strong>
           </div>
+          {proofWaveArmed ? (
+            <div>
+              <span>serious proof</span>
+              <strong>{proofReadiness?.ready ? 'ready' : 'blocked'}</strong>
+            </div>
+          ) : null}
         </div>
+
+        {proofWaveArmed ? (
+          <div
+            className={
+              proofReadiness?.ready
+                ? 'show-launch__note'
+                : 'show-launch__error'
+            }
+          >
+            {proofReadiness?.ready
+              ? `Proof Wave is ready for ${proofScenarioKind ?? 'the selected scenario'}. Start Show will create a current-proof candidate run.`
+              : `Proof Wave is armed but blocked: ${blockingProofReasons.join(' ')}`}
+          </div>
+        ) : null}
 
         {status.error ? (
           <div className="show-launch__error">{status.error}</div>

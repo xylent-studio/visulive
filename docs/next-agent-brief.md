@@ -1,6 +1,6 @@
 # VisuLive Next Agent Brief
 
-Date: 2026-04-23  
+Date: 2026-04-28  
 Status: Active cold-start handoff
 
 Use this if you are the next agent starting development work after the V1 preservation pass.
@@ -26,8 +26,11 @@ Read first:
 - [https://visulive-v1.xylent.studio](https://visulive-v1.xylent.studio) is live over HTTPS
 - the preserved V1 GitHub release is published at [https://github.com/xylent-studio/visulive/releases/tag/v1.0.0](https://github.com/xylent-studio/visulive/releases/tag/v1.0.0)
 - Cloudflare/Netlify helper scripts are installed for future domain and release work
+- Linear MCP is registered and OAuth-authenticated at the Codex CLI level; the current desktop thread still needs a restart before in-thread Linear project and issue writes can be confirmed
+- Proof-run persistence now snapshots run journals/manifests before async writes, retries transient File System Access write-state failures, and avoids recursive `run-journal-save-failed` invalidation loops
+- the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing scenario/build/folder/replay readiness is visible before `Start Show`
 
-This means the next agent should return to development work, not more release cleanup.
+This means the next agent should return to proof validation work, not release cleanup or capability expansion.
 
 ## Immediate Next Development Target
 
@@ -51,6 +54,9 @@ The highest-leverage move is:
 2. run the live sanity pass:
    - confirm start/stop, chamber presence, world takeover, disposal, and authority-driven lighting still read correctly
 3. run the proof wave:
+   - launch with `npm run dev:proof`
+   - select the scenario under `Backstage -> Capture -> Proof Scenario`
+   - start only when the launch surface reports serious proof is ready
    - fresh no-touch `PC Audio` benchmark batch
    - analyzer review
    - proof-pack review
@@ -73,6 +79,7 @@ The highest-leverage move is:
 - do not add a second public show
 - do not add a public world/look browser on the front door
 - do not add major new anthology families into legacy monolithic ownership
+- do not use the April 28 invalid run as current proof; it is debugging evidence only
 - do not treat `systems/**` or `governors/**` folder names as proof that extraction is done
 - do not spend time on legacy V1 work unless explicitly asked
 
@@ -101,6 +108,9 @@ Or use:
 
 If the pass touches release/evidence plumbing, also run:
 
+- `npm run proof:audit`
+- `npm run benchmark:validate -- --require-current` and expect failure until a valid current-canonical benchmark is promoted
+- `npm run proof-pack -- --limit 1 --strict` and expect failure until a valid current-proof-eligible run exists
 - `npm run prod:smoke:legacy`
 - any task-specific proof or capture command needed by the pass
 

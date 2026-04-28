@@ -53,15 +53,16 @@ import {
 } from '../replay/session';
 import {
   buildReplayProofInvalidation,
+  buildReplayRunPersistenceArtifacts,
   buildReplayRunEventMarker,
   buildReplayRunJournalSample,
-  buildReplayRunManifest,
   createReplayBuildInfo,
   createReplayRunId,
   createReplayRunJournal,
   deriveReplayProofReadiness,
   deriveReplayProofValidity,
   deriveReplayScenarioAssessment,
+  hasReplayProofInvalidation,
   isReplayBuildInfoValid,
   registerReplayRunClip,
   registerReplayRunStill
@@ -163,6 +164,8 @@ const MAX_AUTO_CAPTURE_HISTORY = 32;
 const RECENT_AUTO_CAPTURE_DISPLAY_LIMIT = 8;
 const RUN_JOURNAL_SAMPLE_INTERVAL_MS = 250;
 const RUN_JOURNAL_PERSIST_INTERVAL_MS = 3_000;
+const RUN_JOURNAL_PERSIST_RETRY_ATTEMPTS = 3;
+const RUN_JOURNAL_PERSIST_RETRY_DELAY_MS = 140;
 const RUN_CHECKPOINT_STILL_INTERVAL_MS = 12_000;
 const MAX_AUTO_CAPTURE_PRE_ROLL_MS = Math.max(
   ...Object.values(AUTO_CAPTURE_TIMING_PROFILES).map((profile) => profile.preRollMs)
@@ -894,39 +897,49 @@ export function App() {
         return false;
       }
 
-      const clipFiles = journal.clips.map((clip) => `clips/${clip.fileName}`);
-      const stillFiles = journal.checkpointStills.map(
-        (still) => `stills/${still.fileName}`
-      );
       const journalFileName = `${journal.metadata.runId}__run-journal.json`;
       const manifestFileName = `${journal.metadata.runId}__run-manifest.json`;
       const runSubdirectories = getRunSubdirectories();
+      const { journalSnapshot, manifestSnapshot } = buildReplayRunPersistenceArtifacts(
+        journal,
+        {
+          journalFileName
+        }
+      );
+      const persistenceOptions = {
+        subdirectories: runSubdirectories,
+        retry: {
+          attempts: RUN_JOURNAL_PERSIST_RETRY_ATTEMPTS,
+          delayMs: RUN_JOURNAL_PERSIST_RETRY_DELAY_MS
+        }
+      };
 
       try {
-        await saveJsonArtifactToDirectory(handle, journalFileName, journal, {
-          subdirectories: runSubdirectories
-        });
+        await saveJsonArtifactToDirectory(
+          handle,
+          journalFileName,
+          journalSnapshot,
+          persistenceOptions
+        );
         await saveJsonArtifactToDirectory(
           handle,
           manifestFileName,
-          buildReplayRunManifest(journal, {
-            journalFileName,
-            clipFiles,
-            stillFiles
-          }),
-          {
-            subdirectories: runSubdirectories
-          }
+          manifestSnapshot,
+          persistenceOptions
         );
       } catch (error) {
-        invalidateActiveProofRun(
-          'run-journal-save-failed',
-          journal.samples[journal.samples.length - 1]?.timestampMs ?? 0,
-          error instanceof Error
-            ? `Run-journal persistence failed: ${error.message}`
-            : 'Run-journal persistence failed.',
-          'restart-run'
-        );
+        if (!hasReplayProofInvalidation(journal, 'run-journal-save-failed')) {
+          invalidateActiveProofRun(
+            'run-journal-save-failed',
+            journal.samples[journal.samples.length - 1]?.timestampMs ?? 0,
+            error instanceof Error
+              ? `Run-journal persistence failed after ${RUN_JOURNAL_PERSIST_RETRY_ATTEMPTS} attempts: ${error.message}`
+              : `Run-journal persistence failed after ${RUN_JOURNAL_PERSIST_RETRY_ATTEMPTS} attempts.`,
+            'restart-run'
+          );
+        } else {
+          updateRunJournalStatusFromJournal(journal);
+        }
         return false;
       }
 
@@ -3343,6 +3356,9 @@ export function App() {
           void handleStart();
         }}
         renderer={rendererDiagnostics}
+        proofReadiness={currentProofReadiness}
+        proofScenarioKind={proofScenarioKind}
+        proofWaveArmed={proofWaveArmed}
         startError={startError}
         startRoute={showStartRoute}
         status={status}

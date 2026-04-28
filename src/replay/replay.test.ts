@@ -12,7 +12,16 @@ import {
   cloneReplayCaptureFrame,
   parseReplayCapture
 } from './session';
-import { isReplayBuildInfoValid } from './runJournal';
+import { isTransientCaptureDirectoryWriteError } from './captureDirectory';
+import {
+  buildReplayProofInvalidation,
+  buildReplayRunPersistenceArtifacts,
+  createReplayBuildInfo,
+  createReplayRunJournal,
+  deriveReplayProofValidity,
+  hasReplayProofInvalidation,
+  isReplayBuildInfoValid
+} from './runJournal';
 
 describe('replay workflow', () => {
   it('rejects proof build identity that is dev, dirty, or unverified', () => {
@@ -35,6 +44,123 @@ describe('replay workflow', () => {
       })
     ).toBe(false);
     expect(isReplayBuildInfoValid({ ...strictBuildInfo, dirty: true })).toBe(false);
+  });
+
+  it('snapshots run journal persistence artifacts before async writes mutate state', () => {
+    const buildInfo = createReplayBuildInfo({
+      version: '1.0.0-test',
+      commit: 'abc1234',
+      branch: 'codex/full-version-foundation',
+      builtAt: '2026-04-23T13:00:00.000Z',
+      lane: 'stable',
+      proofStatus: 'proof-pack',
+      dirty: false
+    });
+    const journal = createReplayRunJournal({
+      buildInfo,
+      runId: 'run-proof-snapshot',
+      sourceMode: 'system-audio',
+      sourceLabel: 'PC Audio',
+      proofWaveArmed: true,
+      proofScenarioKind: 'primary-benchmark',
+      sessionStartedAt: '2026-04-23T13:01:00.000Z',
+      sessionElapsedMs: 0,
+      interventionCount: 0,
+      interventionReasons: [],
+      noTouchWindowPassed: false
+    });
+
+    journal.clips.push({
+      captureLabel: 'auto_authority-turn_2026-04-23_13-01-01',
+      fileName: 'auto_authority-turn_2026-04-23_13-01-01.json',
+      captureMode: 'auto',
+      capturedAt: '2026-04-23T13:01:01.000Z',
+      triggerKind: 'authority-turn',
+      triggerTimestampMs: 1000
+    });
+    journal.checkpointStills.push({
+      kind: 'authority',
+      timestampMs: 1000,
+      fileName: 'run-proof-snapshot__authority_1000.png'
+    });
+
+    const artifacts = buildReplayRunPersistenceArtifacts(journal, {
+      journalFileName: 'run-proof-snapshot__run-journal.json'
+    });
+
+    journal.clips.push({
+      captureLabel: 'late_clip',
+      fileName: 'late_clip.json',
+      captureMode: 'auto',
+      capturedAt: '2026-04-23T13:01:02.000Z'
+    });
+    journal.checkpointStills[0]!.fileName = 'mutated-after-snapshot.png';
+
+    expect(artifacts.journalSnapshot.clips).toHaveLength(1);
+    expect(artifacts.journalSnapshot.checkpointStills[0]?.fileName).toBe(
+      'run-proof-snapshot__authority_1000.png'
+    );
+    expect(artifacts.manifestSnapshot.clipFiles).toEqual([
+      'clips/auto_authority-turn_2026-04-23_13-01-01.json'
+    ]);
+    expect(artifacts.manifestSnapshot.stillFiles).toEqual([
+      'stills/run-proof-snapshot__authority_1000.png'
+    ]);
+  });
+
+  it('detects replay proof invalidations and transient file-system write errors', () => {
+    const buildInfo = createReplayBuildInfo({
+      version: '1.0.0-test',
+      commit: 'abc1234',
+      branch: 'codex/full-version-foundation',
+      builtAt: '2026-04-23T13:00:00.000Z',
+      lane: 'stable',
+      proofStatus: 'proof-pack',
+      dirty: false
+    });
+    const journal = createReplayRunJournal({
+      buildInfo,
+      runId: 'run-proof-invalidated',
+      sourceMode: 'system-audio',
+      sourceLabel: 'PC Audio',
+      proofWaveArmed: true,
+      proofScenarioKind: 'primary-benchmark',
+      sessionStartedAt: '2026-04-23T13:01:00.000Z',
+      sessionElapsedMs: 0,
+      interventionCount: 0,
+      interventionReasons: [],
+      noTouchWindowPassed: false
+    });
+
+    journal.metadata.proofValidity = deriveReplayProofValidity({
+      proofWaveArmed: true,
+      readiness: {
+        seriousRun: true,
+        ready: true,
+        checkedAt: '2026-04-23T13:00:59.000Z',
+        checks: []
+      },
+      startedReady: true,
+      invalidations: [
+        buildReplayProofInvalidation(
+          'run-journal-save-failed',
+          1200,
+          'Run-journal persistence failed after retries.',
+          'restart-run'
+        )
+      ]
+    });
+
+    expect(hasReplayProofInvalidation(journal, 'run-journal-save-failed')).toBe(true);
+    expect(hasReplayProofInvalidation(journal, 'capture-save-failed')).toBe(false);
+    expect(
+      isTransientCaptureDirectoryWriteError(
+        new DOMException(
+          'An operation that depends on state cached in an interface object was made but the state had changed since it was read from disk.',
+          'InvalidStateError'
+        )
+      )
+    ).toBe(true);
   });
 
   it('builds and parses replay captures with diagnostics', () => {

@@ -1,6 +1,6 @@
 # VisuLive Project Status
 
-Date: 2026-04-27
+Date: 2026-04-28
 Status: Active implementation snapshot
 
 This file answers five practical questions quickly:
@@ -15,21 +15,24 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` before the proof-gate hardening pass:
+Latest local verification on `codex/full-version-foundation` after proof-run reliability hardening:
 
 - `npm run anthology:validate` passes
 - `npm run check` passes
 - `npm run test` passes
 - `npm run build` passes
+- `npm run proof:audit` passes
 - `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
+- `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run analyze:captures` passes
-- `npm run proof-pack -- --limit 5` renders a report, but the report currently has failed current-proof gates because no fresh post-authority evidence is attached
+- `npm run proof-pack -- --limit 1 --strict` intentionally fails because no current-proof-eligible run exists yet
 - `npm run prod:smoke -- --include-http` passes
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
 
 Current standing warning:
 
 - the build still emits a large `three-vendor` chunk warning
+- the latest April 28 run is useful for debugging only, not promotion: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
 
 ## Start-Right Audit Snapshot
 
@@ -79,6 +82,7 @@ development.
 The next wave is:
 
 - `Proof / Authority Validation`
+- run it only after launching through `npm run dev:proof`, selecting a Proof Scenario in `Backstage -> Capture`, and confirming the launch surface says serious proof is ready
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
 task framing.
