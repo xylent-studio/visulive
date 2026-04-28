@@ -54,6 +54,14 @@ Created issues:
 - `VIS-15` Review proof recommendations and decide governance follow-up
 - `VIS-16` Decide PostSystem readiness after authority proof
 
+Active dependency chain:
+
+- `VIS-12` is the current active operator task.
+- `VIS-14` is blocked by `VIS-12`.
+- `VIS-13` is blocked by `VIS-14`.
+- `VIS-15` is blocked by `VIS-14` and `VIS-13`.
+- `VIS-16` is blocked by `VIS-15`.
+
 ### Clean artifact boundaries and ignored generated evidence
 
 Labels: `artifact-policy`, `evidence`

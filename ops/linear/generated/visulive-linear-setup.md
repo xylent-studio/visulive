@@ -88,6 +88,9 @@ Acceptance:
 - `npm run proof:preflight` passes without `--allow-dirty`.
 - Checkpoint records commit stack and next proof steps.
 
+Status note:
+- Current clean local proof-ops commit is `581571e Set up VisuLive proof operating loop`.
+
 ### Close release/proof gate findings
 
 Priority: Urgent
@@ -158,7 +161,7 @@ Acceptance:
 ### Run primary-benchmark proof canary
 
 Priority: Urgent
-State: Ready
+State: In Progress
 Milestone: Fresh Serious Proof
 Labels: proof-gate, evidence, operator-ux
 
@@ -174,12 +177,19 @@ Acceptance:
 - Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.
 - Canary is archived or reviewed before the full benchmark run starts.
 
+Current repo truth:
+- Local commit: `581571e Set up VisuLive proof operating loop`.
+- `npm run proof:preflight` passes.
+- `captures/inbox/runs` is empty.
+- The invalid April 28 run is archived and must be used only as debugging evidence.
+
 ### Collect clean primary-benchmark proof
 
 Priority: Urgent
-State: Ready
+State: Blocked
 Milestone: Fresh Serious Proof
 Labels: proof-gate, evidence
+Blocked by: Run primary-benchmark proof canary
 
 Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.
 
@@ -194,12 +204,16 @@ Acceptance:
 - `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.
 - `authority split validation` and `primary authority proof` gates pass before governance is treated as stable.
 
+Dependency:
+- Blocked by `Run primary-benchmark proof canary` because the canary must prove write/journal/still/no-touch reliability before a full benchmark run.
+
 ### Collect clean operator-trust proof
 
 Priority: High
 State: Blocked
 Milestone: Fresh Serious Proof
 Labels: proof-gate, operator-ux, evidence
+Blocked by: Collect clean primary-benchmark proof
 
 Collect proof that a normal operator can arm and run the show without hidden manual intervention.
 
@@ -207,9 +221,13 @@ Owner lane: Operator UX / Evidence.
 
 Acceptance:
 - Scenario is `Operator trust`.
+- Duration is 6-8 minutes.
 - Operator-trust scenario clears no-touch and intervention requirements.
 - Run package is reviewed and promoted or archived as a whole package.
 - Any invalidation reason produces actionable operator recovery guidance.
+
+Dependency:
+- Blocked by `Collect clean primary-benchmark proof` because operator trust should run only after the primary proof path is proven valid.
 
 ### Review proof recommendations and decide governance follow-up
 
@@ -217,6 +235,7 @@ Priority: High
 State: Blocked
 Milestone: Evidence-Led Next Development
 Labels: governance, evidence
+Blocked by: Collect clean primary-benchmark proof, Collect clean operator-trust proof
 
 Use fresh recommendation JSON and review notes to choose the next narrow correction.
 
@@ -228,12 +247,16 @@ Acceptance:
 - If proof is weak, next pass is AuthorityGovernor, LightingSystem, and ParticleSystem only.
 - If proof is strong, move to PostSystem readiness.
 
+Dependency:
+- Blocked by `Collect clean primary-benchmark proof` and `Collect clean operator-trust proof` because governance correction must be evidence-led from valid runs, not stale or invalid captures.
+
 ### Decide PostSystem readiness after authority proof
 
 Priority: Medium
 State: Blocked
 Milestone: Evidence-Led Next Development
 Labels: runtime, governance
+Blocked by: Review proof recommendations and decide governance follow-up
 
 Decide whether the runtime is ready for the next structural extraction.
 
@@ -243,4 +266,7 @@ Acceptance:
 - If authority proof holds, next structural target is `PostSystem`.
 - If authority proof fails, perform one focused governance correction first.
 - No capability-growth issue starts until this decision is recorded.
+
+Dependency:
+- Blocked by `Review proof recommendations and decide governance follow-up` because PostSystem readiness must follow proof recommendation review, not architecture momentum.
 

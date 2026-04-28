@@ -28,6 +28,7 @@ Current confirmed state:
 - Project exists: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c).
 - Project document exists: [Proof Backbone Operating Notes](https://linear.app/visulive/document/proof-backbone-operating-notes-df03eeaad9bb).
 - Seeded issues exist as `VIS-5` through `VIS-16`.
+- Active tracker edge: `VIS-12` is the current canary task; `VIS-14` is blocked by `VIS-12`; `VIS-13` is blocked by `VIS-14`; `VIS-15` is blocked by `VIS-14` and `VIS-13`; `VIS-16` is blocked by `VIS-15`.
 
 Connector warning:
 
@@ -123,3 +124,11 @@ Until fresh current proof exists:
 - no release promotion
 
 If primary benchmark or operator-trust proof fails, the next issue should be a narrow governance correction against `AuthorityGovernor`, `LightingSystem`, or `ParticleSystem`. If proof passes, the next structural issue should be `PostSystem` readiness.
+
+Current issue order:
+
+1. `VIS-12` Run primary-benchmark proof canary.
+2. `VIS-14` Collect clean primary-benchmark proof.
+3. `VIS-13` Collect clean operator-trust proof.
+4. `VIS-15` Review proof recommendations and decide governance follow-up.
+5. `VIS-16` Decide PostSystem readiness after authority proof.

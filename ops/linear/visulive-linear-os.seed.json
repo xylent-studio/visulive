@@ -139,7 +139,7 @@
       "priority": "High",
       "state": "Done",
       "labels": ["linear-ops", "docs"],
-      "description": "Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.\n\nOwner lane: Repo Operations.\n\nAcceptance:\n- Dirty workspace is converted into focused commits.\n- `git status --short` is empty.\n- `npm run proof:preflight` passes without `--allow-dirty`.\n- Checkpoint records commit stack and next proof steps."
+      "description": "Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.\n\nOwner lane: Repo Operations.\n\nAcceptance:\n- Dirty workspace is converted into focused commits.\n- `git status --short` is empty.\n- `npm run proof:preflight` passes without `--allow-dirty`.\n- Checkpoint records commit stack and next proof steps.\n\nStatus note:\n- Current clean local proof-ops commit is `581571e Set up VisuLive proof operating loop`."
     },
     {
       "title": "Close release/proof gate findings",
@@ -182,18 +182,19 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Fresh Serious Proof",
       "priority": "Urgent",
-      "state": "Ready",
+      "state": "In Progress",
       "labels": ["proof-gate", "evidence", "operator-ux"],
-      "description": "Run a short proof canary before spending operator time on a full no-touch benchmark.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 60-90 seconds.\n- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.\n- Canary is archived or reviewed before the full benchmark run starts."
+      "description": "Run a short proof canary before spending operator time on a full no-touch benchmark.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 60-90 seconds.\n- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.\n- Canary is archived or reviewed before the full benchmark run starts.\n\nCurrent repo truth:\n- Local commit: `581571e Set up VisuLive proof operating loop`.\n- `npm run proof:preflight` passes.\n- `captures/inbox/runs` is empty.\n- The invalid April 28 run is archived and must be used only as debugging evidence."
     },
     {
       "title": "Collect clean primary-benchmark proof",
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Fresh Serious Proof",
       "priority": "Urgent",
-      "state": "Ready",
+      "state": "Blocked",
       "labels": ["proof-gate", "evidence"],
-      "description": "Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 6-8 minutes.\n- Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.\n- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.\n- `authority split validation` and `primary authority proof` gates pass before governance is treated as stable."
+      "blockedBy": ["Run primary-benchmark proof canary"],
+      "description": "Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 6-8 minutes.\n- Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.\n- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.\n- `authority split validation` and `primary authority proof` gates pass before governance is treated as stable.\n\nDependency:\n- Blocked by `Run primary-benchmark proof canary` because the canary must prove write/journal/still/no-touch reliability before a full benchmark run."
     },
     {
       "title": "Collect clean operator-trust proof",
@@ -202,7 +203,8 @@
       "priority": "High",
       "state": "Blocked",
       "labels": ["proof-gate", "operator-ux", "evidence"],
-      "description": "Collect proof that a normal operator can arm and run the show without hidden manual intervention.\n\nOwner lane: Operator UX / Evidence.\n\nAcceptance:\n- Scenario is `Operator trust`.\n- Operator-trust scenario clears no-touch and intervention requirements.\n- Run package is reviewed and promoted or archived as a whole package.\n- Any invalidation reason produces actionable operator recovery guidance."
+      "blockedBy": ["Collect clean primary-benchmark proof"],
+      "description": "Collect proof that a normal operator can arm and run the show without hidden manual intervention.\n\nOwner lane: Operator UX / Evidence.\n\nAcceptance:\n- Scenario is `Operator trust`.\n- Duration is 6-8 minutes.\n- Operator-trust scenario clears no-touch and intervention requirements.\n- Run package is reviewed and promoted or archived as a whole package.\n- Any invalidation reason produces actionable operator recovery guidance.\n\nDependency:\n- Blocked by `Collect clean primary-benchmark proof` because operator trust should run only after the primary proof path is proven valid."
     },
     {
       "title": "Review proof recommendations and decide governance follow-up",
@@ -211,7 +213,8 @@
       "priority": "High",
       "state": "Blocked",
       "labels": ["governance", "evidence"],
-      "description": "Use fresh recommendation JSON and review notes to choose the next narrow correction.\n\nOwner lane: Governance / Evidence.\n\nAcceptance:\n- Recommendation JSON is reviewed.\n- Overbright, ring persistence, chamber presence, and world takeover outcomes determine the next correction.\n- If proof is weak, next pass is AuthorityGovernor, LightingSystem, and ParticleSystem only.\n- If proof is strong, move to PostSystem readiness."
+      "blockedBy": ["Collect clean primary-benchmark proof", "Collect clean operator-trust proof"],
+      "description": "Use fresh recommendation JSON and review notes to choose the next narrow correction.\n\nOwner lane: Governance / Evidence.\n\nAcceptance:\n- Recommendation JSON is reviewed.\n- Overbright, ring persistence, chamber presence, and world takeover outcomes determine the next correction.\n- If proof is weak, next pass is AuthorityGovernor, LightingSystem, and ParticleSystem only.\n- If proof is strong, move to PostSystem readiness.\n\nDependency:\n- Blocked by `Collect clean primary-benchmark proof` and `Collect clean operator-trust proof` because governance correction must be evidence-led from valid runs, not stale or invalid captures."
     },
     {
       "title": "Decide PostSystem readiness after authority proof",
@@ -220,7 +223,8 @@
       "priority": "Normal",
       "state": "Blocked",
       "labels": ["runtime", "governance"],
-      "description": "Decide whether the runtime is ready for the next structural extraction.\n\nOwner lane: Runtime / Governance.\n\nAcceptance:\n- If authority proof holds, next structural target is `PostSystem`.\n- If authority proof fails, perform one focused governance correction first.\n- No capability-growth issue starts until this decision is recorded."
+      "blockedBy": ["Review proof recommendations and decide governance follow-up"],
+      "description": "Decide whether the runtime is ready for the next structural extraction.\n\nOwner lane: Runtime / Governance.\n\nAcceptance:\n- If authority proof holds, next structural target is `PostSystem`.\n- If authority proof fails, perform one focused governance correction first.\n- No capability-growth issue starts until this decision is recorded.\n\nDependency:\n- Blocked by `Review proof recommendations and decide governance follow-up` because PostSystem readiness must follow proof recommendation review, not architecture momentum."
     }
   ]
 }

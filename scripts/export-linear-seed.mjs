@@ -44,6 +44,7 @@ function writeCsv(seed) {
     "Labels",
     "Priority",
     "State",
+    "Blocked By",
   ];
   const rows = seed.issues.map((issue) => [
     issue.title,
@@ -54,6 +55,7 @@ function writeCsv(seed) {
     issue.labels,
     priorityName(issue.priority),
     issue.state ?? "",
+    issue.blockedBy ?? [],
   ]);
 
   const contents = [header, ...rows]
@@ -102,6 +104,9 @@ function writeMarkdown(seed) {
       `State: ${issue.state ?? "Backlog"}`,
       `Milestone: ${issue.milestone}`,
       `Labels: ${issue.labels.join(", ")}`,
+      ...(issue.blockedBy?.length
+        ? [`Blocked by: ${issue.blockedBy.join(", ")}`]
+        : []),
       "",
       issue.description,
       "",
