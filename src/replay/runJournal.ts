@@ -18,6 +18,7 @@ import type {
   ReplayProofInvalidation,
   ReplayProofInvalidationCode,
   ReplayProofInvalidationDisposition,
+  ReplayProofMissionSnapshot,
   ReplayProofReadiness,
   ReplayProofReadinessCheck,
   ReplayProofReadinessCheckId,
@@ -60,6 +61,7 @@ type ReplayRunJournalContext = {
   showCapabilityMode?: ShowCapabilityMode;
   proofWaveArmed: boolean;
   proofScenarioKind?: ReplayProofScenarioKind | null;
+  proofMission?: ReplayProofMissionSnapshot;
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
@@ -110,6 +112,7 @@ type ReplayRunJournalSampleInput = {
   stanceId?: DirectorStanceId;
   proofWaveArmed: boolean;
   proofScenarioKind?: ReplayProofScenarioKind | null;
+  proofMission?: ReplayProofMissionSnapshot;
   interventionCount: number;
   noTouchWindowPassed: boolean;
 };
@@ -470,7 +473,7 @@ export function deriveReplayProofReadiness(
       scenarioChosen,
       scenarioChosen
         ? `Scenario "${input.proofScenarioKind}" is selected.`
-        : 'Select a proof scenario before starting a serious proof run.'
+        : 'Select a proof mission before starting a serious proof run.'
     ),
     buildProofReadinessCheck(
       'replay-inactive',
@@ -486,7 +489,7 @@ export function deriveReplayProofReadiness(
         ? 'Primary benchmark must start from the PC Audio route with display-audio support.'
         : input.proofScenarioKind === 'room-floor'
           ? 'Room-floor proof must start from the Microphone route with room-mic support.'
-          : 'Route and input capabilities are coherent enough for this proof scenario.'
+          : 'Route and input capabilities are coherent enough for this proof mission.'
     )
   ];
 
@@ -588,6 +591,7 @@ export function createReplayRunJournal(context: ReplayRunJournalContext): Replay
       sourceMode: context.sourceMode,
       proofWaveArmed: context.proofWaveArmed,
       proofScenarioKind: context.proofScenarioKind ?? null,
+      proofMission: context.proofMission,
       scenarioAssessment: context.scenarioAssessment,
       proofReadiness: context.proofReadiness,
       proofValidity: context.proofValidity,
@@ -679,6 +683,7 @@ export function buildReplayRunJournalSample(
       interventionCount: input.interventionCount,
       noTouchWindowPassed: input.noTouchWindowPassed,
       proofScenarioKind: input.proofScenarioKind ?? null,
+      proofMissionKind: input.proofMission?.kind,
       proofWaveArmed: input.proofWaveArmed
     }
   };
@@ -717,6 +722,7 @@ export function buildReplayRunManifest(
       updatedAt: journal.metadata.updatedAt,
       buildInfo: journal.metadata.buildInfo,
       proofScenarioKind: journal.metadata.proofScenarioKind ?? null,
+      proofMission: journal.metadata.proofMission,
       scenarioAssessment: journal.metadata.scenarioAssessment,
       proofReadiness: journal.metadata.proofReadiness,
       proofValidity: journal.metadata.proofValidity,

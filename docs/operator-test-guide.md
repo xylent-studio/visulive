@@ -63,32 +63,45 @@ If you are running a serious review pass instead of a casual look:
 - start the local app with `npm run dev:proof`
 - arm `Proof Wave`
 - confirm the capture folder points at [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-- set `Backstage -> Capture -> Proof Scenario` before the run starts
+- set `Backstage -> Capture -> Proof Mission` before the run starts
 - verify `Proof ready: yes` in diagnostics or backstage before pressing `Start Show`
 - finish by reviewing the analyzer report and writing one short note
 
-`Proof Wave` now does the serious-pass setup in one path:
+`Proof Wave` is now a setup transaction, not a loose toggle:
+
+- locks the selected proof mission into the next run package
+- forces the mission route and source mode before `Start Show`
 - verifies the capture folder is writable
 - enables auto capture
 - enables auto save to folder
 - enables proof stills
+- starts the run journal automatically on the next `Start Show`
 - records build identity into captures
-- starts a run journal on the next `Start Show`
+- resets serious-proof advanced curation and steering unless the mission is explicitly exploratory
 
 `Start Show` is now hard-gated for serious proof:
 - if the capture folder is not writable in the repo inbox, the run should not start as serious proof
 - if build identity is invalid or still a dev build, the run should not start as serious proof
-- if no proof scenario is selected, the run should not start as serious proof
+- if no proof mission is selected, the run should not start as serious proof
 - if replay is active, the run should not start as serious proof
-- if the route/input does not match the declared scenario, the run should not start as serious proof
+- if the route/input does not match the locked mission, the run should not start as serious proof
 
-Use these scenario defaults:
+Use these mission defaults:
 - `Primary benchmark` for a normal `Music On This PC` no-touch music run
 - `Operator trust` for a no-touch confidence run where the main question is whether the show stays stable without steering
+- `Acoustic/drums stress` for acoustic or live-feeling music with strong drums and transients after primary proof is valid
 - `Room floor` for microphone/room-input quiet behavior
 - `Sparse / silence` for low-input dignity and non-collapse proof
 - `Coverage` for broad cue/family/authority variety
+- `Governance regression` for reproducing or verifying overbright, ring persistence, or weak authority fixes
 - `Steering` only for deliberate operator-control or exploratory steering tests; it should not satisfy no-touch autonomy proof
+
+For the next proof wave, run one mission per run:
+
+1. `Primary benchmark`, PC Audio, EDM/electronic, no-touch, 60-90 seconds as the canary.
+2. If the canary is valid, `Primary benchmark`, PC Audio, no-touch, 6-8 minutes.
+3. If primary proof is valid, `Operator trust`, no-touch, 6-8 minutes.
+4. Run `Acoustic/drums stress`, `Room floor`, `Sparse/silence`, and `Coverage` only after the primary authority path is trustworthy.
 
 ## What The No-Touch Pass Must Prove
 

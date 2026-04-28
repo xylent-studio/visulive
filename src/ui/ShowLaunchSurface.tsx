@@ -18,6 +18,8 @@ type ShowLaunchSurfaceProps = {
   proofWaveArmed: boolean;
   proofReadiness: ReplayProofReadiness | null;
   proofScenarioKind: ReplayProofScenarioKind | null;
+  proofMissionLabel?: string | null;
+  proofAdvancedLocked?: boolean;
   onStartRouteChange: (route: ShowStartRoute) => void;
   onStart: () => void;
   onOpenAdvanced: () => void;
@@ -32,6 +34,8 @@ export function ShowLaunchSurface({
   proofWaveArmed,
   proofReadiness,
   proofScenarioKind,
+  proofMissionLabel,
+  proofAdvancedLocked = false,
   onStartRouteChange,
   onStart,
   onOpenAdvanced
@@ -115,7 +119,7 @@ export function ShowLaunchSurface({
             }
           >
             {proofReadiness?.ready
-              ? `Proof Wave is ready for ${proofScenarioKind ?? 'the selected scenario'}. Start Show will create a current-proof candidate run.`
+              ? `Proof Wave is ready for ${proofMissionLabel ?? proofScenarioKind ?? 'the selected mission'}. Start Show will create a current-proof candidate run.`
               : `Proof Wave is armed but blocked: ${blockingProofReasons.join(' ')}`}
           </div>
         ) : null}
@@ -141,7 +145,13 @@ export function ShowLaunchSurface({
           </button>
           <button
             className="show-launch__button show-launch__button--ghost"
+            disabled={proofAdvancedLocked}
             onClick={onOpenAdvanced}
+            title={
+              proofAdvancedLocked
+                ? 'Proof Mission locks Advanced controls before serious proof.'
+                : undefined
+            }
             type="button"
           >
             Advanced

@@ -100,13 +100,13 @@ Current workflow:
 2. start serious proof with `npm run dev:proof`; use `npm run dev` only for casual/exploratory work
 3. on Windows, run `npm run dev:live-loop` only when you want the older browser app plus rolling analyzer loop for exploratory tuning
 4. otherwise run `npm run watch:captures` in a separate terminal if you want live report refreshes
-5. start the chosen listening path and calibrate cleanly
+5. start the chosen listening path and calibrate cleanly for exploratory runs only
 6. open diagnostics with `Shift + D` if deeper telemetry is needed
 7. choose [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) as the capture folder once
-8. for a serious proof pass, arm `Proof Wave` instead of manually enabling each capture toggle
-9. set `Backstage -> Capture -> Proof Scenario` before the run starts; the diagnostics `Proof scenario tag` is the same value
+8. for a serious proof pass, set `Backstage -> Capture -> Proof Mission`
+9. arm `Proof Wave`; do not manually manage auto capture, auto-save, proof stills, or the route for serious proof
 10. verify the proof-readiness checks are green before pressing `Start Show`
-11. run one scenario cleanly
+11. run one mission cleanly
 12. if using manual capture, click `Stop + Save`
 13. if using auto capture, let the app write the run package and clip `.json` captures into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
 14. use `Load Latest Auto`, `Load`, `Play`, `Pause`, `Restart`, `Return To Live`, and the scrub bar to review the capture
@@ -114,7 +114,10 @@ Current workflow:
 Important:
 - manual capture and auto evidence capture are intentionally paused while replay mode is active
 - return to live mode before expecting new evidence to be recorded
-- serious proof is now hard-gated; `Start Show` should not count as a serious run when folder, build identity, scenario, replay, or route-coherence checks fail
+- serious proof is mission-gated; `Start Show` should not count as a serious run when folder, build identity, mission, replay, or route-coherence checks fail
+- a serious run gets a `ProofMissionSnapshot` at run start; samples, clips, stills, journal, and manifest should inherit that locked mission
+- remembered local preferences are only defaults; the mission snapshot is the evidence truth
+- `M` and Advanced steering are suppressed or invalidating during serious no-touch missions
 - fresh auto captures should now save with real wall-clock labels such as `auto_drop_2026-04-07_21-50-53.json`
 - if you still see new captures saving as `1969-12-31...`, refresh the app before collecting more evidence
 - newer captures now store source mode, quick-start profile, trigger count, and extension count

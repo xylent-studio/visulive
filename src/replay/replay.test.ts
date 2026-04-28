@@ -15,6 +15,7 @@ import {
 import { isTransientCaptureDirectoryWriteError } from './captureDirectory';
 import {
   buildReplayProofInvalidation,
+  buildReplayRunJournalSample,
   buildReplayRunPersistenceArtifacts,
   createReplayBuildInfo,
   createReplayRunJournal,
@@ -22,6 +23,10 @@ import {
   hasReplayProofInvalidation,
   isReplayBuildInfoValid
 } from './runJournal';
+import {
+  buildReplayProofMissionSnapshot,
+  shouldSuppressProofKeyboardShortcut
+} from './proofMission';
 
 describe('replay workflow', () => {
   it('rejects proof build identity that is dev, dirty, or unverified', () => {
@@ -56,6 +61,10 @@ describe('replay workflow', () => {
       proofStatus: 'proof-pack',
       dirty: false
     });
+    const proofMission = buildReplayProofMissionSnapshot('primary-benchmark', {
+      lockedAt: '2026-04-23T13:00:59.000Z',
+      autoCorrections: ['auto capture enabled']
+    });
     const journal = createReplayRunJournal({
       buildInfo,
       runId: 'run-proof-snapshot',
@@ -63,6 +72,7 @@ describe('replay workflow', () => {
       sourceLabel: 'PC Audio',
       proofWaveArmed: true,
       proofScenarioKind: 'primary-benchmark',
+      proofMission,
       sessionStartedAt: '2026-04-23T13:01:00.000Z',
       sessionElapsedMs: 0,
       interventionCount: 0,
@@ -106,6 +116,46 @@ describe('replay workflow', () => {
     expect(artifacts.manifestSnapshot.stillFiles).toEqual([
       'stills/run-proof-snapshot__authority_1000.png'
     ]);
+    expect(artifacts.manifestSnapshot.metadata.proofMission?.kind).toBe(
+      'primary-benchmark'
+    );
+    expect(artifacts.journalSnapshot.metadata.proofMission?.autoCorrections).toEqual([
+      'auto capture enabled'
+    ]);
+  });
+
+  it('records proof mission identity in run journal samples', () => {
+    const proofMission = buildReplayProofMissionSnapshot('primary-benchmark', {
+      lockedAt: '2026-04-23T13:00:59.000Z'
+    });
+    const sample = buildReplayRunJournalSample({
+      diagnostics: DEFAULT_AUDIO_DIAGNOSTICS,
+      renderer: {
+        backend: 'webgpu',
+        ready: true,
+        qualityTier: 'balanced',
+        devicePixelRatio: 1,
+        cappedPixelRatio: 1,
+        fps: 60,
+        frameTimeMs: 16.7,
+        warnings: [],
+        visualTelemetry: DEFAULT_VISUAL_TELEMETRY
+      },
+      listeningFrame: DEFAULT_LISTENING_FRAME,
+      showStartRoute: proofMission.expectedRoute,
+      routePolicy: 'this-computer',
+      resolvedRoute: 'this-computer',
+      showCapabilityMode: 'full-autonomous',
+      proofWaveArmed: true,
+      proofScenarioKind: proofMission.scenarioKind,
+      proofMission,
+      interventionCount: 0,
+      noTouchWindowPassed: false
+    });
+
+    expect(sample.autonomy.proofScenarioKind).toBe('primary-benchmark');
+    expect(sample.autonomy.proofMissionKind).toBe('primary-benchmark');
+    expect(sample.direction.showStartRoute).toBe('pc-audio');
   });
 
   it('detects replay proof invalidations and transient file-system write errors', () => {
@@ -263,6 +313,9 @@ describe('replay workflow', () => {
         firstInterventionTimestampMs: null,
         noTouchWindowPassed: true,
         proofScenarioKind: 'primary-benchmark',
+        proofMission: buildReplayProofMissionSnapshot('primary-benchmark', {
+          lockedAt: '2026-04-23T13:00:59.000Z'
+        }),
         buildInfo: {
           version: '1.0.0-test',
           commit: 'abc1234',
@@ -342,6 +395,8 @@ describe('replay workflow', () => {
     expect(parsed.metadata.lookPoolId).toBe('electric-looks');
     expect(parsed.metadata.noTouchWindowPassed).toBe(true);
     expect(parsed.metadata.proofScenarioKind).toBe('primary-benchmark');
+    expect(parsed.metadata.proofMission?.kind).toBe('primary-benchmark');
+    expect(parsed.metadata.proofMission?.scenarioKind).toBe('primary-benchmark');
     expect(parsed.metadata.buildInfo?.commit).toBe('abc1234');
     expect(parsed.metadata.runId).toBe('run-proof-001');
     expect(parsed.metadata.sessionElapsedMs).toBe(32000);
@@ -356,6 +411,30 @@ describe('replay workflow', () => {
     expect(parsed.frames[1]?.diagnostics.beatIntervalMs).toBe(480);
     expect(parsed.frames[1]?.diagnostics.conductorReason).toBe('Drop tension is climbing.');
     expect(parsed.frames[1]?.listeningFrame.momentKind).toBe('lift');
+  });
+
+  it('suppresses the Advanced keyboard shortcut during live proof missions', () => {
+    expect(
+      shouldSuppressProofKeyboardShortcut({
+        proofWaveArmed: true,
+        runtimeActive: true,
+        key: 'm'
+      })
+    ).toBe(true);
+    expect(
+      shouldSuppressProofKeyboardShortcut({
+        proofWaveArmed: true,
+        runtimeActive: false,
+        key: 'm'
+      })
+    ).toBe(false);
+    expect(
+      shouldSuppressProofKeyboardShortcut({
+        proofWaveArmed: false,
+        runtimeActive: true,
+        key: 'm'
+      })
+    ).toBe(false);
   });
 
   it('plays captures forward and supports seeking', () => {

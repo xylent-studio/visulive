@@ -65,6 +65,7 @@ import type {
   ReplayFrameDiagnostics,
   ReplayInputDriftSummary,
   ReplayMetricWindowSummary,
+  ReplayProofMissionSnapshot,
   ReplayProofInvalidation,
   ReplayProofReadiness,
   ReplayProofReadinessCheck,
@@ -76,6 +77,7 @@ import type {
   ReplayRouteRecommendation,
   ReplayScenarioAssessment
 } from './types';
+import { isReplayProofMissionKind } from './proofMission';
 import {
   createReplayBuildInfo,
   deriveReplayScenarioAssessment,
@@ -128,6 +130,7 @@ type BuildReplayCaptureOptions = {
   firstInterventionTimestampMs?: number | null;
   noTouchWindowPassed?: boolean;
   proofScenarioKind?: ReplayProofScenarioKind | null;
+  proofMission?: ReplayProofMissionSnapshot | null;
   buildInfo?: BuildInfo | null;
   runId?: string | null;
   sessionStartedAt?: string | null;
@@ -1132,6 +1135,7 @@ export function buildReplayCapture(
         options?.proofScenarioKind === 'steering'
           ? options.proofScenarioKind
           : undefined,
+      proofMission: options?.proofMission ?? undefined,
       scenarioAssessment,
       directorBiasSnapshot: options?.directorBiasSnapshot
         ? sanitizeDirectorBiasState(options.directorBiasSnapshot)
@@ -1308,6 +1312,7 @@ function normalizeReplayProofInvalidation(
     invalidation?.code === 'capture-save-failed' ||
     invalidation?.code === 'run-journal-save-failed' ||
     invalidation?.code === 'replay-entered' ||
+    invalidation?.code === 'operator-intervention' ||
     invalidation?.code === 'route-integrity-break' ||
     invalidation?.code === 'scenario-drift'
       ? invalidation.code
@@ -1420,6 +1425,81 @@ function normalizeReplayScenarioAssessment(
         )
       : [],
     validated: value.validated === true
+  };
+}
+
+function normalizeReplayProofMissionSnapshot(
+  value: unknown
+): ReplayProofMissionSnapshot | undefined {
+  if (
+    !isObject(value) ||
+    typeof value.kind !== 'string' ||
+    !isReplayProofMissionKind(value.kind)
+  ) {
+    return undefined;
+  }
+
+  const scenarioKind =
+    value.scenarioKind === 'primary-benchmark' ||
+    value.scenarioKind === 'room-floor' ||
+    value.scenarioKind === 'coverage' ||
+    value.scenarioKind === 'sparse-silence' ||
+    value.scenarioKind === 'operator-trust' ||
+    value.scenarioKind === 'steering'
+      ? value.scenarioKind
+      : 'primary-benchmark';
+  const expectedRoute =
+    value.expectedRoute === 'pc-audio' ||
+    value.expectedRoute === 'microphone' ||
+    value.expectedRoute === 'combo'
+      ? value.expectedRoute
+      : 'pc-audio';
+  const expectedSourceMode =
+    value.expectedSourceMode === 'system-audio' ||
+    value.expectedSourceMode === 'room-mic' ||
+    value.expectedSourceMode === 'hybrid'
+      ? value.expectedSourceMode
+      : 'system-audio';
+  const expectedDuration =
+    isObject(value.expectedDurationSeconds) &&
+    typeof value.expectedDurationSeconds.min === 'number' &&
+    typeof value.expectedDurationSeconds.max === 'number'
+      ? {
+          min: value.expectedDurationSeconds.min,
+          max: value.expectedDurationSeconds.max
+        }
+      : { min: 60, max: 480 };
+
+  return {
+    kind: value.kind,
+    label:
+      typeof value.label === 'string' && value.label.trim().length > 0
+        ? value.label
+        : value.kind,
+    scenarioKind,
+    expectedRoute,
+    expectedSourceMode,
+    strictNoTouch: value.strictNoTouch === true,
+    lockAdvancedControls: value.lockAdvancedControls === true,
+    expectedDurationSeconds: expectedDuration,
+    musicGuidance:
+      typeof value.musicGuidance === 'string' ? value.musicGuidance : '',
+    operatorInstructions: Array.isArray(value.operatorInstructions)
+      ? value.operatorInstructions.filter(
+          (instruction): instruction is string =>
+            typeof instruction === 'string' && instruction.trim().length > 0
+        )
+      : [],
+    autoCorrections: Array.isArray(value.autoCorrections)
+      ? value.autoCorrections.filter(
+          (correction): correction is string =>
+            typeof correction === 'string' && correction.trim().length > 0
+        )
+      : [],
+    lockedAt:
+      typeof value.lockedAt === 'string' && value.lockedAt.trim().length > 0
+        ? value.lockedAt
+        : new Date(0).toISOString()
   };
 }
 
@@ -3071,6 +3151,9 @@ export function parseReplayCapture(raw: string): ReplayCapture {
         parsed.metadata.proofScenarioKind === 'steering'
           ? parsed.metadata.proofScenarioKind
           : undefined,
+      proofMission: normalizeReplayProofMissionSnapshot(
+        parsed.metadata.proofMission
+      ),
       scenarioAssessment: normalizeReplayScenarioAssessment(
         parsed.metadata.scenarioAssessment
       ),

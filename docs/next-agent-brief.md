@@ -29,8 +29,10 @@ Read first:
 - Linear is active through the direct `mcp__linear__` connector; use that connector for VisuLive and do not use the stale `mcp__codex_apps__linear_mcp_server` namespace, which still reads the older `learning-capture-pipeline` workspace in this session
 - Linear project is created: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c), with issues `VIS-5` through `VIS-16`
 - Proof-run persistence now snapshots run journals/manifests before async writes, retries transient File System Access write-state failures, and avoids recursive `run-journal-save-failed` invalidation loops
-- the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing scenario/build/folder/replay readiness is visible before `Start Show`
-- the invalid April 28 run `run_20260428_135301_05ypae` is archived as debugging evidence only, leaving `captures/inbox/runs` empty for the next proof pass
+- Proof Mission Control now makes `Proof Wave` a setup transaction: the operator chooses a mission, the app forces route/source, auto capture, auto-save, proof stills, run journal, and locked mission metadata before `Start Show`
+- serious proof now suppresses the `M` Advanced shortcut during live no-touch missions and records mission snapshots into journal samples, clips, stills, and manifests
+- the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing mission/build/folder/replay readiness is visible before `Start Show`
+- invalid April 28 runs are debugging evidence only and should be archived before the next proof pass
 
 This means the next agent should return to proof validation work, not release cleanup or capability expansion.
 
@@ -57,14 +59,15 @@ The highest-leverage move is:
    - confirm start/stop, chamber presence, world takeover, disposal, and authority-driven lighting still read correctly
 3. run the proof wave:
    - launch with `npm run dev:proof`
-   - select the scenario under `Backstage -> Capture -> Proof Scenario`
+   - select the mission under `Backstage -> Capture -> Proof Mission`
+   - use `Primary benchmark` for the first canary and real primary proof
    - start only when the launch surface reports serious proof is ready
    - first run `Primary benchmark` as a 60-90 second canary to prove folder write, journal, clips, stills, no-touch tracking, and zero invalidations
    - fresh no-touch `PC Audio` benchmark batch
    - analyzer review
    - proof-pack review
    - require the proof-pack `authority split validation` and `primary authority proof` gates to pass before treating the authority split as stable
-   - tag each serious run with the diagnostics `Proof scenario tag` so current scenario coverage is honest before benchmark promotion
+   - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
 4. if proof still shows decorative chamber, weak world takeover, or overbright spend:
    - iterate authority plus lighting/particle composition without moving the ownership back into the scene

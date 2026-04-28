@@ -8,10 +8,15 @@ import type {
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import type {
   ReplayProofReadiness,
-  ReplayProofScenarioKind,
+  ReplayProofMissionKind,
+  ReplayProofMissionSnapshot,
   ReplayProofValidity,
   ReplayRunLifecycleState
 } from '../replay/types';
+import {
+  PROOF_MISSION_PROFILES,
+  getReplayProofMissionProfile
+} from '../replay/proofMission';
 import { BUILD_INFO, BUILD_LABEL } from '../buildInfo';
 import {
   ADVANCED_STEERING_KEYS,
@@ -76,6 +81,7 @@ type RunJournalStatus = {
   active: boolean;
   proofWaveArmed: boolean;
   runId: string | null;
+  proofMission: ReplayProofMissionSnapshot | null;
   sampleCount: number;
   markerCount: number;
   clipCount: number;
@@ -121,7 +127,7 @@ type BackstagePanelProps = {
   autoCaptureStatus: AutoCaptureStatus;
   captureFolder: CaptureFolderStatus;
   proofWaveArmed: boolean;
-  proofScenarioKind: ReplayProofScenarioKind | null;
+  proofMissionKind: ReplayProofMissionKind;
   runJournalStatus: RunJournalStatus;
   replayError: string | null;
   diagnosticsVisible: boolean;
@@ -148,7 +154,7 @@ type BackstagePanelProps = {
   onToggleDiagnostics: () => void;
   onChooseCaptureFolder: () => void;
   onArmProofWave: () => void;
-  onProofScenarioChange: (kind: ReplayProofScenarioKind | null) => void;
+  onProofMissionChange: (kind: ReplayProofMissionKind) => void;
   onForgetCaptureFolder: () => void;
   onToggleAutoCapture: () => void;
   onToggleAutoDownload: () => void;
@@ -162,17 +168,7 @@ type BackstagePanelProps = {
   onClearReplay: () => void;
 };
 
-const PROOF_SCENARIO_OPTIONS: Array<{
-  value: ReplayProofScenarioKind;
-  label: string;
-}> = [
-  { value: 'primary-benchmark', label: 'Primary benchmark' },
-  { value: 'room-floor', label: 'Room floor' },
-  { value: 'coverage', label: 'Coverage' },
-  { value: 'sparse-silence', label: 'Sparse / silence' },
-  { value: 'operator-trust', label: 'Operator trust' },
-  { value: 'steering', label: 'Steering' }
-];
+const PROOF_MISSION_OPTIONS = Object.values(PROOF_MISSION_PROFILES);
 
 function BiasSlider({
   label,
@@ -241,7 +237,7 @@ export function BackstagePanel({
   autoCaptureStatus,
   captureFolder,
   proofWaveArmed,
-  proofScenarioKind,
+  proofMissionKind,
   runJournalStatus,
   replayError,
   diagnosticsVisible,
@@ -268,7 +264,7 @@ export function BackstagePanel({
   onToggleDiagnostics,
   onChooseCaptureFolder,
   onArmProofWave,
-  onProofScenarioChange,
+  onProofMissionChange,
   onForgetCaptureFolder,
   onToggleAutoCapture,
   onToggleAutoDownload,
@@ -291,6 +287,9 @@ export function BackstagePanel({
 
   const selectedWorldPool = WORLD_POOL_DEFINITIONS[curation.worldPoolId];
   const selectedLookPool = LOOK_POOL_DEFINITIONS[curation.lookPoolId];
+  const selectedProofMission = getReplayProofMissionProfile(proofMissionKind);
+  const activeProofMission =
+    runJournalStatus.proofMission ?? selectedProofMission;
   const currentRouteLabel =
     routeId === 'the-room'
       ? SHOW_START_ROUTE_DEFINITIONS.microphone.label
@@ -768,29 +767,57 @@ export function BackstagePanel({
                   </div>
                 ) : null}
                 <label className="backstage-field">
-                  <span>Proof Scenario</span>
+                  <span>Proof Mission</span>
                   <select
                     className="backstage-select"
+                    disabled={runJournalStatus.active}
                     onChange={(event) => {
                       const nextValue = event.target.value;
-                      onProofScenarioChange(
-                        nextValue === '' ? null : (nextValue as ReplayProofScenarioKind)
-                      );
+                      onProofMissionChange(nextValue as ReplayProofMissionKind);
                     }}
-                    value={proofScenarioKind ?? ''}
+                    value={proofMissionKind}
                   >
-                    <option value="">Unassigned</option>
-                    {PROOF_SCENARIO_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
+                    {PROOF_MISSION_OPTIONS.map((option) => (
+                      <option key={option.kind} value={option.kind}>
                         {option.label}
                       </option>
                     ))}
                   </select>
                   <small>
-                    Required before `Start Show` for serious proof. Use Primary benchmark
-                    for normal PC Audio no-touch runs.
+                    Choose the mission once. Proof Wave will force the matching route,
+                    scenario, journal, auto capture, auto-save, and proof stills.
                   </small>
                 </label>
+                <div className="backstage-note">
+                  Mission {activeProofMission.label} | scenario{' '}
+                  {activeProofMission.scenarioKind} | route{' '}
+                  {activeProofMission.expectedRoute} | source{' '}
+                  {activeProofMission.expectedSourceMode}
+                </div>
+                <div className="backstage-note">
+                  Expected duration{' '}
+                  {Math.round(activeProofMission.expectedDurationSeconds.min / 60)}-
+                  {Math.round(activeProofMission.expectedDurationSeconds.max / 60)} min |{' '}
+                  {activeProofMission.strictNoTouch
+                    ? 'no-touch required'
+                    : 'manual steering allowed'}
+                </div>
+                <div className="backstage-note">
+                  Capture coach: {activeProofMission.musicGuidance}
+                </div>
+                {activeProofMission.operatorInstructions.length > 0 ? (
+                  <ul className="backstage-warnings">
+                    {activeProofMission.operatorInstructions.map((instruction) => (
+                      <li key={instruction}>{instruction}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {runJournalStatus.proofMission?.autoCorrections.length ? (
+                  <div className="backstage-note">
+                    Auto-corrected:{' '}
+                    {runJournalStatus.proofMission.autoCorrections.join(' | ')}
+                  </div>
+                ) : null}
                 <div className="backstage-note">
                   {runJournalStatus.active
                     ? `Run ${runJournalStatus.runId} | samples ${runJournalStatus.sampleCount} | markers ${runJournalStatus.markerCount} | clips ${runJournalStatus.clipCount} | stills ${runJournalStatus.checkpointStillCount}`

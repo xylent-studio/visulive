@@ -58,6 +58,7 @@ April 28 proof-first override:
 - architecture progress is not enough to start more creative repertoire work
 - the next active gate is fresh valid local proof on the current authority/runtime backbone
 - `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
+- Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - no capability wave, staging host, public UX expansion, or major new extraction starts until the current proof path is valid
 
 ## Immediate Start-Right Gate
@@ -71,13 +72,13 @@ Current reality:
 - the runtime split now has explicit world/chamber/hero/authority/stage sequencing, but the scene remains a compatibility shell
 - the system/governor folders are still partly namespace shims
 - the public shell is improved but still carries transition debt
-- the proof surface is broad, and strict release/proof gates now need fresh evidence to clear
+- the proof surface is mission-based, and strict release/proof gates now need fresh evidence to clear
 
 So the immediate gate is:
 
 - make extraction truth honest in docs and work planning
 - reduce shell overlap until `Start Show` and `Advanced` are the only public story
-- tighten proof gates so the new scenario taxonomy is not only decorative
+- tighten proof gates so the new mission/scenario taxonomy is not only decorative
 - keep future anthology work from treating scaffolding as finished ownership
 
 ## Mastery Spine
@@ -132,15 +133,17 @@ The next sequence is:
    - treat [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator, but keep reducing [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) compatibility ownership
    - treat `src/scene/systems/**` and `src/scene/governors/**` as namespace shims unless their implementation is actually there
    - demote legacy shell files and language that still imply the old quick-start/settings product
-   - keep proof-pack and release gates strict so the expanded scenario taxonomy is actually required
+   - keep proof-pack and release gates strict so the expanded mission/scenario taxonomy is actually required
 2. keep active evidence surfaces clean before the next proof pass
    - archive invalid inbox runs instead of letting stale current-looking artifacts pollute analysis
    - start serious proof from an empty active run inbox
    - treat invalid April 28 evidence as debugging context only
 3. run the proof canary and then the serious authority/no-touch proof wave
+   - select one `Backstage -> Capture -> Proof Mission` per run
    - `Primary benchmark` canary, PC Audio, no-touch, 60-90 seconds
    - full `Primary benchmark`, PC Audio, no-touch, 6-8 minutes
    - `Operator trust`, no-touch, 6-8 minutes
+   - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid
 4. keep canon aligned around the anthology engine, runtime architecture, and graduation model
    - use [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the hard continuation layer
 5. if proof fails, do the narrow correction implied by the evidence

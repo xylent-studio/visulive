@@ -52,6 +52,13 @@ import {
   parseReplayCapture
 } from '../replay/session';
 import {
+  buildReplayProofMissionSnapshot,
+  getDefaultProofMissionKindForScenario,
+  getReplayProofMissionProfile,
+  isReplayProofMissionKind,
+  shouldSuppressProofKeyboardShortcut
+} from '../replay/proofMission';
+import {
   buildReplayProofInvalidation,
   buildReplayRunPersistenceArtifacts,
   buildReplayRunEventMarker,
@@ -63,6 +70,7 @@ import {
   deriveReplayProofValidity,
   deriveReplayScenarioAssessment,
   hasReplayProofInvalidation,
+  isAutonomyBreakingIntervention,
   isReplayBuildInfoValid,
   registerReplayRunClip,
   registerReplayRunStill
@@ -70,6 +78,8 @@ import {
 import type {
   ReplayCaptureFrame,
   ReplayProofInvalidationCode,
+  ReplayProofMissionKind,
+  ReplayProofMissionSnapshot,
   ReplayProofReadiness,
   ReplayProofReadinessCheck,
   ReplayProofValidity,
@@ -158,6 +168,7 @@ const SOURCE_MODE_STORAGE_KEY = 'visulive-source-mode';
 const CAPTURE_AUTO_SAVE_STORAGE_KEY = 'visulive-capture-auto-save';
 const PROOF_STILLS_STORAGE_KEY = 'visulive-proof-stills';
 const PROOF_SCENARIO_STORAGE_KEY = 'visulive-proof-scenario-v1';
+const PROOF_MISSION_STORAGE_KEY = 'visulive-proof-mission-v1';
 const PROOF_WAVE_STORAGE_KEY = 'visulive-proof-wave-v1';
 const MAX_CAPTURE_FRAMES = 36000;
 const MAX_AUTO_CAPTURE_HISTORY = 32;
@@ -251,6 +262,7 @@ type RunJournalStatus = {
   active: boolean;
   proofWaveArmed: boolean;
   runId: string | null;
+  proofMission: ReplayProofMissionSnapshot | null;
   sampleCount: number;
   markerCount: number;
   clipCount: number;
@@ -310,6 +322,7 @@ const INITIAL_RUN_JOURNAL_STATUS: RunJournalStatus = {
   active: false,
   proofWaveArmed: false,
   runId: null,
+  proofMission: null,
   sampleCount: 0,
   markerCount: 0,
   clipCount: 0,
@@ -331,6 +344,23 @@ function parseStoredProofScenarioKind(value: string | null): ReplayProofScenario
     value === 'steering'
     ? value
     : null;
+}
+
+function readStoredProofMissionKind(): ReplayProofMissionKind {
+  if (typeof window === 'undefined') {
+    return 'primary-benchmark';
+  }
+
+  const storedMission = window.localStorage.getItem(PROOF_MISSION_STORAGE_KEY);
+  if (isReplayProofMissionKind(storedMission)) {
+    return storedMission;
+  }
+
+  return getDefaultProofMissionKindForScenario(
+    parseStoredProofScenarioKind(
+      window.localStorage.getItem(PROOF_SCENARIO_STORAGE_KEY)
+    )
+  );
 }
 
 const NO_TOUCH_PROOF_WINDOW_MS = 60_000;
@@ -417,6 +447,7 @@ export function App() {
     lastNoTouchWindowPassed: boolean;
     lastGovernanceRisk: boolean;
     lastQuietBeauty: boolean;
+    proofMissionCorrections: string[];
   }>({
     journal: null,
     lastSampleTimestampMs: Number.NEGATIVE_INFINITY,
@@ -433,7 +464,8 @@ export function App() {
     lastRouteId: null,
     lastNoTouchWindowPassed: false,
     lastGovernanceRisk: false,
-    lastQuietBeauty: false
+    lastQuietBeauty: false,
+    proofMissionCorrections: []
   });
   const recordingRef = useRef<{
     active: boolean;
@@ -484,13 +516,7 @@ export function App() {
   const [captureFolderStatus, setCaptureFolderStatus] =
     useState<CaptureFolderStatus>(INITIAL_CAPTURE_FOLDER_STATUS);
   const captureFolderStatusRef = useRef(INITIAL_CAPTURE_FOLDER_STATUS);
-  const [proofWaveArmed, setProofWaveArmed] = useState<boolean>(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-
-    return window.localStorage.getItem(PROOF_WAVE_STORAGE_KEY) === '1';
-  });
+  const [proofWaveArmed, setProofWaveArmed] = useState<boolean>(false);
   const proofWaveArmedRef = useRef(false);
   const [runJournalStatus, setRunJournalStatus] =
     useState<RunJournalStatus>(INITIAL_RUN_JOURNAL_STATUS);
@@ -537,15 +563,13 @@ export function App() {
         ? 'microphone'
         : 'pc-audio';
   });
-  const [proofScenarioKind, setProofScenarioKind] = useState<ReplayProofScenarioKind | null>(() => {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-
-    return parseStoredProofScenarioKind(
-      window.localStorage.getItem(PROOF_SCENARIO_STORAGE_KEY)
-    );
-  });
+  const [proofMissionKind, setProofMissionKind] =
+    useState<ReplayProofMissionKind>(() => readStoredProofMissionKind());
+  const [proofScenarioKind, setProofScenarioKind] =
+    useState<ReplayProofScenarioKind | null>(() => {
+      const mission = getReplayProofMissionProfile(readStoredProofMissionKind());
+      return mission.scenarioKind;
+    });
   const [advancedCuration, setAdvancedCuration] = useState<AdvancedCurationState>(() => {
     if (typeof window === 'undefined') {
       return DEFAULT_ADVANCED_CURATION_STATE;
@@ -603,6 +627,7 @@ export function App() {
     controls,
     sourceMode
   );
+  const proofMissionProfile = getReplayProofMissionProfile(proofMissionKind);
   const [launchQuickStartId, setLaunchQuickStartId] =
     useState<QuickStartProfileId | null>(null);
   const replayActive = replayStatus.mode !== 'idle';
@@ -614,7 +639,7 @@ export function App() {
     captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
     showStartRoute,
     sourceMode,
-    proofScenarioKind,
+    proofScenarioKind: proofMissionProfile.scenarioKind,
     buildInfo: BUILD_INFO,
     replayActive,
     routeCapabilities
@@ -833,6 +858,7 @@ export function App() {
       proofWaveArmed:
         journal?.metadata.proofWaveArmed ?? proofWaveArmedRef.current,
       runId: journal?.metadata.runId ?? null,
+      proofMission: journal?.metadata.proofMission ?? null,
       sampleCount: journal?.samples.length ?? 0,
       markerCount: journal?.markers.length ?? 0,
       clipCount: journal?.clips.length ?? 0,
@@ -1000,6 +1026,10 @@ export function App() {
       replayActive?: boolean;
     }
   ) => {
+    const lockedScenarioKind =
+      journal.metadata.proofMission?.scenarioKind ??
+      journal.metadata.proofScenarioKind ??
+      null;
     const readiness = deriveReplayProofReadiness({
       proofWaveArmed: journal.metadata.proofWaveArmed,
       captureFolderLabel: captureFolderStatusRef.current.folderName,
@@ -1007,7 +1037,7 @@ export function App() {
         captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
       showStartRoute: journal.metadata.showStartRoute,
       sourceMode: options?.sourceMode ?? journal.metadata.sourceMode,
-      proofScenarioKind: journal.metadata.proofScenarioKind ?? null,
+      proofScenarioKind: lockedScenarioKind,
       buildInfo: journal.metadata.buildInfo,
       replayActive: options?.replayActive ?? replayRef.current.hasCapture(),
       routeCapabilities
@@ -1164,22 +1194,30 @@ export function App() {
   ) => {
     const sessionStartedAtMs = Date.now();
     const runId = createReplayRunId(new Date(sessionStartedAtMs));
+    const proofMission = proofWaveArmedRef.current
+      ? buildReplayProofMissionSnapshot(proofMissionKind, {
+          lockedAt: new Date(sessionStartedAtMs).toISOString(),
+          autoCorrections: runJournalRef.current.proofMissionCorrections
+        })
+      : undefined;
+    const journalRoute = proofMission?.expectedRoute ?? showStartRoute;
+    const journalScenarioKind = proofMission?.scenarioKind ?? null;
     const proofReadiness = deriveReplayProofReadiness({
       proofWaveArmed: proofWaveArmedRef.current,
       captureFolderLabel: captureFolderStatusRef.current.folderName,
       captureFolderReady:
         captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
-      showStartRoute,
+      showStartRoute: journalRoute,
       sourceMode: nextSourceMode,
-      proofScenarioKind,
+      proofScenarioKind: journalScenarioKind,
       buildInfo: BUILD_INFO,
       replayActive: false,
       routeCapabilities
     });
     const scenarioAssessment = deriveReplayScenarioAssessment({
-      declaredScenario: proofScenarioKind,
+      declaredScenario: journalScenarioKind,
       sourceMode: nextSourceMode,
-      showStartRoute,
+      showStartRoute: journalRoute,
       noTouchWindowPassed: false,
       interventionCount: 0,
       interventionReasons: [],
@@ -1197,12 +1235,13 @@ export function App() {
       runId,
       sourceMode: nextSourceMode,
       sourceLabel: diagnostics.deviceLabel || 'Unknown source',
-      showStartRoute,
-      routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+      showStartRoute: journalRoute,
+      routePolicy: resolveInputRoutePolicyFromShowStartRoute(journalRoute),
       resolvedRoute: resolveRouteIdFromListeningMode(nextSourceMode),
       showCapabilityMode: appliedShowIntent.showCapabilityMode,
       proofWaveArmed: proofWaveArmedRef.current,
-      proofScenarioKind,
+      proofScenarioKind: journalScenarioKind,
+      proofMission,
       scenarioAssessment,
       proofReadiness,
       proofValidity,
@@ -1230,15 +1269,18 @@ export function App() {
       lastRouteId: resolveRouteIdFromListeningMode(nextSourceMode),
       lastNoTouchWindowPassed: false,
       lastGovernanceRisk: false,
-      lastQuietBeauty: false
+      lastQuietBeauty: false,
+      proofMissionCorrections: []
     };
 
     appendRunJournalMarker(
       'run-start',
       0,
-      `Start Show via ${showStartRoute}`,
+      `Start Show via ${journalRoute}`,
       {
-        route: showStartRoute,
+        route: journalRoute,
+        proofMission: proofMission?.kind ?? null,
+        proofScenario: journalScenarioKind,
         sourceMode: nextSourceMode,
         proofWaveArmed: proofWaveArmedRef.current
       }
@@ -1257,7 +1299,10 @@ export function App() {
     });
   };
 
-  const markSessionIntervention = (reason: string) => {
+  const markSessionIntervention = (
+    reason: string,
+    source: 'ui' | 'keyboard-shortcut' | 'system' = 'ui'
+  ) => {
     const current = sessionInterventionRef.current;
 
     if (current.sessionStartedAtMs === null) {
@@ -1278,6 +1323,7 @@ export function App() {
     updateSessionInterventionSummary(nextSummary);
 
     if (runJournalRef.current.journal) {
+      const autonomyBreaking = isAutonomyBreakingIntervention(reason);
       runJournalRef.current.journal.metadata.interventionCount =
         nextSummary.interventionCount;
       runJournalRef.current.journal.metadata.interventionReasons = [
@@ -1288,11 +1334,26 @@ export function App() {
         'intervention',
         elapsedMs,
         reason,
-        { interventionCount: nextSummary.interventionCount }
+        {
+          interventionCount: nextSummary.interventionCount,
+          source,
+          autonomyBreaking
+        }
       );
       refreshRunJournalProofState(runJournalRef.current.journal, {
         sourceMode: runJournalRef.current.journal.metadata.sourceMode
       });
+      if (
+        runJournalRef.current.journal.metadata.proofWaveArmed &&
+        autonomyBreaking
+      ) {
+        invalidateActiveProofRun(
+          'operator-intervention',
+          elapsedMs,
+          `Serious proof was touched by ${source}: ${reason}.`,
+          'restart-run'
+        );
+      }
       void persistRunJournalArtifacts(true);
     }
   };
@@ -1370,6 +1431,20 @@ export function App() {
       return;
     }
 
+    window.localStorage.setItem(PROOF_MISSION_STORAGE_KEY, proofMissionKind);
+  }, [proofMissionKind]);
+
+  useEffect(() => {
+    if (proofScenarioKind !== proofMissionProfile.scenarioKind) {
+      setProofScenarioKind(proofMissionProfile.scenarioKind);
+    }
+  }, [proofMissionProfile.scenarioKind, proofScenarioKind]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     if (proofScenarioKind === null) {
       window.localStorage.removeItem(PROOF_SCENARIO_STORAGE_KEY);
       return;
@@ -1384,9 +1459,22 @@ export function App() {
       return;
     }
 
-    journal.metadata.proofScenarioKind = proofScenarioKind;
+    if (journal.metadata.proofMission) {
+      const lockedScenario = journal.metadata.proofMission.scenarioKind;
+      if (proofScenarioKind !== lockedScenario) {
+        invalidateActiveProofRun(
+          'scenario-drift',
+          journal.samples[journal.samples.length - 1]?.timestampMs ?? 0,
+          `Proof scenario changed after mission lock (${lockedScenario} -> ${proofScenarioKind ?? 'unassigned'}).`,
+          'restart-run'
+        );
+      }
+      return;
+    }
+
+    journal.metadata.proofScenarioKind = proofMissionProfile.scenarioKind;
     journal.metadata.scenarioAssessment = deriveReplayScenarioAssessment({
-      declaredScenario: proofScenarioKind,
+      declaredScenario: proofMissionProfile.scenarioKind,
       sourceMode: journal.metadata.sourceMode,
       showStartRoute: journal.metadata.showStartRoute,
       noTouchWindowPassed: journal.metadata.noTouchWindowPassed,
@@ -1401,7 +1489,7 @@ export function App() {
       journal.metadata.scenarioAssessment ?? null
     );
     void persistRunJournalArtifacts(true);
-  }, [proofScenarioKind]);
+  }, [proofMissionProfile.scenarioKind, proofScenarioKind]);
 
   useEffect(() => {
     const journal = runJournalRef.current.journal;
@@ -1526,12 +1614,24 @@ export function App() {
 
       if (event.key.toLowerCase() === 'm') {
         event.preventDefault();
+        if (
+          shouldSuppressProofKeyboardShortcut({
+            proofWaveArmed: proofWaveArmedRef.current,
+            runtimeActive: status.phase === 'live',
+            key: event.key
+          })
+        ) {
+          setStartError(
+            'Proof Wave suppressed the Advanced shortcut. Serious proof requires no steering after Start Show.'
+          );
+          return;
+        }
         if (activationVisible) {
           setAdvancedDrawerTab((current) => {
             const nextMode = current === 'style' ? null : 'style';
 
             if (nextMode === 'style') {
-              markSessionIntervention('advanced:style');
+              markSessionIntervention('advanced:style', 'keyboard-shortcut');
             }
 
             return nextMode;
@@ -1541,7 +1641,7 @@ export function App() {
             const nextMode = current === 'steer' ? null : 'steer';
 
             if (nextMode === 'steer') {
-              markSessionIntervention('advanced:steer');
+              markSessionIntervention('advanced:steer', 'keyboard-shortcut');
             }
 
             return nextMode;
@@ -1566,7 +1666,7 @@ export function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activationVisible]);
+  }, [activationVisible, status.phase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1732,17 +1832,23 @@ export function App() {
           );
         }
 
-        if (
-          nextTimestampMs - runJournalState.lastSampleTimestampMs >=
-          RUN_JOURNAL_SAMPLE_INTERVAL_MS
-        ) {
-          runJournal.samples.push(
-            buildReplayRunJournalSample({
-              diagnostics: snapshot.diagnostics,
-              renderer: rendererRef.current?.getDiagnostics() ?? INITIAL_RENDERER_STATE,
-              listeningFrame: snapshot.listeningFrame,
-              showStartRoute,
-              routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+      if (
+        nextTimestampMs - runJournalState.lastSampleTimestampMs >=
+        RUN_JOURNAL_SAMPLE_INTERVAL_MS
+      ) {
+        const lockedMission = runJournal.metadata.proofMission;
+        runJournal.samples.push(
+          buildReplayRunJournalSample({
+            diagnostics: snapshot.diagnostics,
+            renderer: rendererRef.current?.getDiagnostics() ?? INITIAL_RENDERER_STATE,
+            listeningFrame: snapshot.listeningFrame,
+              showStartRoute:
+                lockedMission?.expectedRoute ?? runJournal.metadata.showStartRoute,
+              routePolicy: resolveInputRoutePolicyFromShowStartRoute(
+                lockedMission?.expectedRoute ??
+                  runJournal.metadata.showStartRoute ??
+                  showStartRoute
+              ),
               resolvedRoute: resolvedRouteId,
               showCapabilityMode: appliedShowIntent.showCapabilityMode,
               showWorldId: appliedShowIntent.compatibilityIntent.showWorldId ?? undefined,
@@ -1755,7 +1861,11 @@ export function App() {
                 appliedShowIntent.compatibilityIntent.lookPoolId ?? undefined,
               stanceId: appliedShowIntent.compatibilityIntent.stanceId ?? undefined,
               proofWaveArmed: proofWaveArmedRef.current,
-              proofScenarioKind,
+              proofScenarioKind:
+                lockedMission?.scenarioKind ??
+                runJournal.metadata.proofScenarioKind ??
+                proofMissionProfile.scenarioKind,
+              proofMission: lockedMission,
               interventionCount: liveSession.interventionCount,
               noTouchWindowPassed
             })
@@ -2386,15 +2496,17 @@ export function App() {
   }, [audioTuning, runtimeTuning]);
 
   const handleStart = async () => {
-    const nextSourceMode = resolveListeningModeFromShowStartRoute(showStartRoute);
+    const activeMission = getReplayProofMissionProfile(proofMissionKind);
+    const startRoute = proofWaveArmed ? activeMission.expectedRoute : showStartRoute;
+    const nextSourceMode = resolveListeningModeFromShowStartRoute(startRoute);
     const diagnostics = audioRef.current?.getDiagnostics() ?? audioDiagnostics;
     const proofStartReadiness = deriveReplayProofReadiness({
       proofWaveArmed,
       captureFolderLabel: captureFolderStatus.folderName,
       captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
-      showStartRoute,
+      showStartRoute: startRoute,
       sourceMode: nextSourceMode,
-      proofScenarioKind,
+      proofScenarioKind: activeMission.scenarioKind,
       buildInfo: BUILD_INFO,
       replayActive,
       routeCapabilities
@@ -2416,9 +2528,46 @@ export function App() {
     }
 
     setLaunchQuickStartId(
-      getCompatibilityQuickStartProfileIdFromShowStartRoute(showStartRoute)
+      getCompatibilityQuickStartProfileIdFromShowStartRoute(startRoute)
     );
     setStartError(null);
+    if (proofWaveArmed) {
+      const corrections = [...runJournalRef.current.proofMissionCorrections];
+      const addCorrection = (message: string) => {
+        if (!corrections.includes(message)) {
+          corrections.push(message);
+        }
+      };
+
+      if (showStartRoute !== startRoute) {
+        addCorrection(`route set to ${startRoute} at Start Show`);
+      }
+      if (sourceMode !== nextSourceMode) {
+        addCorrection(`source mode set to ${nextSourceMode} at Start Show`);
+      }
+      if (proofScenarioKind !== activeMission.scenarioKind) {
+        addCorrection(`proof scenario set to ${activeMission.scenarioKind} at Start Show`);
+      }
+      if (activeMission.lockAdvancedControls) {
+        if (
+          serializeAdvancedCurationState(advancedCuration) !==
+          serializeAdvancedCurationState(DEFAULT_ADVANCED_CURATION_STATE)
+        ) {
+          addCorrection('advanced curation reset at Start Show');
+        }
+        if (
+          serializeAdvancedSteeringState(advancedSteering) !==
+          serializeAdvancedSteeringState(DEFAULT_ADVANCED_STEERING_STATE)
+        ) {
+          addCorrection('advanced steering reset at Start Show');
+        }
+        setAdvancedCuration(DEFAULT_ADVANCED_CURATION_STATE);
+        setAdvancedSteering(DEFAULT_ADVANCED_STEERING_STATE);
+      }
+      runJournalRef.current.proofMissionCorrections = corrections;
+      setProofScenarioKind(activeMission.scenarioKind);
+    }
+    setShowStartRoute(startRoute);
     setSourceMode(nextSourceMode);
     setAdvancedDrawerTab(null);
     setReplayError(null);
@@ -2434,8 +2583,15 @@ export function App() {
     captureSourceMode: ListeningMode,
     captureFrame: ListeningFrame
   ) => {
+    const activeJournal = runJournalRef.current.journal;
+    const lockedMission = activeJournal?.metadata.proofMission ?? null;
+    const lockedScenarioKind =
+      lockedMission?.scenarioKind ??
+      activeJournal?.metadata.proofScenarioKind ??
+      proofMissionProfile.scenarioKind;
+    const lockedRoute = lockedMission?.expectedRoute ?? showStartRoute;
     const appliedAtCapture = resolveAppliedShowIntent(
-      showStartRoute,
+      lockedRoute,
       advancedCuration,
       advancedSteering,
       captureFrame,
@@ -2443,7 +2599,7 @@ export function App() {
     );
     const runtimeAtCapture = appliedAtCapture.resolution;
     const routeRecommendationAtCapture = resolveAutoRouteRecommendation({
-      routePolicy: resolveInputRoutePolicyFromShowStartRoute(showStartRoute),
+      routePolicy: resolveInputRoutePolicyFromShowStartRoute(lockedRoute),
       currentMode: captureSourceMode,
       statusPhase: status.phase,
       diagnostics: {
@@ -2463,7 +2619,7 @@ export function App() {
     return {
       routePolicy: appliedAtCapture.compatibilityIntent.routePolicy,
       resolvedRoute: resolveRouteIdFromListeningMode(captureSourceMode),
-      showStartRoute,
+      showStartRoute: lockedRoute,
       showCapabilityMode: appliedAtCapture.showCapabilityMode,
       showConstraintState: appliedAtCapture.constraintState,
       routeRecommendation: routeRecommendationAtCapture
@@ -2526,13 +2682,14 @@ export function App() {
         session.interventionCount === 0 &&
         session.sessionStartedAtMs !== null &&
         elapsedSinceStartMs >= NO_TOUCH_PROOF_WINDOW_MS,
-      proofScenarioKind,
+      proofScenarioKind: lockedScenarioKind,
+      proofMission: lockedMission ?? undefined,
       proofReadiness:
-        runJournalRef.current.journal?.metadata.proofReadiness ?? currentProofReadiness,
+        activeJournal?.metadata.proofReadiness ?? currentProofReadiness,
       proofValidity:
-        runJournalRef.current.journal?.metadata.proofValidity ?? currentProofValidity,
+        activeJournal?.metadata.proofValidity ?? currentProofValidity,
       runLifecycleState:
-        runJournalRef.current.journal?.metadata.lifecycleState ?? 'inbox',
+        activeJournal?.metadata.lifecycleState ?? 'inbox',
       directorBiasSnapshot: appliedAtCapture.compatibilityIntent.biases
     };
   };
@@ -2610,6 +2767,18 @@ export function App() {
   };
 
   const handleShowStartRouteChange = (nextRoute: ShowStartRoute) => {
+    if (
+      proofWaveArmedRef.current &&
+      status.phase === 'live' &&
+      proofMissionProfile.lockAdvancedControls
+    ) {
+      markSessionIntervention(`start-route:${nextRoute}`, 'ui');
+      setStartError(
+        'Proof Mission locks the route during serious proof. Stop and rerun if the route was wrong.'
+      );
+      return;
+    }
+
     markSessionIntervention(`start-route:${nextRoute}`);
     setShowStartRoute(nextRoute);
     const nextMode = resolveListeningModeFromShowStartRoute(nextRoute);
@@ -2752,6 +2921,18 @@ export function App() {
   };
 
   const openAdvancedDrawer = (tab: Exclude<AdvancedDrawerTab, null>) => {
+    if (
+      proofWaveArmedRef.current &&
+      status.phase === 'live' &&
+      proofMissionProfile.lockAdvancedControls
+    ) {
+      markSessionIntervention(`advanced:${tab}`, 'ui');
+      setStartError(
+        'Proof Mission locks Advanced controls during serious proof. Stop and rerun if steering was needed.'
+      );
+      return;
+    }
+
     markSessionIntervention(`advanced:${tab}`);
     setAdvancedDrawerTab(tab);
   };
@@ -2846,13 +3027,38 @@ export function App() {
     });
   };
 
-  const handleProofScenarioChange = (nextScenario: ReplayProofScenarioKind | null) => {
+  const handleProofMissionChange = (nextMission: ReplayProofMissionKind) => {
+    const mission = getReplayProofMissionProfile(nextMission);
+    if (runJournalRef.current.journal?.metadata.proofWaveArmed) {
+      setStartError(
+        'Proof mission is locked for the active run. Stop and start a new run to change missions.'
+      );
+      return;
+    }
+
     setStartError(null);
-    setProofScenarioKind(nextScenario);
+    setProofMissionKind(nextMission);
+    setProofScenarioKind(mission.scenarioKind);
+    if (proofWaveArmedRef.current) {
+      runJournalRef.current.proofMissionCorrections = [
+        `proof mission changed to ${mission.label} before Start Show`
+      ];
+      setShowStartRoute(mission.expectedRoute);
+      setSourceMode(mission.expectedSourceMode);
+      void audioRef.current?.setSourceMode(mission.expectedSourceMode);
+      if (mission.lockAdvancedControls) {
+        setAdvancedDrawerTab(null);
+        setAdvancedCuration(DEFAULT_ADVANCED_CURATION_STATE);
+        setAdvancedSteering(DEFAULT_ADVANCED_STEERING_STATE);
+      }
+    }
   };
 
   const handleArmProofWave = async () => {
     try {
+      const mission = getReplayProofMissionProfile(proofMissionKind);
+      const corrections: string[] = [];
+
       let handle = captureDirectoryRef.current;
 
       if (!handle) {
@@ -2873,6 +3079,53 @@ export function App() {
 
       captureDirectoryRef.current = handle;
       await persistCaptureDirectoryHandle(handle);
+      if (proofScenarioKind !== mission.scenarioKind) {
+        corrections.push(
+          `proof scenario set to ${mission.scenarioKind} for ${mission.label}`
+        );
+      }
+      if (showStartRoute !== mission.expectedRoute) {
+        corrections.push(`route set to ${mission.expectedRoute} for ${mission.label}`);
+      }
+      if (sourceMode !== mission.expectedSourceMode) {
+        corrections.push(
+          `source mode set to ${mission.expectedSourceMode} for ${mission.label}`
+        );
+      }
+      if (!autoCaptureStatusRef.current.enabled) {
+        corrections.push('auto capture enabled');
+      }
+      if (!captureFolderStatusRef.current.autoSave) {
+        corrections.push('auto save to folder enabled');
+      }
+      if (!autoCaptureStatusRef.current.proofStillsEnabled) {
+        corrections.push('proof stills enabled');
+      }
+      if (mission.lockAdvancedControls) {
+        if (advancedDrawerTab !== null) {
+          corrections.push('advanced panel closed for serious proof');
+        }
+        if (
+          serializeAdvancedCurationState(advancedCuration) !==
+          serializeAdvancedCurationState(DEFAULT_ADVANCED_CURATION_STATE)
+        ) {
+          corrections.push('advanced curation reset for serious proof');
+        }
+        if (
+          serializeAdvancedSteeringState(advancedSteering) !==
+          serializeAdvancedSteeringState(DEFAULT_ADVANCED_STEERING_STATE)
+        ) {
+          corrections.push('advanced steering reset for serious proof');
+        }
+        setAdvancedDrawerTab(null);
+        setAdvancedCuration(DEFAULT_ADVANCED_CURATION_STATE);
+        setAdvancedSteering(DEFAULT_ADVANCED_STEERING_STATE);
+      }
+      runJournalRef.current.proofMissionCorrections = corrections;
+      setProofScenarioKind(mission.scenarioKind);
+      setShowStartRoute(mission.expectedRoute);
+      setSourceMode(mission.expectedSourceMode);
+      void audioRef.current?.setSourceMode(mission.expectedSourceMode);
       setCaptureFolderStatus((current) => ({
         ...current,
         folderName: getCaptureDirectoryDisplayName(handle),
@@ -3357,6 +3610,8 @@ export function App() {
         }}
         renderer={rendererDiagnostics}
         proofReadiness={currentProofReadiness}
+        proofAdvancedLocked={proofWaveArmed && proofMissionProfile.lockAdvancedControls}
+        proofMissionLabel={proofMissionProfile.label}
         proofScenarioKind={proofScenarioKind}
         proofWaveArmed={proofWaveArmed}
         startError={startError}
@@ -3379,7 +3634,7 @@ export function App() {
         effectiveWorldId={directorRuntime.effectiveWorldId}
         isFullscreen={fullscreen}
         proofWaveArmed={proofWaveArmed}
-        proofScenarioKind={proofScenarioKind}
+        proofMissionKind={proofMissionKind}
         onAdvancedTabChange={(tab) => {
           setAdvancedDrawerTab(tab);
         }}
@@ -3401,7 +3656,7 @@ export function App() {
         onLoadReplay={handleOpenReplayFile}
         onLookChange={handleLookChange}
         onLookPoolChange={handleLookPoolChange}
-        onProofScenarioChange={handleProofScenarioChange}
+        onProofMissionChange={handleProofMissionChange}
         onRecalibrate={() => {
           void handleRecalibrate();
         }}
@@ -3456,7 +3711,6 @@ export function App() {
             : null
         }
         noTouchProofWindowMs={NO_TOUCH_PROOF_WINDOW_MS}
-        onProofScenarioChange={handleProofScenarioChange}
         recentAutoCaptures={autoCaptures.slice(0, RECENT_AUTO_CAPTURE_DISPLAY_LIMIT)}
         controls={controls}
         onChooseCaptureFolder={handleChooseCaptureFolder}
@@ -3478,6 +3732,7 @@ export function App() {
         onToggleProofStills={handleToggleProofStills}
         onToggleAutoSaveToFolder={handleToggleAutoSaveToFolder}
         onToggleReplayPlayback={handleToggleReplayPlayback}
+        proofMissionLabel={proofMissionProfile.label}
         proofScenarioKind={proofScenarioKind}
         replay={replayStatus}
         replayError={replayError}

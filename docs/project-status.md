@@ -33,6 +33,7 @@ Current standing warning:
 
 - the build still emits a large `three-vendor` chunk warning
 - the invalid April 28 run is now archived as debugging evidence only: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
+- the later April 28 diagnostic run `run_20260428_165811_8gs5ht` showed strong chamber/world authority but invalid proof metadata: primary-benchmark manifest with room-floor route invalidation, null sample scenario, null clip declared scenario, and false `advanced:steer` contamination; it must remain diagnostic until the Mission Control pass is rerun cleanly
 - Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
 
 ## Start-Right Audit Snapshot
@@ -46,7 +47,7 @@ But it is still transitional in four important ways:
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, and stage-runtime orchestration; the scene still assembles compatibility context, but chamber/world authority math no longer lives there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
-- the proof taxonomy is broader than the scenario gate it currently enforces, so passing verification does not yet prove the whole new evidence model
+- Proof Mission Control is now the serious-run setup layer, but it still needs a fresh canary to prove run-start locking, mission propagation, shortcut suppression, still/clip save integrity, and no invalidations on this exact build
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -83,8 +84,9 @@ development.
 The next wave is:
 
 - `Proof / Authority Validation`
-- run it only after launching through `npm run dev:proof`, selecting a Proof Scenario in `Backstage -> Capture`, and confirming the launch surface says serious proof is ready
+- run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - start with the 60-90 second `Primary benchmark` canary tracked by `VIS-12`, then run the 6-8 minute primary benchmark tracked by `VIS-14`
+- do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
 task framing.

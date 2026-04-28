@@ -54,6 +54,34 @@ export type ReplayProofScenarioKind =
   | 'operator-trust'
   | 'steering';
 
+export type ReplayProofMissionKind =
+  | 'primary-benchmark'
+  | 'operator-trust'
+  | 'coverage'
+  | 'acoustic-drums-stress'
+  | 'room-floor'
+  | 'sparse-silence'
+  | 'governance-regression'
+  | 'steering';
+
+export type ReplayProofMissionSnapshot = {
+  kind: ReplayProofMissionKind;
+  label: string;
+  scenarioKind: ReplayProofScenarioKind;
+  expectedRoute: ShowStartRoute;
+  expectedSourceMode: ListeningMode;
+  strictNoTouch: boolean;
+  lockAdvancedControls: boolean;
+  expectedDurationSeconds: {
+    min: number;
+    max: number;
+  };
+  musicGuidance: string;
+  operatorInstructions: string[];
+  autoCorrections: string[];
+  lockedAt: string;
+};
+
 export type ReplayBuildInfo = BuildInfo & {
   valid?: boolean;
 };
@@ -94,6 +122,7 @@ export type ReplayProofInvalidationCode =
   | 'capture-save-failed'
   | 'run-journal-save-failed'
   | 'replay-entered'
+  | 'operator-intervention'
   | 'route-integrity-break'
   | 'scenario-drift';
 
@@ -258,6 +287,7 @@ export type ReplayCaptureMetadata = {
   firstInterventionTimestampMs?: number | null;
   noTouchWindowPassed?: boolean;
   proofScenarioKind?: ReplayProofScenarioKind;
+  proofMission?: ReplayProofMissionSnapshot;
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
@@ -433,6 +463,7 @@ export type ReplayRunJournalSample = {
     interventionCount: number;
     noTouchWindowPassed: boolean;
     proofScenarioKind: ReplayProofScenarioKind | null;
+    proofMissionKind?: ReplayProofMissionKind;
     proofWaveArmed: boolean;
   };
 };
@@ -485,6 +516,7 @@ export type ReplayRunJournalMetadata = {
   sourceMode: ListeningMode;
   proofWaveArmed: boolean;
   proofScenarioKind?: ReplayProofScenarioKind | null;
+  proofMission?: ReplayProofMissionSnapshot;
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
@@ -516,6 +548,7 @@ export type ReplayRunManifestMetadata = {
   updatedAt: string;
   buildInfo: ReplayBuildInfo;
   proofScenarioKind?: ReplayProofScenarioKind | null;
+  proofMission?: ReplayProofMissionSnapshot;
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;

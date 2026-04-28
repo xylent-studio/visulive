@@ -6,6 +6,7 @@ import { BUILD_INFO, BUILD_LABEL } from '../buildInfo';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import { formatReplayDuration } from '../replay/session';
 import type {
+  ReplayProofMissionSnapshot,
   ReplayProofReadiness,
   ReplayProofScenarioKind,
   ReplayProofValidity,
@@ -61,6 +62,7 @@ type RunJournalStatus = {
   active: boolean;
   proofWaveArmed: boolean;
   runId: string | null;
+  proofMission: ReplayProofMissionSnapshot | null;
   sampleCount: number;
   markerCount: number;
   clipCount: number;
@@ -105,6 +107,7 @@ type DiagnosticsOverlayProps = {
   latestAutoCapture: AutoCaptureSummary | null;
   launchQuickStartLabel: string | null;
   proofScenarioKind: ReplayProofScenarioKind | null;
+  proofMissionLabel: string | null;
   sessionInterventionSummary: SessionInterventionSummary;
   runJournalStatus: RunJournalStatus;
   noTouchProofWindowMs: number;
@@ -129,7 +132,6 @@ type DiagnosticsOverlayProps = {
   onStopReplay: () => void;
   onClearReplay: () => void;
   onSeekReplay: (ratio: number) => void;
-  onProofScenarioChange: (kind: ReplayProofScenarioKind | null) => void;
 };
 
 const formatNumber = (value: number): string => value.toFixed(3);
@@ -166,6 +168,7 @@ export function DiagnosticsOverlay({
   latestAutoCapture,
   launchQuickStartLabel,
   proofScenarioKind,
+  proofMissionLabel,
   sessionInterventionSummary,
   runJournalStatus,
   noTouchProofWindowMs,
@@ -189,8 +192,7 @@ export function DiagnosticsOverlay({
   onToggleReplayPlayback,
   onStopReplay,
   onClearReplay,
-  onSeekReplay,
-  onProofScenarioChange
+  onSeekReplay
 }: DiagnosticsOverlayProps) {
   if (!visible) {
     return null;
@@ -901,6 +903,10 @@ export function DiagnosticsOverlay({
         <div className="diagnostics-section-title">Proof wave</div>
         <div className="diagnostics-grid diagnostics-grid--dense">
           <div>
+            <span>mission</span>
+            <strong>{runJournalStatus.proofMission?.label ?? proofMissionLabel ?? 'n/a'}</strong>
+          </div>
+          <div>
             <span>scenario</span>
             <strong>{formatProofScenarioLabel(proofScenarioKind)}</strong>
           </div>
@@ -919,30 +925,9 @@ export function DiagnosticsOverlay({
             <strong>{sessionInterventionSummary.interventionCount}</strong>
           </div>
         </div>
-        <label className="diagnostics-field">
-          <span>Proof scenario tag</span>
-          <select
-            className="diagnostics-select"
-            onChange={(event) => {
-              const nextValue = event.target.value;
-              onProofScenarioChange(
-                nextValue === '' ? null : (nextValue as ReplayProofScenarioKind)
-              );
-            }}
-            value={proofScenarioKind ?? ''}
-          >
-            <option value="">Unassigned</option>
-            <option value="primary-benchmark">Primary benchmark</option>
-            <option value="room-floor">Room floor</option>
-            <option value="coverage">Coverage</option>
-            <option value="sparse-silence">Sparse / silence</option>
-            <option value="operator-trust">Operator trust</option>
-            <option value="steering">Steering</option>
-          </select>
-        </label>
         <div className="diagnostics-code">
-          Scenario tagging affects proof coverage and review honesty only. It does not steer
-          the show.
+          Mission selection lives in Backstage {'>'} Capture. Armed proof locks the
+          mission snapshot into the run package and disables shortcut steering.
         </div>
         <div className="diagnostics-code">
           Last intervention:{' '}

@@ -53,11 +53,11 @@ Public simplicity is a product rule.
 Internal anthology expansion is the ambition rule.
 
 The current blockers are:
-- hero render grammar still fighting the intended neon/emissive read
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) is too monolithic for safe parallel visual work
+- no current-proof-valid run exists after the authority/runtime and evidence changes; the next serious move is a valid `Primary benchmark` canary through Proof Mission Control
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now explicitly sequences world, chamber, hero, authority, and stage work, but it is not the final runtime owner until post/compositor/memory extraction reduces the remaining scene compatibility shell
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `modules/**` and `rigs/**`
 - the anthology families now named in canon are still ahead of the fully extracted runtime
+- visual proof from the April 28 diagnostic run suggests overbright/ring-overdraw risk, but that run is not promotable because mission/scenario evidence was invalid before the Mission Control pass
 - conductor certainty still lags behind the strength of the visual event-spend we want
 - low-energy living-music states still need fresh proof that they stay readable, colorful, and stage-active in both `Music On This PC` and `Music In The Room`
 - safe-tier quality must stay authored, vivid, and premium
@@ -98,11 +98,10 @@ These are the intended specialist lanes for future agent work.
 ### 1. Hero Render / Emissive Materials
 
 Own:
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+- [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts)
 
 Own specifically:
-- `buildHero()`
-- `updateHero(...)`
+- hero build/update/quality/telemetry/disposal lifecycle
 - hero material stack
 - aura, seam, fresnel, rim, edges, core, void, membrane, crown, twins, ghost hero
 
@@ -114,17 +113,18 @@ Do not own:
 ### 2. Chamber / Environment / Lighting / Atmospherics
 
 Own:
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+- [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts)
+- [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts)
+- [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts)
+- [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts)
+- [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts)
 - [VisualizerEngine.ts](C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts)
 
 Own specifically:
-- world sphere
-- stain/flash planes
-- chamber rings
-- portal rings
-- chroma halos
-- laser beams
-- fog
+- chamber/world lifecycle and telemetry
+- authority-informed lighting and particles
+- chamber rings, portal rings, chroma halos, laser beams, wirefield and ghost lattice
+- world sphere, stain/flash planes, fog, and atmospheric presence
 - light rig
 - post/bloom/exposure interaction
 
@@ -198,6 +198,7 @@ This lane should be the only place that decides:
 Own:
 - [session.ts](C:/dev/GitHub/visulive/src/replay/session.ts)
 - [ReplayController.ts](C:/dev/GitHub/visulive/src/replay/ReplayController.ts)
+- [proofMission.ts](C:/dev/GitHub/visulive/src/replay/proofMission.ts)
 - [types.ts](C:/dev/GitHub/visulive/src/replay/types.ts)
 - [capture-analysis-core.mjs](C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs)
 - [analyze-captures.mjs](C:/dev/GitHub/visulive/scripts/analyze-captures.mjs)
@@ -205,6 +206,7 @@ Own:
 
 Own specifically:
 - capture windows
+- proof missions, mission snapshots, and mission/scenario propagation
 - evidence-quality flags
 - report generation
 - inbox/canonical/archive handling
@@ -304,24 +306,24 @@ Brief structure:
 - update [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md) when maturity, proof status, or next target changes
 
 For visual passes, use:
-- fresh screenshots in [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-- current live inspection images in [captures/reports](C:/dev/GitHub/visulive/captures/reports)
-- latest analyzer report
+- valid fresh run packages under [captures/inbox/runs](C:/dev/GitHub/visulive/captures/inbox/runs)
+- proof stills from the same run package
+- latest analyzer report only when its source date range and build identity match the active branch
 
 For audio/evidence passes, use:
 - [capture-analysis_latest.md](C:/dev/GitHub/visulive/captures/reports/capture-analysis_latest.md)
-- current inbox captures only
+- current valid inbox run packages only
 
 ## Current Best Next Structural Move
 
-Before heavy parallel visual work, split [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) into:
-- `hero*`
-- `chamber/world/lighting*`
-- `motion/event/camera*`
+Before heavy parallel visual work, prove the current backbone:
 
-Before calling that done, also:
+- launch with `npm run dev:proof`
+- choose `Backstage -> Capture -> Proof Mission -> Primary benchmark`
+- arm `Proof Wave`
+- run a 60-90 second PC Audio no-touch canary
+- review `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`
 
-- keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the explicit frame orchestrator and continue moving post/compositor/memory ownership out of the scene shell
-- stop treating namespace files in `systems/**` and `governors/**` as proof that ownership already moved
+If the canary is valid, run the full `Primary benchmark` and then `Operator trust`.
 
-Until then, use the specialist lanes above as ownership rules even if the code still lives in one file or behind a shim.
+If authority proof fails, do a narrow governance correction in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy. If authority plus no-touch proof holds, the next structural extraction is `PostSystem`, not more scene-local creative work.

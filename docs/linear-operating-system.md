@@ -98,11 +98,11 @@ Do not open broad issues like "improve visuals" without a measurable proof targe
 The current serious proof flow is:
 
 1. `npm run dev:proof`
-2. `Backstage -> Capture -> Proof Scenario`
+2. `Backstage -> Capture -> Proof Mission`
 3. archive or review any old active inbox run package before starting new proof
 4. arm `Proof Wave`
 5. verify readiness is green
-6. run the scenario
+6. run the mission
 7. `npm run proof:current`
 8. `npm run evidence:index`
 9. `npm run run:review -- --run-id <runId>`
@@ -111,7 +111,7 @@ The current serious proof flow is:
 
 `npm run proof:current` refreshes reports. It is not a hard gate. Use strict proof-pack and benchmark validation for release/current-canonical decisions.
 
-Linear should never mark a proof issue done based on manual tags alone. The run package must prove the scenario.
+Linear should never mark a proof issue done based on manual tags alone. The run package must prove the mission-derived scenario.
 
 ## Next Development Guardrail
 
