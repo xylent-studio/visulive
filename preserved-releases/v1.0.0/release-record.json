@@ -1,0 +1,231 @@
+{
+  "status": "ready",
+  "version": "v1.0.0",
+  "title": "VisuLive v1.0.0 - First Public Edition",
+  "tag": "v1.0.0",
+  "sourceSnapshot": {
+    "commit": "6f45b8a",
+    "sourceBranch": "release/v1",
+    "lane": "stable"
+  },
+  "publicArchive": {
+    "url": "https://visulive-v1.xylent.studio",
+    "provisionalUrl": "https://visulive-v1-xylent-studio.netlify.app",
+    "netlifySiteName": "visulive-v1-xylent-studio",
+    "customDomainStatus": "ready"
+  },
+  "build": {
+    "builtAt": "2026-04-17T01:49:23.999Z",
+    "proofStatus": "not-captured"
+  },
+  "release": {
+    "githubReleaseUrl": "https://github.com/xylent-studio/visulive/releases/tag/v1.0.0"
+  },
+  "deploys": {
+    "liveDeployId": "69e191a1e164309b55b6ff01",
+    "legacyDeployId": "69e9a7961c83ffcde4674862"
+  },
+  "assets": {
+    "distArchive": "preserved-releases/v1.0.0/assets/visulive-v1.0.0-dist.zip",
+    "releaseNotes": "preserved-releases/v1.0.0/docs/release-notes.md",
+    "proofPackMarkdown": "preserved-releases/v1.0.0/evidence/proof-pack_latest.md",
+    "proofPackJson": "preserved-releases/v1.0.0/evidence/proof-pack_latest.json",
+    "benchmarkManifest": "preserved-releases/v1.0.0/evidence/benchmark-manifest.json",
+    "screenshotsDir": "preserved-releases/v1.0.0/screenshots"
+  },
+  "checksums": [
+    {
+      "path": "preserved-releases/v1.0.0/docs/release-notes.md",
+      "sha256": "7c66db635cd757953466ef6f8559f7741ec22255fa7b964d32e96fdf1ef8cf40"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/evidence/proof-pack_latest.md",
+      "sha256": "e65bd2b240b26cdcf914ea0226429a53d8798c4eb94d1c167f1e1b397d2df5b9"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/evidence/proof-pack_latest.json",
+      "sha256": "6a7e8701f126802f02358e6db4fd4f56513e21c8dc78331e6b4f37f6a2ca1e92"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/evidence/benchmark-manifest.json",
+      "sha256": "3a7bce117d004c28f2d391b7e298c27a665ec7d8aed81871a54e64b17dbdc910"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/assets/visulive-v1.0.0-dist.zip",
+      "sha256": "54b30e68e7cb3a87bbe09492597a33e7f5918174eaca29050cdd301dea658e80"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-1.png",
+      "sha256": "d3dd04e1428b8944001b6e901ac3541a93d11b9a7581c63957ec1df693320c6d"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-2.png",
+      "sha256": "51cb971ef62d3250cadd10d048a789c41f6060cb777f0f64ebef942f5655190e"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-3.png",
+      "sha256": "f866650a03a0c71bdcc54203353b33f95b11ef0544d668c2a6ff3910b82a6dc1"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-4.png",
+      "sha256": "33c345a30f59ee6e5f9e6eb284b888ff98ebfc5299819dbd92b77bdedc3b23ea"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-after-light-1.png",
+      "sha256": "a2d07e9c76b8c15c63acb33feb10313903417730437fecc3cd43080644e6a6d6"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-after-light-2.png",
+      "sha256": "164a8b3d977c1b51bcbff265563dc1b716a06f8cf85313af0a954e387a682e6c"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-after-light-3.png",
+      "sha256": "65722db7a9db4f8eb73341ce45c8c1658576551e2983b5986bd87853b8ab3463"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/burst-after-light-4.png",
+      "sha256": "853ac0781a36a066f432259edbad1101e54a16d538aeb2f170718fe325632197"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-1.png",
+      "sha256": "e50e60bba6e9fd458ca7edea98df19dd083bd479b451094d3a333a56f20a6e9f"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-2.png",
+      "sha256": "2965815a479de65eeb4bfc7bb555182b29a9dff11065975e087b2f672bc7bf5c"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-3.png",
+      "sha256": "80cae5d9a9012b4dabbfed01204f5f2b2043e5b7e71780407fe225d74e428901"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-4.png",
+      "sha256": "edaed357505c0b3a33b8fc588e34e215e57aa74e6041d9e142ba9a174d6092be"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-5.png",
+      "sha256": "6ec4c5ebf89d8efddf2b0a7d79752e83b4a96066a2adfb79ca230841a64b8b1e"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-burst-6.png",
+      "sha256": "e47f2c338fedf28cc82d5980f78b132f31b3543d6edb1121760279e1fe75b4a9"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-after-render-pass.png",
+      "sha256": "efceaa198e87fe66c79a0b34b8d8f2820e544c65d72fecb70d7e72cd7ebb6c80"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-1.png",
+      "sha256": "aaaedca8b5a7b321bd87fa500cca5c567e4bc085da690b45924d70d4de90baa4"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-2.png",
+      "sha256": "1eb7500300a0d809fad677b170459ed507a788f4716e943a332065b09917c274"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-3.png",
+      "sha256": "e29a5f068ced4e35394b1fdb3282d18a289752e2e49c8203041e0ac225226995"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-4.png",
+      "sha256": "588b61d86b1ab9b30e161978209fc709ec24f6c42f6ea5ab0fd3ddbae60bc929"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-5.png",
+      "sha256": "8e28e7030b9b67c92aadd9679f5c24548c53590e26b99814c38a2a88037ad324"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-burst-6.png",
+      "sha256": "28d29f1bf9fd28a1222a77f0fde77e3a51e03c166edffdf1d280b0a351f95b1a"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-hero-cool-pass-1.png",
+      "sha256": "86e9bcb2c4d0b5c186ced45a39b6ee58bc40265d4a10b91f332777d7a83462b8"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-hero-cool-pass-2.png",
+      "sha256": "30720850ce06d041905e94ea2fed7f4ac60a3c186535251206eb64961c6882cd"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-hero-cool-pass-3.png",
+      "sha256": "8f3e2c618c51fa89cacdcba0a144cb5b7a359b2bcb87e2f163ee956db19245a9"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-hero-cool-pass-4.png",
+      "sha256": "ea213bd814d52aa709fbe8c0406546c53b04f93986d4be930fb12f21e3665626"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-lightmodel-pass-1.png",
+      "sha256": "c14044cd74e794a2b9db1f17801f01ecca33b16bcdd3114c2f2518024b3a44ac"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-lightmodel-pass-2.png",
+      "sha256": "98c305fd41192325816a0093b9d400a75bfaddc71c587fc7aedb1a844934f738"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-lightmodel-pass-3.png",
+      "sha256": "bcf372e527293e2b2ee975c3eb4312ad78cd48b4f2709cc97e2205bcafc77f12"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-lightmodel-pass-4.png",
+      "sha256": "82b10a104d7b6dde6c8df38f380a99f26fb9eb594c0ce40c1b8a9349736bd5ad"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-now.png",
+      "sha256": "fb38cddcc750402c4d22fa31605ef6a8b18a20fe6ebde3de507d380170ebcecd"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-post-check-1.png",
+      "sha256": "e62e56059dce059e450935cf9fa6fac7c38e5d13b7113f9a66901d5310bef6d0"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-post-check-2.png",
+      "sha256": "e38116127a6892b6d00342816211d840a282a89b598f06f1ff2b233fd4ff418e"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-structure-pass-1.png",
+      "sha256": "45579a6883dce34aece4c0c8349ca604519c4c31f7ca4f3bb5cccb2c91200b6b"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-structure-pass-2.png",
+      "sha256": "f30a184b5119da008a36123f4173033941c531e7c2e38ff3b00357b78d95b15e"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-structure-pass-3.png",
+      "sha256": "e9cdbbd40038186485ff5385bc368291c6f01f19d88f5ced49606c89c6f30f88"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/live-structure-pass-4.png",
+      "sha256": "36ed4d18141fae8b341c52a517d9eb5465892b6ef4f6d58742cbb656619f499d"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/plan-pass-1.png",
+      "sha256": "c9e5d2f830eff1cc78ed8ac51e19a6ba2e3a23a7c85e11d9c3998fd5a0729830"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/plan-pass-2.png",
+      "sha256": "0b81ef5b9c2783492958664773c824d327aa4ea2e597ce8d55e8fe6e598d7ffa"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/plan-pass-3.png",
+      "sha256": "1011157cdd1ac4f905a7e33c3ca3bbebb9c24bb1655341738df5b5e9fc65b39b"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/plan-pass-4.png",
+      "sha256": "f1863bdb4758ee84b522e755f0d3040acc5678288a7b57a3fe588267ab5356b8"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/shot-after-light-retune.png",
+      "sha256": "844ea7f84f19a6819f34f8071d202aa41a70f0aa1885f4812696bed541a0b68f"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/shot-after-retune.png",
+      "sha256": "0c0f8d727e86c13e1f633763469c9aa421078d0e5e9ce32a512fcf0902f75d1c"
+    },
+    {
+      "path": "preserved-releases/v1.0.0/screenshots/shot-now.png",
+      "sha256": "4712ebd90db9388cb0319503e74868d0e725a2374c47439a95f68d9a0d74a003"
+    }
+  ],
+  "notes": "Preserved release package is ready, the legacy site is deployed, and the release record is complete."
+}

@@ -6,6 +6,7 @@ coverage
 *.log
 
 # Evidence and generated review payloads stay local.
+captures/*.sqlite*
 captures/archive/**
 captures/canonical/**
 captures/inbox/**
@@ -20,3 +21,8 @@ captures/reports/**
 !captures/canonical/README.md
 !captures/inbox/README.md
 !captures/reports/README.md
+
+# Preserved releases keep lightweight provenance in Git; heavy artifacts stay in release storage.
+preserved-releases/**/assets/**
+preserved-releases/**/screenshots/**
+preserved-releases/**/site-dist/**

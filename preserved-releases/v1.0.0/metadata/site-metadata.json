@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-04-23T04:59:11.753Z",
+  "site": {
+    "id": "3d5de2f2-fd5e-4f02-95a6-b829ff0f597c",
+    "name": "visulive-xylent-studio",
+    "url": "https://visulive.xylent.studio",
+    "sslUrl": "https://visulive.xylent.studio",
+    "customDomain": "visulive.xylent.studio",
+    "deployId": "69e191a1e164309b55b6ff01"
+  },
+  "deploy": {
+    "id": "69e191a1e164309b55b6ff01",
+    "createdAt": "2026-04-17T01:49:21.908Z",
+    "publishedAt": "2026-04-17T01:49:23.999Z",
+    "deploySslUrl": "https://69e191a1e164309b55b6ff01--visulive-xylent-studio.netlify.app",
+    "context": "production",
+    "framework": "vite",
+    "manualDeploy": false
+  }
+}

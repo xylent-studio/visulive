@@ -1,0 +1,83 @@
+[
+  {
+    "requestPath": "/index.html",
+    "apiPath": "/index.html",
+    "size": 732,
+    "netlifySha1": "c8ab25c9b07b44dcbeabeb89653b31eb9c16eb0a",
+    "downloadedSha1": "c8ab25c9b07b44dcbeabeb89653b31eb9c16eb0a",
+    "downloadedSha256": "a75b8c7f8472771d1bd4e0702e4c3f711dd7b6c93cadbbe98ee48943b10d423f",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/index.html"
+  },
+  {
+    "requestPath": "/assets/index-NBRajlrK.js",
+    "apiPath": "/assets/index-nbrajlrk.js",
+    "size": 375468,
+    "netlifySha1": "15d84ce76ff7800f525173818de056b496c0bf9c",
+    "downloadedSha1": "15d84ce76ff7800f525173818de056b496c0bf9c",
+    "downloadedSha256": "94c1a55ea0597b84dc0b863c51c9a2e2ac958fd992c52e222ed2f4b21751cf50",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/index-NBRajlrK.js"
+  },
+  {
+    "requestPath": "/assets/rolldown-runtime-B4mDN-ph.js",
+    "apiPath": "/assets/rolldown-runtime-b4mdn-ph.js",
+    "size": 218,
+    "netlifySha1": "d8ee20b9cb5c40d640b9a4751f8ec48c69438a7a",
+    "downloadedSha1": "d8ee20b9cb5c40d640b9a4751f8ec48c69438a7a",
+    "downloadedSha256": "18adcf6f5684a9e7cb9f13847543620818d235b7fa29168c7d6ab021aa218907",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/rolldown-runtime-B4mDN-ph.js"
+  },
+  {
+    "requestPath": "/assets/three-vendor-BT0-HRO0.js",
+    "apiPath": "/assets/three-vendor-bt0-hro0.js",
+    "size": 1083199,
+    "netlifySha1": "19519750f428c5670c4e286541cbcf3c17f4b004",
+    "downloadedSha1": "19519750f428c5670c4e286541cbcf3c17f4b004",
+    "downloadedSha256": "95348272c800a2de68e1126b024113366ed18744fce1216daf60b3c4d38d01de",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/three-vendor-BT0-HRO0.js"
+  },
+  {
+    "requestPath": "/assets/visual-runtime-D6hOjogq.js",
+    "apiPath": "/assets/visual-runtime-d6hojogq.js",
+    "size": 274735,
+    "netlifySha1": "0545c4df23997df7251c07c58b2bb6cc9bab5624",
+    "downloadedSha1": "0545c4df23997df7251c07c58b2bb6cc9bab5624",
+    "downloadedSha256": "dfd5a8b2198a8d7ff80bca75753dbb789ad4d895493f538531c022bdd181ee38",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/visual-runtime-D6hOjogq.js"
+  },
+  {
+    "requestPath": "/assets/index-HIAxFiKl.css",
+    "apiPath": "/assets/index-hiaxfikl.css",
+    "size": 17041,
+    "netlifySha1": "40d35a6e1317f42fa70176bdc14f802949da7c09",
+    "downloadedSha1": "40d35a6e1317f42fa70176bdc14f802949da7c09",
+    "downloadedSha256": "70197e00babddd7aa24eb1fc28c50d67e4fed882dbb42e92131ea4526227bef6",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/index-HIAxFiKl.css"
+  },
+  {
+    "requestPath": "/assets/audio-feature-processor-cychqa6d.js",
+    "apiPath": "/assets/audio-feature-processor-cychqa6d.js",
+    "size": 4302,
+    "netlifySha1": "8750762de42d2d68da997d37342fff0fb31b166d",
+    "downloadedSha1": "8750762de42d2d68da997d37342fff0fb31b166d",
+    "downloadedSha256": "48f12a3331f37cc6e29dc76c36f03bcd1afac2e32da08779756b48bb127fe280",
+    "sha1MatchesNetlify": true,
+    "repoPath": "preserved-releases/v1.0.0/site-dist/assets/audio-feature-processor-cychqa6d.js"
+  },
+  {
+    "requestPath": "/netlify.toml",
+    "apiPath": "/netlify.toml",
+    "size": 558,
+    "netlifySha1": "92618114186a07cd62d98e24faaf82c187295226",
+    "downloadedSha1": null,
+    "downloadedSha256": null,
+    "sha1MatchesNetlify": null,
+    "repoPath": null,
+    "unavailableFromDeployUrl": true
+  }
+]
