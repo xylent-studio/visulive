@@ -30,7 +30,7 @@ function parseArgs(argv) {
     screenshots: path.join(captureRoot, 'inbox', 'screenshots'),
     output: null,
     manifest: null,
-    recommendations: path.join('docs', 'proof-pack_recommendations_latest.json'),
+    recommendations: null,
     limit: 3,
     strict: false
   };
