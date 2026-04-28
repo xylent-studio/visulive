@@ -1,7 +1,17 @@
 # VisuLive Outside Dev Brief
 
-Date: 2026-04-08  
+Date: 2026-04-20
 Status: Shareable external review brief
+
+This file is external prompt material.
+It is not internal source-of-truth canon.
+
+If this brief conflicts with current repo truth, prefer:
+
+- [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+- [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+- [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
+- live code in [src](C:/dev/GitHub/visulive/src)
 
 ## Message
 
@@ -65,10 +75,10 @@ These are real gains, not imaginary ones:
 - The system now captures and analyzes live evidence instead of relying only on memory and taste arguments.
 - The repo is much more recoverable than it was before.
 
-Recent screenshots that show the current promising direction:
-- [Screenshot (196).png](C:/dev/GitHub/visulive/captures/inbox/Screenshot%20(196).png)
-- [Screenshot (197).png](C:/dev/GitHub/visulive/captures/inbox/Screenshot%20(197).png)
-- [Screenshot (198).png](C:/dev/GitHub/visulive/captures/inbox/Screenshot%20(198).png)
+Historical screenshots that still show a promising direction:
+- [live-hero-cool-pass-1.png](C:/dev/GitHub/visulive/captures/reports/live-review/live-hero-cool-pass-1.png)
+- [live-structure-pass-1.png](C:/dev/GitHub/visulive/captures/reports/live-review/live-structure-pass-1.png)
+- [historical-baseline-live-inspection-2026-04-08.png](C:/dev/GitHub/visulive/captures/reports/historical-baseline-live-inspection-2026-04-08.png)
 
 The strongest current clue is this:
 - emitted wireframe, seams, rims, and structural glow feel more correct than the old softly lit blob approach

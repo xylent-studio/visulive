@@ -1,32 +1,16 @@
 # VisuLive Specialist Brief Template
 
-Date: 2026-04-08  
+Date: 2026-04-22
 Status: Active delegation template
 
 Use this template whenever VisuLive work is delegated to a specialist subagent.
 
-The goal is to keep specialist work:
+The goal is to keep work:
+
 - bounded
 - comparable
 - reviewable
-- easy to integrate
-
-## Why This Exists
-
-VisuLive is now too deep for vague multi-goal briefs.
-
-Bad delegation causes:
-- overlapping edits
-- hidden ownership collisions
-- random taste drift
-- "improved" work that cannot be judged against evidence
-
-This template forces the brief to say exactly:
-- what lane owns the work
-- what files are in bounds
-- what files are off limits
-- what evidence should drive the pass
-- how success will be judged
+- graduation-aware
 
 ## Template
 
@@ -35,6 +19,17 @@ This template forces the brief to say exactly:
 
 ## Mission
 - one sentence only
+
+## Capability Family
+- one anthology family or one clearly named bottleneck
+
+## Lane Owner
+- one named lane from [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
+
+## Runtime Ownership Status
+- `legacy-monolith`
+- `partial-system`
+- `owned-system`
 
 ## In Scope
 - specific goal 1
@@ -53,12 +48,31 @@ This template forces the brief to say exactly:
 - latest inbox captures
 - latest capture-analysis report
 - specific screenshots
-- specific docs
+- specific canon docs
 
 ## Constraints
-- do not change public controls
-- do not redefine renderer policy
-- do not change cue semantics
+- do not change public startup complexity
+- do not redefine unrelated lane policy
+- do not land new lasting families back in legacy monolithic ownership
+
+## Proof Target
+- what evidence should change if this works
+
+## Graduation Target
+- `lab -> frontier`
+- `frontier -> flagship`
+- or `no graduation this pass`
+
+## Failure Pattern To Reduce
+- hero monopoly
+- decorative chamber
+- fake escalation by brightness
+- permanent residue
+- mixed-media collage behavior
+- another clearly named failure
+
+## Next Dependency
+- the next lane or extraction this pass unblocks
 
 ## Acceptance
 - concrete signal 1
@@ -69,101 +83,46 @@ This template forces the brief to say exactly:
 - code changes only
 - code plus doc changes
 - doc-only recommendation pass
+
+## Continuation Brief
+- what family maturity changed
+- what is still blocking it
+- what should happen next
 ```
 
 ## Standard Expectations
 
 Every specialist brief should:
+
 - name one lane only
-- target one bottleneck only
+- target one capability family or bottleneck only
 - include owned files
 - include forbidden files
 - name the evidence source
-- define what "better" means in observable terms
+- define a proof target
+- define a graduation target
+- define the runtime ownership status
+- define the failure pattern it is trying to reduce
+- include a continuation brief
 
 Every specialist brief should not:
+
 - ask for multiple unrelated improvements
 - leave ownership fuzzy
 - say "edit whatever you need"
-- mix rendering, cue semantics, and UX in one pass unless the integrator is doing the work locally
+- confuse repertoire growth with public UI growth
 
 ## Good Acceptance Language
 
 Use acceptance criteria like:
+
 - "quiet frames read darker with clearer edge separation"
-- "similar drops converge on similar act and palette outcomes"
-- "`safe` tier preserves color authority while lowering density"
-- "the latest inbox report shows fewer `undercommittedDrop` flags"
+- "world-led frames become common enough to feel intentional"
+- "the latest no-touch batch shows distinct consequence after major cues"
+- "the analyzer can now distinguish the new family from current monopoly families"
 
 Avoid acceptance criteria like:
+
 - "looks cooler"
 - "more awesome"
 - "better vibes"
-
-## Example Briefs
-
-### Hero Render / Emissive Materials
-
-Mission:
-- make the hero read more like dark matter wrapped in emitted seams and rims
-
-Owned Files:
-- [C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-
-Forbidden Files:
-- [C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts](C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts)
-- [C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts](C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts)
-
-Evidence To Use:
-- latest screenshots in [C:/dev/GitHub/visulive/captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-- live inspection frames in [C:/dev/GitHub/visulive/captures/reports](C:/dev/GitHub/visulive/captures/reports)
-- [C:/dev/GitHub/visulive/docs/show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
-
-Acceptance:
-- hero no longer reads as a softly filled blob
-- seam, rim, and fresnel structure stay legible in quiet and active frames
-- active frames spend hotter emitted color without raising whole-frame wash
-
-### Motion / Choreography / Camera
-
-Mission:
-- make between-beat movement slower, more intentional, and more structural
-
-Owned Files:
-- [C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-
-Forbidden Files:
-- [C:/dev/GitHub/visulive/src/scene/showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts)
-- [C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts](C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts)
-
-Evidence To Use:
-- latest inbox captures
-- latest capture-analysis report
-- current live screenshots
-
-Acceptance:
-- shell and world drift feel slower between beats
-- bar and phrase turns create clearer before and after contrast
-- beat strikes spend accents instead of constant full-scene motion
-
-### Evidence / Capture / Analyzer
-
-Mission:
-- make the tuning loop stricter and more trustworthy
-
-Owned Files:
-- [C:/dev/GitHub/visulive/src/replay/session.ts](C:/dev/GitHub/visulive/src/replay/session.ts)
-- [C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs](C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs)
-
-Forbidden Files:
-- [C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-- [C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx)
-
-Evidence To Use:
-- latest inbox captures
-- current report in [C:/dev/GitHub/visulive/captures/reports](C:/dev/GitHub/visulive/captures/reports)
-
-Acceptance:
-- each capture maps more cleanly to one musical idea
-- corrupt or weak evidence is flagged instead of silently trusted
-- the latest report is more actionable for the next retune

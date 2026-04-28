@@ -1,249 +1,155 @@
 # VisuLive Product Charter
 
-Date: 2026-04-08
-Status: Foundational north star
-Target: Chrome on Windows PC, live microphone and/or PC audio input, real-time premium visual response
+Date: 2026-04-22
+Status: Active foundational charter
+Target: Chrome on Windows PC, live microphone and/or PC audio input, real-time flagship visual performance
 
-This is the foundational product and taste brief.
-For current behavior and implementation truth, use [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md) and [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md).
+This file defines the stable product constitution.
+
+It should move rarely.
+For current implementation truth and current marching orders, use:
+
+- [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+- [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+- [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
+
+For the current mastery spine, graduation rules, and extraction hierarchy, use:
+
+- [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+- [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+- [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+- [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
 
 ## Mandate
 
 Build a live audiovisual performance system for a desktop browser.
 
-It listens to room sound, computer audio, or both and responds in real time with visual behavior that feels authored, premium, and room-commanding. It must read as a flagship show machine, not a visualizer app, not a shader demo, and not a preset browser.
+It listens to room sound, computer audio, or both and responds in real time with visuals that feel authored, premium, room-commanding, and worth watching even before the biggest moment arrives.
 
-The standard is dark luxury with stage authority:
+VisuLive is not a visualizer app.
+It is a flagship show machine.
 
-- cinematic, not ravey
+## Product Identity
+
+The product must read as:
+
 - authored, not generic
-- whole-frame, not center-locked
-- alive at idle
-- articulate under impact
-- selective, not noisy
+- whole-frame, not center-locked by habit
+- alive in silence
+- selective under pressure
+- dark-backed, but willing to spend hard
 - coherent enough to feel directed
+- bold enough to feel like a performance
 
-This is a product with taste and consequence, not a container for effects.
+The goal is not restraint for its own sake.
+The goal is consequence with taste.
 
-## Product Thesis
-
-The right product is not "music visualization in the browser."
-
-The right product is a living room-scale visual instrument and stage machine that interprets real acoustic life:
-
-- HVAC hum
-- keyboard clicks
-- desk taps
-- speech
-- distant music
-- glass and metal clinks
-- room tone
-
-That requires a different posture from most visualizers. Ambient sound is weak, messy, and irregular. Raw FFT-to-shader mapping will look dead in quiet rooms and vulgar in noisy ones.
-
-The core job is:
-
-1. listen intelligently
-2. extract meaningful structure from imperfect sound
-3. express that structure with dignity
-
-If the system is visually impressive but acoustically naive, it fails.
-
-## Product Principles
+## Stable Principles
 
 ### 1. Silence is part of the product
 
-Silence is not an absence state. Silence is a visual state with its own beauty, breath, and tension.
+Silence is a visual state, not an error state.
 
-### 2. One flagship scene first
+### 2. One public portal, one flagship engine first
 
-Do not build mode soup. One flagship scene with conviction is worth more than ten average scenes with options.
+Do not dilute the product into a public mode browser before the flagship truly lands.
 
 ### 3. Reaction quality beats reaction quantity
 
-The system does not need to react to everything. It needs to react well to what matters.
+The show does not need to answer every input.
+It needs to answer meaningful input with authority.
 
 ### 4. K.I.S.S. in UX, not in craft
 
-The interface must stay minimal. The execution underneath it must not.
+The operator path must stay simple and autonomy-first.
+The internals are allowed to be sophisticated.
 
-### 5. Premium means controlled
+`Auto Show` should be strong enough to trust without setup work.
+Repair, capture, replay, and diagnostics belong in a distinct backstage layer, not in the front-door experience.
 
-No rainbow equalizers, no gamer neon, no gratuitous camera movement, no constant high-energy spectacle, no cheap "look how reactive this is" behavior.
+### 5. Premium means selective and legible
 
-Premium also means black value stays meaningful and event spend feels earned.
+Premium does not mean timid.
+It means:
 
-### 6. The renderer serves the interpretation layer
+- black value stays meaningful
+- aggression is earned
+- color worlds are intentional
+- spectacle does not collapse into noise soup
+- camera and post are motivated, not absent and not spammed
 
-The visual engine must consume stable, meaningful audio features. It must not become a dumping ground for DSP guesses.
+### 6. The renderer serves interpretation
+
+Audio understanding, cue hierarchy, and stage intent decide what the show means.
+Rendering exists to deliver that meaning.
 
 ### 7. Whole-frame authority matters
 
 The hero can be iconic.
 It cannot monopolize authorship.
 
-The chamber, environment, residue, and framing must be able to own the picture when the music earns it.
+The chamber, world, residue, rigging, framing, and screen-space consequence must all be able to own the picture when the cue earns it.
+
+### 8. Safe tier is a real product tier
+
+`webgpu / safe` is not an embarrassment tier.
+It is the authored live target and must look deliberate, vivid, and premium.
+
+### 9. Evidence decides
+
+Taste matters.
+Memory is not enough.
+
+Serious claims about progress should be supported by captures, reports, proof packs, or live inspection that can be repeated.
 
 ## Non-Goals
 
-This first product is not:
+This version is not:
 
-- a DJ tool
-- a Winamp successor
-- a multi-scene preset browser
-- a music-first spectacle engine
-- a maximalist generative-art sandbox
-- a mobile-first experience
-
-Future expansion can exist, but the first release does not earn that complexity by default.
+- a preset soup
+- a slider rack
+- an undisciplined public mode browser
+- a Winamp-style effect collection
+- a timid object study
+- an auto-deploy-driven production workflow
 
 ## Experience Standard
 
-The product should feel like:
+The flagship should feel like:
 
-- obsidian
-- smoked graphite
-- dark air
-- low light on glass
-- restrained metal
-- latent pressure
-- resonance in space
+- dark matter wrapped in emitted structure
+- chamber-scale image authority
+- screen-space memory used with discipline
+- motivated camera and stage motion
+- neon, laser, acid, spectral, and white-hot moments that still preserve black
+- a show that keeps changing who owns the frame
 
-The product should not feel like:
+The flagship should not feel like:
 
-- EDM graphics
-- audio bars
-- circles around album art
-- rainbow particles
-- gamer HUDs
-- hobbyist shader toys
+- one hero with decorative scaffolding
+- always-on bloom and smear
+- generic shader intensity
+- random palette churn
+- permanent ring clutter
+- a static setup waiting for the next beat
 
-## Creative Direction
+## Version One Doctrine
 
-The first flagship scene is `Obsidian Bloom`.
+Version one remains one public flagship show engine with hidden internal acts.
 
-This is not just a codename. It is the visual and behavioral doctrine for version one.
+It may expose curated worlds, looks, and stances inside that engine as long as they behave like authored vocabularies, not preset soup.
 
-## Scene Doctrine: `Obsidian Bloom`
+That engine must be able to:
 
-### Scene Intent
-
-Create a dark stage image with a strong anchor, an active chamber, and authored residue. It should feel half object, half world: substantial enough to feel physical, open enough to feel like a space.
-
-The scene must remain composed under all input conditions. The viewer should read intention, not parameter mapping.
-
-### Core Composition
-
-- one dominant hero entity, but not the only image authority
-- one surrounding chamber/world layer
-- one environmental field
-- one post/residue layer
-- no cluttering secondary objects competing for attention
-
-The visual weight must be allowed to shift by cue. The frame can be hero-led, chamber-led, or residue-led when the music earns it.
-
-### Primary Form
-
-The hero should feel like a hybrid of:
-
-- smoked glass
-- dense vapor
-- polished mineral
-- tensioned membrane
-
-It must not read as a blob, a jelly toy, or a lava lamp.
-
-Recommended behavior:
-
-- subtle internal pressure at idle
-- deformation under sustained energy
-- crisp local articulation on transients
-- occasional brief surface fractures, folds, or glints under sharp impacts
-
-The hero should read as dark mass wrapped in emitted structure, not a softly lit filled sculpture.
-
-### Atmosphere
-
-The surrounding atmosphere should be sparse and spatial.
-
-Think:
-
-- suspended particulate dust
-- faint volumetric air
-- minimal drift
-- trace halos around intense events
-
-The atmosphere supports scale and depth. It does not steal focus.
-
-### Light
-
-Light should feel like it is being released from within the system, not sprayed onto it.
-
-Recommended lighting behavior:
-
-- low base luminance
-- internal glow rising with sustained energy
-- crisp highlights on transients
-- bloom with discipline, never milkiness
-
-### Motion
-
-Motion must feel inertial and deliberate.
-
-The scene should avoid:
-
-- constant oscillation
-- random jitter
-- perpetual orbit
-- "reactive" micro-trembling
-
-Preferred motion language:
-
-- breath
-- pressure
-- expansion
-- recoil
-- release
-- shimmer only at the edge of activation
-
-### Camera
-
-The camera should be nearly still.
-
-If motion exists, keep it limited to:
-
-- barely perceptible drift
-- subtle parallax
-- minor depth adjustment during sustained activation
-
-The camera is not a performer.
-
-### Palette
-
-Base palette:
-
-- obsidian
-- smoked graphite
-- low amber or restrained gold
-- deep teal or emerald for cool structure
-
-Accent policy:
-
-- violet or rose can exist only as a rare accent under specific states
-- accent color must feel earned, not decorative
-- neon spend should be selective, not constant
-
-## Stage Doctrine
-
-The show must be built so the chamber, environment, and residue can take the lead when the cue demands it.
-
-The hero can be iconic.
-It cannot monopolize authorship.
-
-Composition, consequence, and pacing matter more than local prettiness.
+- stay interesting at low energy
+- transform its frame hierarchy over time
+- spend differently on builds, strikes, releases, aftermaths, and resets
+- feel larger than one object
+- preserve a coherent authored language while still generating new outcomes
+- remain compelling before the operator starts steering it
 
 ## Bottom Line
 
-VisuLive should behave less like a reactive object and more like an authored stage machine.
+VisuLive should behave like a living stage machine.
 
-If a change does not move the system toward that outcome, it is probably not the right change.
+If a change makes the system safer but flatter, or louder but less legible, it is not the right change.

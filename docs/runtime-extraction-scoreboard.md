@@ -1,0 +1,233 @@
+# VisuLive Runtime Extraction Scoreboard
+
+Date: 2026-04-23
+Status: Active extraction scoreboard
+
+This document tracks what still blocks safe parallel anthology growth.
+
+Use it when deciding:
+
+- what is still trapped in [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+- which runtime owner is real
+- which extraction must happen before a family can graduate honestly
+
+Pair it with:
+
+- [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md)
+- [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+
+## Honesty Rule
+
+Use this scoreboard with one strict rule:
+
+- a facade is not an owner
+- a namespace shim is not an extraction
+- a named system file does not count unless build, update, ownership, and disposal actually moved there
+
+That means:
+
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now assembles frame context, resolves stage composition, explicitly sequences world, chamber, hero, and authority resolution passes, but it is not the final runtime owner until later post/compositor/memory extraction removes more scene compatibility shell debt
+- `src/scene/systems/**` and `src/scene/governors/**` are partly namespace surfaces over `src/scene/modules/**` and `src/scene/rigs/**`
+- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) is now less dominant than before, but it remains a compatibility shell and merge hotspot until more scene context assembly and later system families move out
+
+## Current Runtime Reality
+
+The current runtime split is improving, but not honest enough to treat as done:
+
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now prepares frame state, resolves stage composition, updates [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), updates [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), explicitly sequences the hero pass, resolves frame authority, and then runs the remaining stage frame instead of forwarding one opaque `update()` call
+- [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) now owns world sphere, stain/flash planes, fog, atmosphere layers, world telemetry, and disposal
+- [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) now owns chamber geometry, chamber motion/update, chamber-local telemetry inputs, quality reset, and disposal
+- [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now owns lasting hero meshes/materials, build, update/mutation, color and form routing, quality reset, telemetry inputs, and disposal
+- [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) now owns cross-system chamber/world authority judgment, frame hierarchy scoring, composition safety scoring, and post-render overbright refresh
+- [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) and [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) now consume a typed authority snapshot instead of scene-local chamber/world heuristics
+- some `systems/**` and `governors/**` files are only re-export shims
+- the real code hotspots still live across the scene file, `modules/**`, and `rigs/**`
+
+## Current Biggest Blocking Extraction
+
+The single highest-leverage blocking extraction is now:
+
+- the next structural owner after proof should be `PostSystem`, because chamber/world authority handoff is no longer scene-local math and later consequence/compositor work is now the clearer architecture bottleneck
+
+Until that happens:
+
+- visual lanes are safer than before, but post/compositor/memory still lack honest runtime homes
+- chamber/world authority needs fresh live proof before it is trusted as stable rather than newly extracted
+- alternate hero species are no longer blocked by update ownership, but still need explicit capability proof
+- consequence, compositor, and memory risk landing as add-ons instead of owned systems
+- future agents can overestimate extraction progress if they read folder names instead of real owners
+
+## Area Scoreboard
+
+### Hero
+
+- ownership status: `owned-system`
+- current runtime owner:
+  - [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) for hero meshes/materials, build, update/mutation, color handoff, form choreography, quality reset, telemetry inputs, and disposal
+- still lives in `ObsidianBloomScene.ts`:
+  - hero update context assembly
+  - read-only hero root attachment and palette access for event systems
+  - scene-level telemetry aggregation
+- next extraction target:
+  - no further ownership extraction before chamber/world authority handoff; next hero work should be capability proof
+- owner lane:
+  - `Hero Ecology`
+- blocker:
+  - runtime ownership is complete enough for safe hero capability work, but alternate hero species, quiet hero states, and hero-suppressed/world-as-hero states are still unproven
+- completion condition:
+  - met for runtime ownership: hero meshes/materials/build/update/telemetry/dispose and species mutation live in `systems/hero/*`
+
+### Chamber
+
+- ownership status: `partial-system`
+- current runtime owner:
+  - [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) for chamber rings, portal rings, chroma halos, ghost lattice, laser beams, chamber-local telemetry inputs, and disposal
+  - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) for cross-system chamber/world authority judgment derived from chamber plus world plus hero telemetry
+  - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) for chamber-linked lighting response to resolved authority
+- still lives in `ObsidianBloomScene.ts`:
+  - chamber update context assembly
+  - stable chamber access plus authority-context assembly
+  - lighting handoff orchestration
+- next extraction target:
+  - no new chamber extraction before proof; next chamber work should be proof-led authority tuning or capability growth
+- owner lane:
+  - `World Grammar / Mutation`
+- blocker:
+  - chamber geometry and authority handoff are extracted, but fresh live proof still has to show that chamber presence reads intentionally instead of decoratively
+- completion condition:
+  - chamber geometry, chamber-local telemetry, authority handoff, and supporting composition live in explicit system/governor owners and survive proof-backed capture review
+
+### World / Atmosphere / Lighting
+
+- ownership status: `partial-system`
+- current runtime owner:
+  - [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) for world sphere, stain/flash planes, fog, atmosphere layers, and world telemetry
+  - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) for whole-frame world/chamber/hero authority judgment
+  - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) and [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) for authority-driven supporting world subsystems
+- still lives in `ObsidianBloomScene.ts`:
+  - world update context assembly and final telemetry aggregation
+- next extraction target:
+  - after proof, either iterate authority-driven composition again if captures still read weakly, or move to `PostSystem`
+- owner lane:
+  - `World Grammar / Mutation`
+- blocker:
+  - world authority is no longer scene-local math, but it still needs fresh no-touch proof and the supporting lighting/particle owners still sit behind `modules/**` plus namespace surfaces
+- completion condition:
+  - world authority, supporting lighting/particles composition, and takeover telemetry are owned outside the scene and proven by fresh captures
+
+### Post / Consequence / Aftermath
+
+- ownership status: `partial-system`
+- current runtime owner:
+  - distributed between scene/runtime logic and render policy
+- still lives in `ObsidianBloomScene.ts`:
+  - some consequence timing
+  - aftermath look state
+  - residue choices that should be system-owned
+- next extraction target:
+  - dedicated `PostSystem`
+- owner lane:
+  - `Consequence / Aftermath / Post`
+- blocker:
+  - consequence legality and lasting post ownership are still split across scene and runtime layers
+- completion condition:
+  - consequence/aftermath families own their own context, telemetry inputs, and disposal
+
+### Motion / Camera / Macro Event Support
+
+- ownership status: `partial-system`
+- current runtime owner:
+  - runtime rigs plus remaining scene ownership
+- still lives in `ObsidianBloomScene.ts`:
+  - camera phrase coupling
+  - some motion/event routing that should eventually become clearer system ownership
+- next extraction target:
+  - keep shrinking scene-local camera/event logic into motion/event system owners
+- owner lane:
+  - `Lighting / Cinematography`
+- blocker:
+  - camera phrase behavior is still entangled with legacy motion code paths even though runtime sequencing is now explicit
+- completion condition:
+  - camera and spatial phrase behavior are system-owned and testable
+
+### Particles / Fields
+
+- ownership status: `partial-system`
+- current runtime owner:
+  - [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) via namespace surface at [src/scene/systems/world/ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/ParticleSystem.ts)
+- still lives in `ObsidianBloomScene.ts`:
+  - role selection and some field intent coupling
+- next extraction target:
+  - expand particle ownership from presence to explicit role families
+- owner lane:
+  - `Particles / Fields`
+- blocker:
+  - particle roles are not yet explicit enough for analyzer coverage or graduation
+- completion condition:
+  - field roles, behaviors, and telemetry inputs are system-owned and declared in the anthology catalog
+
+### Compositor
+
+- ownership status: `legacy-monolith`
+- current runtime owner:
+  - no dedicated runtime owner yet
+- still lives in `ObsidianBloomScene.ts`:
+  - no lasting compositor family should land here, but screen-space consequence is still effectively scene-owned
+- next extraction target:
+  - `CompositorSystem`
+- owner lane:
+  - `Mixed Media / Compositor / Content`
+- blocker:
+  - there is no real home yet for masks, mixed-media layers, or localized screen-space operations
+- completion condition:
+  - compositor families and asset-backed masks live in `systems/compositor/*`
+
+### Memory
+
+- ownership status: `legacy-monolith`
+- current runtime owner:
+  - no dedicated runtime owner yet
+- still lives in `ObsidianBloomScene.ts`:
+  - only incidental residues and scene-local persistence; no true memory owner
+- next extraction target:
+  - `MemorySystem`
+- owner lane:
+  - `Motif / Memory`
+- blocker:
+  - no real runtime owner yet for motif recall, scar persistence, or recurrence bias
+- completion condition:
+  - memory families operate through `systems/memory/*` with explicit recurrence policy
+
+### Content / Asset Packs
+
+- ownership status: `legacy-monolith`
+- current runtime owner:
+  - no dedicated runtime owner yet
+- still lives in `ObsidianBloomScene.ts`:
+  - not as a formal content system yet, which is exactly the gap
+- next extraction target:
+  - `ContentSystem`
+- owner lane:
+  - `Mixed Media / Compositor / Content`
+- blocker:
+  - authored asset packs, legality metadata, and declaration ownership do not have a runtime home
+- completion condition:
+  - content packs and legality metadata live in `systems/content/*`
+
+## Parallel Work Safety Rule
+
+Parallel repertoire work becomes much safer when:
+
+- chamber/world authority handoff is extracted and proven
+- post/compositor/memory have real owners
+
+Until then, treat any new lasting family added to the scene monolith as debt, not progress.
+
+## Start-Right Execution Order
+
+Before wider anthology work, use this order:
+
+1. keep this scoreboard honest when a file is only a facade or shim
+2. move runtime sequencing out of [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) instead of only renaming homes around it
+3. prove the new chamber/world authority split with live sanity plus no-touch capture review before declaring it stable
+4. only then treat post, compositor, memory, and content extraction as the next safe structural work

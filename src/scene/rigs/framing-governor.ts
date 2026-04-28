@@ -413,17 +413,21 @@ function chooseShotClass(
   const neonStageFloor = context.tuning?.neonStageFloor ?? 0;
   const canReadWorldTakeover =
     eventScale !== 'micro' &&
-    chamberPresence >= 0.34 &&
-    worldDominanceDelivered >= 0.28;
+    chamberPresence >= 0.3 &&
+    worldDominanceDelivered >= 0.24;
   const canBootstrapWorldTakeover =
     eventScale !== 'micro' &&
-    ((adaptiveMusicFloor || quietRoomFloor) &&
-      (worldAuthority >= 0.46 ||
-        spectacleAuthority >= 0.54 ||
-        framingAuthority >= 0.58 ||
-        context.cuePlan.stageWeight >= 0.36 ||
-        worldBootFloor >= 0.16 ||
-        neonStageFloor >= 0.14));
+    (((adaptiveMusicFloor || quietRoomFloor) &&
+      (worldAuthority >= 0.42 ||
+        spectacleAuthority >= 0.5 ||
+        framingAuthority >= 0.54 ||
+        context.cuePlan.stageWeight >= 0.32 ||
+        worldBootFloor >= 0.12 ||
+        neonStageFloor >= 0.1)) ||
+      ((cuePlan.dominance === 'chamber' || cuePlan.dominance === 'world') &&
+        (worldAuthority >= 0.5 ||
+          spectacleAuthority >= 0.56 ||
+          cuePlan.stageWeight >= 0.4)));
   const canDeliverWorldTakeover = canReadWorldTakeover || canBootstrapWorldTakeover;
 
   if (cuePlan.family === 'reset') {
@@ -519,9 +523,11 @@ function chooseShotClass(
   }
 
   if (cuePlan.dominance === 'chamber' || ringAuthority === 'event-platform') {
-    return eventScale === 'stage' &&
+    return (eventScale === 'stage' &&
       cuePlan.worldMode === 'cathedral-rise' &&
-      cuePlan.spendProfile === 'peak'
+      cuePlan.spendProfile === 'peak') ||
+      (canDeliverWorldTakeover &&
+        (cuePlan.stageWeight > 0.5 || worldAuthority > 0.58))
       ? 'worldTakeover'
       : eventScale !== 'micro'
         ? 'pressure'
@@ -806,8 +812,8 @@ function chooseHeroEnvelope(
   }
 
   if (cuePlan.family === 'gather') {
-    heroEnvelope.coverageMax = clamp01(Math.max(heroEnvelope.coverageMax, eventScale === 'stage' ? 0.3 : 0.26));
-    heroEnvelope.offCenterMax = clamp01(Math.max(heroEnvelope.offCenterMax, eventScale === 'stage' ? 0.3 : 0.26));
+    heroEnvelope.coverageMax = clamp01(Math.max(heroEnvelope.coverageMax, eventScale === 'stage' ? 0.34 : 0.34));
+    heroEnvelope.offCenterMax = clamp01(Math.max(heroEnvelope.offCenterMax, eventScale === 'stage' ? 0.32 : 0.3));
     heroEnvelope.depthMax = clamp01(Math.max(heroEnvelope.depthMax, 0.2));
     heroEnvelope.driftAllowance = clamp01(Math.max(heroEnvelope.driftAllowance, eventScale === 'stage' ? 0.3 : 0.24));
     heroEnvelope.scaleCeiling = clampRange(heroEnvelope.scaleCeiling + 0.02, 0.5, 1.06);

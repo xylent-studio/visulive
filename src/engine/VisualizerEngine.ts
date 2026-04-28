@@ -4,20 +4,20 @@ import RenderPipelineImpl from 'three/src/renderers/common/RenderPipeline.js';
 import { pass, uniform } from 'three/tsl';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { afterImage } from 'three/addons/tsl/display/AfterImageNode.js';
+import { createSceneRuntime as defaultCreateSceneRuntime } from '../scene/createSceneRuntime';
 import type { ListeningFrame } from '../types/audio';
+import type {
+  SceneQualityProfile,
+  VisualizerSceneFactory,
+  VisualizerSceneRuntime
+} from '../scene/runtime';
+import type { QualityTier, RendererBackend } from '../types/rendering';
 import type { RuntimeTuning } from '../types/tuning';
-import {
-  ObsidianBloomScene,
-  type SceneQualityProfile
-} from '../scene/ObsidianBloomScene';
 import {
   DEFAULT_VISUAL_TELEMETRY,
   type AtmosphereMatterState,
   type VisualTelemetryFrame
 } from '../types/visual';
-
-export type RendererBackend = 'webgpu' | 'webgl2-fallback' | 'unavailable';
-export type QualityTier = 'safe' | 'balanced' | 'premium';
 
 export type RendererDiagnostics = {
   backend: RendererBackend;
@@ -83,11 +83,16 @@ const QUALITY_PROFILES: Record<QualityTier, SceneQualityProfile & { dprCap: numb
 
 const POINTER_INTERACTION_ENABLED = false;
 
+export type VisualizerEngineOptions = {
+  createSceneRuntime?: VisualizerSceneFactory;
+};
+
 export class VisualizerEngine {
   private readonly canvas: HTMLCanvasElement;
   private readonly getFrame: () => ListeningFrame;
+  private readonly createSceneRuntime: VisualizerSceneFactory;
   private renderer: WebGPURenderer | null = null;
-  private sceneRuntime: ObsidianBloomScene | null = null;
+  private sceneRuntime: VisualizerSceneRuntime | null = null;
   private renderPipeline: RenderPipelineLike | null = null;
   private scenePass: ReturnType<typeof pass> | null = null;
   private bloomPass: ReturnType<typeof bloom> | null = null;
@@ -120,10 +125,13 @@ export class VisualizerEngine {
 
   constructor(
     canvas: HTMLCanvasElement,
-    getFrame: () => ListeningFrame
+    getFrame: () => ListeningFrame,
+    options: VisualizerEngineOptions = {}
   ) {
     this.canvas = canvas;
     this.getFrame = getFrame;
+    this.createSceneRuntime =
+      options.createSceneRuntime ?? defaultCreateSceneRuntime;
   }
 
   async start(): Promise<RendererDiagnostics> {
@@ -159,7 +167,7 @@ export class VisualizerEngine {
     this.setRendererExposure(this.toneMappingExposure);
 
     this.qualityTier = this.chooseInitialQualityTier();
-    this.sceneRuntime = new ObsidianBloomScene(QUALITY_PROFILES[this.qualityTier]);
+    this.sceneRuntime = this.createSceneRuntime(QUALITY_PROFILES[this.qualityTier]);
     if (this.tuning) {
       this.sceneRuntime.setTuning(this.tuning);
     }
@@ -175,7 +183,7 @@ export class VisualizerEngine {
     const composedSceneNode = (scenePassColor as unknown as {
       add(value: unknown): unknown;
     }).add(bloomTextureNode);
-    this.afterImageDampNode = uniform(0.78) as unknown as { value: number };
+    this.afterImageDampNode = uniform(0.72) as unknown as { value: number };
     this.afterImagePass = afterImage(
       composedSceneNode as never,
       this.afterImageDampNode as never
@@ -461,14 +469,14 @@ export class VisualizerEngine {
         residue * 0.01 +
         structureReveal * 0.048,
       afterImageBias:
-        gas * 0.062 +
-        liquid * 0.024 +
-        plasma * -0.02 +
-        crystal * 0.036 +
-        pressure * 0.016 -
-        ionization * 0.026 +
-        residue * 0.086 +
-        structureReveal * 0.03,
+        gas * 0.028 +
+        liquid * 0.012 +
+        plasma * -0.028 +
+        crystal * 0.018 +
+        pressure * 0.008 -
+        ionization * 0.03 +
+        residue * 0.048 +
+        structureReveal * 0.012,
       bloomMixRate: THREE.MathUtils.clamp(
         2.5 +
           gas * -0.25 +
@@ -551,6 +559,17 @@ export class VisualizerEngine {
       0,
       1.8
     );
+    const authorityOverbrightFeedback = THREE.MathUtils.clamp(
+      sceneTelemetry.overbright ?? 0,
+      0,
+      1.4
+    );
+    const ringOverdrawPressure = THREE.MathUtils.clamp(
+      Math.max(0, (sceneTelemetry.ringBeltPersistence ?? 0) - 0.28) * 1.2 +
+        Math.max(0, (sceneTelemetry.ringAuthority ?? 0) - 0.96) * 0.28,
+      0,
+      1
+    );
     const screenExposureBias =
       (screenEffectFamily === 'stain' ? 0.016 : 0) +
       (screenEffectFamily === 'wipe' ? 0.012 : 0) +
@@ -575,9 +594,11 @@ export class VisualizerEngine {
         structuralContrast * 0.08 +
         atmospherePostProfile.plasma * 0.012 -
         atmospherePostProfile.pressure * 0.018 -
-        atmospherePostProfile.structureReveal * 0.01,
+        atmospherePostProfile.structureReveal * 0.01 -
+        authorityOverbrightFeedback * 0.08 -
+        ringOverdrawPressure * 0.025,
       exposureFloor + 0.06,
-      0.98
+      0.94
     );
     const targetExposure = THREE.MathUtils.clamp(
       0.69 +
@@ -589,7 +610,9 @@ export class VisualizerEngine {
         frame.releaseTail * 0.024 -
         frame.ambienceConfidence * 0.04 -
         additivePressure * (0.05 + washoutSuppression * 0.08) -
-        washoutSuppression * 0.04 +
+        washoutSuppression * 0.04 -
+        authorityOverbrightFeedback * 0.12 -
+        ringOverdrawPressure * 0.035 +
         prismaticLift * 0.03 -
         structuralContrast * 0.06 +
         screenExposureBias +
@@ -661,8 +684,21 @@ export class VisualizerEngine {
       0,
       1.8
     );
+    const authorityOverbrightFeedback = THREE.MathUtils.clamp(
+      sceneTelemetry.overbright ?? 0,
+      0,
+      1.4
+    );
+    const ringOverdrawPressure = THREE.MathUtils.clamp(
+      Math.max(0, (sceneTelemetry.ringBeltPersistence ?? 0) - 0.28) * 1.2 +
+        Math.max(0, (sceneTelemetry.ringAuthority ?? 0) - 0.96) * 0.28,
+      0,
+      1
+    );
     const suppression =
-      washoutSuppression * (0.24 + additivePressure * 0.32 + peakSpend * 0.08);
+      washoutSuppression * (0.24 + additivePressure * 0.32 + peakSpend * 0.08) +
+      authorityOverbrightFeedback * 0.34 +
+      ringOverdrawPressure * 0.14;
     const bloomFamilyLift =
       (screenEffectFamily === 'residue' ? 0.12 : 0) +
       (screenEffectFamily === 'stain' ? 0.16 : 0) +
@@ -680,7 +716,9 @@ export class VisualizerEngine {
         frame.releaseTail * 0.06 +
         sceneTelemetry.temporalWindows.beatStrike * 0.1 +
         sceneTelemetry.temporalWindows.phraseResolve * 0.14 -
-        suppression * 0.72 +
+        suppression * 0.72 -
+        authorityOverbrightFeedback * 0.18 -
+        ringOverdrawPressure * 0.08 +
         prismaticLift * 0.12 -
         structuralContrast * 0.18 +
         bloomFamilyLift * (0.28 + screenEffectIntensity * 0.42) +
@@ -699,7 +737,8 @@ export class VisualizerEngine {
         prismaticLift * 0.04 -
         structuralContrast * 0.04 +
         screenEffectIntensity * 0.04 -
-        suppression * 0.06 +
+        suppression * 0.06 -
+        ringOverdrawPressure * 0.035 +
         atmospherePostProfile.bloomRadiusBias,
       0.1,
       0.3
@@ -712,6 +751,8 @@ export class VisualizerEngine {
         sceneTelemetry.ambientGlowBudget * 0.04 +
         frame.ambienceConfidence * 0.04 +
         suppression * 0.14 +
+        authorityOverbrightFeedback * 0.08 +
+        ringOverdrawPressure * 0.04 +
         structuralContrast * 0.08 -
         prismaticLift * 0.04 +
         carveBias * 0.08 +
@@ -774,26 +815,26 @@ export class VisualizerEngine {
       carveBias * 0.06 -
       (screenEffectFamily === 'carve' ? 0.04 : 0);
     const targetDamp = THREE.MathUtils.clamp(
-      0.72 +
-        residueWeight * 0.16 +
-        screenWeight * 0.04 +
-        frame.releaseTail * 0.05 +
-        sceneTelemetry.temporalWindows.phraseResolve * 0.04 +
-        (compositorMode === 'afterimage' ? 0.03 : 0) +
-        (compositorMode === 'scar' ? 0.02 : 0) +
-        (residueMode === 'ghost' ? 0.03 : 0) +
-        (residueMode === 'afterglow' ? 0.02 : 0) +
-        (residueMode === 'clear' ? -0.05 : 0) +
-        (cueClass === 'haunt' ? 0.03 : 0) +
-        (cueClass === 'afterglow' ? 0.02 : 0) -
-        frame.dropImpact * 0.02 +
+      0.66 +
+        residueWeight * 0.12 +
+        screenWeight * 0.03 +
+        frame.releaseTail * 0.04 +
+        sceneTelemetry.temporalWindows.phraseResolve * 0.03 +
+        (compositorMode === 'afterimage' ? 0.02 : 0) +
+        (compositorMode === 'scar' ? 0.01 : 0) +
+        (residueMode === 'ghost' ? 0.02 : 0) +
+        (residueMode === 'afterglow' ? 0.01 : 0) +
+        (residueMode === 'clear' ? -0.06 : 0) +
+        (cueClass === 'haunt' ? 0.02 : 0) +
+        (cueClass === 'afterglow' ? 0.01 : 0) -
+        frame.dropImpact * 0.03 +
         washoutSuppression * 0.02 +
-        prismaticLift * 0.02 +
-        structuralContrast * 0.04 +
-        screenPersistenceLift * (0.4 + screenEffectIntensity * 0.5) +
+        prismaticLift * 0.01 +
+        structuralContrast * 0.02 +
+        screenPersistenceLift * (0.26 + screenEffectIntensity * 0.34) +
         atmospherePostProfile.afterImageBias,
-      0.72,
-      0.94
+      0.64,
+      0.9
     );
     const mix = 1 - Math.exp(-deltaSeconds * atmospherePostProfile.afterImageMixRate);
 

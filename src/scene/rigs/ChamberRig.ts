@@ -1,11 +1,13 @@
+import type { SceneQualityProfile } from '../runtime';
+import type {
+  ChamberSystem,
+  ChamberSystemTelemetry
+} from '../systems/chamber/ChamberSystem';
 import type { StageIdleContext } from './types';
 
 export type ChamberRigBindings = {
-  build: () => void;
-  updateWorld: (context: StageIdleContext) => void;
-  updateChamber: (context: StageIdleContext) => void;
-  updateLights: (elapsedSeconds: number) => void;
-  dispose?: () => void;
+  system: ChamberSystem;
+  updateLights: (context: StageIdleContext) => void;
 };
 
 export class ChamberRig {
@@ -16,19 +18,22 @@ export class ChamberRig {
   }
 
   build(): void {
-    this.bindings.build();
+    this.bindings.system.build();
   }
 
-  updateStage(context: StageIdleContext): void {
-    this.bindings.updateWorld(context);
-    this.bindings.updateChamber(context);
+  applyQualityProfile(profile: SceneQualityProfile): void {
+    this.bindings.system.applyQualityProfile(profile);
   }
 
-  updateLighting(elapsedSeconds: number): void {
-    this.bindings.updateLights(elapsedSeconds);
+  collectTelemetryInputs(): ChamberSystemTelemetry {
+    return this.bindings.system.collectTelemetryInputs();
+  }
+
+  updateLighting(context: StageIdleContext): void {
+    this.bindings.updateLights(context);
   }
 
   dispose(): void {
-    this.bindings.dispose?.();
+    this.bindings.system.dispose();
   }
 }

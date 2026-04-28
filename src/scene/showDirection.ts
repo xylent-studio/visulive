@@ -1226,44 +1226,44 @@ export function deriveVisualCue(
   );
 
   const screenWeightByCue: Record<VisualCueState['cueClass'], number> = {
-    brood: 0.14,
-    gather: 0.28,
-    reveal: 0.52,
-    rupture: 0.78,
-    afterglow: 0.32,
-    haunt: 0.38
+    brood: 0.1,
+    gather: 0.24,
+    reveal: 0.42,
+    rupture: 0.72,
+    afterglow: 0.24,
+    haunt: 0.3
   };
   const residueWeightByCue: Record<VisualCueState['cueClass'], number> = {
-    brood: 0.08,
-    gather: 0.12,
-    reveal: 0.18,
-    rupture: 0.28,
-    afterglow: 0.52,
-    haunt: 0.72
+    brood: 0.04,
+    gather: 0.08,
+    reveal: 0.12,
+    rupture: 0.22,
+    afterglow: 0.48,
+    haunt: 0.56
   };
   const worldWeightByCue: Record<VisualCueState['cueClass'], number> = {
-    brood: 0.48,
-    gather: 0.7,
-    reveal: 0.74,
-    rupture: 0.84,
-    afterglow: 0.62,
-    haunt: 0.68
+    brood: 0.56,
+    gather: 0.74,
+    reveal: 0.82,
+    rupture: 0.86,
+    afterglow: 0.7,
+    haunt: 0.72
   };
   const heroWeightByCue: Record<VisualCueState['cueClass'], number> = {
-    brood: 0.7,
-    gather: 0.62,
-    reveal: 0.48,
-    rupture: 0.4,
-    afterglow: 0.42,
-    haunt: 0.34
+    brood: 0.58,
+    gather: 0.52,
+    reveal: 0.36,
+    rupture: 0.32,
+    afterglow: 0.32,
+    haunt: 0.28
   };
   const eventDensityByCue: Record<VisualCueState['cueClass'], number> = {
-    brood: 0.12,
-    gather: 0.32,
-    reveal: 0.46,
-    rupture: 0.68,
-    afterglow: 0.28,
-    haunt: 0.24
+    brood: 0.14,
+    gather: 0.28,
+    reveal: 0.38,
+    rupture: 0.6,
+    afterglow: 0.22,
+    haunt: 0.18
   };
 
   return {
@@ -1726,11 +1726,11 @@ export function deriveStageCuePlan(input: {
       };
     }
     return {
-      family: 'residue',
-      intensity: clamp01(0.12 + cueState.residueWeight * 0.24 + frame.releaseTail * 0.08),
-      directionalBias: clamp01(0.08 + cueState.screenWeight * 0.12),
-      memoryBias: clamp01(0.18 + cueState.residueWeight * 0.18),
-      carveBias: clamp01(0.08 + cueState.worldWeight * 0.1)
+      family: 'stain',
+      intensity: clamp01(0.08 + cueState.screenWeight * 0.14 + frame.releaseTail * 0.04),
+      directionalBias: clamp01(0.06 + cueState.screenWeight * 0.08),
+      memoryBias: clamp01(0.1 + cueState.residueWeight * 0.1),
+      carveBias: clamp01(0.12 + cueState.worldWeight * 0.12)
     };
   };
   const finalizePlan = (draft: StageCueDraft): StageCuePlan => {
@@ -2198,19 +2198,19 @@ export function deriveStageCuePlan(input: {
       { min: number; max: number; ringAuthority: StageCuePlan['ringAuthority'] }
     > = {
       brood: {
-        min: 0.62,
-        max: 1.22,
-        ringAuthority: 'background-scaffold'
+        min: 0.54,
+        max: 1.08,
+        ringAuthority: 'framing-architecture'
       },
       gather: {
-        min: 0.58,
-        max: 1.22,
-        ringAuthority: 'background-scaffold'
+        min: 0.5,
+        max: 1.14,
+        ringAuthority: 'framing-architecture'
       },
       reveal: {
-        min: 0.62,
-        max: 1.34,
-        ringAuthority: 'background-scaffold'
+        min: 0.48,
+        max: 1.16,
+        ringAuthority: 'framing-architecture'
       },
       rupture: {
         min: 0.4,
@@ -2218,9 +2218,9 @@ export function deriveStageCuePlan(input: {
         ringAuthority: 'event-platform'
       },
       release: {
-        min: 0.4,
-        max: 1.02,
-        ringAuthority: 'background-scaffold'
+        min: 0.34,
+        max: 0.94,
+        ringAuthority: 'framing-architecture'
       },
       haunt: {
         min: 0.24,
@@ -3072,27 +3072,30 @@ export function deriveStageCuePlan(input: {
 
   return finalizePlan({
     family: 'brood',
-    dominance: lowEnergyRoam ? 'hybrid' : 'hero',
+    dominance: lowEnergyRoam ? 'chamber' : 'hybrid',
     ...buildSpendTuning('brood'),
-    worldMode: lowEnergyRoam ? 'field-bloom' : 'hold',
+    worldMode:
+      lowEnergyRoam || cueState.worldWeight > 0.56 || operatorBias.worldBoot > 0.16
+        ? 'field-bloom'
+        : 'hold',
     compositorMode: lowEnergyRoam ? 'precharge' : 'none',
-    residueMode: lowEnergyRoam ? 'short' : 'none',
+    residueMode: 'none',
     transformIntent: 'hold',
-    stageWeight: clamp01(0.4 + cueState.intensity * 0.14 + adaptiveEarnedFloor * 0.14),
-    chamberWeight: clamp01(0.56 + cueState.worldWeight * 0.12 + operatorBias.worldBoot * 0.16),
-    heroWeight: clamp01(0.66 + cueState.heroWeight * 0.12),
-    worldWeight: clamp01(0.64 + cueState.worldWeight * 0.12 + operatorBias.worldBoot * 0.14),
-    screenWeight: clamp01(0.24 + cueState.screenWeight * 0.12 + operatorBias.neonStage * 0.14),
-    residueWeight: clamp01(0.08 + cueState.residueWeight * 0.1),
-    eventDensity: clamp01(0.2 + cueState.eventDensity * 0.16),
+    stageWeight: clamp01(0.44 + cueState.intensity * 0.14 + adaptiveEarnedFloor * 0.16),
+    chamberWeight: clamp01(0.64 + cueState.worldWeight * 0.14 + operatorBias.worldBoot * 0.18),
+    heroWeight: clamp01(0.54 + cueState.heroWeight * 0.08),
+    worldWeight: clamp01(0.72 + cueState.worldWeight * 0.12 + operatorBias.worldBoot * 0.16),
+    screenWeight: clamp01(0.18 + cueState.screenWeight * 0.08 + operatorBias.neonStage * 0.12),
+    residueWeight: clamp01(0.04 + cueState.residueWeight * 0.06),
+    eventDensity: clamp01(0.18 + cueState.eventDensity * 0.14),
     subtractiveAmount: 0.08,
     wipeAmount: lowEnergyRoam ? 0.04 : 0,
     flashAmount: 0.02,
-    heroScaleBias: 0.18,
-    heroStageX: clampSigned(actAnchor.x * 0.92 + (lowEnergyRoam ? 0.08 : 0.02)),
-    heroStageY: clampSigned(actAnchor.y * 0.64 + (lowEnergyRoam ? 0.04 : 0)),
-    heroDepthBias: 0.24,
-    heroMotionBias: 0.72,
-    heroMorphBias: 0.7
+    heroScaleBias: 0.06,
+    heroStageX: clampSigned(actAnchor.x * 1.04 + (lowEnergyRoam ? 0.14 : 0.08)),
+    heroStageY: clampSigned(actAnchor.y * 0.68 + 0.02),
+    heroDepthBias: 0.14,
+    heroMotionBias: 0.64,
+    heroMorphBias: 0.58
   });
 }

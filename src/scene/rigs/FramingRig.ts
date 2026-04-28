@@ -15,8 +15,6 @@ import {
 } from './framing-governor';
 
 export type FramingRigBindings = {
-  build?: () => void;
-  updateStageFrame: (context: StageIdleContext) => void;
   updateCamera: (context: EventFrameContext) => void;
   updateCompositionPlan?: (plan: StageCompositionPlan) => void;
   dispose?: () => void;
@@ -66,7 +64,6 @@ export class FramingRig {
   }
 
   build(): void {
-    this.bindings.build?.();
     this.bindings.updateCompositionPlan?.(this.snapshot.plan);
   }
 
@@ -122,13 +119,11 @@ export class FramingRig {
     return cloneStageCompositionTelemetry(this.snapshot.telemetry);
   }
 
-  updateStage(context: StageIdleContext): StageCompositionPlan {
-    const plan = this.updatePlan(context);
-    this.bindings.updateStageFrame(context);
-    return plan;
+  updateCamera(context: EventFrameContext): StageCompositionPlan {
+    return this.applyCamera(context);
   }
 
-  updateCamera(context: EventFrameContext): StageCompositionPlan {
+  applyCamera(context: EventFrameContext): StageCompositionPlan {
     this.bindings.updateCamera(context);
     return this.getPlan();
   }

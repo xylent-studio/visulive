@@ -1,380 +1,251 @@
 # VisuLive Agent Workstreams
 
-Date: 2026-04-15  
+Date: 2026-04-22
 Status: Active specialist workstream map
 
-This document defines how to break VisuLive into specialist agent lanes without losing coherence.
+This document defines how to split VisuLive work now that the project is aiming at an anthology engine rather than a single fixed image grammar.
 
-It exists because the project has reached the point where:
-- taste alone is not enough
-- more undifferentiated iteration will create collisions
-- the current bottlenecks are different enough that one generic agent loop is no longer the best structure
+The rule is:
 
-## Why Specialization Now
+- one public portal
+- one simple `Start Show` path
+- one optional `Advanced` layer
+- many internal anthology families under active development
 
-Current blockers are specific:
-- the hero still needs a stronger electric and emissive identity
-- the world, chamber, and lighting stack still need more deliberate scale consequence
-- motion and choreography need stronger bar and phrase authorship
-- conductor certainty still needs to catch up to the show behavior we want
-- the evidence loop must stay trustworthy
-- the app's real live target is still `webgpu / safe`
-- framing governance must become strong enough to stop bad shots before they dominate the benchmark
-- composition telemetry must be able to judge declared-vs-delivered chamber/world authority
-- the current AFQR benchmark is aftermath-locked, with haunt/ghost-afterimage monopolizing the run and the hero staying too tiny and too center-bound
+Specialization is how that ambition stays coherent.
 
-That means the best next structure is not "more brainstorming."
-It is a specialist operating model with clear ownership, handoffs, and acceptance rules.
+## Anthology Operating Rule
 
-## Current Next-Level Wave
+Future specialists should optimize for:
 
-The active wave is 6DoF locomotion, act/family palette holds, and screen-space consequence.
+- deeper internal repertoire
+- stronger autonomous no-touch quality
+- explicit graduation from `lab` to `frontier` to `flagship`
 
-It is docs-led and handoff-heavy so the next context reset still knows what the wave was trying to do.
+They should not optimize for:
 
-Wave sequence:
+- front-door complexity
+- more public controls by default
+- new lasting families landing in the monolith
 
-1. evidence baseline
-2. show direction / color
-3. motion / locomotion / camera
-4. compositor / safe-tier consequence
-5. evidence rerun
-6. canon update
+Use [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md) as the capability scoreboard.
+Use [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the structural blocker scoreboard.
+Use [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md) as the advancement contract.
 
-## Current Governance Wave
+## Default Specialist Roster
 
-The active wave is governance-first.
-
-That means the highest-priority specialist lanes right now are:
-
-- `Audio Conductor`
-- `Show Direction / Benchmark Steward`
-- `Framing Governor / Hero Mobility`
-- `Telemetry / Analyzer`
-- `Chamber / World Authority`
-- `Tempo / Cadence / Range Mapping`
-- `Repo Steward / Canon / Benchmark`
-
-Frontier visual mutation lanes may research in parallel, but they do not land until the governance benchmark clears.
-
-## The Right Specialist Roster
-
-### 1. Hero Render / Emissive Materials Agent
+### 1. Hero Ecology
 
 Mission:
-- make the hero read as dark matter wrapped in emitted light
-- push seam, rim, fresnel, and core behavior
-- stop the hero from collapsing back into a softly lit blob
+- build hero species, hero mutation verbs, and non-monopoly hero behavior
 
 Primary ownership:
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-
-Own specifically:
-- `buildHero()`
-- `updateHero(...)`
-- hero body, core, void, membrane, crown, edges, aura, seam, and fresnel logic
+- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) until extraction completes
+- future `systems/hero/*`
 
 Success looks like:
-- quiet frames still read as an entity, not a washed object
-- active frames read as electric structure, not just brighter fill
-- the hero no longer sits in a single purple or cyan comfort lane for too long
+- more than one hero ontology
+- quiet hero states remain legible
+- hero suppression or world-as-hero can happen without collapse
 
-Do not own:
-- bloom pipeline
-- quality tier policy
-- act selection
-
-### 2. Chamber / Environment / Lighting Agent
+### 2. World Grammar / Mutation
 
 Mission:
-- make the whole frame feel like a world
-- keep blacks valuable while still spending scale and color when the music earns it
+- make chamber and world families behave like authored grammars that can mutate with the music
 
 Primary ownership:
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-- [VisualizerEngine.ts](C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts)
-
-Own specifically:
-- world sphere
-- chamber rings
-- portal rings
-- chroma halos
-- lasers
-- fog
-- light rig
-- stain and flash planes
-- event-vs-ambient glow spend outside the hero
+- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) until extraction completes
+- future `systems/chamber/*`
+- future `systems/world/*`
 
 Success looks like:
-- the screen feels like a chamber, not a backdrop
-- the hero no longer has to carry the whole image
-- color authority survives `safe` tier
+- world-led images are common enough to feel intentional
+- mutation changes the frame, not just object styling
 
-Do not own:
-- audio thresholds
-- quick starts
-
-### 3. Motion / Choreography / Camera Agent
+### 3. Consequence / Aftermath / Post
 
 Mission:
-- make the show feel paced, weighted, and authored across beats, bars, and phrases
-- resolve motion in full space instead of one-axis wobble
+- turn post and residue into earned consequence instead of permanent treatment
 
 Primary ownership:
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
-
-Own specifically:
-- camera behavior
-- shell and world drift
-- macro-event choreography
-- family routing
-- pressure waves
-- satellites
-- shards
-- bar and phrase consequence
-- 6DoF locomotion phrasing
-- bank, roll, tumble, and precession intent
+- current post logic in scene/runtime
+- future `systems/post/*`
 
 Success looks like:
-- slow ambient passages still move with intention
-- slower shell and world behavior between beats
-- stronger before and after contrast on structural moments
-- less constant deformation
-- more meaningful widen, tighten, and release logic
-- camera roll appears only when the cue earns it
+- impact, haunt, collapse, wipe, and recovery read differently
+- aftermath remains visible without monopolizing the run
 
-Do not own:
-- palette decisions
-- renderer policy
-
-### 4. Show Direction / Act / Palette Agent
+### 4. Lighting / Cinematography
 
 Mission:
-- keep the system internally directed instead of slider-led
-- make similar musical signatures converge on similar visual acts and palette consequences
-- own palette-state logic as the canonical color-specialist lane
-- make palette holds and handoffs feel authored rather than twitchy
+- make lighting and camera equal authors instead of support layers
 
 Primary ownership:
-- [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts)
-- [visual.ts](C:/dev/GitHub/visulive/src/types/visual.ts)
-
-Own specifically:
-- `ShowAct`
-- `PaletteState`
-- temporal windows
-- act hysteresis
-- palette hold and switch logic
-- visual telemetry schema
+- current light and camera ownership in scene/runtime
+- future `systems/world/*`
+- future `systems/motion/*`
 
 Success looks like:
-- acts feel deliberate
-- palette changes feel authored rather than twitchy
-- the scene can transform without turning random
-- similar moments land in similar color families
-- slow passages can stay varied without becoming random
+- cue-linked light states
+- camera phrases that change the shot class over time
+- strong room-scale readability on `safe`
 
-Do not own:
-- raw beat and drop detection
-- bloom and exposure implementation
-
-### 5. Audio Conductor / Phrase Intelligence Agent
+### 5. Particles / Fields
 
 Mission:
-- make the visual system trust the music more intelligently
-- improve drop, section, and release certainty
+- give particle and field behavior dramatic jobs instead of ambient decoration
+
+Primary ownership:
+- current particle systems
+- future `systems/world/*`
+
+Success looks like:
+- particles can read as weather, offspring, punctuation, residue, or memory echo
+
+### 6. Mixed Media / Compositor / Content
+
+Mission:
+- build disciplined browser-native mixed-media vocabulary for consequence, masking, and memory
+
+Primary ownership:
+- future `systems/compositor/*`
+- future `systems/content/*`
+
+Success looks like:
+- mixed media feels authored, sparse, and legible
+- it strengthens the show instead of turning into collage
+
+### 7. Motif / Memory
+
+Mission:
+- make the show remember itself through motifs, scars, and altered revisitation
+
+Primary ownership:
+- future `systems/memory/*`
+- analyzer support for recurrence and memory proof
+
+Success looks like:
+- motifs recur with intent
+- scars and returns feel authored instead of repetitive
+
+### 8. Music Semantics / Conductor
+
+Mission:
+- make the show trust the music with more nuance than raw energy and raw drops
 
 Primary ownership:
 - [AudioEngine.ts](C:/dev/GitHub/visulive/src/audio/AudioEngine.ts)
 - [listeningInterpreter.ts](C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts)
 - [audio.ts](C:/dev/GitHub/visulive/src/types/audio.ts)
 
-Own specifically:
-- beat confidence
-- drop impact
-- section change
-- phrase resolve
-- performance intent
-- show-state semantics
-
 Success looks like:
-- fewer undercommitted drops
-- fewer false surge states
-- stronger section-turn consequence
-- more consistent cue timing across similar music
+- stronger regime distinction
+- better silence and sparse-music behavior
+- fewer false surges and flatter cue decisions
 
-Do not own:
-- chamber brightness
-- palette routing
-
-### 6. Evidence / Capture / Analyzer Agent
+### 9. Evidence / Proof / Analyzer
 
 Mission:
-- keep the improvement loop honest
-- make evidence useful, focused, and comparable
+- keep anthology growth honest and measurable
 
 Primary ownership:
 - [session.ts](C:/dev/GitHub/visulive/src/replay/session.ts)
 - [ReplayController.ts](C:/dev/GitHub/visulive/src/replay/ReplayController.ts)
 - [types.ts](C:/dev/GitHub/visulive/src/replay/types.ts)
-- [capture-analysis-core.mjs](C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs)
-- [analyze-captures.mjs](C:/dev/GitHub/visulive/scripts/analyze-captures.mjs)
-- [watch-captures.mjs](C:/dev/GitHub/visulive/scripts/watch-captures.mjs)
-
-Own specifically:
-- capture windows
-- quality flags
-- inbox, canonical, and archive discipline
-- report logic
-- analyzer summaries
+- analyzer and capture scripts
 
 Success looks like:
-- each capture represents one meaningful musical idea
-- analyzer outputs can actually drive retuning decisions
-- stale or corrupt evidence cannot poison the loop
+- no-touch runs are comparable
+- anthology families can be judged for coverage and graduation
+- weak evidence cannot poison the loop
 
-### 7. Operator UX / Controls / Diagnostics Agent
+### 10. Operator UX / Trust
 
 Mission:
-- make the system usable as a real instrument
-- keep the operator path simple without hiding important truth
+- keep the public portal simple while exposing useful truth behind `Advanced`
 
 Primary ownership:
 - [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx)
-- [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx)
-- [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx)
-- [DiagnosticsOverlay.tsx](C:/dev/GitHub/visulive/src/debug/DiagnosticsOverlay.tsx)
+- active UI shell files
 - [index.css](C:/dev/GitHub/visulive/src/styles/index.css)
-- [tuning.ts](C:/dev/GitHub/visulive/src/types/tuning.ts)
 
 Success looks like:
-- quick starts stay obvious
-- controls stay meaningful
-- diagnostics help instead of confuse
-- future specialists can expose or hide truth intentionally
+- startup is obvious in under 5 seconds
+- `Advanced` remains optional
+- new anthology depth does not leak into front-door clutter
 
-### 8. Renderer / Safe-Tier / Performance Agent
+### 11. Runtime / Ownership Extraction
 
 Mission:
-- make `safe` look like the intended live show, not the compromised fallback
-- make screen-space consequence survive the safe tier
+- move the show to orchestration-first runtime ownership so anthology work stops piling into one file
 
 Primary ownership:
-- [VisualizerEngine.ts](C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts)
-- [visual.ts](C:/dev/GitHub/visulive/src/types/visual.ts)
-
-Own specifically:
-- quality tiers
-- DPR policy
-- bloom and exposure defaults
-- degradation rules
-- telemetry for render quality
+- [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md)
+- scene/runtime/system extraction targets
 
 Success looks like:
-- `safe` stays vivid and premium
-- degradation cuts density first, not color authority first
-- target-machine testing no longer feels like second-class output
-- the frame still reads as a stage, not a washed fallback
-
-## Current Bottleneck-To-Agent Map
-
-Use this map when deciding what specialist to run next.
-
-- Hero still too filled, not electric enough:
-  - `Hero Render / Emissive Materials`
-- Chamber not participating enough or washing the frame:
-  - `Chamber / Environment / Lighting`
-- Motion feels samey or too literal:
-  - `Motion / Choreography / Camera`
-- Color feels too samey:
-  - `Show Direction / Act / Palette`
-- Drops, builds, and releases not landing consistently:
-  - `Audio Conductor / Phrase Intelligence`
-  - `Show Direction / Act / Palette`
-- Reports are noisy or not trustworthy:
-  - `Evidence / Capture / Analyzer`
-- Quick starts, controls, or test flow are confusing:
-  - `Operator UX / Controls / Diagnostics`
-- Target machine looks muted or compromised:
-  - `Renderer / Safe-Tier / Performance`
+- hero, chamber, world, post, compositor, and memory work have real owners
+- new families stop landing in legacy monolithic ownership
 
 ## Parallel-Safe Work Right Now
 
-These lanes can work in parallel today with low conflict risk:
-- audio conductor
-- evidence and analyzer
-- operator UX
-- renderer and safe-tier
-- show-direction contract
+These lanes are safe in parallel:
 
-These lanes are not truly parallel-safe yet because the code is still too monolithic:
-- hero render
-- chamber, environment, and lighting
-- motion, choreography, and camera
+- Music Semantics / Conductor
+- Evidence / Proof / Analyzer
+- Operator UX / Trust
+- renderer-quality policy work
+- direction-contract work
 
-All three still overlap inside [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts).
+These lanes still need explicit write ownership or sequencing:
 
-## What To Split Before Heavy Parallel Visual Work
+- Hero Ecology
+- World Grammar / Mutation
+- Lighting / Cinematography
+- Consequence / Aftermath / Post
 
-The best structural extraction is:
+The reason is unchanged:
 
-1. `hero-system`
-   - hero materials
-   - core
-   - shell
-   - crown
-   - fresnel, rims, and seams
+- too much lasting visual ownership still overlaps in [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
 
-2. `chamber-system`
-   - world
-   - rings
-   - portal and chroma halos
-   - lasers
-   - fog
-   - light rig
+## Required Shape Of A Wave
 
-3. `motion-system`
-   - camera
-   - drift
-   - macro events
-   - satellites, shards, and pressure waves
-   - family spending
+Each serious wave should specify:
 
-4. keep [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) as the direction contract
-5. keep [VisualizerEngine.ts](C:/dev/GitHub/visulive/src/engine/VisualizerEngine.ts) as the renderer contract
+- one capability family or bottleneck
+- one owning lane
+- one runtime ownership status
+- one proof target
+- one graduation target
+- one next dependency
+- one failure pattern to reduce
 
-Until that split exists, sequence visual specialists or give them explicit method ownership inside the monolith.
+Every continuation brief should also say:
 
-## Agent Handoff Rules
-
-Every specialist brief should contain:
-- one mission only
-- owned files
-- forbidden files
-- evidence to use
-- acceptance criteria
+- what family maturity changed, if any
+- what is still blocking the family
+- what the next agent should do next
 
 Use:
-- [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
 
-Good examples:
-- hero render: use live screenshots plus latest inbox report; do not edit audio or renderer policy
-- conductor: use inbox captures plus analyzer report; do not tune scene colors to hide weak cues
-- renderer: tune `safe` tier from live screenshots; do not redefine palette or act logic
+- [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
 
 ## Recommended Execution Order
 
-For the current wave, the highest-value sequence is:
+The current highest-leverage sequence is:
 
-1. `Evidence / Capture / Analyzer`
-2. `Show Direction / Act / Palette`
-3. `Motion / Choreography / Camera`
-4. `Renderer / Safe-Tier / Performance`
-5. `Chamber / Environment / Lighting`
-6. `Audio Conductor / Phrase Intelligence`
-7. `Hero Render / Emissive Materials`
-8. `Operator UX / Controls / Diagnostics`
+1. Runtime / Ownership Extraction
+2. Music Semantics / Conductor
+3. Consequence / Aftermath / Post
+4. World Grammar / Mutation
+5. Hero Ecology
+6. Lighting / Cinematography
+7. Mixed Media / Compositor / Content
+8. Motif / Memory
+9. Evidence / Proof / Analyzer
+10. Operator UX / Trust
+11. Runtime / Ownership Extraction
 
-That order is deliberate for the current wave.
-The immediate blocker is no longer "can the system look bigger."
-It is "can the system break samey motion, restore image-class diversity, and move the hero more without breaking composition safety."
+That order is deliberate.
+
+The project needs deeper repertoire, but it needs it through owned systems and proof-backed graduation, not by piling more visible options on the front of the product.

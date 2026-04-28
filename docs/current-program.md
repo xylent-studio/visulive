@@ -1,388 +1,260 @@
 # VisuLive Current Program
 
-Date: 2026-04-15
+Date: 2026-04-23
 Status: Active canonical program brief
 
-This document is the current operating brief for the repo.
+This file is the repo's active marching order.
 
-If there is any ambiguity between older phase docs, thread history, or partially outdated notes, this file is the active source of truth for:
-
-- what the product is now
-- what phase the project is in now
-- what we are doing next
-- what we are explicitly not doing next
+If thread history, older plans, or supporting docs disagree with this file, this file wins unless the code already says otherwise.
 
 ## Current Product Definition
 
-VisuLive is a big-screen generative showpiece built for Chrome on Windows that can listen to:
+VisuLive is one public portal into a browser-native anthology engine for Chrome on Windows.
+
+It listens to:
 
 - the room through the microphone
 - audio playing on the computer
 - or both at once
 
-It turns that input into a cinematic visual performance system.
+It is tuned first as a room-commanding music and atmosphere performance system, not as a tasteful reactive object.
 
-It is no longer optimized only as a tasteful audio-reactive art object.
+The current intended operating posture is:
 
-It is optimized as something that can command a room on:
+- one public `VisuLive` portal
+- one public `Start Show` path
+- explicit route choice: `PC Audio`, `Microphone`, or `Combo`
+- one optional `Advanced` drawer
+- hidden internal acts and growing internal anthology families
+- big-screen-first
+- direct computer audio as the benchmark lead path
+- room listening as a required authored floor, not a degraded side mode
+- `webgpu / safe` as the real live target tier
+- one active public release lane: `stable`
+- one future optional staging lane: `frontier`, only after the rewrite is ready for real separate-host testing
+- one preserved public legacy edition when major historical milestones need to remain runnable
 
-- a large display at home
-- a party or social setting
-- a venue or event
-- an installation or performance environment
+`stable` is the trusted public lane.
+The current rewrite also ships through `stable` because `legacy` is already isolated on its own host.
+`frontier` remains a valid anthology maturity term, but the hosted frontier lane is future infrastructure, not current ops truth.
+`legacy` is a frozen archive, not an active third product lane.
 
-The core product identity is:
-
-- dark luxury
-- cinematic
-- coherent
-- authored
-- reactive, but not merely reactive
-- capable of spectacle, but still disciplined
+The product rule is simple surface.
+The ambition rule is deep internal repertoire.
 
 ## Current Phase
 
-The project is in Governance Installation, Post-AFQR Aftermath Correction Proof, and Show-Language Expansion Prep.
+The project is now in Full-Version Rewrite Backbone / Anthology Foundation.
 
-That means the main bottleneck is no longer missing capability.
-The main bottleneck is:
+That means the main job is:
 
-- framing governance that can actually protect the image
-- composition telemetry that can judge declared-vs-delivered stage authority
-- benchmark-driven correction on AFQR before broader frontier work lands
-- maintaining the larger flagship vision while avoiding UI creep and effect spam
+- make the flagship runtime orchestration-first
+- make untouched `Start Show` compelling enough to trust
+- grow internal anthology capability without growing public clutter
+- install proof and graduation rules strong enough for long-term expansion
 
-We already have enough system depth to make the project better or worse depending on how deliberately we steer it.
+## Immediate Start-Right Gate
 
-## Current Next-Level Wave
+Before deeper anthology expansion, this branch needs an honesty pass.
 
-The next implementation wave is docs-led: 6DoF locomotion, act/family palette holds, and screen-space consequence.
+Current reality:
 
-It is meant to break the slow-track samey lock without adding a new scene family or a new public control surface.
+- the rewrite direction is coherent
+- the build/test path passes, while release verification is now intentionally blocked until fresh current proof exists
+- the runtime split now has explicit world/chamber/hero/authority/stage sequencing, but the scene remains a compatibility shell
+- the system/governor folders are still partly namespace shims
+- the public shell is improved but still carries transition debt
+- the proof surface is broad, and strict release/proof gates now need fresh evidence to clear
 
-The execution order is:
+So the immediate gate is:
 
-1. evidence baseline
-2. show-direction and color authoring
-3. motion / locomotion / camera
-4. compositor / safe-tier consequence
-5. evidence rerun
-6. canon update
+- make extraction truth honest in docs and work planning
+- reduce shell overlap until `Start Show` and `Advanced` are the only public story
+- tighten proof gates so the new scenario taxonomy is not only decorative
+- keep future anthology work from treating scaffolding as finished ownership
+
+## Mastery Spine
+
+The current program is now anchored by the mastery spine:
+
+- [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+- [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+- [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+- [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+- [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
+
+Those docs are the target-and-criteria layer for the anthology engine.
+They define the dream, family maturity, runtime blockers, advancement rules,
+and review truth that future agents must continue from.
+
+## Rewrite Backbone Outcomes
+
+This phase exists to produce:
+
+- an orchestration-first flagship runtime instead of a scene-file-first show
+- a real regime ladder from audio truth to cue class to stage intent to system-level consequence
+- low-energy, sparse-music, and silence behavior that is worth watching
+- whole-frame authority where hero, chamber, world, event layer, and residue can each lead
+- selective post and residue that feel earned instead of always-on
+- operator trust without repo knowledge
+- a public portal that stays simple while the internal anthology gets much deeper
+- a graduation model that decides when internal families are ready for `frontier` or `flagship`
+
+## Rewrite Phase Order
+
+This is the canonical phase ordering for the current program:
+
+1. anthology canon and runtime truth
+2. structural extraction to orchestration-first
+3. cue grammar and regime hierarchy
+4. audio intelligence and silence dignity
+5. first anthology repertoire
+6. consequence, post, and aftermath ownership
+7. proof, capture, and analyzer hardening
+8. operator UX and trust
+9. release, hosting, backup, and benchmarking discipline
+10. broader public expansion only after the anthology backbone clears proof
+
+Do not skip ahead by adding more visible product complexity or more frontier families into legacy ownership.
 
 ## Current Leverage Order
 
-The next implementation order is:
+The next sequence is:
 
-1. docs-led wave execution and capture baseline
-2. clean post-fix PC-audio rerun against the act/palette anti-monopoly pass
-3. quiet room-mic floor rerun against the secondary scenario benchmark
-4. source-mode adaptation and startup calibration audit
-5. chamber and world authority delivery
-6. tempo cadence and internal range mapping
-7. frontier expansion into broader internal image and transition families
-
-The evidence/review system for that order is now stricter:
-
-- every serious pass should produce three batches: AFQR primary benchmark, quiet room-floor benchmark, and one broader show-coverage batch
-- every batch should yield an analyzer report, an optional proof-still bundle, one short review note, and an explicit pass/fail verdict
-- `capture-analysis_latest.md` should still show the active benchmark read and secondary floor read even after reviewed batches are archived out of the inbox
-- no active benchmark may point at missing files
-- no learned inbox batch should remain in `captures/inbox` after its review pass; promote it deliberately or archive it deliberately
-
-That order is deliberate.
-It keeps frontier art growth from outrunning the governance layer.
+1. make the branch honest before building further on it
+   - treat [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator, but keep reducing [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) compatibility ownership
+   - treat `src/scene/systems/**` and `src/scene/governors/**` as namespace shims unless their implementation is actually there
+   - demote legacy shell files and language that still imply the old quick-start/settings product
+   - keep proof-pack and release gates strict so the expanded scenario taxonomy is actually required
+2. keep canon aligned around the anthology engine, runtime architecture, and graduation model
+   - use [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the hard continuation layer
+3. finish structural extraction until post, compositor, memory, motion/event/camera, and remaining compatibility context have owned homes
+4. formalize the audio -> regime -> cue -> stage-intent ladder so the show stops resolving everything into one answer
+5. strengthen phrase confidence, silence semantics, sparse-music behavior, and low-energy living states
+6. widen repertoire through owned systems only: hero ecology, world mutation, consequence, lighting, particles, compositor, memory
+7. rerun proof packs against the new backbone with stronger analyzer coverage
+8. keep the active public host proof-backed and deliberate, and only provision `frontier` later when a true staging lane is worth the complexity
 
 ## Current Program Priorities
 
-### Priority 1: Prove the current act/palette anti-monopoly pass on a clean PC-audio rerun
+### Priority 1: One live constitution
 
-AFQR remains the primary correction benchmark for this wave, and Wildfire is now the strongest contrast batch for judging whether the fix generalizes beyond one track.
+Stop allowing older small-scope doctrine to quietly veto the anthology-engine program.
 
-That means the next operational need is:
+Required outcome:
 
-- rerun AFQR or Wildfire with fresh captures after the chronology fix and the act/palette retune
-- judge whether `matrix-storm` and `tron-blue` still monopolize the batch
-- confirm that the framing/family improvements from the AFQR and Wildfire passes are still intact while act/palette variety broadens
-- use proof packs and analyzer reports, not memory, to decide whether the new layer is actually working
+- charter defines stable principles only
+- program, status, capability-map, and runtime-architecture docs define current truth
+- external briefs stop masquerading as canon
 
-Without this, the governance layer is still unproven.
+### Priority 2: Orchestration-first runtime
 
-### Priority 2: Prove the quiet room-mic floor benchmark separately
+The flagship scene must stop being the long-term home of lasting render ownership.
 
-The room-mic quiet-music scenario is now a required secondary benchmark, not a footnote inside AFQR.
+Required outcome:
 
-That means the next operational need is:
+- direction and policy stay separate from render ownership
+- runtime mainly assembles context, sequences systems, and aggregates telemetry
+- hero, chamber, world, event, motion, post, compositor, memory, and content families have real owners
+- facade files and namespace folders stop being mistaken for finished extraction
 
-- rerun the quiet room-mic floor with fresh captures
-- confirm the room path does not collapse quiet-but-musical input into `aftermath` / `haunt` by default
-- verify that the subject is readable, neon-authored, and mobile instead of tiny and center-pinned
-- keep this benchmark separate from AFQR so the room-floor failure cannot hide inside the AFQR verdict
+### Priority 3: Anthology capability growth
 
-Without this, the room path still lacks a reliable minimum-readable-subject floor.
+The project should add more capability, not more front-door clutter.
 
-### Priority 3: Audit source-mode adaptation and startup calibration behavior
+Required outcome:
 
-The current Wildfire room and PC-audio captures suggest the main failure is no longer basic audibility. It is source-mode convergence and floor behavior that still author too similar an answer across different inputs.
+- the anthology capability map becomes the durable long-term program
+- the mastery spine becomes the non-optional continuation layer for future agents
+- every new family has a lane owner, proof target, and graduation target
+- no family is treated as real just because it has a menu label
 
-That means the next operational need is:
+### Priority 4: Real cue hierarchy
 
-- compare room-mic and PC-audio runs for adaptive floor drift, onset sensitivity, and music-confidence posture
-- decide whether startup calibration is still required, should become optional, or should be replaced by a rolling automatic floor-learning model
-- document what startup calibration currently does, which scenarios it is meant to help, and where it is currently too static
-- keep this audit separate from chamber/show-direction tuning so we do not keep fixing scene grammar when the floor policy is the real problem
+The show must stop resolving similar musical situations into the same house style.
 
-Without this, the system will keep hiding input-policy mistakes inside visual retuning.
+Required outcome:
 
-### Priority 3A: Treat evidence and coverage debt as first-class product review
+- named cue classes with distinct frame authority
+- legality rules for motion, post, and aftermath by cue class
+- measurable coverage across acts, palettes, cues, and image classes
 
-The runtime can now serialize boot summaries, source integrity, decision reasons, input drift, proof-still metadata, asset-layer activity, and renderer stability.
+### Priority 5: Silence dignity and selective consequence
 
-That means the next operational need is:
+The show must remain alive and legible when music is sparse, uncertain, or intentionally quiet.
 
-- use `npm run benchmark:validate` before treating a batch as canonical truth
-- use `npm run benchmark:promote -- <capture-path> ...` when a capture actually becomes benchmark truth
-- read the new `Coverage debt and monopolies` section in the analyzer as a product-facing verdict, not as optional telemetry trivia
-- suppress overused lanes, revive dormant core lanes, and only then decide whether frontier expansion is truly required
+Required outcome:
 
-Without this, the project will keep mistaking “technically active” for “artistically broad enough.”
+- silence and room-floor states that still feel authored
+- fewer false surge states
+- residue, bloom, and afterimage spent intentionally instead of continuously
 
-### Priority 4: Break remaining pressure monopoly and ring-belt / wirefield flattening
+### Priority 6: Proof-backed anthology graduation
 
-The first correction waves changed the benchmark failure.
-AFQR and Wildfire are no longer mainly rupture-locked, aftermath-locked, world-takeover-locked, or vector-handoff-locked. They still flatten too often into `pressure`, dense ring-belt staging, and narrow act/palette occupancy.
+New repertoire should graduate only with evidence.
 
-That means the next operational need is:
+Required outcome:
 
-- reduce long `pressure` occupancy
-- restore stronger shot, act, and palette diversity inside active musical motion
-- widen hero travel and off-center occupancy inside framing-safe shot classes
-- reduce ring-belt persistence and wirefield overdraw so the chamber can read more clearly
-- prove that the new chamber/world and light-rig floors are actually visible in captured frames instead of only in code
+- fresh proof packs after serious structural or anthology milestones
+- stronger analyzer gates for monopoly, hierarchy, quiet-state quality, and repertoire coverage
+- no second public show or public anthology browser until the engine proves itself inside the flagship portal
 
-Without this, the system will remain semantically flatter than the music even if it is safer.
+### Priority 7: Start-right baseline honesty
 
-### Priority 5: Push chamber/world authority after governance clears
+Future work should inherit a branch that tells the truth about itself.
 
-The chamber now has to become visibly dominant, not just semantically preferred. The current pass wired chamber envelopes into the live chamber, stage-frame, world, and light-rig floors; the next need is proof plus stronger authored world delivery.
+Required outcome:
 
-That means the next operational need is:
+- docs do not overstate extraction
+- agent guidance points at the real current files and debt
+- legacy shell files are clearly marked as transition debt if they remain
+- proof tooling does not claim expanded coverage it is not yet enforcing
 
-- make chamber/world-led frames read from across a room
-- reduce persistent ring-belt and wirefield defaulting
-- prove that strong cues can spend through the space, not mostly through the hero
+## Promotion Gates
 
-Without this, the system remains too hero-responsible.
+Every serious milestone should now clear six gates:
 
-### Priority 6: Promote tempo into stage cadence truth
+- `architecture`: runtime ownership is cleaner and closer to orchestration-first
+- `truth`: benchmark pointers, build identity, proof-pack status, and release metadata are sound
+- `hierarchy`: hero, chamber, world, and residue authority are visibly governed
+- `coverage`: acts, palettes, cues, post families, and anthology families do not collapse into one answer
+- `taste`: the frame is worth watching before, during, and after the biggest hit
+- `operator trust`: a non-repo user can start, read, and recover the show correctly
 
-The system is rhythm-aware and phrase-aware, but BPM is still underused as downstream choreography truth.
+Two standing review questions also stay active:
 
-That means the next operational need is:
-
-- use BPM and tempo confidence for dwell, sweep cadence, and aftermath pacing
-- separate internal range regimes by cue family and stage family
-- avoid solving missing behavior by adding more public knobs
-
-Without this, the system can still feel synchronized without feeling truly staged.
-
-### Priority 7: Expand the show language only after governance is proven
-
-Frontier work is still the destination, but it does not land before the governance layer works.
-
-That means:
-
-- new internal image families may start as internal stage families
-- transition families, subtractive events, and color-behavior systems are all in scope
-- the current flagship grammar is a strong nucleus, not an untouchable final form
-- frontier items should only be promoted when the coverage audit still shows real debt after monopoly suppression and dormant-lane recovery
-
-### Priority 8: Keep controls curated and internalize complexity
-
-The governance wave should not create UI creep.
-
-That means:
-
-- keep public controls stable unless an internal policy truly cannot express the needed behavior
-- push complexity into shot classes, transition classes, cadence modes, and internal range regimes
-- keep the operator path feeling like an instrument, not a debug rack
-
-## Current Review Gates
-
-Every serious pass should now be judged against four gate families:
-
-- `truth`: manifest valid, source provenance coherent, capture integrity intact
-- `governance`: hero coverage, ring-belt persistence, wirefield density, composition safety, world delivery
-- `coverage`: no major monopoly and no dormant core lanes across the batch
-- `taste`: across-room authority, mid-distance chamber read, and up-close reward
-
-“Felt better” is still useful, but it is no longer sufficient on its own.
+- `repertoire`: does the show now contain multiple memorable image grammars?
+- `memory`: does the show visibly remember itself over time?
 
 ## What We Are Explicitly Not Doing Next
 
-For the next pass, we should **not**:
+Do not spend the next wave on:
 
-- add many more controls
-- add many more scene families
-- add many more event types
-- chase more shader detail for its own sake
-- keep tuning only by live room feel
-- keep evolving the product mainly through thread memory
+- preserving the old quick-start-plus-settings model as canon
+- adding static parameter controls that should really be director intent
+- adding a preset soup or undisciplined public browser
+- confusing more visible options with more ambition
+- piling new lasting families back into legacy monolithic ownership
+- treating `safe` as a lesser show
+- using the `stable` host as an experimental sandbox
 
-Those are all tempting.
-None of them are the right next move.
+## Product UX Rule
 
-## Active Workstreams
+Auto Show is the product.
 
-### Workstream A: Product and show language
+The public surface should now be:
 
-Goal:
+- `Start Show` first
+- `PC Audio`, `Microphone`, or `Combo` as the only required pre-show choice
+- `Advanced` optional for style curation, semantic steering, route repair, capture, replay, system, and diagnostics
 
-- define the authored show language clearly enough that implementation choices are governed by more than instinct
+Public controls should bias authority, motion, color, consequence, and character over time.
 
-Primary docs:
+They should not be the main way the show becomes compelling.
 
-- [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
-- [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
+Worlds, looks, stances, and pools remain real internal content architecture, but they are advanced curation now, not front-door startup concepts.
 
-### Workstream B: Controls and operator UX
+The long-term public identity is:
 
-Goal:
-
-- make the system steerable like a real performance instrument
-
-Primary doc:
-
-- [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
-
-### Workstream C: Tuning and evaluation
-
-Goal:
-
-- make tuning repeatable and evidence-based
-
-Primary docs:
-
-- [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-- [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
-
-### Workstream D: Implementation
-
-Goal:
-
-- execute the active roadmap without repo sprawl
-
-Primary truth:
-
-- [src](C:/dev/GitHub/visulive/src)
-
-## Immediate Next Sequence
-
-This is the actual path forward.
-
-### Step 1: AFQR correction proof
-
-Deliverables:
-
-- fresh AFQR recapture
-- proof-pack review
-- pass/fail read on aftermath-lock correction
-- confirmation that old batches are historical only and the active benchmark is the manifest-selected AFQR capture
-
-### Step 2: Chamber/world authority
-
-Deliverables:
-
-- chamber/world-dominant frame classes that actually read as such
-- less persistent ring-belt staging
-- stronger declared-vs-delivered world authority
-- less reliance on tiny central hero holds
-
-### Step 3: Source-mode adaptation and startup calibration audit
-
-Deliverables:
-
-- a written read on what startup calibration currently does in room-mic vs PC-audio modes
-- a decision on whether calibration should stay required, become optional, or be replaced by rolling automatic floor learning
-- explicit adaptive-floor targets for quiet room music, direct PC audio, and hybrid use
-- evidence requirements for future calibration changes so floor policy is judged separately from scene tuning
-
-### Step 4: Tempo cadence and internal range mapping
-
-Deliverables:
-
-- BPM-aware stage cadence
-- cue-family-specific internal range regimes
-- no new public controls unless blocked
-
-### Step 5: Frontier expansion
-
-Deliverables:
-
-- stronger internal image families
-- transition families
-- subtractive event vocabulary
-- broader show-language routing if the current grammar proves too narrow
-- clearer silhouette authority across acts
-
-### Step 6: Evidence-backed retuning
-
-Compare the next batch against saved captures and screenshots.
-
-Deliverables:
-
-- shorter issue list
-- explicit pass/fail notes
-- clear evidence for the next pass
-
-## Current Acceptance Standard
-
-The product is on track only if all of the following remain true:
-
-- silence is still beautiful
-- the room still matters
-- the big-screen behavior is more legible, not just bigger
-- hush and aftermath feel meaningfully different from surge
-- controls are easier to understand, not more numerous
-- the system becomes easier to tune, not more mysterious
-- the repo becomes easier to re-enter, not more dependent on thread history
-
-## Repo Structure Intent
-
-The repo should remain disciplined.
-
-### `src/`
-
-- working implementation only
-
-### `docs/`
-
-- canonical product, program, control, tuning, and status docs
-
-### `captures/`
-
-- canonical replay captures and short review artifacts
-
-### `README.md`
-
-- operator-facing entrypoint
-
-We should avoid creating extra top-level folders until they are needed by real implementation.
-
-## If Context Is Lost
-
-If someone re-enters the repo with no thread history, they should read in this order:
-
-1. [docs/README.md](C:/dev/GitHub/visulive/docs/README.md)
-2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-3. [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
-4. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-5. [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
-6. [cue-grammar.md](C:/dev/GitHub/visulive/docs/cue-grammar.md)
-7. [flagship-reference-atlas.md](C:/dev/GitHub/visulive/docs/flagship-reference-atlas.md)
-8. [reference-systems.md](C:/dev/GitHub/visulive/docs/reference-systems.md)
-9. [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
-10. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
-11. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-12. [src](C:/dev/GitHub/visulive/src)
-
-That order should be enough to recover the project cleanly.
+- one simple portal
+- one deep anthology engine behind it

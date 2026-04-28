@@ -1,410 +1,215 @@
 # VisuLive Project Status
 
-Date: 2026-04-15
+Date: 2026-04-27
 Status: Active implementation snapshot
 
-This is the repo's current status page.
+This file answers five practical questions quickly:
 
-Use it to answer five practical questions quickly:
+- what is shipped now
+- what is newly installed on this branch
+- what is canonized now even if code is still catching up
+- what is still unproven
+- what should happen next
 
-- what is already shipped
-- what is still unfinished
-- what is blocking the next quality leap
-- what should be tested next
-- what should not be worked on yet
+If this file and the code disagree, the code wins.
 
-If this file and the code disagree, the code wins. If this file and older planning docs disagree, this file is the current implementation snapshot.
+## Verification Status
 
-## Current State
+Latest local verification on `codex/full-version-foundation` before the proof-gate hardening pass:
 
-The project is in a real operator-testable state.
-
-That means:
-
-- the app runs
-- the listening engine works
-- the visual system works
-- the controls are usable
-- the docs are navigable
-- the live site now has a real manual production release path
-- the repo now has an explicit specialist-agent operating model for future parallel work
-- the next source of truth is real testing and captured evidence, not more speculative planning
-
-### Verification status
-
-Latest local verification:
-
+- `npm run anthology:validate` passes
 - `npm run check` passes
-- `82` tests pass
-- production build passes
+- `npm run test` passes
+- `npm run build` passes
+- `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
+- `npm run analyze:captures` passes
+- `npm run proof-pack -- --limit 5` renders a report, but the report currently has failed current-proof gates because no fresh post-authority evidence is attached
+- `npm run prod:smoke -- --include-http` passes
+- `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
 
 Current standing warning:
 
-- the build still reports a large `three-vendor` chunk warning
+- the build still emits a large `three-vendor` chunk warning
+
+## Start-Right Audit Snapshot
+
+The dirty branch is not random drift.
+It is one coherent rewrite wave across product shell, runtime scaffolding, proof tooling,
+and canon.
+
+But it is still transitional in four important ways:
+
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, and stage-runtime orchestration; the scene still assembles compatibility context, but chamber/world authority math no longer lives there
+- `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
+- the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
+- the proof taxonomy is broader than the scenario gate it currently enforces, so passing verification does not yet prove the whole new evidence model
+
+This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
+
+## Preserved V1 Status
+
+The preservation system for the first public VisuLive edition is now installed.
+
+That includes:
+
+- a preserved-editions ledger in [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md)
+- a tracked V1 preservation folder in [preserved-releases/v1.0.0](C:/dev/GitHub/visulive/preserved-releases/v1.0.0/README.md)
+- a live artifact capture script at [capture-netlify-site-artifact.mjs](C:/dev/GitHub/visulive/scripts/capture-netlify-site-artifact.mjs)
+- a packaging script at [prepare-preserved-release.mjs](C:/dev/GitHub/visulive/scripts/prepare-preserved-release.mjs)
+- legacy smoke-check support via `npm run prod:smoke:legacy`
+
+What is now resolved:
+
+- the exact currently deployed stable source commit for `v1.0.0`: `6f45b8a`
+- the annotated tag `v1.0.0`
+- the maintenance branch `release/v1`
+- the exact live artifact captured from production deploy `69e191a1e164309b55b6ff01`
+- the dedicated legacy Netlify site deployed at [https://visulive-v1.xylent.studio](https://visulive-v1.xylent.studio)
+- Netlify-managed TLS issued for the legacy hostname
+
+What is still pending:
+
+- historical proof-pack and screenshot recovery if the original April 2026 assets are later recovered
+
+## Immediate Next Development Wave
+
+The release and preservation baseline is now good enough to stop doing hosting cleanup and return to
+development.
+
+The next wave is:
+
+- `Proof / Authority Validation`
+
+Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
+task framing.
+
+## Canon Installed On This Branch
+
+The repo now has explicit anthology-engine canon for:
+
+- one public portal with `Start Show` and route chips
+- one optional `Advanced` drawer
+- an internal anthology-engine posture instead of one-scene-forever language
+- a published mastery spine under [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md), [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
+- a published anthology capability map under [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+- a published target runtime structure under [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md)
+- six promotion gates: `architecture`, `truth`, `hierarchy`, `coverage`, `taste`, and `operator trust`
+- a rewrite phase order that keeps broader public expansion behind proof-backed backbone work
+- a machine-readable anthology family declaration system in [anthology.ts](C:/dev/GitHub/visulive/src/scene/contracts/anthology.ts) and [anthologyCatalog.ts](C:/dev/GitHub/visulive/src/scene/direction/anthologyCatalog.ts)
+- a validator at [validate-anthology-catalog.mjs](C:/dev/GitHub/visulive/scripts/validate-anthology-catalog.mjs) wired into `npm run check`
+
+This is doc truth now.
+Code and hosting are still catching up to parts of it.
 
 ## Shipped Now
 
-### Input and listening
-
-The app now supports:
-
-- `Use Microphone`
-- `Use PC Audio`
-- `Use Both`
-
-The operator-facing quick starts now support:
-
-- `Music On This PC`
-- `Music In The Room`
-- `Big Show Hybrid`
-
-The listening stack now includes:
-
-- mic-truth reporting
-- direct PC-audio capture through Chrome share picker
-- hybrid source mode
-- semantic listening interpretation
-- conductor-level beat / phrase / drop intent
-- show-state and moment logic
-- hidden diagnostics with runtime truth
-
-### Visual and show system
-
-The current visual system now includes:
-
-- full-frame chamber/world participation
-- macro event logic
-- layered macro-event stacking
-- deterministic event spending based on musical signature instead of simple event rotation
-- an internal show-director layer that retunes color, framing, radiance, world activity, geometry, and laser drive over time with the music
-- multi-state show behavior
-- stronger drop / section camera and world consequence
-- aggressive neon / laser / psychedelic palette spend across world, chamber, hero, particles, and lights
-- laser-fan chamber architecture and giant chroma halos
-- more independent shell choreography across membrane, crown, edges, halos, and chamber rings
-- a true organic spatial-life layer across chamber, hero, shell, and camera
-- a hidden multi-act show director so the flagship can transform internally as `Void Chamber`, `Laser Bloom`, `Matrix Storm`, `Eclipse Rupture`, and `Ghost Afterimage`
-- an emissive-first hero/chamber render model so color authority comes from emitted/additive structure instead of mostly from warm/cool stage lighting
-- controlled exposure lift in the renderer so color and glow pop harder on real musical peaks without just washing the scene brighter
-- a darker ambient-vs-event glow budget so baseline luminance stays restrained and peaks spend most of the bloom
-- a stricter ambient-light retune across the world, chamber, hero, particles, and lights so the frame stays darker between events and saves its hottest spend for real hits
-- neutral tone mapping and a stronger event-biased bloom model so saturated highlights survive the render pipeline better instead of flattening into pastel ACES compression
-- a new additive hero aura layer so the main object is no longer forced to read only as a physically lit mesh
-- a cooler stage-light model so the hero is less likely to pick up beige warm/cool reflections that neutralize the neon palette
-- authored palette-state direction across sections (`void-cyan`, `tron-blue`, `acid-lime`, `solar-magenta`, `ghost-white`)
-- stronger palette authority on the hero, shell, and accent layers so the image is less likely to flatten back into one safe purple read
-- temporal motion windows between beats so shell/world behavior can gather, strike, release, float, turn, and resolve with more intention
-- a docs-led next-level wave for stage-led 6DoF motion, act/family palette holds, and screen-space consequence
-- corrected framing/camera semantics so higher composition/framing actually opens the shot instead of tightening it
-- a smaller, less frame-dominant hero baseline so the chamber can read as a world instead of a close-up object study
-- darker hero material bodies with hotter emissive edge spend so the main form reads more neon/electric and less pastel/matte
-- explicit emissive seam, rim, and fresnel layers so the main object can read more like dark matter wrapped in emitted light instead of a softly lit solid
-- overlay emissive layers that render on top intentionally instead of depth-fighting against the hero shell
-- a real WebGPU bloom pass in the render pipeline instead of exposure-only fake glow
-- untone-mapped additive neon layers so lasers, halos, stains, membrane light, and other emissive accents read hotter and more electric
-- more dominant weighted hero/core/membrane/crown palette routing so the main object is less likely to flatten into one safe purple read
-- a darker baseline glow balance so bloom, world stain, shell light, and environmental flash are spent more selectively instead of overwhelming the frame most of the time
-- a less conservative quality governor so WebGPU machines stay in richer quality tiers unless performance truly deteriorates
-- fullscreen visualization-only mode
-- room-scale framing controls
-- curated operator controls
-- pointer/cursor interaction disabled in normal runtime so the show reads as screen-led rather than mouse-steered
-- a real framing-governor layer with shot classes, transition classes, fallback rules, and composition-safety enforcement behind the scene
-- stage-composition telemetry in the live frame path, including hero coverage, off-center, depth, chamber presence, frame hierarchy, ring-belt persistence, wirefield density, and declared-vs-delivered world dominance
-- a true post-deformation hero max clamp so the planned hero ceiling is now enforced on final rendered scale instead of only on the base scalar
-- governance-aware replay/analyzer plumbing so fresh captures can be judged on composition safety instead of only cue spread, glow, and exposure
-- manifest-backed benchmark reads in reports even when the active inbox is empty, so archived truth remains visible in `capture-analysis_latest.md`
-- chamber-envelope-driven world, chamber, stage-frame, and light-rig floors so chamber authority is now spent through the actual live scene instead of staying mostly semantic
-- stronger internal range mapping behind the existing controls so `Composition`, `World Activity`, `Show Scale`, `Glow`, and color posture now bite harder without adding more public knobs
-- a brighter low-energy music floor so quiet-but-real musical input can still read as a restrained neon stage instead of collapsing into a nearly invisible dot
-
-### Controls and operator UX
-
-The current public operator model now includes:
-
-- quick starts for the three main music use cases
-- quick-start-first startup flow with manual input override kept secondary
-- curated presets: `Hush`, `Room`, `Music`, `Surge`
-- a narrower quick dock focused on first-response steering
-- `Restore Recommended` now returns the active source path to its strongest current quick-start stance
-- the runtime tuning layer now preserves extra high-end headroom instead of flattening the strongest show combinations into the same ceiling
-- deeper `Live Shaping`, `Look Shaping`, `Advanced Look Tuning`, `Input & Detection`, and `System` controls in the full menu
-- input device selection
-- input trim and band bias controls kept behind an explicit `Input Repair` path instead of front-loading them into the normal operator flow
-
-### Hosting and release operations
-
-The current maintainer-facing production path now includes:
-
-- a live public hostname at `visulive.xylent.studio`
-- Netlify as the static production host
-- Cloudflare as the DNS authority for `xylent.studio`
-- an intentional manual release flow instead of automatic deploys on every GitHub push
-- a repo runbook at [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
-
-### Tuning infrastructure
-
-The repo now includes:
-
-- replay capture and deterministic replay
-- automatic evidence capture around drops, section changes, and releases
-- wall-clock auto-capture file naming for saved evidence
-- browser-side capture folder saving through Chrome's File System Access path
-- a Windows live-loop command that starts the app and rolling capture watcher together
-- developer-side capture analysis reports generated from saved evidence
-- a rolling latest capture-analysis report watcher
-- manual capture analysis now refreshes the same `capture-analysis_latest.md` path as the watcher
-- capture analysis now separates fresh wall-clock evidence from legacy pre-fix captures so current tuning reads are less muddy
-- capture analysis now reports source-mode spread, quick-start spread, average capture duration, and oversized capture warnings
-- capture analysis now reports both launch-profile spread and active quick-start spread, so tuning can separate authored starting posture from later custom drift
-- capture analysis now separates primary benchmark reads from secondary floor reads, so AFQR and quiet room-mic evidence do not collapse into one verdict
-- benchmark manifests now carry explicit primary and secondary scenario entries with per-entry kinds
-- auto capture windows are now capped more aggressively so one file is less likely to blur multiple musical moments together
-- replay capture schema now writes `v2` evidence with boot/calibration summaries, source integrity, decision summaries, input-drift summaries, and optional proof-still metadata
-- auto capture now supports a quiet room-music `floor` trigger so low-energy room-floor proof can be collected without pretending everything important is a drop
-- diagnostics can now arm optional proof still bundles for auto-saved captures; the intended use is a few synchronized evidence stills, not screenshot streams
-- benchmark manifest validation and promotion now have explicit CLI support through `npm run benchmark:validate` and `npm run benchmark:promote -- ...`
-- the current auto-capture rules are intentionally short and strict; captures over roughly `15s` or with repeated retriggers are treated as weaker evidence
-- visual telemetry is captured alongside audio/conductor truth, including glow budgets, active act, palette state, hue spread, and temporal motion windows
-- visual telemetry now also serializes asset-layer activity and quality-transition summaries so the analyzer can judge utilization and renderer stability instead of only correctness
-- aggregate capture reports now surface explicit review-gate guidance for `truth`, `governance`, `coverage`, and `taste`, so serious passes can end in a real verdict instead of only a narrative read
-- capture metadata carries quality flags such as `manualCustom`, `safeTierActive`, `highAmbientGlow`, `lowPaletteVariation`, `undercommittedDrop`, `weakPhraseRelease`, and `multiEventWindow`
-- auto captures preserve authored quick-start provenance correctly in the live path, so new evidence no longer falls back to `manual/none` when it really came from a quick start
-- the analyzer recalculates quality flags from the capture contents instead of trusting stale serialized flags from older files
-- replay capture serialization and the analyzer now normalize wrapped pre-roll chronology around the active trigger, so timestamp resets do not collapse duration or contaminate post-trigger evidence with stale frames
-- the default active capture lifecycle is `captures/inbox` -> `captures/canonical` / `captures/archive`
-- the analyzer and watcher use `captures/inbox` by default and ignore archived history unless explicitly targeted
-- the latest report path stays truthful even when the inbox is empty by writing an explicit placeholder status instead of leaving stale evidence behind
-- folder auto-save keeps gathering evidence beyond the old 12-capture in-app ceiling; only the recent replay-ready window is trimmed in memory
+### Input and operator path
 
-## Current Constraints Still Holding Back The Vision
+The app currently ships with:
 
-- The flagship scene is still too monolithic for unconstrained parallel visual work.
-- The first structural extraction pass has started by moving asset-layer telemetry production into a dedicated telemetry rig, but hero/chamber/event ownership still needs deeper extraction before aggressive parallel visual work is safe.
-- Framing governance is now installed, and the first AFQR aftermath-lock correction wave has landed, but the correction is not benchmark-proven yet on a fresh post-fix rerun.
-- Chamber/world authority is measurable now and is finally wired into the live chamber/light floor, but it is still not proven strongly enough in fresh captures.
-- Screen-space consequence vocabulary is still underdeveloped relative to the target.
-- The slow ambient captures now make the samey lock obvious: motion, palette handoff, and screen-space consequence all need more authored spread.
-- Tempo/BPM is still underused as downstream stage-cadence truth.
-- The hero still carries too much compositional responsibility in the strongest cue families.
-- AFQR is no longer rupture-locked, aftermath-locked, portal-iris-locked, or vector-handoff-locked in the latest proof runs; the remaining high-confidence bottleneck is act/palette monopoly, with `matrix-storm` and `tron-blue` still sticking too long across strong PC-audio batches.
-- Wildfire contrast proof showed that framing/family governance improved materially, but also exposed a real wrapped-pre-roll evidence defect; that chronology bug is now fixed for future captures.
-- The quiet room-mic floor benchmark is no longer authored as a pure tiny-dot failure in code, but it still needs fresh proof to confirm that the live floor is bright, readable, and mobile enough.
+- microphone, PC audio, and combo input paths
+- `Start Show` as the front door
+- one required route choice: `PC Audio`, `Microphone`, or `Combo`
+- one unified `Advanced` drawer for style curation, steering, route repair, capture, replay, system, and diagnostics
+- world / look / stance / pool curation moved behind advanced interaction instead of the public startup path
+- route recommendations surfaced without silent route switching
 
-## What Is Still Not Done
+### Show system
 
-The following work is still genuinely unfinished.
+The product now reads as one public portal while the internal anthology grows.
 
-### 1. Canonical capture pack is not recorded yet
+Current public show count is unchanged, but the branch materially changes the internal posture:
 
-The replay system exists, but the baseline capture set is still missing.
+- untouched runs default to full-spectrum world and look pools instead of a narrowed starter set
+- runtime resolution now separates autonomous truth, advanced curation, and advanced steering
+- anthology director intent is now explicit in runtime contracts and capture metadata
+- current anthology intent names world family, mutation verb, hero species intent, consequence mode, aftermath state, lighting rig, camera phrase, motif, and memory state
 
-That means the repo still does not yet contain canonical saved sessions for:
+The internal structure is also materially scaffolded even though the public product stays simple:
 
-- silence
-- room tone
-- HVAC
-- speech
-- taps
-- clinks
-- low music
-- medium music
+- stage-frame, pressure-wave, lighting, particle, motion, macro-event, and director-state logic now have named module or rig homes
+- the public runtime vocabulary and folder layout now point toward orchestration-first ownership
+- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) still assembles cross-system context directly, but chamber/world authority judgment now lives in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) instead of scene-local math
+- `systems/**` and `governors/**` should currently be treated as API and namespace surfaces, not final proof that ownership is finished
 
-The capture lifecycle is ready for that pack now:
+### Tooling and release operations
 
-- active new evidence goes into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-- curated retained sessions should be moved into [captures/canonical](C:/dev/GitHub/visulive/captures/canonical)
-- prior learned batches are archived under [captures/archive](C:/dev/GitHub/visulive/captures/archive)
+This branch also installs:
 
-### 2. First evidence-based retuning cycle is not complete
+- app-visible build identity in the `System` section and diagnostics
+- `.nvmrc` for the repo Node version
+- `npm run proof-pack`
+- `npm run prod:smoke`
+- `npm run release:verify`
+- stricter benchmark manifest validation that rejects non-canonical benchmark paths
+- preserved-edition packaging and release-history scaffolding
 
-We have completed the first AFQR correction pass in conductor/show-direction, installed the first framing-governance layer, landed the first aftermath-lock correction pass in audio, show-direction, framing, and analyzer reporting, and now wired chamber envelopes and stronger internal range mapping into the live chamber/light floor. But the cycle is not complete until fresh AFQR and quiet room-mic floor batches are recorded and reviewed separately against those new live floors.
+### Evidence and benchmark discipline
 
-That means the next strong tuning decisions still need:
+Benchmark truth is now stricter:
 
-- fresh post-retune session captures
-- generated analysis reports from those captures
-- explicit pass/fail observations
-- consistency checks across similar musical moments
-- one or more follow-up retuning passes against those captures
+- benchmark paths must live under `captures/canonical` or `captures/archive`
+- promotion tooling rejects inbox paths
+- replay captures now serialize the autonomous shell state, curation state, steering state, and new anthology intent metadata
+- proof-pack output now reports scenario coverage, no-touch autonomy, silence dignity, world-authority delivery, and operator-trust gates
 
-The active evidence system is now stricter than the old loop:
+## Canonized But Not Implemented Yet
 
-- every serious pass should produce an analyzer report
-- proof still bundles are optional but preferred over ad hoc screenshot streams
-- benchmark pointers must validate before a pass is accepted
-- the analyzer now treats coverage debt and monopolies as product-facing review findings, not just diagnostics
+The anthology program is ahead of code in these ways:
 
-### 3. Real-world operator validation is still pending
+- the anthology runtime contracts now exist, but hero species, world mutation, compositor, and memory are still mostly intent-layer truth rather than fully delivered runtime behavior
+- the target runtime structure now includes post, compositor, memory, and content ownership, but those systems are not fully extracted yet
+- the current runtime facade and namespaced system folders are still more structural promise than finished ownership
+- the mastery review system is installed, but its first golden review set is still provisional because fresh canonical captures have not yet replaced the older report-derived stills
+- `stable` is the only active public release lane today; a separate frontier host is future staging infrastructure and is not yet provisioned in production
+- the legacy V1 preservation system is installed and live, but historical proof-pack and screenshot recovery for the original April 2026 release is still incomplete
+- build identity exists in the app today, but lane and proof-pack identity still need fuller implementation
 
-The app is ready for testing, but the repo does not yet contain the actual first operator evidence pass on the target setup.
+## Installed But Still Unproven
 
-### 4. Dependency chunk size is still large
+These changes are real, but not yet proven against a fresh post-change capture cycle:
 
-This is not blocking local use, but it is still present:
+- whether untouched full-spectrum runs materially improve repertoire instead of just adding more named metadata
+- whether the new authority-driven chamber/world takeover reads more clearly across the room
+- whether quiet room-mic music floor remains vivid, readable, and mobile
+- whether the anthology intent layer maps cleanly onto future analyzer coverage
+- whether the new architecture pass preserves live feel while the remaining flagship hotspots are extracted
+- whether the simplified shell feels truly simple instead of a re-skinned control console
 
-- `three-vendor` remains above the warning threshold during build
+## Current Structural Constraints
 
-That is a dependency-size issue, not a repo-structure issue.
+The biggest remaining constraints are still:
 
-### 5. Heavy parallel visual work is still structurally unsafe
+- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) is still too large
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) is now a real frame orchestrator, but it is not the final runtime owner until later post/compositor/memory extraction lands
+- `src/scene/systems/**` and `src/scene/governors/**` still mask the real implementation hotspots in `modules/**` and `rigs/**`
+- the remaining flagship hotspot is now proof on the new authority split plus later post/compositor ownership and hero/world capability proof
+- [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) and [director.ts](C:/dev/GitHub/visulive/src/types/director.ts) are still temporary integration hubs with too much responsibility
+- the show/audio routing stack is still flatter than the target regime hierarchy
+- proof-pack output still reflects an older capture library that predates the full anthology metadata set
+- benchmark truth is stricter now, but the full graduation workflow is not complete yet
+- legacy [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx) and [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx) still remain in the repo as shell debt even though they are no longer the active product path
 
-The specialist-agent model is documented, but the code still has one major collision hotspot:
+## Next Execution Order
 
-- [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+The next highest-leverage sequence is:
 
-That file still contains:
+1. make the baseline honest: keep docs, agent guidance, shell language, and proof expectations aligned with actual code ownership
+2. run live start/stop sanity and a fresh no-touch `PC Audio` benchmark batch on the new authority-driven chamber/world split
+3. use analyzer and proof-pack output to decide whether authority plus lighting/particle composition needs another pass or is ready to hold
+4. formalize the stronger audio-to-regime-to-cue hierarchy and stop resolving similar situations into one house answer
+5. land the first real anthology capability wave: alternate hero species, world mutation verbs, and owned consequence / aftermath behavior
+6. extract `PostSystem`, then compositor/memory/content, once the authority proof wave is stable
+7. record fresh direct-audio, room-floor, combo, sparse/silence, and operator-trust proof packs on the new backbone
+8. only provision a separate frontier host and site later, once the rewrite is ready for real staging use and the extra environment is worth the complexity
 
-- hero render
-- chamber and lighting
-- motion and choreography
-
-So future specialist visual work should still be:
-
-- sequenced
-- or split by explicit method/zone ownership
-
-until the scene is extracted into separate hero, chamber, and motion systems.
-
-### 6. Governance metrics are wired, but proof still depends on fresh captures
-
-The repo can now report:
-
-- hero coverage and off-center penalties
-- composition safety and fallback activity
-- chamber presence and frame hierarchy
-- ring-belt persistence and wirefield density
-- declared-vs-delivered world dominance
-- longest contiguous runs for state, intent, cue family, shot class, transition class, and tempo cadence mode
-- active benchmark labeling through [captures/benchmark-manifest.json](C:/dev/GitHub/visulive/captures/benchmark-manifest.json)
-
-That is enough to judge the next rerun honestly.
-
-It is not enough to claim success without new capture proof.
-
-## Known Non-Blocking Issues
-
-- Build still warns about the large `three-vendor` chunk.
-- Fresh captures are strong enough to guide tuning, but they still show repeated "surge with only moderate confidence" warnings, which means event spending is ahead of conductor certainty in too many moments.
-- The renderer is still usually operating in `webgpu / safe`, so `safe` is now treated as a real target look and not just a degraded fallback.
-- Quick starts and presets are now much clearer, but still need real operator pressure to prove the final wording and defaults.
-- The system is still capable of control overlap if pushed carelessly; `Intensity`, `Show Scale`, and `World Activity` must continue to be validated for distinctness.
-- The new deterministic event-spend layer still needs real musical proof that similar drops/builds now land consistently enough to trust.
-
-## What Should Happen Next
-
-This is the actual execution order.
-
-### Step 1
-
-Execute the docs-led next-level wave against the current evidence pack.
-
-That means:
-
-- evidence baseline
-- show-direction and color authoring
-- motion / locomotion / camera
-- compositor / safe-tier consequence
-- evidence rerun
-- canon update
-
-Judge:
-
-- motion-axis spread
-- palette handoff clarity
-- screen-space consequence
-- whether the slow-track samey lock actually loosens
-
-### Step 2
-
-Run a fresh AFQR benchmark recapture against the governance layer, aftermath-lock correction, and the new chamber/shot-diversity pass.
-
-Judge:
-
-- shot-class diversity
-- composition safety rate
-- hero coverage peaks
-- hero travel and off-center occupancy
-- chamber/world dominance delivery
-- whether laser-bloom and pressure still monopolize the run
-- whether ring-belt and wirefield persistence still flatten the image classes
-- whether the hero still spends too much time near center even when the cue wants travel
-
-### Step 3
-
-If AFQR clears the governance gates, begin the next chamber/world authority wave.
-
-That means:
-
-- stronger chamber-dominant sections
-- stronger world-takeover delivery
-- less persistent ring-belt staging
-- less hero-over-responsibility during rupture
-- less reliance on tiny central hero holds as the default readable event carrier
-
-The latest live pass already started this wave.
-The next rerun should decide whether it actually worked.
-
-### Step 4
-
-After governance is benchmark-proven, move into tempo-cadence expansion and broader internal scene/image families.
-
-Recommended path:
-
-- run `npm run dev:live-loop`
-- choose the repo [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) folder once in diagnostics
-- enable `Auto Capture`
-- enable `Auto Save To Folder`
-
-### Step 5
-
-Write short review notes for what passed, what failed, and what still felt wrong.
-
-### Step 6
-
-Run `npm run analyze:captures` and review the generated capture-analysis report.
-
-### Step 7
-
-Do the next retuning pass against those saved captures and reports, not against memory alone.
-
-### Step 8
-
-Only after the above, decide whether the next major move is:
-
-- further director retuning
-- deeper modulation/LFO architecture
-- better post stack
-- direct capture UX polish
-- or another visual-system leap
-
-## What Should Not Happen Next
-
-Do not:
-
-- add more scene families yet
-- add a large new set of controls
-- treat the current build as aesthetically finished
-- keep making big changes without captures and notes
-- let thread memory become the main project record again
-
-## Current Readiness
-
-If I were handing this to myself cold, I would call it:
-
-- ready for serious operator testing
-- ready for capture-driven tuning
-- ready for automated evidence capture plus report-driven retuning
-- not yet ready to call production-finished
-- not yet ready for heavy parallel visual specialization
-
-## Current Definition Of Success
-
-The project is properly on track if the next pass produces:
-
-- a real capture pack
-- grounded operator notes
-- a smaller, more precise retuning target list
-- no repo drift between code, docs, and actual state
-- a clearer path toward whole-frame stage authority
-- a broader show-language system that is no longer bottlenecked by aftermath monotony or hero immobility
+## Not Ready Yet
+
+Do not treat the following as complete:
+
+- a second public show
+- a public anthology browser
+- more public controls
+- frontier repertoire families piled on top of the monolith
+- automatic production deploy policy changes
+- shared-host `stable` and `frontier` behavior

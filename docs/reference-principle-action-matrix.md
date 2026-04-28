@@ -7,9 +7,9 @@ This doc converts the current reference canon into concrete lane-level actions f
 
 It is not a moodboard. It is a working map for implementation.
 
-## Current image read
+## Historical image read
 
-The current screenshots and report read as:
+The historical April 8 screenshot baseline and report read as:
 - a center-led cyan/electric hero with strong structural promise
 - chamber geometry and beam language that is moving in the right direction but still not fully dominant
 - frame-wide translucent structure that suggests stage scale, but not yet full stage authorship
@@ -48,6 +48,10 @@ Anti-copy guardrails:
 - do not let cue logic become a second audio detector
 - do not collapse all cues into one transition amount
 
+Failure pattern this lane should reduce:
+- empty novelty without consequence
+- one-house-style cue answers
+
 What this lane is still missing:
 - a few more distinct cue families that are visually separable at a distance
 - research on how much cue state should persist across phrase boundaries versus reset
@@ -70,6 +74,10 @@ Anti-copy guardrails:
 - do not turn the chamber into decorative support geometry
 - do not make every chamber change a motion increase
 - do not rely on hero brightness to make the room feel active
+
+Failure pattern this lane should reduce:
+- decorative chamber
+- hero monopoly
 
 What this lane is still missing:
 - a stronger chamber supremacy taxonomy
@@ -96,6 +104,10 @@ Anti-copy guardrails:
 - no uniform bloom fog
 - no compositor behavior that hides weak composition
 
+Failure pattern this lane should reduce:
+- fake escalation by brightness
+- permanent residue
+
 What this lane is still missing:
 - research on directional wipe language and whether it should live in scene-owned event geometry or renderer policy
 - better proof of how much residue is still readable on `webgpu / safe`
@@ -118,6 +130,10 @@ Anti-copy guardrails:
 - do not use center-lock as the default compositional habit
 - do not confuse busy peripheral motion with better framing
 - do not let detail steal the frame from silhouette
+
+Failure pattern this lane should reduce:
+- strong metadata with weak visible change
+- center-locked hero framing
 
 What this lane is still missing:
 - a simple, explicit distance-readability rubric for captures
@@ -142,6 +158,10 @@ Anti-copy guardrails:
 - do not assume expensive post is the core answer
 - do not design premium-only spectacle that collapses into flatness in safe-tier
 
+Failure pattern this lane should reduce:
+- safe tier treated like a degraded fallback
+- premium-only image design
+
 What this lane is still missing:
 - empirical thresholds for when residue stops being readable on safe-tier
 - a clearer list of which compositor ideas must be redesigned instead of merely reduced
@@ -164,6 +184,10 @@ Anti-copy guardrails:
 - do not return to soft blob lighting
 - do not let the hero monopolize every important frame
 - do not solve chamber weakness by making the hero louder
+
+Failure pattern this lane should reduce:
+- hero monopoly
+- softly lit blob regression
 
 What this lane is still missing:
 - a stronger split between hero as icon and hero as emitted structure

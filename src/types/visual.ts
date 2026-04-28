@@ -1,4 +1,4 @@
-import type { QualityTier } from '../engine/VisualizerEngine';
+import type { QualityTier } from './rendering';
 
 export type PaletteState =
   | 'void-cyan'
@@ -39,6 +39,76 @@ export type VisualCueClass =
   | 'rupture'
   | 'afterglow'
   | 'haunt';
+
+export type CueClass =
+  | 'hold'
+  | 'gather'
+  | 'tighten'
+  | 'reveal'
+  | 'orbit-widen'
+  | 'fan-sweep'
+  | 'laser-burst'
+  | 'rupture'
+  | 'collapse'
+  | 'haunt'
+  | 'residue'
+  | 'recovery';
+
+export type PerformanceRegime =
+  | 'silence-beauty'
+  | 'room-floor'
+  | 'suspense'
+  | 'gathering'
+  | 'driving'
+  | 'surge'
+  | 'aftermath';
+
+export type StageIntent =
+  | 'hero-pressure'
+  | 'chamber-pressure'
+  | 'world-takeover'
+  | 'residue-memory'
+  | 'recovery-hold'
+  | 'hybrid';
+
+export type WorldAuthorityState =
+  | 'background'
+  | 'support'
+  | 'shared'
+  | 'dominant';
+
+export type HeroAuthorityState =
+  | 'subtracted'
+  | 'support'
+  | 'shared'
+  | 'dominant';
+
+export type PostSpendIntent =
+  | 'withhold'
+  | 'trace'
+  | 'stress'
+  | 'memory'
+  | 'wipe'
+  | 'burn';
+
+export type SilenceState =
+  | 'none'
+  | 'room-floor'
+  | 'beauty'
+  | 'suspense';
+
+export type PhraseConfidence =
+  | 'uncertain'
+  | 'forming'
+  | 'confident'
+  | 'locked';
+
+export type SectionIntent =
+  | 'hold'
+  | 'turn'
+  | 'drop'
+  | 'release'
+  | 'recovery';
 
 export type VisualCueState = {
   cueClass: VisualCueClass;
@@ -326,6 +396,15 @@ export type VisualTelemetryFrame = {
   worldHue: number;
   temporalWindows: VisualTemporalWindows;
   cueClass?: VisualCueClass;
+  canonicalCueClass?: CueClass;
+  performanceRegime?: PerformanceRegime;
+  stageIntent?: StageIntent;
+  worldAuthorityState?: WorldAuthorityState;
+  heroAuthorityState?: HeroAuthorityState;
+  postSpendIntent?: PostSpendIntent;
+  silenceState?: SilenceState;
+  phraseConfidence?: PhraseConfidence;
+  sectionIntent?: SectionIntent;
   cueIntensity?: number;
   cueAttack?: number;
   cueSustain?: number;
@@ -425,6 +504,21 @@ export type VisualTelemetryFrame = {
   assetLayerActivity: VisualAssetLayerActivity;
 };
 
+export type AuthorityFrameSnapshot = {
+  worldGlowSpend: number;
+  heroGlowSpend: number;
+  shellGlowSpend: number;
+  ringAuthority: number;
+  ringBeltPersistence: number;
+  wirefieldDensityScore: number;
+  chamberPresenceScore: number;
+  worldDominanceDelivered: number;
+  frameHierarchyScore: number;
+  compositionSafetyScore: number;
+  compositionSafetyFlag: boolean;
+  overbright: number;
+};
+
 export type VisualTelemetrySummary = {
   dominantQualityTier: QualityTier | 'unknown';
   exposureMean: number;
@@ -467,6 +561,24 @@ export type VisualTelemetrySummary = {
   dominantPaletteState: PaletteState;
   stageCueFamilySpread: Record<StageCueFamily, number>;
   dominantStageCueFamily: StageCueFamily;
+  canonicalCueClassSpread?: Record<CueClass, number>;
+  dominantCanonicalCueClass?: CueClass;
+  performanceRegimeSpread?: Record<PerformanceRegime, number>;
+  dominantPerformanceRegime?: PerformanceRegime;
+  stageIntentSpread?: Record<StageIntent, number>;
+  dominantStageIntent?: StageIntent;
+  worldAuthorityStateSpread?: Record<WorldAuthorityState, number>;
+  dominantWorldAuthorityState?: WorldAuthorityState;
+  heroAuthorityStateSpread?: Record<HeroAuthorityState, number>;
+  dominantHeroAuthorityState?: HeroAuthorityState;
+  postSpendIntentSpread?: Record<PostSpendIntent, number>;
+  dominantPostSpendIntent?: PostSpendIntent;
+  silenceStateSpread?: Record<SilenceState, number>;
+  dominantSilenceState?: SilenceState;
+  phraseConfidenceSpread?: Record<PhraseConfidence, number>;
+  dominantPhraseConfidence?: PhraseConfidence;
+  sectionIntentSpread?: Record<SectionIntent, number>;
+  dominantSectionIntent?: SectionIntent;
   stageWorldModeSpread?: Record<StageWorldMode, number>;
   stageWorldModeSpreadByFamily?: Record<StageCueFamily, Record<StageWorldMode, number>>;
   dominantStageWorldMode?: StageWorldMode;
@@ -556,7 +668,14 @@ export type CaptureQualityFlag =
   | 'highAmbientGlow'
   | 'lowPaletteVariation'
   | 'undercommittedDrop'
-  | 'weakPhraseRelease';
+  | 'weakPhraseRelease'
+  | 'staleBuildIdentity'
+  | 'scenarioMismatch'
+  | 'weakWorldAuthorityDelivery'
+  | 'heroMonopolyRisk'
+  | 'ringOverdrawRisk'
+  | 'lowChamberPresence'
+  | 'missedOpportunity';
 
 export const DEFAULT_VISUAL_TEMPORAL_WINDOWS: VisualTemporalWindows = {
   preBeatLift: 0,
@@ -575,99 +694,114 @@ export const DEFAULT_VISUAL_CUE_STATE: VisualCueState = {
   decay: 0,
   screenWeight: 0,
   residueWeight: 0,
-  worldWeight: 0.5,
-  heroWeight: 0.65,
-  eventDensity: 0.12
+  worldWeight: 0.58,
+  heroWeight: 0.48,
+  eventDensity: 0.16
 };
 
 export const DEFAULT_STAGE_CUE_PLAN: StageCuePlan = {
   family: 'brood',
-  dominance: 'hero',
+  dominance: 'hybrid',
   spendProfile: 'withheld',
-  worldMode: 'hold',
+  worldMode: 'field-bloom',
   compositorMode: 'none',
   residueMode: 'none',
   transformIntent: 'hold',
-  stageWeight: 0.18,
-  chamberWeight: 0.3,
-  heroWeight: 0.7,
-  worldWeight: 0.48,
-  screenWeight: 0.08,
-  residueWeight: 0.04,
-  eventDensity: 0.12,
-  subtractiveAmount: 0.06,
+  stageWeight: 0.24,
+  chamberWeight: 0.42,
+  heroWeight: 0.52,
+  worldWeight: 0.58,
+  screenWeight: 0.1,
+  residueWeight: 0.02,
+  eventDensity: 0.16,
+  subtractiveAmount: 0.08,
   wipeAmount: 0,
   flashAmount: 0,
-  heroScaleMin: 0.34,
-  heroScaleMax: 0.82,
-  heroAnchorLane: 'center',
-  heroAnchorStrength: 0.18,
-  exposureCeiling: 0.8,
-  bloomCeiling: 0.5,
-  ringAuthority: 'background-scaffold',
-  washoutSuppression: 0.18,
-  motionPhrase: 'drift-orbit',
-  cameraPhrase: 'drift-orbit',
-  heroForm: 'orb',
-  heroAccentForm: 'diamond',
-  heroFormHoldSeconds: 4.2,
+  heroScaleMin: 0.26,
+  heroScaleMax: 0.68,
+  heroAnchorLane: 'left',
+  heroAnchorStrength: 0.08,
+  exposureCeiling: 0.78,
+  bloomCeiling: 0.42,
+  ringAuthority: 'framing-architecture',
+  washoutSuppression: 0.24,
+  motionPhrase: 'bank-rise',
+  cameraPhrase: 'bank-rise',
+  heroForm: 'prism',
+  heroAccentForm: 'shard',
+  heroFormHoldSeconds: 3.2,
   paletteTargets: {
-    'void-cyan': 0.52,
-    'tron-blue': 0.2,
-    'acid-lime': 0.08,
-    'solar-magenta': 0.12,
-    'ghost-white': 0.08
+    'void-cyan': 0.32,
+    'tron-blue': 0.22,
+    'acid-lime': 0.18,
+    'solar-magenta': 0.16,
+    'ghost-white': 0.12
   },
-  paletteHoldSeconds: 4.4,
+  paletteHoldSeconds: 3.2,
   screenEffectIntent: {
-    family: 'residue',
-    intensity: 0.1,
+    family: 'stain',
+    intensity: 0.06,
     directionalBias: 0.08,
-    memoryBias: 0.12,
-    carveBias: 0.06
+    memoryBias: 0.04,
+    carveBias: 0.12
   },
-  heroScaleBias: -0.12,
-  heroStageX: 0,
-  heroStageY: -0.04,
-  heroDepthBias: -0.08,
-  heroMotionBias: 0.18,
-  heroMorphBias: 0.24
+  heroScaleBias: -0.24,
+  heroStageX: -0.18,
+  heroStageY: -0.02,
+  heroDepthBias: 0,
+  heroMotionBias: 0.22,
+  heroMorphBias: 0.18
 };
 
 export const DEFAULT_STAGE_COMPOSITION_PLAN: StageCompositionPlan = {
-  shotClass: 'anchor',
+  shotClass: 'pressure',
   transitionClass: 'hold',
-  eventScale: 'micro',
-  tempoCadenceMode: 'float',
+  eventScale: 'phrase',
+  tempoCadenceMode: 'metered',
   heroEnvelope: {
     coverageMin: 0,
-    coverageMax: 0.18,
-    offCenterMax: 0.2,
-    depthMax: 0.18,
-    scaleCeiling: 0.82,
-    driftAllowance: 0.18,
-    travelMinX: 0,
-    travelMinY: 0,
-    laneTargetX: 0.5,
-    laneTargetY: 0.5
+    coverageMax: 0.14,
+    offCenterMax: 0.36,
+    depthMax: 0.28,
+    scaleCeiling: 0.72,
+    driftAllowance: 0.34,
+    travelMinX: 0.14,
+    travelMinY: 0.08,
+    laneTargetX: 0.42,
+    laneTargetY: 0.48
   },
   chamberEnvelope: {
-    presenceFloor: 0.22,
-    dominanceFloor: 0.18,
-    ringOpacityCap: 0.18,
-    wireDensityCap: 0.22,
-    worldTakeoverBias: 0.08
+    presenceFloor: 0.3,
+    dominanceFloor: 0.24,
+    ringOpacityCap: 0.12,
+    wireDensityCap: 0.18,
+    worldTakeoverBias: 0.22
   },
   subtractivePolicy: {
-    apertureClamp: 0.08,
-    blackoutBias: 0.04,
-    wipeBias: 0,
-    residueBias: 0.04
+    apertureClamp: 0.1,
+    blackoutBias: 0.06,
+    wipeBias: 0.02,
+    residueBias: 0.02
   },
-  compositionSafety: 0.74,
-  fallbackDemoteHero: false,
-  fallbackWidenShot: false,
+  compositionSafety: 0.78,
+  fallbackDemoteHero: true,
+  fallbackWidenShot: true,
   fallbackForceWorldTakeover: false
+};
+
+export const DEFAULT_AUTHORITY_FRAME_SNAPSHOT: AuthorityFrameSnapshot = {
+  worldGlowSpend: 0,
+  heroGlowSpend: 0,
+  shellGlowSpend: 0,
+  ringAuthority: 0,
+  ringBeltPersistence: 0.08,
+  wirefieldDensityScore: 0.16,
+  chamberPresenceScore: 0.18,
+  worldDominanceDelivered: 0.18,
+  frameHierarchyScore: 0.72,
+  compositionSafetyScore: 0.82,
+  compositionSafetyFlag: false,
+  overbright: 0
 };
 
 export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
@@ -689,6 +823,15 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   worldHue: 0,
   temporalWindows: { ...DEFAULT_VISUAL_TEMPORAL_WINDOWS },
   cueClass: DEFAULT_VISUAL_CUE_STATE.cueClass,
+  canonicalCueClass: 'hold',
+  performanceRegime: 'silence-beauty',
+  stageIntent: 'hybrid',
+  worldAuthorityState: 'background',
+  heroAuthorityState: 'shared',
+  postSpendIntent: 'withhold',
+  silenceState: 'beauty',
+  phraseConfidence: 'uncertain',
+  sectionIntent: 'hold',
   cueIntensity: DEFAULT_VISUAL_CUE_STATE.intensity,
   cueAttack: DEFAULT_VISUAL_CUE_STATE.attack,
   cueSustain: DEFAULT_VISUAL_CUE_STATE.sustain,
@@ -945,6 +1088,85 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     reset: 0
   },
   dominantStageCueFamily: 'brood',
+  canonicalCueClassSpread: {
+    hold: 0,
+    gather: 0,
+    tighten: 0,
+    reveal: 0,
+    'orbit-widen': 0,
+    'fan-sweep': 0,
+    'laser-burst': 0,
+    rupture: 0,
+    collapse: 0,
+    haunt: 0,
+    residue: 0,
+    recovery: 0
+  },
+  dominantCanonicalCueClass: 'hold',
+  performanceRegimeSpread: {
+    'silence-beauty': 0,
+    'room-floor': 0,
+    suspense: 0,
+    gathering: 0,
+    driving: 0,
+    surge: 0,
+    aftermath: 0
+  },
+  dominantPerformanceRegime: 'silence-beauty',
+  stageIntentSpread: {
+    'hero-pressure': 0,
+    'chamber-pressure': 0,
+    'world-takeover': 0,
+    'residue-memory': 0,
+    'recovery-hold': 0,
+    hybrid: 0
+  },
+  dominantStageIntent: 'hybrid',
+  worldAuthorityStateSpread: {
+    background: 0,
+    support: 0,
+    shared: 0,
+    dominant: 0
+  },
+  dominantWorldAuthorityState: 'background',
+  heroAuthorityStateSpread: {
+    subtracted: 0,
+    support: 0,
+    shared: 0,
+    dominant: 0
+  },
+  dominantHeroAuthorityState: 'shared',
+  postSpendIntentSpread: {
+    withhold: 0,
+    trace: 0,
+    stress: 0,
+    memory: 0,
+    wipe: 0,
+    burn: 0
+  },
+  dominantPostSpendIntent: 'withhold',
+  silenceStateSpread: {
+    none: 0,
+    'room-floor': 0,
+    beauty: 0,
+    suspense: 0
+  },
+  dominantSilenceState: 'beauty',
+  phraseConfidenceSpread: {
+    uncertain: 0,
+    forming: 0,
+    confident: 0,
+    locked: 0
+  },
+  dominantPhraseConfidence: 'uncertain',
+  sectionIntentSpread: {
+    hold: 0,
+    turn: 0,
+    drop: 0,
+    release: 0,
+    recovery: 0
+  },
+  dominantSectionIntent: 'hold',
   stageWorldModeSpread: {
     hold: 0,
     'aperture-cage': 0,

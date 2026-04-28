@@ -2,10 +2,25 @@
 
 VisuLive is a big-screen generative showpiece for Chrome on Windows.
 
+It is now framed as one simple public portal into a much larger internal anthology engine.
+
 It can listen to the room, to audio playing on the computer, or to both at once, and turns that input into a cinematic visual performance system: dark, authored, reactive, and capable of spectacle without collapsing into noise soup.
 
 Live site:
 - [visulive.xylent.studio](https://visulive.xylent.studio)
+
+Legacy public archive target:
+- [visulive-v1.xylent.studio](https://visulive-v1.xylent.studio)
+
+Current hosting note:
+- no separate `frontier` / staging host is active today; staging should only be provisioned later when the rewrite is ready for real separate-host testing
+
+Current preservation truth:
+- the preserved-edition system is now part of the repo
+- `v1.0.0` is the first public preserved release
+- the exact stable source commit was resolved to `6f45b8a`
+- the `release/v1` branch and `v1.0.0` tag exist
+- the legacy archive is live at [visulive-v1.xylent.studio](https://visulive-v1.xylent.studio)
 
 The current visual pass is no longer color-reserved by default. It now spends a much more aggressive neon show palette when the music drives it:
 - laser cyan
@@ -29,12 +44,29 @@ The current render stack also now includes:
 - authored palette-state direction across sections
 - a less conservative quality governor so `safe` reads like an intentional live target instead of a broken fallback
 
-The current evidence loop also now preserves authored quick-start provenance correctly for new auto captures and recalculates quality flags during analysis, so the latest report reflects current rules instead of stale serialized judgments from older files.
+The current evidence loop also now preserves authored launch-route provenance correctly for new auto captures and recalculates quality flags during analysis, so the latest report reflects current rules instead of stale serialized judgments from older files.
 
 It now supports three input paths:
-- `Use Microphone`
-- `Use PC Audio`
-- `Use Both`
+- `Microphone`
+- `PC Audio`
+- `Combo`
+
+Current canon for the next-version surface is:
+
+- one public `VisuLive` portal into an anthology engine
+- `Start Show` as the front door
+- explicit route choice: `PC Audio`, `Microphone`, or `Combo`
+- one optional `Advanced` drawer for style curation, steering, route repair, capture, replay, system, and diagnostics
+- no world / look / stance browsing on the critical start path
+
+Current canon for the deeper engine is:
+
+- public simplicity is a product rule, not a creative limit
+- internal anthology expansion is the main ambition rule
+- untouched autonomous runs should stay in the full repertoire unless the user explicitly constrains them
+- more capability is the target kind of “more,” not more public clutter
+
+The current branch may still expose legacy quick-start and settings labels while the surface rewrite catches up. Treat those as compatibility UI, not the long-term product language.
 
 ## Start Here
 
@@ -42,11 +74,19 @@ If you are trying to understand the project, do not start from thread history.
 
 Use:
 
+- `.\scripts\rehydrate-agent.ps1`
+
 - [Docs index](C:/dev/GitHub/visulive/docs/README.md)
 - [Agent guide](C:/dev/GitHub/visulive/AGENTS.md)
 - [Project status](C:/dev/GitHub/visulive/docs/project-status.md)
 - [Current program](C:/dev/GitHub/visulive/docs/current-program.md)
+- [Anthology mastery charter](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+- [Anthology capability map](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+- [Runtime extraction scoreboard](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+- [Graduation rubric](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+- [Mastery review system](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
 - [Deployment operations](C:/dev/GitHub/visulive/docs/deployment-operations.md) for hosting, release, and domain work
+- [Preserved editions](C:/dev/GitHub/visulive/docs/preserved-editions.md) for V1 preservation and release history
 - [Show language](C:/dev/GitHub/visulive/docs/show-language.md)
 - [Agent operating model](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
 - [Agent workstreams](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
@@ -59,6 +99,13 @@ Use:
 If you want the foundational taste brief, use:
 
 - [Product charter](C:/dev/GitHub/visulive/docs/product-charter.md)
+
+If you want the durable future-agent continuation layer, use:
+
+- [Anthology mastery charter](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+- [Graduation rubric](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+- [Runtime extraction scoreboard](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+- [Mastery review system](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
 
 ## Run
 
@@ -83,20 +130,27 @@ For a full local verification pass:
 npm run check
 ```
 
+If you only want to validate the continuation foundation layer:
+
+```bash
+npm run anthology:validate
+```
+
 ## Verify
 
-- Choose `Music On This PC`, `Music In The Room`, or `Big Show Hybrid` first
-- Only open `Manual Input Setup` if you specifically want to override the input path yourself
-- Click the start button that matches the selected launch path: `Start PC Audio`, `Start Hybrid Show`, or `Start Room Listening`
+- Start with `Start Show` and let it run without intervention first
+- Choose `PC Audio`, `Microphone`, or `Combo` on the start surface
+- If the current branch still shows legacy launch labels, use the compatibility route helper that matches your source path:
+  - `Music On This PC` for direct computer audio
+  - `Music In The Room` for microphone-first room listening
+  - `Big Show Hybrid` for combined input
 - Grant the requested browser permissions
 - If you use `PC Audio` or `Both`, Chrome will open a share picker. Choose a tab, window, or screen source and make sure audio sharing is enabled.
 - Let the 2-3 second calibration finish, then bring music in if you are testing the room-mic path
-- If the computer is playing the music, start with `Music On This PC`
-- If speakers are in the room, start with `Music In The Room`
-- If you want the biggest direct-audio-plus-room reaction, start with `Big Show Hybrid`
-- Use the quick dock for `Wake`, `Intensity`, `Show Scale`, and `World Activity`
-- Press `M` to open the full settings surface for `Live Shaping`, `Look Shaping`, `Advanced Look Tuning`, `Input & Detection`, and `System` controls; quick starts stay primary, while input repair and deeper look tuning stay secondary
 - Press `F` to enter or exit true immersive fullscreen; when fullscreen is active and the menu is closed, only the visualization remains on screen
+- Keep the first pass no-touch. Judge whether the autonomous path is compelling before opening any steering surface.
+- Use `Advanced` only if you want to curate style, bias the director, repair the route, capture evidence, or open diagnostics.
+- If the current branch still shows older menu labels, `Manual Input Setup`, `Explore`, `Director Deck`, and the full settings menu should be treated as compatibility paths to the new `Advanced` drawer model.
 - Use `Shift + D` in dev mode to open diagnostics, replay capture, and auto evidence capture
 - In diagnostics, choose the repo's [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) folder once if you want the app to save evidence there automatically
 - Turn on `Auto Save To Folder` if you want captures written directly into that folder while the music plays
@@ -119,9 +173,10 @@ Use it like this:
 4. turn on `Auto Capture`
 5. turn on `Auto Save To Folder`
 6. optionally turn on `Proof Stills` in diagnostics if you want a small synchronized evidence bundle for each auto-saved capture
-7. play music and let the app save evidence directly into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-8. run `npm run benchmark:validate` before treating the batch as canonical truth
-9. review the rolling report at [captures/reports/capture-analysis_latest.md](C:/dev/GitHub/visulive/captures/reports/capture-analysis_latest.md)
+7. if this is a serious proof pass, set the diagnostics `Proof scenario tag` before you start the run so the current batch is counted honestly before any benchmark promotion
+8. play music and let the app save evidence directly into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
+9. run `npm run proof:current` before treating the batch as current proof truth
+10. review the rolling report at [captures/reports/capture-analysis_latest.md](C:/dev/GitHub/visulive/captures/reports/capture-analysis_latest.md)
 
 Folder auto-save is now effectively unbounded for the session. The app only keeps a smaller recent replay window in memory so the UI stays sane while evidence keeps accumulating on disk.
 
@@ -143,9 +198,11 @@ npm run analyze:captures
 
 The current serious-pass cadence is:
 
-1. one AFQR-style primary benchmark batch
-2. one quiet room-floor benchmark batch
+1. one no-touch `Auto Show` direct-audio benchmark batch
+2. one no-touch quiet room-floor benchmark batch
 3. one broader show-coverage batch
+4. one sparse / silence batch
+5. one steering batch after the no-touch behavior is judged on its own merit
 
 Each serious batch should end with:
 
@@ -153,13 +210,13 @@ Each serious batch should end with:
 - an analyzer report
 - an optional proof-still bundle
 - one short review note
-- an explicit verdict against `truth`, `governance`, `coverage`, and `taste` gates
+- an explicit verdict against `truth`, `hierarchy`, `coverage`, `taste`, and `operator trust` gates
 
 The analyzer now distinguishes:
 - the launch profile the session started from
-- the active quick-start state at capture time
+- the active launch-route state at capture time
 
-That makes it easier to tell whether a weak capture came from the show engine itself or from drifting away from the authored quick-start stance during testing.
+That makes it easier to tell whether a weak capture came from the show engine itself or from drifting away from the authored start stance during testing.
 
 The repo is also now prepared for specialist-agent work. If future work is split across subagents, use:
 - [AGENTS.md](C:/dev/GitHub/visulive/AGENTS.md) for repo-wide rules
@@ -171,46 +228,59 @@ Current evidence policy:
 - treat [captures/inbox](C:/dev/GitHub/visulive/captures/inbox) as a disposable fresh batch, not a permanent pile
 - after a retune pass, archive the learned inbox batch before collecting the next canonical run
 - no active benchmark may point at missing files; use `npm run benchmark:promote -- <capture-path> ...` when benchmark truth changes
+- benchmark promotion now defaults to `current-candidate`; pass `--status current-canonical` only after the batch proves itself
 - no reviewed batch should remain in the inbox after the pass; promote it deliberately or archive it deliberately
 - the current auto-capture tuning is intentionally shorter and stricter, so anything over roughly `15s` or with repeated retriggers is now considered weaker tuning evidence
 
-## Quick Starts
+## Surface Canon
 
-Use these when you want the obvious first button instead of building a source/preset combination manually:
+The next-version product surface is:
+
+- `Start Show`: the primary CTA and default operator path
+- `PC Audio`, `Microphone`, and `Combo`: the only required startup choices
+- `Advanced`: the only optional drawer, containing:
+  - style curation
+  - semantic steering
+  - route repair, device selection, capture, replay, system, diagnostics
+
+Public controls are expected to bias the director over time, not pin the show to static output values.
+
+The long-term product identity is:
+
+- one simple public portal
+- one deep anthology engine behind it
+
+Canonical public content language is:
+
+- `Show Worlds`: scene grammar and authority families
+- `Looks`: palette / material / post identities
+- `Director Stances`: reusable advanced curation profiles, not required startup choices
+
+The product goal is that the show remains compelling without touching any of them, and that untouched `Start Show` runs stay in the full autonomous repertoire by default.
+
+## Compatibility Launch Mapping
+
+Until the surface rewrite lands in code, current builds may still expose these route helpers:
 
 ### `Music On This PC`
 
-Uses:
-- `Use PC Audio`
-- `Surge` preset
-
-Best when:
-- this computer is already playing the music
-- you want the cleanest, strongest musical drive
+Compatibility meaning:
+- direct computer-audio route helper
+- best current branch path when this machine is already playing the music
 
 ### `Music In The Room`
 
-Uses:
-- `Use Microphone`
-- `Music` preset
-
-Best when:
-- speakers are in the room
-- you want the mic to hear the space as part of the show
+Compatibility meaning:
+- microphone-first room route helper
+- best current branch path when speakers are in the space
 
 ### `Big Show Hybrid`
 
-Uses:
-- `Use Both`
-- `Surge` preset
+Compatibility meaning:
+- combined direct-audio-plus-room route helper
+- best current branch path when you want both musical body and room life
 
-Best when:
-- you want the biggest reaction path
-- direct music should drive the body but room life should still matter
-
-The quick starts are now the recommended operator-facing first choices for music.
-
-If the show ever drifts into a weak custom state, use `Restore Recommended`. It now appears in the quick dock when you are off a quick start, and in the full menu as a deeper fallback. It resets back to the strongest current quick-start stance for the active source path instead of dropping you into a generic middle state.
+If the show drifts into a weak custom state, use `Restore Recommended`. Long term, this belongs with autonomous restart / stance recovery, not as a quick-start reset concept.
 
 ### `Use Microphone`
 
@@ -235,12 +305,16 @@ Best when:
 - you want the music from the computer to drive the main body
 - but you still want the room and local transients to color the experience
 
-## Preset Meaning
+## Legacy Preset Note
 
-- `Hush`: silence-first, suspended, and gallery-like
-- `Room`: balanced ambient chamber behavior
-- `Music`: best all-around music preset
-- `Surge`: bigger, more aggressive show preset
+Current builds may still expose older preset labels such as `Hush`, `Room`, `Music`, and `Surge`.
+
+Treat those as compatibility labels while the product moves toward:
+
+- world selection
+- look selection
+- director stance selection
+- autonomous migration between those vocabularies with the music
 
 ## Current Doc Structure
 
@@ -248,6 +322,12 @@ Active canonical docs:
 
 - [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
 - [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+- [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+- [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+- [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+- [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+- [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
+- [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md)
 - [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
 - [agent-operating-model.md](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
 - [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)

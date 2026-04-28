@@ -4,7 +4,7 @@ export type EventRigBindings = {
   build: () => void;
   updateRouting: (context: EventRoutingContext) => void;
   updateAccents: (context: EventFrameContext) => void;
-  updateParticles: (elapsedSeconds: number) => void;
+  updateParticles: (context: EventFrameContext) => void;
   dispose?: () => void;
 };
 
@@ -25,7 +25,7 @@ export class EventRig {
 
   updateFrame(context: EventFrameContext): void {
     this.bindings.updateAccents(context);
-    this.bindings.updateParticles(context.elapsedSeconds);
+    this.bindings.updateParticles(context);
   }
 
   dispose(): void {

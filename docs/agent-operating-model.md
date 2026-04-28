@@ -1,6 +1,6 @@
 # VisuLive Agent Operating Model
 
-Date: 2026-04-08  
+Date: 2026-04-23  
 Status: Active specialist-agent coordination model
 
 This document defines how specialized agents should work on VisuLive as a system.
@@ -37,6 +37,9 @@ The project's blockers are now specialized:
 
 But the repo still has one major monolith:
 - [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+
+It also still has one major extraction honesty problem:
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) is now an explicit frame orchestrator, but [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) remains a compatibility shell for context assembly and unreduced ownership debt
 
 That means parallel specialization is good only if:
 - ownership is explicit
@@ -81,7 +84,7 @@ Current hotspot for:
 Rule:
 - renderer policy should not be redefined by hero or chamber specialists
 
-### [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts)
+### [showDirection.ts](C:/dev/GitHub/visulive/src/scene/direction/showDirection.ts)
 
 Current hotspot for:
 - act selection
@@ -147,6 +150,7 @@ Why this order:
 ## Immediate Structural Upgrade
 
 The best structural move before heavy parallel visual work is still:
-- split [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) into hero, chamber, and motion systems
+- preserve [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the explicit orchestrator
+- continue splitting post, compositor, memory, motion/event/camera, and remaining compatibility context out of [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
 
 Until then, use the operating model above as the control system for any specialist work.

@@ -1,336 +1,245 @@
 # VisuLive Documentation Operations
 
-Date: 2026-04-08  
+Date: 2026-04-23
 Status: Active maintainer reference
 
-This document defines how the repo documentation is supposed to work.
+This document defines how repo truth is supposed to work.
 
-Its purpose is simple:
-- make the project recoverable if thread context is lost
-- keep one clear source of truth for the active direction
-- prevent future drift between code, planning, and historical notes
+Its job is simple:
+
+- keep the project recoverable if thread context is lost
+- stop older doctrine from silently overruling current shipped truth
+- make it obvious which file to update when reality changes
+- distinguish cleanly between shipped state, canonized target state, and historical material
 
 ## Source Precedence
 
-When docs disagree, use this order of authority:
+When code and docs disagree, use this order:
 
-1. [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
-2. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-3. [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
-4. [cue-grammar.md](C:/dev/GitHub/visulive/docs/cue-grammar.md)
-5. [reference-systems.md](C:/dev/GitHub/visulive/docs/reference-systems.md)
-6. [flagship-reference-atlas.md](C:/dev/GitHub/visulive/docs/flagship-reference-atlas.md)
-7. [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
-8. [agent-operating-model.md](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
-9. [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
-10. [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
-11. live code in [src](C:/dev/GitHub/visulive/src)
-12. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-13. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
-14. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-15. [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
-16. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
-17. historical baseline docs
+1. live code in [src](C:/dev/GitHub/visulive/src), [scripts](C:/dev/GitHub/visulive/scripts), and repo config
+2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+3. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+4. [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+5. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+6. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+7. [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+8. [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
+9. [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md)
+10. [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
+11. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
+12. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
+13. [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
+14. [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md)
+15. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
+16. [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
+17. [cue-grammar.md](C:/dev/GitHub/visulive/docs/cue-grammar.md)
+18. [reference-systems.md](C:/dev/GitHub/visulive/docs/reference-systems.md)
+19. [flagship-reference-atlas.md](C:/dev/GitHub/visulive/docs/flagship-reference-atlas.md)
+20. [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
+21. [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
+22. [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
+23. [outside-dev-brief.md](C:/dev/GitHub/visulive/docs/outside-dev-brief.md)
+24. historical docs
 
 Interpretation:
-- `product-charter.md` defines product identity, taste, anti-goals, and the north-star show doctrine
-- `current-program.md` defines what phase the project is in and what to do next
-- `show-language.md` defines how the system is supposed to feel and behave
-- `cue-grammar.md` defines how detected musical facts become visual cue classes and consequence
-- `reference-systems.md` preserves which external systems are worth learning from and what they are teaching us
-- `flagship-reference-atlas.md` is the curated labeled board for principle extraction and subagent work
-- `vision-ledger.md` captures high-signal creative and operator ideas before they are either promoted into canon or discarded
-- `agent-operating-model.md` defines how specialized agents should split ownership and avoid collisions
-- `agent-workstreams.md` defines the specialist lanes, their file ownership, and the recommended order of work
-- `specialist-brief-template.md` defines the standard bounded format for future delegated specialist passes
-- code defines what currently exists
-- `project-status.md` defines the current implementation snapshot and open work
-- `control-system-audit.md` defines the current truth about public controls
-- `tuning-workflow.md` defines how to evaluate and tune changes
-- `deployment-operations.md` defines how the live site is hosted, released, verified, and repaired
-- `captures/README.md` defines how saved evidence and generated reports should be organized
-- `product-charter.md` remains the taste and product north star and should move rarely
-- older phase docs remain reference material, not current marching orders
+
+- code is shipped truth
+- `project-status.md` is the fastest implementation snapshot
+- `current-program.md` defines the active phase, phase order, and promotion model
+- `anthology-mastery-charter.md` defines the uncompromising end-state and mastery standard
+- `anthology-capability-map.md` defines long-range capability, maturity, and next-target truth
+- `runtime-extraction-scoreboard.md` defines current ownership truth and blocking extraction reality
+- `graduation-rubric.md` defines exact advancement rules for anthology families
+- `mastery-review-system.md` defines the current review set, failure gallery, and review cadence
+- `flagship-runtime-architecture.md` defines the active structural target for the rewrite
+- `show-language.md` defines the live artistic grammar
+- `deployment-operations.md` defines release lane, hosting, and verification policy
+- `preserved-editions.md` defines frozen public editions and legacy release history
+- `product-charter.md` defines stable principles only
+- `vision-ledger.md` holds unresolved bets, not canon
+- `outside-dev-brief.md` is external prompt material, not internal authority
 
 ## Canonical Reading Order
 
 If context is lost, read in this order:
 
 1. [README.md](C:/dev/GitHub/visulive/README.md)
-2. [docs/README.md](C:/dev/GitHub/visulive/docs/README.md)
-3. [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
-4. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-5. [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
-6. [cue-grammar.md](C:/dev/GitHub/visulive/docs/cue-grammar.md)
-7. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-8. [reference-systems.md](C:/dev/GitHub/visulive/docs/reference-systems.md)
-9. [flagship-reference-atlas.md](C:/dev/GitHub/visulive/docs/flagship-reference-atlas.md)
-10. [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
-11. [agent-operating-model.md](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
-12. [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
-13. [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
-14. [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
-15. [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-16. [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
-17. [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
-18. historical baselines only as needed
+2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+3. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+4. [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+5. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+6. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+7. [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+8. one task-relevant reference:
+   - [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md) for golden references, failure patterns, and review cadence
+   - [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md) for structural extraction or ownership work
+   - [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md) for visual behavior
+   - [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md) for evidence work
+   - [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md) for release, lane, or domain work
+   - [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md) for legacy-release, V1 archive, or release-history work
+   - [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md) for operator/control work
+   - [documentation-operations.md](C:/dev/GitHub/visulive/docs/documentation-operations.md) only when changing canon routing
+9. supporting references only as needed
 
 ## Document Roles
 
 ### [README.md](C:/dev/GitHub/visulive/README.md)
 Use for:
+
 - setup
 - run instructions
 - operator-facing repo entry
-- shortest path into the app
-
-Do not turn it into:
-- the full product brief
-- a decision log
-- a duplicate of the docs folder
-
-### [docs/README.md](C:/dev/GitHub/visulive/docs/README.md)
-Use for:
-- docs navigation
-- doc classification
-- read order
-
-Do not turn it into:
-- a long design brief
-- a changelog
-
-### [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-Use for:
-- the current phase
-- the real next sequence
-- current priorities
-- active boundaries
-
-Update it when:
-- the active phase changes
-- priorities change
-- the project makes a real strategic pivot
 
 ### [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
 Use for:
-- current shipped state
-- open work
-- blocking issues
-- practical execution order
 
-Update it when:
-- a meaningful implementation pass lands
-- unfinished work changes materially
-- build and test readiness changes
+- what is shipped now
+- what is installed but unproven
+- what is canonized now even if implementation is still catching up
+- what is blocking the next real quality jump
+
+Update it when implementation truth changes or when canon moves ahead of implementation in a way maintainers must know immediately.
+
+### [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+Use for:
+
+- the active phase
+- the rewrite phase order
+- the current leverage order
+- the promotion gates
+- what we are explicitly not doing next
+
+Update it when priorities, sequence, or promotion rules change.
+
+### [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+Use for:
+
+- the uncompromising end-state
+- what is sacred
+- what is disposable
+- what counts as compromise
+
+Update it only when the dream itself gets clearer.
+
+### [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+Use for:
+
+- anthology families
+- capability maturity
+- proof status
+- graduation targets
+- future-agent continuation targets
+
+Update it whenever a family changes maturity, proof status, or next target.
+
+### [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+Use for:
+
+- current ownership truth
+- blocking extractions
+- what still lives in `ObsidianBloomScene.ts`
+- what must move before a family can grow safely
+
+Update it whenever structural ownership changes or the biggest blocker changes.
+
+### [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+Use for:
+
+- exact `lab`, `frontier`, `flagship`, and `retired` rules
+- family-specific proof expectations
+- promotion and retirement decisions
+
+Update it when advancement criteria change materially.
+
+### [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md)
+Use for:
+
+- golden review references
+- failure gallery references
+- review cadence
+- review questions
+
+Update it when the review set or cadence changes materially.
+
+### [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md)
+Use for:
+
+- the target structural shape of the flagship runtime
+- ownership rules for policy, runtime, systems, and governors
+- shared system contracts and extraction order
+
+Update it when the intended runtime ownership model changes materially.
 
 ### [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
 Use for:
+
 - visual grammar
-- motion grammar
-- emotional arc
-- signature moment logic
-- scene-family intent
+- cue grammar in practice
+- motion, consequence, and frame-ownership language
 
-Update it when:
-- the artistic language changes
-- a new major scene family becomes canonical
-- control philosophy changes the show behavior materially
-
-### [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
-Use for:
-- preserving high-signal operator ideas
-- capturing emerging visual instincts before they vanish into thread history
-- recording creative directions that matter but are not yet fully canonical
-
-Update it when:
-- a new idea clearly matters but is not yet ready to fully rewrite canon
-- operator feedback reveals a repeated creative target
-- an idea should survive long enough to be tested on purpose
-
-### [reference-systems.md](C:/dev/GitHub/visulive/docs/reference-systems.md)
-Use for:
-- external show tools and engines worth learning from
-- technical or artistic principles to borrow deliberately
-- preventing valuable research from disappearing into thread history
-
-Update it when:
-- a new external reference clearly changes the project's direction
-- research produces a principle we want to keep reusing
-- we decide a formerly important reference is no longer useful
-
-### [agent-operating-model.md](C:/dev/GitHub/visulive/docs/agent-operating-model.md)
-Use for:
-- specialist ownership boundaries
-- collision hotspots
-- workstream sequencing
-- handoff rules between future agents
-
-Update it when:
-- we add or remove a specialist lane
-- file ownership boundaries change materially
-- the recommended execution order changes
-
-### [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
-Use for:
-- the detailed specialist roster
-- lane-specific missions
-- owned and forbidden files
-- current bottleneck-to-agent mapping
-- the practical order for specialist execution
-
-Update it when:
-- a specialist lane changes scope
-- current blockers move between lanes
-- the recommended specialist order changes
-
-### [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
-Use for:
-- writing bounded specialist subagent briefs
-- preserving owned and forbidden file boundaries
-- making delegated work comparable and reviewable
-
-Update it when:
-- the standard specialist brief format changes
-- acceptance expectations change
-- a repeated briefing mistake needs to be prevented
+Update it when artistic behavior changes materially.
 
 ### [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
 Use for:
-- what exposed controls actually do
-- which controls are weak, overlapping, or confusing
-- what should be renamed, removed, or added
 
-Update it when:
-- public controls change
-- control naming changes
-- a previously proposed control becomes real
+- public control labels
+- quick-start truth
+- quick-dock versus backstage control boundaries
 
-### [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
-Use for:
-- how tuning is performed
-- scenario packs
-- capture and replay workflow
-- evaluation standards
-
-Update it when:
-- the review workflow changes
-- replay tooling is added
-- the canonical scenario pack changes
+Update it when exposed operator behavior changes.
 
 ### [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
 Use for:
-- hosting stack truth
-- release workflow
-- Netlify and Cloudflare ownership boundaries
-- custom-domain repair
-- post-release verification
 
-Update it when:
-- hosting provider or site target changes
-- release policy changes
-- domain workflow changes
-- production verification expectations change
+- release lane policy
+- host, domain, and deploy truth
+- verification workflow
+- release identity expectations
 
-### [captures/README.md](C:/dev/GitHub/visulive/captures/README.md)
+### [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md)
 Use for:
-- evidence library rules
-- capture naming and retention
-- generated report routing
-- the practical storage contract for tuning assets
 
-Update it when:
-- capture organization changes
-- generated report workflow changes
-- canonical evidence expectations change
+- frozen public edition truth
+- release-history truth
+- legacy-host mapping
+- preserved-edition status and notes
+
+Update it when release verification or hosting workflow changes materially.
 
 ### [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
 Use for:
+
+- stable principles
 - product identity
-- taste rules
-- anti-goals
-- foundational north star
+- non-goals
 
-Do not rewrite it every time implementation evolves.
-It should move rarely.
+Do not use it to freeze old implementation taste.
 
-### [cue-grammar.md](C:/dev/GitHub/visulive/docs/cue-grammar.md)
+### [vision-ledger.md](C:/dev/GitHub/visulive/docs/vision-ledger.md)
 Use for:
-- cue classes
-- detection-to-consequence mapping
-- cue state, envelope, and budget
-- what a visual cue may affect
 
-Do not use it for:
-- audio-side detection semantics
-- implementation detail that belongs to a scene system
+- unresolved creative bets
+- ideas worth preserving before they are proven or rejected
 
-### [flagship-reference-atlas.md](C:/dev/GitHub/visulive/docs/flagship-reference-atlas.md)
+Do not leave already-promoted truth here.
+
+### [outside-dev-brief.md](C:/dev/GitHub/visulive/docs/outside-dev-brief.md)
 Use for:
-- curated reference board
-- principle extraction
-- labeled stills and clips
-- subagent reference intake
 
-Do not use it for:
-- a duplicate of `reference-systems.md`
-- loose brainstorming
+- external reviewers
+- outside specialists
+- diagnosis prompts
 
-### Historical docs
+Do not treat it as live canon.
 
-Current historical docs:
-- [phase-0-implementation-spec.md](C:/dev/GitHub/visulive/docs/phase-0-implementation-spec.md)
-- [phase-0-review-rubric.md](C:/dev/GitHub/visulive/docs/phase-0-review-rubric.md)
-- [next-best-move.md](C:/dev/GitHub/visulive/docs/next-best-move.md)
-- [repo-consolidation-plan.md](C:/dev/GitHub/visulive/docs/repo-consolidation-plan.md)
+## Maintenance Rules
 
-Keep them:
-- linkable
-- readable
-- clearly labeled
-
-Do not treat them as the current plan.
-
-## Change Rules
-
-When making project-level changes:
-
-1. update code first if the change is implementation truth
-2. update `current-program.md` if the phase or priorities changed
-3. update `project-status.md` if shipped state, open work, or readiness changed
-4. update `show-language.md` if the artistic behavior changed materially
-5. update `reference-systems.md` if outside tools or references materially inform the new direction
-6. update `vision-ledger.md` if new high-signal ideas or operator instincts should be preserved
-7. update `agent-operating-model.md` if specialist lanes, ownership, or sequencing changed
-8. update `agent-workstreams.md` if specialist workstreams, owned files, or blocker mapping changed
-9. update `specialist-brief-template.md` if the standard specialist brief format changes
-10. update `control-system-audit.md` if public controls changed
-11. update `tuning-workflow.md` if evaluation method changed
-12. update `deployment-operations.md` if hosting, release, or domain workflow changed
-13. update `captures/README.md` if evidence storage or analysis workflow changed
-14. update `README.md` only if operator setup or usage changed
-15. update `docs/README.md` if document classification or read order changed
-
-This keeps the docs proportional and avoids rewriting everything every pass.
-
-## What Not To Do
-
-Do not:
-- create new strategy docs for every idea burst
-- let thread history become the real source of truth
-- duplicate the same plan in multiple files
-- let historical docs keep reading like active directives
-- add more docs when an existing canonical doc should simply be updated
-
-## Maintenance Standard
-
-A new maintainer should be able to answer these questions quickly:
-- what is this product now
-- what phase is it in
-- what should be worked on next
-- what are the taste and anti-cheapness rules
-- which controls are real and what they do
-- how to run and evaluate the app
-- how the live site is hosted and released
-- which docs are historical versus active
-
-If the docs stop answering those clearly, fix the routing before adding more material.
+- When a change lands in code, update the smallest set of docs that keeps the repo truthful.
+- Prefer removing contradicted doctrine over layering on caveats forever.
+- If a doc is mostly historical, say so clearly.
+- If a file becomes canon, move its distilled truth into the real canon files and demote the source.
+- When current implementation and canonized target differ, say so explicitly with labels such as `shipped now`, `canonized but not implemented yet`, or `historical`.
+- Structural extraction changes should update [flagship-runtime-architecture.md](C:/dev/GitHub/visulive/docs/flagship-runtime-architecture.md) plus either [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md) or [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md).
+- Structural extraction changes should also update [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) when the blocker, owner, or completion condition changes.
+- Release-lane policy changes should update [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md) plus the smallest canon doc needed to keep the repo truthful.
+- Preserved-edition or legacy-host changes should update both [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md) and [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md).

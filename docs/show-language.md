@@ -1,6 +1,6 @@
 # VisuLive Show Language
 
-Date: 2026-04-15
+Date: 2026-04-22
 Status: Active artistic language brief
 
 This document defines the visual, emotional, and behavioral language of the current product.
@@ -37,6 +37,17 @@ The show must be **consistently satisfying**, not occasionally amazing by accide
 The show should feel **directed from within**, not merely steered by exposed controls.
 
 That means color, framing, chamber activation, laser drive, and radiance should be able to drift and intensify over time with the music even when the operator touches nothing.
+
+## Anthology Rule
+
+VisuLive is one public portal into a larger anthology engine.
+
+That means:
+
+- the public start path stays simple
+- the internal image vocabulary should keep getting broader
+- new grammars should change the ontology of the show, not just restyle one fixed answer
+- internal growth should increase no-touch greatness instead of increasing public complexity
 
 ## Whole-Frame Authority
 
@@ -137,6 +148,41 @@ The hero cannot monopolize every important frame.
 At times the chamber, residue, beam geometry, or environmental stain must become the dominant read.
 
 If the eye only remembers the center object, the frame is under-performing.
+
+## Hero Ecology
+
+The anthology target requires more than one hero grammar.
+
+The show should be able to spend:
+
+- dominant hero
+- twin hero
+- fractured hero
+- membrane or lattice hero
+- glyph or ghost hero
+- absent hero or world-as-hero
+
+The hero can remain iconic.
+It cannot remain singular forever.
+
+## World Mutation
+
+Worlds should not only be selected.
+They should also be able to mutate.
+
+Target mutation verbs include:
+
+- open
+- seal
+- flood
+- hollow
+- fracture
+- veil
+- stain
+- burn
+- blackout
+
+These changes must be driven by music and cue logic, not timer-only cycling.
 
 ## The Audience View
 
@@ -334,6 +380,37 @@ The shell and chamber should spend those windows differently:
 - bar turn and phrase resolve are allowed to reorganize space and palette
 
 These verbs are the real design primitives.
+
+## Memory And Recurrence
+
+The show should remember itself.
+
+That means:
+
+- motifs return altered
+- scars persist
+- worlds revisit earlier states with consequence
+- color and shape signatures recur with intent
+
+Recurrence should feel authored, not repetitive.
+
+## Mixed-Media Discipline
+
+Mixed media is allowed if it makes the show stronger.
+
+That does not mean collage chaos.
+
+Allowed mixed-media behavior should feel like:
+
+- masks
+- glyphs
+- screen-space scars
+- silhouette injections
+- portal reveals
+- residue echoes
+
+Mixed media must serve consequence, memory, or stage identity.
+It must not become wallpaper.
 
 ## Emotional Arc Grammar
 
