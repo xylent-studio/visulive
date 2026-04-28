@@ -1,6 +1,6 @@
 # VisuLive Agent Operating Model
 
-Date: 2026-04-23  
+Date: 2026-04-28  
 Status: Active specialist-agent coordination model
 
 This document defines how specialized agents should work on VisuLive as a system.
@@ -131,26 +131,24 @@ A specialist pass is only valid if it leaves behind:
 
 For the current repo state, the lead integrator should sequence work like this:
 
-1. Renderer And Safe-Tier
-2. Hero Render
-3. Chamber And Light
-4. Motion And Choreography
-5. Conductor And Cueing
-6. Show Direction And Palette
-7. Evidence And Tuning
-8. Operator UX
+1. Evidence And Tuning
+2. Operator UX
+3. Governance correction only if fresh proof shows authority, overbright, or ring failures
+4. Show Direction / Conductor only if fresh proof shows cue, silence, or diversity failures
+5. `PostSystem` extraction only after authority plus no-touch proof holds
+6. Later visual capability work after proof and ownership are both real
 
 Why this order:
-- the visible blocker is still the live image
-- hero, chamber, and motion are the current quality ceiling
-- conductor and palette should then be retuned against the stronger visual grammar
-- evidence should judge the result
-- UX should present the stabilized system clearly after the deeper behavior settles
+- architecture progress is not enough to justify more creative work
+- the active blocker is fresh valid proof on the current authority/runtime backbone
+- the invalid April 28 run is debugging evidence only, not current proof
+- broad visual or capability work before proof risks optimizing from stale or invalid evidence
 
 ## Immediate Structural Upgrade
 
-The best structural move before heavy parallel visual work is still:
+The best structural move after authority plus no-touch proof holds is:
 - preserve [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the explicit orchestrator
-- continue splitting post, compositor, memory, motion/event/camera, and remaining compatibility context out of [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
+- extract `PostSystem` ownership before adding new consequence families
+- continue splitting compositor, memory, motion/event/camera, and remaining compatibility context out of [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
 
 Until then, use the operating model above as the control system for any specialist work.

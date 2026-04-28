@@ -2,7 +2,7 @@
 
 Date: 2026-04-28  
 Workspace: <https://linear.app/visulive>  
-Status: Official Linear MCP authenticated; current desktop thread needs restart to load the new MCP server
+Status: Active through the direct `mcp__linear__` connector
 
 ## Purpose
 
@@ -18,21 +18,23 @@ It is not the evidence source of truth. Evidence truth remains local run package
 
 ## Connection Status
 
-The official Linear MCP server is registered in Codex global config as `linear` at `https://mcp.linear.app/mcp`, and OAuth login completed successfully on 2026-04-28. A fresh Codex process can read the workspace and seed labels.
+The official Linear MCP server is registered in Codex global config as `linear` at `https://mcp.linear.app/mcp`, and OAuth login completed successfully on 2026-04-28.
 
 Current confirmed state:
 
-- Team exists as `Visulive`.
+- The direct `mcp__linear__` connector reads the intended `visulive` workspace.
+- Team exists as `Visulive` with key `VIS`.
 - Labels are seeded: `proof-gate`, `evidence`, `release`, `runtime`, `operator-ux`, `docs`, `artifact-policy`, `governance`, `linear-ops`.
-- Project and issue creation still require interactive MCP write confirmation. The nested non-interactive `codex exec` path cannot display that confirmation and reports project/issue saves as cancelled.
+- Project exists: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c).
+- Project document exists: [Proof Backbone Operating Notes](https://linear.app/visulive/document/proof-backbone-operating-notes-df03eeaad9bb).
+- Seeded issues exist as `VIS-5` through `VIS-16`.
 
-Recovery steps:
+Connector warning:
 
-1. Restart Codex desktop so this thread reloads the new `linear` MCP server from `C:\Users\jjdog\.codex\config.toml`.
-2. Ask Codex to finish Linear setup from [ops/linear/visulive-linear-os.seed.json](C:/dev/GitHub/visulive/ops/linear/visulive-linear-os.seed.json).
-3. Approve Linear write confirmations for project and issue creation.
+- Use `mcp__linear__` for VisuLive reads and writes.
+- Do not use the stale `mcp__codex_apps__linear_mcp_server` connector for VisuLive writes; in this session it still returned the older `learning-capture-pipeline` workspace.
 
-If interactive write confirmation still fails, import the generated CSV from [ops/linear/generated/visulive-linear-issues.csv](C:/dev/GitHub/visulive/ops/linear/generated/visulive-linear-issues.csv) and use [ops/linear/generated/visulive-linear-setup.md](C:/dev/GitHub/visulive/ops/linear/generated/visulive-linear-setup.md) as the manual setup checklist.
+If direct `mcp__linear__` disappears in a future session, reconnect the official MCP and verify reads show `https://linear.app/visulive` before writing.
 
 ## Canonical Team
 
@@ -96,14 +98,17 @@ The current serious proof flow is:
 
 1. `npm run dev:proof`
 2. `Backstage -> Capture -> Proof Scenario`
-3. arm `Proof Wave`
-4. verify readiness is green
-5. run the scenario
-6. `npm run proof:current`
-7. `npm run evidence:index`
-8. `npm run run:review -- --run-id <runId>`
-9. promote or archive the whole run package
-10. update Linear with the run verdict and next tuning target
+3. archive or review any old active inbox run package before starting new proof
+4. arm `Proof Wave`
+5. verify readiness is green
+6. run the scenario
+7. `npm run proof:current`
+8. `npm run evidence:index`
+9. `npm run run:review -- --run-id <runId>`
+10. promote or archive the whole run package
+11. update Linear with the run verdict and next tuning target
+
+`npm run proof:current` refreshes reports. It is not a hard gate. Use strict proof-pack and benchmark validation for release/current-canonical decisions.
 
 Linear should never mark a proof issue done based on manual tags alone. The run package must prove the scenario.
 

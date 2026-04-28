@@ -1,4 +1,13 @@
-"Title","Description","Team","Project","Milestone","Labels","Priority"
+"Title","Description","Team","Project","Milestone","Labels","Priority","State"
+"Verify Linear workspace scope before seeding","Prevent VisuLive work from being created in the wrong Linear workspace.
+
+Owner lane: Linear Ops.
+
+Acceptance:
+- Linear reads visibly target `https://linear.app/visulive`, not `https://linear.app/learning-capture-pipeline`.
+- Team is `VisuLive` with key `VIS`.
+- Existing projects and issues are checked for duplicates before any writes.
+- If OAuth is scoped to the wrong workspace, reconnect Linear before seeding.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","linear-ops","Urgent","Done"
 "Clean artifact boundaries and ignored generated evidence","Generated evidence and heavy release outputs must not dirty source Git while lightweight provenance stays trackable.
 
 Owner lane: Evidence / Capture / Analyzer.
@@ -7,7 +16,7 @@ Acceptance:
 - Generated SQLite catalogs and run payloads do not dirty Git.
 - Heavy v1 preserved artifacts stay out of source Git.
 - Lightweight release records, checksums, manifests, and docs remain trackable.
-- `git status --short` is clean after proof/report commands.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","artifact-policy, evidence","High"
+- `git status --short` is clean after proof/report commands.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","artifact-policy, evidence","High","Done"
 "Commit structured proof-ready workspace stack","Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.
 
 Owner lane: Repo Operations.
@@ -16,7 +25,7 @@ Acceptance:
 - Dirty workspace is converted into focused commits.
 - `git status --short` is empty.
 - `npm run proof:preflight` passes without `--allow-dirty`.
-- Checkpoint records commit stack and next proof steps.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","linear-ops, docs","High"
+- Checkpoint records commit stack and next proof steps.","VisuLive","Proof Backbone & Clean Workspace","Clean Source Boundary","linear-ops, docs","High","Done"
 "Close release/proof gate findings","Release verification must not pass when proof gates fail.
 
 Owner lane: Release / Evidence.
@@ -25,7 +34,7 @@ Acceptance:
 - `release:verify` requires current benchmark truth and strict proof-pack gates.
 - `npm run benchmark:validate -- --require-current` fails until active/current-canonical benchmark exists.
 - `npm run proof-pack -- --limit 1 --strict` fails until a current-proof-eligible run exists.
-- `npm run release:verify` fails until strict proof and benchmark gates pass.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","proof-gate, release","Urgent"
+- `npm run release:verify` fails until strict proof and benchmark gates pass.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","proof-gate, release","Urgent","Done"
 "Close run journal/build identity findings","Serious proof must reject weak, dirty, or unknown build identity and must not serialize false screenshot references.
 
 Owner lane: Evidence / Operator UX.
@@ -34,7 +43,7 @@ Acceptance:
 - Serious proof rejects dev, unverified, dirty, unknown, or invalid build identity.
 - Run metadata uses the shared build identity validator.
 - Checkpoint still references are registered only after successful save.
-- Save failure invalidates the proof run with explicit reasons.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","proof-gate, evidence, operator-ux","Urgent"
+- Save failure invalidates the proof run with explicit reasons.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","proof-gate, evidence, operator-ux","Urgent","Done"
 "Close run package/catalog/analyzer findings","Run packages and evidence query tooling must be safe and chronologically honest.
 
 Owner lane: Evidence / Capture / Analyzer.
@@ -43,7 +52,7 @@ Acceptance:
 - Run package promotion refuses overwrites.
 - Recommendation gates can pass, warn, or fail.
 - `after-commit` evidence queries use commit/build timestamps, not lexicographic hash comparison.
-- Catalog can answer recent failure pattern queries without misleading ordering.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","evidence","High"
+- Catalog can answer recent failure pattern queries without misleading ordering.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","evidence","High","Done"
 "Close runtime/docs anthology truth findings","Machine-readable and prose canon must match current runtime ownership.
 
 Owner lane: Runtime / Docs.
@@ -51,8 +60,8 @@ Owner lane: Runtime / Docs.
 Acceptance:
 - Machine-readable anthology catalog reflects HeroSystem owned lifecycle status.
 - AGENTS and deployment docs match current runtime and release-gate truth.
-- Future agents are directed toward PostSystem and proof-led governance, not stale facade assumptions.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","runtime, docs","High"
-"Collect clean primary-benchmark proof","Collect the first serious current proof run on the hardened backbone.
+- Future agents are directed toward PostSystem and proof-led governance, not stale facade assumptions.","VisuLive","Proof Backbone & Clean Workspace","Review Finding Closure","runtime, docs","High","Done"
+"Run primary-benchmark proof canary","Run a short proof canary before spending operator time on a full no-touch benchmark.
 
 Owner lane: Operator / Evidence.
 
@@ -60,8 +69,21 @@ Acceptance:
 - Run uses `npm run dev:proof`.
 - Scenario is `Primary benchmark`.
 - Source is PC Audio.
+- Duration is 60-90 seconds.
+- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.
+- Canary is archived or reviewed before the full benchmark run starts.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, evidence, operator-ux","Urgent","Ready"
+"Collect clean primary-benchmark proof","Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.
+
+Owner lane: Operator / Evidence.
+
+Acceptance:
+- Run uses `npm run dev:proof`.
+- Scenario is `Primary benchmark`.
+- Source is PC Audio.
+- Duration is 6-8 minutes.
 - Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.
-- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, evidence","Urgent"
+- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.
+- `authority split validation` and `primary authority proof` gates pass before governance is treated as stable.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, evidence","Urgent","Ready"
 "Collect clean operator-trust proof","Collect proof that a normal operator can arm and run the show without hidden manual intervention.
 
 Owner lane: Operator UX / Evidence.
@@ -70,7 +92,7 @@ Acceptance:
 - Scenario is `Operator trust`.
 - Operator-trust scenario clears no-touch and intervention requirements.
 - Run package is reviewed and promoted or archived as a whole package.
-- Any invalidation reason produces actionable operator recovery guidance.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, operator-ux, evidence","High"
+- Any invalidation reason produces actionable operator recovery guidance.","VisuLive","Proof Backbone & Clean Workspace","Fresh Serious Proof","proof-gate, operator-ux, evidence","High","Blocked"
 "Review proof recommendations and decide governance follow-up","Use fresh recommendation JSON and review notes to choose the next narrow correction.
 
 Owner lane: Governance / Evidence.
@@ -79,7 +101,7 @@ Acceptance:
 - Recommendation JSON is reviewed.
 - Overbright, ring persistence, chamber presence, and world takeover outcomes determine the next correction.
 - If proof is weak, next pass is AuthorityGovernor, LightingSystem, and ParticleSystem only.
-- If proof is strong, move to PostSystem readiness.","VisuLive","Proof Backbone & Clean Workspace","Evidence-Led Next Development","governance, evidence","High"
+- If proof is strong, move to PostSystem readiness.","VisuLive","Proof Backbone & Clean Workspace","Evidence-Led Next Development","governance, evidence","High","Blocked"
 "Decide PostSystem readiness after authority proof","Decide whether the runtime is ready for the next structural extraction.
 
 Owner lane: Runtime / Governance.
@@ -87,4 +109,4 @@ Owner lane: Runtime / Governance.
 Acceptance:
 - If authority proof holds, next structural target is `PostSystem`.
 - If authority proof fails, perform one focused governance correction first.
-- No capability-growth issue starts until this decision is recorded.","VisuLive","Proof Backbone & Clean Workspace","Evidence-Led Next Development","runtime, governance","Medium"
+- No capability-growth issue starts until this decision is recorded.","VisuLive","Proof Backbone & Clean Workspace","Evidence-Led Next Development","runtime, governance","Medium","Blocked"

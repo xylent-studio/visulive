@@ -2,7 +2,9 @@
 
 Date: 2026-04-28
 Workspace: https://linear.app/visulive
-Status: Official Linear MCP authenticated on 2026-04-28. Labels are seeded. Project and issue writes require interactive confirmation after restarting Codex desktop so the current thread can load the new MCP server.
+Status: Created in Linear through the direct `mcp__linear__` connector on 2026-04-28.
+
+Use `mcp__linear__` for VisuLive writes. Do not use the stale `mcp__codex_apps__linear_mcp_server` connector for this workspace; it still reads the older `learning-capture-pipeline` workspace in this session.
 
 ## Project
 
@@ -13,6 +15,8 @@ Create project:
 - Team key: `VIS`
 - Priority: High
 - Summary: Make the active rewrite branch clean, proof-gated, and ready for fresh serious capture before any push, deploy, staging, or capability expansion.
+- URL: https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c
+- Project document: https://linear.app/visulive/document/proof-backbone-operating-notes-df03eeaad9bb
 
 ## Milestones
 
@@ -34,6 +38,21 @@ Create project:
 - `linear-ops`
 
 ## Issues
+
+Created issues:
+
+- `VIS-5` Verify Linear workspace scope before seeding
+- `VIS-6` Clean artifact boundaries and ignored generated evidence
+- `VIS-7` Commit structured proof-ready workspace stack
+- `VIS-8` Close run journal/build identity findings
+- `VIS-9` Close release/proof gate findings
+- `VIS-10` Close run package/catalog/analyzer findings
+- `VIS-11` Close runtime/docs anthology truth findings
+- `VIS-12` Run primary-benchmark proof canary
+- `VIS-13` Collect clean operator-trust proof
+- `VIS-14` Collect clean primary-benchmark proof
+- `VIS-15` Review proof recommendations and decide governance follow-up
+- `VIS-16` Decide PostSystem readiness after authority proof
 
 ### Clean artifact boundaries and ignored generated evidence
 

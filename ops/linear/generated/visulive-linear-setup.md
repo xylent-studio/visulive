@@ -5,12 +5,12 @@ Team: VisuLive
 Team key: VIS
 Project: Proof Backbone & Clean Workspace
 
-## Connector Recovery
+## Connector Truth
 
-1. Enable or reconnect the Linear app in Codex desktop.
-2. Complete OAuth against the `visulive` workspace.
-3. Restart the Codex session if MCP tools still fail.
-4. Ask Codex to run Linear setup again.
+- Use the direct `mcp__linear__` connector for VisuLive.
+- Do not use the stale `mcp__codex_apps__linear_mcp_server` connector if it reads `learning-capture-pipeline`.
+- Before any write, verify the project URL starts with `https://linear.app/visulive/` and the team key is `VIS`.
+- If the direct connector is unavailable, reconnect `codex mcp login linear` and verify workspace reads before writing.
 
 ## Project
 
@@ -37,9 +37,27 @@ This project is the operating backbone for the next VisuLive wave: clean committ
 
 ## Issues
 
+### Verify Linear workspace scope before seeding
+
+Priority: Urgent
+State: Done
+Milestone: Clean Source Boundary
+Labels: linear-ops
+
+Prevent VisuLive work from being created in the wrong Linear workspace.
+
+Owner lane: Linear Ops.
+
+Acceptance:
+- Linear reads visibly target `https://linear.app/visulive`, not `https://linear.app/learning-capture-pipeline`.
+- Team is `VisuLive` with key `VIS`.
+- Existing projects and issues are checked for duplicates before any writes.
+- If OAuth is scoped to the wrong workspace, reconnect Linear before seeding.
+
 ### Clean artifact boundaries and ignored generated evidence
 
 Priority: High
+State: Done
 Milestone: Clean Source Boundary
 Labels: artifact-policy, evidence
 
@@ -56,6 +74,7 @@ Acceptance:
 ### Commit structured proof-ready workspace stack
 
 Priority: High
+State: Done
 Milestone: Clean Source Boundary
 Labels: linear-ops, docs
 
@@ -72,6 +91,7 @@ Acceptance:
 ### Close release/proof gate findings
 
 Priority: Urgent
+State: Done
 Milestone: Review Finding Closure
 Labels: proof-gate, release
 
@@ -88,6 +108,7 @@ Acceptance:
 ### Close run journal/build identity findings
 
 Priority: Urgent
+State: Done
 Milestone: Review Finding Closure
 Labels: proof-gate, evidence, operator-ux
 
@@ -104,6 +125,7 @@ Acceptance:
 ### Close run package/catalog/analyzer findings
 
 Priority: High
+State: Done
 Milestone: Review Finding Closure
 Labels: evidence
 
@@ -120,6 +142,7 @@ Acceptance:
 ### Close runtime/docs anthology truth findings
 
 Priority: High
+State: Done
 Milestone: Review Finding Closure
 Labels: runtime, docs
 
@@ -132,13 +155,14 @@ Acceptance:
 - AGENTS and deployment docs match current runtime and release-gate truth.
 - Future agents are directed toward PostSystem and proof-led governance, not stale facade assumptions.
 
-### Collect clean primary-benchmark proof
+### Run primary-benchmark proof canary
 
 Priority: Urgent
+State: Ready
 Milestone: Fresh Serious Proof
-Labels: proof-gate, evidence
+Labels: proof-gate, evidence, operator-ux
 
-Collect the first serious current proof run on the hardened backbone.
+Run a short proof canary before spending operator time on a full no-touch benchmark.
 
 Owner lane: Operator / Evidence.
 
@@ -146,12 +170,34 @@ Acceptance:
 - Run uses `npm run dev:proof`.
 - Scenario is `Primary benchmark`.
 - Source is PC Audio.
+- Duration is 60-90 seconds.
+- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.
+- Canary is archived or reviewed before the full benchmark run starts.
+
+### Collect clean primary-benchmark proof
+
+Priority: Urgent
+State: Ready
+Milestone: Fresh Serious Proof
+Labels: proof-gate, evidence
+
+Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.
+
+Owner lane: Operator / Evidence.
+
+Acceptance:
+- Run uses `npm run dev:proof`.
+- Scenario is `Primary benchmark`.
+- Source is PC Audio.
+- Duration is 6-8 minutes.
 - Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.
 - `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.
+- `authority split validation` and `primary authority proof` gates pass before governance is treated as stable.
 
 ### Collect clean operator-trust proof
 
 Priority: High
+State: Blocked
 Milestone: Fresh Serious Proof
 Labels: proof-gate, operator-ux, evidence
 
@@ -168,6 +214,7 @@ Acceptance:
 ### Review proof recommendations and decide governance follow-up
 
 Priority: High
+State: Blocked
 Milestone: Evidence-Led Next Development
 Labels: governance, evidence
 
@@ -184,6 +231,7 @@ Acceptance:
 ### Decide PostSystem readiness after authority proof
 
 Priority: Medium
+State: Blocked
 Milestone: Evidence-Led Next Development
 Labels: runtime, governance
 

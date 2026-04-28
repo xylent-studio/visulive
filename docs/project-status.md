@@ -32,7 +32,8 @@ Latest local verification on `codex/full-version-foundation` after proof-run rel
 Current standing warning:
 
 - the build still emits a large `three-vendor` chunk warning
-- the latest April 28 run is useful for debugging only, not promotion: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
+- the invalid April 28 run is now archived as debugging evidence only: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
+- Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
 
 ## Start-Right Audit Snapshot
 
@@ -83,6 +84,7 @@ The next wave is:
 
 - `Proof / Authority Validation`
 - run it only after launching through `npm run dev:proof`, selecting a Proof Scenario in `Backstage -> Capture`, and confirming the launch surface says serious proof is ready
+- start with the 60-90 second `Primary benchmark` canary tracked by `VIS-12`, then run the 6-8 minute primary benchmark tracked by `VIS-14`
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
 task framing.

@@ -26,9 +26,11 @@ Read first:
 - [https://visulive-v1.xylent.studio](https://visulive-v1.xylent.studio) is live over HTTPS
 - the preserved V1 GitHub release is published at [https://github.com/xylent-studio/visulive/releases/tag/v1.0.0](https://github.com/xylent-studio/visulive/releases/tag/v1.0.0)
 - Cloudflare/Netlify helper scripts are installed for future domain and release work
-- Linear MCP is registered and OAuth-authenticated at the Codex CLI level; the current desktop thread still needs a restart before in-thread Linear project and issue writes can be confirmed
+- Linear is active through the direct `mcp__linear__` connector; use that connector for VisuLive and do not use the stale `mcp__codex_apps__linear_mcp_server` namespace, which still reads the older `learning-capture-pipeline` workspace in this session
+- Linear project is created: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c), with issues `VIS-5` through `VIS-16`
 - Proof-run persistence now snapshots run journals/manifests before async writes, retries transient File System Access write-state failures, and avoids recursive `run-journal-save-failed` invalidation loops
 - the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing scenario/build/folder/replay readiness is visible before `Start Show`
+- the invalid April 28 run `run_20260428_135301_05ypae` is archived as debugging evidence only, leaving `captures/inbox/runs` empty for the next proof pass
 
 This means the next agent should return to proof validation work, not release cleanup or capability expansion.
 
@@ -57,6 +59,7 @@ The highest-leverage move is:
    - launch with `npm run dev:proof`
    - select the scenario under `Backstage -> Capture -> Proof Scenario`
    - start only when the launch surface reports serious proof is ready
+   - first run `Primary benchmark` as a 60-90 second canary to prove folder write, journal, clips, stills, no-touch tracking, and zero invalidations
    - fresh no-touch `PC Audio` benchmark batch
    - analyzer review
    - proof-pack review
@@ -82,6 +85,7 @@ The highest-leverage move is:
 - do not use the April 28 invalid run as current proof; it is debugging evidence only
 - do not treat `systems/**` or `governors/**` folder names as proof that extraction is done
 - do not spend time on legacy V1 work unless explicitly asked
+- do not promote a run to `current-canonical` until it has a review note, zero invalidations, no missed capture opportunities, validated scenario assessment, screenshot/still refs, and relevant strict gates passing
 
 ## Success Criteria
 

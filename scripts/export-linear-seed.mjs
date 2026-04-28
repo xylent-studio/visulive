@@ -43,6 +43,7 @@ function writeCsv(seed) {
     "Milestone",
     "Labels",
     "Priority",
+    "State",
   ];
   const rows = seed.issues.map((issue) => [
     issue.title,
@@ -52,6 +53,7 @@ function writeCsv(seed) {
     issue.milestone,
     issue.labels,
     priorityName(issue.priority),
+    issue.state ?? "",
   ]);
 
   const contents = [header, ...rows]
@@ -70,12 +72,12 @@ function writeMarkdown(seed) {
     `Team key: ${seed.team.key}`,
     `Project: ${project.name}`,
     "",
-    "## Connector Recovery",
+    "## Connector Truth",
     "",
-    "1. Enable or reconnect the Linear app in Codex desktop.",
-    "2. Complete OAuth against the `visulive` workspace.",
-    "3. Restart the Codex session if MCP tools still fail.",
-    "4. Ask Codex to run Linear setup again.",
+    "- Use the direct `mcp__linear__` connector for VisuLive.",
+    "- Do not use the stale `mcp__codex_apps__linear_mcp_server` connector if it reads `learning-capture-pipeline`.",
+    "- Before any write, verify the project URL starts with `https://linear.app/visulive/` and the team key is `VIS`.",
+    "- If the direct connector is unavailable, reconnect `codex mcp login linear` and verify workspace reads before writing.",
     "",
     "## Project",
     "",
@@ -97,6 +99,7 @@ function writeMarkdown(seed) {
       `### ${issue.title}`,
       "",
       `Priority: ${priorityName(issue.priority)}`,
+      `State: ${issue.state ?? "Backlog"}`,
       `Milestone: ${issue.milestone}`,
       `Labels: ${issue.labels.join(", ")}`,
       "",

@@ -115,10 +115,20 @@
   },
   "issues": [
     {
+      "title": "Verify Linear workspace scope before seeding",
+      "project": "Proof Backbone & Clean Workspace",
+      "milestone": "Clean Source Boundary",
+      "priority": "Urgent",
+      "state": "Done",
+      "labels": ["linear-ops"],
+      "description": "Prevent VisuLive work from being created in the wrong Linear workspace.\n\nOwner lane: Linear Ops.\n\nAcceptance:\n- Linear reads visibly target `https://linear.app/visulive`, not `https://linear.app/learning-capture-pipeline`.\n- Team is `VisuLive` with key `VIS`.\n- Existing projects and issues are checked for duplicates before any writes.\n- If OAuth is scoped to the wrong workspace, reconnect Linear before seeding."
+    },
+    {
       "title": "Clean artifact boundaries and ignored generated evidence",
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Clean Source Boundary",
       "priority": "High",
+      "state": "Done",
       "labels": ["artifact-policy", "evidence"],
       "description": "Generated evidence and heavy release outputs must not dirty source Git while lightweight provenance stays trackable.\n\nOwner lane: Evidence / Capture / Analyzer.\n\nAcceptance:\n- Generated SQLite catalogs and run payloads do not dirty Git.\n- Heavy v1 preserved artifacts stay out of source Git.\n- Lightweight release records, checksums, manifests, and docs remain trackable.\n- `git status --short` is clean after proof/report commands."
     },
@@ -127,6 +137,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Clean Source Boundary",
       "priority": "High",
+      "state": "Done",
       "labels": ["linear-ops", "docs"],
       "description": "Convert accumulated local work into a clean, reviewable commit stack before fresh serious proof.\n\nOwner lane: Repo Operations.\n\nAcceptance:\n- Dirty workspace is converted into focused commits.\n- `git status --short` is empty.\n- `npm run proof:preflight` passes without `--allow-dirty`.\n- Checkpoint records commit stack and next proof steps."
     },
@@ -135,6 +146,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Review Finding Closure",
       "priority": "Urgent",
+      "state": "Done",
       "labels": ["proof-gate", "release"],
       "description": "Release verification must not pass when proof gates fail.\n\nOwner lane: Release / Evidence.\n\nAcceptance:\n- `release:verify` requires current benchmark truth and strict proof-pack gates.\n- `npm run benchmark:validate -- --require-current` fails until active/current-canonical benchmark exists.\n- `npm run proof-pack -- --limit 1 --strict` fails until a current-proof-eligible run exists.\n- `npm run release:verify` fails until strict proof and benchmark gates pass."
     },
@@ -143,6 +155,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Review Finding Closure",
       "priority": "Urgent",
+      "state": "Done",
       "labels": ["proof-gate", "evidence", "operator-ux"],
       "description": "Serious proof must reject weak, dirty, or unknown build identity and must not serialize false screenshot references.\n\nOwner lane: Evidence / Operator UX.\n\nAcceptance:\n- Serious proof rejects dev, unverified, dirty, unknown, or invalid build identity.\n- Run metadata uses the shared build identity validator.\n- Checkpoint still references are registered only after successful save.\n- Save failure invalidates the proof run with explicit reasons."
     },
@@ -151,6 +164,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Review Finding Closure",
       "priority": "High",
+      "state": "Done",
       "labels": ["evidence"],
       "description": "Run packages and evidence query tooling must be safe and chronologically honest.\n\nOwner lane: Evidence / Capture / Analyzer.\n\nAcceptance:\n- Run package promotion refuses overwrites.\n- Recommendation gates can pass, warn, or fail.\n- `after-commit` evidence queries use commit/build timestamps, not lexicographic hash comparison.\n- Catalog can answer recent failure pattern queries without misleading ordering."
     },
@@ -159,22 +173,34 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Review Finding Closure",
       "priority": "High",
+      "state": "Done",
       "labels": ["runtime", "docs"],
       "description": "Machine-readable and prose canon must match current runtime ownership.\n\nOwner lane: Runtime / Docs.\n\nAcceptance:\n- Machine-readable anthology catalog reflects HeroSystem owned lifecycle status.\n- AGENTS and deployment docs match current runtime and release-gate truth.\n- Future agents are directed toward PostSystem and proof-led governance, not stale facade assumptions."
+    },
+    {
+      "title": "Run primary-benchmark proof canary",
+      "project": "Proof Backbone & Clean Workspace",
+      "milestone": "Fresh Serious Proof",
+      "priority": "Urgent",
+      "state": "Ready",
+      "labels": ["proof-gate", "evidence", "operator-ux"],
+      "description": "Run a short proof canary before spending operator time on a full no-touch benchmark.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 60-90 seconds.\n- Run package includes journal, manifest, clips, stills, selected scenario, active no-touch tracking, and zero invalidations.\n- Canary is archived or reviewed before the full benchmark run starts."
     },
     {
       "title": "Collect clean primary-benchmark proof",
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Fresh Serious Proof",
       "priority": "Urgent",
+      "state": "Ready",
       "labels": ["proof-gate", "evidence"],
-      "description": "Collect the first serious current proof run on the hardened backbone.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.\n- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete."
+      "description": "Collect the first serious current authority-validation run on the hardened backbone after the proof canary succeeds.\n\nOwner lane: Operator / Evidence.\n\nAcceptance:\n- Run uses `npm run dev:proof`.\n- Scenario is `Primary benchmark`.\n- Source is PC Audio.\n- Duration is 6-8 minutes.\n- Run is no-touch, current-proof-eligible, screenshot-backed, and reviewed.\n- `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>` complete.\n- `authority split validation` and `primary authority proof` gates pass before governance is treated as stable."
     },
     {
       "title": "Collect clean operator-trust proof",
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Fresh Serious Proof",
       "priority": "High",
+      "state": "Blocked",
       "labels": ["proof-gate", "operator-ux", "evidence"],
       "description": "Collect proof that a normal operator can arm and run the show without hidden manual intervention.\n\nOwner lane: Operator UX / Evidence.\n\nAcceptance:\n- Scenario is `Operator trust`.\n- Operator-trust scenario clears no-touch and intervention requirements.\n- Run package is reviewed and promoted or archived as a whole package.\n- Any invalidation reason produces actionable operator recovery guidance."
     },
@@ -183,6 +209,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Evidence-Led Next Development",
       "priority": "High",
+      "state": "Blocked",
       "labels": ["governance", "evidence"],
       "description": "Use fresh recommendation JSON and review notes to choose the next narrow correction.\n\nOwner lane: Governance / Evidence.\n\nAcceptance:\n- Recommendation JSON is reviewed.\n- Overbright, ring persistence, chamber presence, and world takeover outcomes determine the next correction.\n- If proof is weak, next pass is AuthorityGovernor, LightingSystem, and ParticleSystem only.\n- If proof is strong, move to PostSystem readiness."
     },
@@ -191,6 +218,7 @@
       "project": "Proof Backbone & Clean Workspace",
       "milestone": "Evidence-Led Next Development",
       "priority": "Normal",
+      "state": "Blocked",
       "labels": ["runtime", "governance"],
       "description": "Decide whether the runtime is ready for the next structural extraction.\n\nOwner lane: Runtime / Governance.\n\nAcceptance:\n- If authority proof holds, next structural target is `PostSystem`.\n- If authority proof fails, perform one focused governance correction first.\n- No capability-growth issue starts until this decision is recorded."
     }

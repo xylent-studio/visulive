@@ -1,6 +1,6 @@
 # VisuLive Current Program
 
-Date: 2026-04-23
+Date: 2026-04-28
 Status: Active canonical program brief
 
 This file is the repo's active marching order.
@@ -52,6 +52,13 @@ That means the main job is:
 - make untouched `Start Show` compelling enough to trust
 - grow internal anthology capability without growing public clutter
 - install proof and graduation rules strong enough for long-term expansion
+
+April 28 proof-first override:
+
+- architecture progress is not enough to start more creative repertoire work
+- the next active gate is fresh valid local proof on the current authority/runtime backbone
+- `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
+- no capability wave, staging host, public UX expansion, or major new extraction starts until the current proof path is valid
 
 ## Immediate Start-Right Gate
 
@@ -106,12 +113,12 @@ This is the canonical phase ordering for the current program:
 
 1. anthology canon and runtime truth
 2. structural extraction to orchestration-first
-3. cue grammar and regime hierarchy
-4. audio intelligence and silence dignity
-5. first anthology repertoire
-6. consequence, post, and aftermath ownership
-7. proof, capture, and analyzer hardening
-8. operator UX and trust
+3. proof, capture, and analyzer hardening on the extracted backbone
+4. fresh authority/no-touch proof on the current branch
+5. proof-led governance correction, if the evidence shows authority, overbright, or ring failures
+6. `PostSystem` ownership extraction, only after authority/no-touch proof holds
+7. cue grammar, regime hierarchy, audio intelligence, and silence dignity
+8. first owned anthology repertoire and capability wave
 9. release, hosting, backup, and benchmarking discipline
 10. broader public expansion only after the anthology backbone clears proof
 
@@ -126,13 +133,23 @@ The next sequence is:
    - treat `src/scene/systems/**` and `src/scene/governors/**` as namespace shims unless their implementation is actually there
    - demote legacy shell files and language that still imply the old quick-start/settings product
    - keep proof-pack and release gates strict so the expanded scenario taxonomy is actually required
-2. keep canon aligned around the anthology engine, runtime architecture, and graduation model
+2. keep active evidence surfaces clean before the next proof pass
+   - archive invalid inbox runs instead of letting stale current-looking artifacts pollute analysis
+   - start serious proof from an empty active run inbox
+   - treat invalid April 28 evidence as debugging context only
+3. run the proof canary and then the serious authority/no-touch proof wave
+   - `Primary benchmark` canary, PC Audio, no-touch, 60-90 seconds
+   - full `Primary benchmark`, PC Audio, no-touch, 6-8 minutes
+   - `Operator trust`, no-touch, 6-8 minutes
+4. keep canon aligned around the anthology engine, runtime architecture, and graduation model
    - use [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the hard continuation layer
-3. finish structural extraction until post, compositor, memory, motion/event/camera, and remaining compatibility context have owned homes
-4. formalize the audio -> regime -> cue -> stage-intent ladder so the show stops resolving everything into one answer
-5. strengthen phrase confidence, silence semantics, sparse-music behavior, and low-energy living states
-6. widen repertoire through owned systems only: hero ecology, world mutation, consequence, lighting, particles, compositor, memory
-7. rerun proof packs against the new backbone with stronger analyzer coverage
+5. if proof fails, do the narrow correction implied by the evidence
+   - readiness or persistence failure: evidence/operator tooling only
+   - start/stop failure: narrow runtime regression only
+   - authority or overbright failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, or stage cue policy only
+   - cue/silence/diversity failure: audio/show-direction governance only
+6. if authority plus no-touch proof holds, start `PostSystem` ownership extraction
+7. widen repertoire through owned systems only after proof and ownership are both real
 8. keep the active public host proof-backed and deliberate, and only provision `frontier` later when a true staging lane is worth the complexity
 
 ## Current Program Priorities
