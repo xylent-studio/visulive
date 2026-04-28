@@ -2,7 +2,7 @@
 
 Date: 2026-04-28
 Workspace: https://linear.app/visulive
-Status: Connector unavailable in Codex during this pass; create or verify these records in the Linear web UI.
+Status: Official Linear MCP authenticated on 2026-04-28. Labels are seeded. Project and issue writes require interactive confirmation after restarting Codex desktop so the current thread can load the new MCP server.
 
 ## Project
 

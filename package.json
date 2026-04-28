@@ -40,6 +40,7 @@
     "prod:smoke:stable": "node ./scripts/prod-smoke.mjs --lane stable",
     "prod:smoke:frontier": "node ./scripts/prod-smoke.mjs --lane frontier",
     "prod:smoke:legacy": "node ./scripts/prod-smoke.mjs --lane legacy",
+    "linear:export-seed": "node ./scripts/export-linear-seed.mjs",
     "release:verify": "npm run release:verify:stable",
     "release:verify:strict": "npm run benchmark:validate -- --require-current && npm run check && npm run proof-pack -- --limit 5 --strict",
     "release:verify:stable": "node ./scripts/run-with-build-info.mjs --lane stable --proof proof-pack -- npm run release:verify:strict",
