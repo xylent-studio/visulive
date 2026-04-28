@@ -59,6 +59,7 @@ April 28 proof-first override:
 - the next active gate is fresh valid local proof on the current authority/runtime backbone
 - `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
+- `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
 - no capability wave, staging host, public UX expansion, or major new extraction starts until the current proof path is valid
 
 ## Immediate Start-Right Gate
@@ -141,6 +142,7 @@ The next sequence is:
 3. run the proof canary and then the serious authority/no-touch proof wave
    - select one `Backstage -> Capture -> Proof Mission` per run
    - `Primary benchmark` canary, PC Audio, no-touch, 60-90 seconds
+   - end every serious run with `Finish Proof Run` so pending clips close, journal/manifest finalization is written, and the receipt commands are shown
    - full `Primary benchmark`, PC Audio, no-touch, 6-8 minutes
    - `Operator trust`, no-touch, 6-8 minutes
    - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid

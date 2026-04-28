@@ -39,9 +39,9 @@ expect(
 );
 
 expect(
-  buildProofPack.includes('if (args.strict && failedGates.length > 0)') &&
+  buildProofPack.includes('if (args.strict && manifest.releaseReady !== true)') &&
     buildProofPack.includes('process.exitCode = 1'),
-  'proof-pack strict mode must exit non-zero on failed gates.'
+  'proof-pack strict mode must exit non-zero unless release readiness is true.'
 );
 
 expect(
@@ -61,6 +61,14 @@ expect(
   app.includes('buildInfo: createReplayBuildInfo(BUILD_INFO)') &&
     app.includes('hasBuildIdentity: isReplayBuildInfoValid(BUILD_INFO)'),
   'run metadata must use the shared build identity validator.'
+);
+
+expect(
+  runJournal.includes('export function deriveProofMissionEligibility') &&
+    app.includes('deriveProofMissionEligibility({') &&
+    app.includes('proofMissionEligibility') &&
+    app.includes('artifactIntegrity'),
+  'current-proof eligibility must be derived from final Proof Mission gates and artifact integrity.'
 );
 
 const saveIndex = app.indexOf('const stillSaveResult = await saveCaptureBlobsToDirectory');

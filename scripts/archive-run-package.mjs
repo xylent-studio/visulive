@@ -1,7 +1,8 @@
 import {
   loadRunPackage,
   moveRunPackage,
-  updateRunPackageArtifacts
+  updateRunPackageArtifacts,
+  validateRunPackageIntegrity
 } from './run-package-utils.mjs';
 
 function parseArgs(argv) {
@@ -27,9 +28,12 @@ function parseArgs(argv) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runPackage = await loadRunPackage(args.runId);
+  const integrity = await validateRunPackageIntegrity(runPackage);
 
   runPackage.journal.metadata.lifecycleState = 'archive';
   runPackage.manifest.metadata.lifecycleState = 'archive';
+  runPackage.journal.metadata.artifactIntegrity = integrity;
+  runPackage.manifest.metadata.artifactIntegrity = integrity;
   runPackage.journal.metadata.updatedAt = new Date().toISOString();
   runPackage.manifest.metadata.updatedAt = runPackage.journal.metadata.updatedAt;
 
@@ -37,6 +41,9 @@ async function main() {
   await updateRunPackageArtifacts(runPackage);
 
   console.log(`Run package ${args.runId} archived at ${runPackage.runDirectory}`);
+  if (integrity.verdict !== 'pass') {
+    console.warn(`Archived with artifact-integrity verdict ${integrity.verdict}.`);
+  }
 }
 
 await main();

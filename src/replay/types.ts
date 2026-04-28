@@ -121,8 +121,10 @@ export type ReplayProofInvalidationCode =
   | 'capture-folder-permission-lost'
   | 'capture-save-failed'
   | 'run-journal-save-failed'
+  | 'run-finalize-failed'
   | 'replay-entered'
   | 'operator-intervention'
+  | 'explicit-exploratory-override'
   | 'route-integrity-break'
   | 'scenario-drift';
 
@@ -149,17 +151,65 @@ export type ReplayProofValidity = {
   recoveryGuidance: string | null;
 };
 
-export type ReplayRunLifecycleState =
-  | 'inbox'
-  | 'reviewed-candidate'
-  | 'canonical'
-  | 'archive';
-
 export type ReplayRunGateOutcome = {
   id: string;
   status: 'pass' | 'warn' | 'fail';
   rationale: string;
 };
+
+export type ReplayProofRunState =
+  | 'idle'
+  | 'setup'
+  | 'armed'
+  | 'launching'
+  | 'live'
+  | 'finishing'
+  | 'finalized'
+  | 'invalidated';
+
+export type ReplayArtifactIntegrityIssue = {
+  id: string;
+  severity: 'warn' | 'fail';
+  reason: string;
+  fileName?: string;
+};
+
+export type ReplayArtifactIntegrity = {
+  verdict: 'pass' | 'warn' | 'fail';
+  checkedAt: string;
+  clipReferenceCount: number;
+  stillReferenceCount: number;
+  manifestClipCount?: number;
+  manifestStillCount?: number;
+  issues: ReplayArtifactIntegrityIssue[];
+};
+
+export type ReplayProofMissionEligibilityVerdict =
+  | 'eligible'
+  | 'ineligible'
+  | 'exploratory';
+
+export type ReplayProofMissionEligibility = {
+  verdict: ReplayProofMissionEligibilityVerdict;
+  currentProofEligible: boolean;
+  checkedAt: string;
+  missionKind?: ReplayProofMissionKind;
+  durationMs: number;
+  gates: ReplayRunGateOutcome[];
+  rationale: string[];
+};
+
+export type ReplaySuppressedIntervention = {
+  reason: string;
+  source: 'ui' | 'keyboard-shortcut' | 'system';
+  timestampMs: number;
+};
+
+export type ReplayRunLifecycleState =
+  | 'inbox'
+  | 'reviewed-candidate'
+  | 'canonical'
+  | 'archive';
 
 export type ReplayTuningRecommendationSeverity =
   | 'low'
@@ -291,6 +341,12 @@ export type ReplayCaptureMetadata = {
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
+  proofRunState?: ReplayProofRunState;
+  finishedAt?: string;
+  finalizedAt?: string;
+  proofMissionEligibility?: ReplayProofMissionEligibility;
+  suppressedInterventions?: ReplaySuppressedIntervention[];
+  artifactIntegrity?: ReplayArtifactIntegrity;
   runLifecycleState?: ReplayRunLifecycleState;
   directorBiasSnapshot?: DirectorBiasState;
   triggerKind?: string;
@@ -470,6 +526,8 @@ export type ReplayRunJournalSample = {
 
 export type ReplayRunEventMarkerKind =
   | 'run-start'
+  | 'run-finish'
+  | 'run-finalized'
   | 'show-state-change'
   | 'cue-change'
   | 'authority-turn'
@@ -479,6 +537,8 @@ export type ReplayRunEventMarkerKind =
   | 'quality-downgrade'
   | 'proof-invalidated'
   | 'intervention'
+  | 'suppressed-intervention'
+  | 'exploratory-override'
   | 'route-change'
   | 'clip-saved';
 
@@ -520,6 +580,12 @@ export type ReplayRunJournalMetadata = {
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
+  proofRunState?: ReplayProofRunState;
+  finishedAt?: string;
+  finalizedAt?: string;
+  proofMissionEligibility?: ReplayProofMissionEligibility;
+  suppressedInterventions?: ReplaySuppressedIntervention[];
+  artifactIntegrity?: ReplayArtifactIntegrity;
   lifecycleState: ReplayRunLifecycleState;
   sessionStartedAt: string;
   sessionElapsedMs: number;
@@ -552,6 +618,12 @@ export type ReplayRunManifestMetadata = {
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
+  proofRunState?: ReplayProofRunState;
+  finishedAt?: string;
+  finalizedAt?: string;
+  proofMissionEligibility?: ReplayProofMissionEligibility;
+  suppressedInterventions?: ReplaySuppressedIntervention[];
+  artifactIntegrity?: ReplayArtifactIntegrity;
   lifecycleState: ReplayRunLifecycleState;
   clipCount: number;
   stillCount: number;

@@ -159,6 +159,154 @@ export function resolveRunStillPaths(runPackage) {
   );
 }
 
+export async function validateRunPackageIntegrity(runPackage) {
+  const issues = [];
+  const checkedAt = new Date().toISOString();
+  const addIssue = (id, severity, reason, fileName = undefined) => {
+    issues.push({
+      id,
+      severity,
+      reason,
+      ...(fileName ? { fileName } : {})
+    });
+  };
+  const journalRunId = runPackage.journal?.metadata?.runId;
+  const manifestRunId = runPackage.manifest?.metadata?.runId;
+
+  if (journalRunId !== runPackage.runId) {
+    addIssue(
+      'journal-run-id-mismatch',
+      'fail',
+      `Journal run id "${journalRunId ?? 'missing'}" does not match package "${runPackage.runId}".`
+    );
+  }
+
+  if (manifestRunId !== runPackage.runId) {
+    addIssue(
+      'manifest-run-id-mismatch',
+      'fail',
+      `Manifest run id "${manifestRunId ?? 'missing'}" does not match package "${runPackage.runId}".`
+    );
+  }
+
+  if (
+    runPackage.manifest?.journalFileName &&
+    runPackage.manifest.journalFileName !== path.basename(runPackage.journalPath)
+  ) {
+    addIssue(
+      'journal-file-mismatch',
+      'fail',
+      `Manifest journalFileName "${runPackage.manifest.journalFileName}" does not match ${path.basename(runPackage.journalPath)}.`
+    );
+  }
+
+  const clipFiles = runPackage.manifest?.clipFiles ?? [];
+  const stillFiles = runPackage.manifest?.stillFiles ?? [];
+  const journalClips = runPackage.journal?.clips ?? [];
+  const journalStills = runPackage.journal?.checkpointStills ?? [];
+
+  if (clipFiles.length !== journalClips.length) {
+    addIssue(
+      'clip-count-mismatch',
+      'fail',
+      `Manifest has ${clipFiles.length} clip files but journal has ${journalClips.length} clip references.`
+    );
+  }
+
+  if (stillFiles.length !== journalStills.length) {
+    addIssue(
+      'still-count-mismatch',
+      'fail',
+      `Manifest has ${stillFiles.length} still files but journal has ${journalStills.length} still references.`
+    );
+  }
+
+  if (runPackage.manifest?.metadata?.clipCount !== clipFiles.length) {
+    addIssue(
+      'manifest-clip-count-mismatch',
+      'fail',
+      `Manifest metadata clipCount=${runPackage.manifest?.metadata?.clipCount ?? 'missing'} does not match ${clipFiles.length}.`
+    );
+  }
+
+  if (runPackage.manifest?.metadata?.stillCount !== stillFiles.length) {
+    addIssue(
+      'manifest-still-count-mismatch',
+      'fail',
+      `Manifest metadata stillCount=${runPackage.manifest?.metadata?.stillCount ?? 'missing'} does not match ${stillFiles.length}.`
+    );
+  }
+
+  for (const relativePath of clipFiles) {
+    const filePath = path.join(runPackage.runDirectory, relativePath);
+
+    if (!(await pathExists(filePath))) {
+      addIssue(
+        'missing-clip-file',
+        'fail',
+        `Referenced clip ${relativePath} does not exist in the run package.`,
+        relativePath
+      );
+    }
+  }
+
+  for (const relativePath of stillFiles) {
+    const filePath = path.join(runPackage.runDirectory, relativePath);
+
+    if (!(await pathExists(filePath))) {
+      addIssue(
+        'missing-still-file',
+        'fail',
+        `Referenced still ${relativePath} does not exist in the run package.`,
+        relativePath
+      );
+    }
+  }
+
+  const validity = runPackage.journal?.metadata?.proofValidity;
+  const eligibility = runPackage.journal?.metadata?.proofMissionEligibility;
+
+  if (validity?.currentProofEligible && eligibility?.currentProofEligible !== true) {
+    addIssue(
+      'eligibility-validity-disagree',
+      'fail',
+      'Run is marked currentProofEligible without an eligible Proof Mission verdict.'
+    );
+  }
+
+  if ((validity?.invalidations ?? []).length > 0 && validity?.currentProofEligible) {
+    addIssue(
+      'invalidated-current-proof',
+      'fail',
+      'Run has invalidations but is marked currentProofEligible.'
+    );
+  }
+
+  if (
+    runPackage.journal?.metadata?.proofRunState === 'finalized' &&
+    runPackage.manifest?.metadata?.proofRunState !== 'finalized'
+  ) {
+    addIssue(
+      'lifecycle-state-disagreement',
+      'fail',
+      'Journal is finalized but manifest does not agree.'
+    );
+  }
+
+  const hasFailures = issues.some((issue) => issue.severity === 'fail');
+  const hasWarnings = issues.some((issue) => issue.severity === 'warn');
+
+  return {
+    verdict: hasFailures ? 'fail' : hasWarnings ? 'warn' : 'pass',
+    checkedAt,
+    clipReferenceCount: clipFiles.length,
+    stillReferenceCount: stillFiles.length,
+    manifestClipCount: clipFiles.length,
+    manifestStillCount: stillFiles.length,
+    issues
+  };
+}
+
 export async function copyFileIntoRunPackage(runPackage, sourcePath, destinationFileName) {
   const resolvedSourcePath = path.resolve(workspaceRoot, sourcePath);
   const targetPath = path.join(runPackage.runDirectory, destinationFileName);

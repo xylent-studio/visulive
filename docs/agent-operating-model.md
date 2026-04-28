@@ -140,7 +140,7 @@ For the current repo state, the lead integrator should sequence work like this:
 
 Why this order:
 - architecture progress is not enough to justify more creative work
-- the active blocker is fresh valid proof on the current authority/runtime backbone
+- the active blocker is a valid Proof Mission lifecycle on the current authority/runtime backbone: armed setup, successful audio start, live journal, `Finish Proof Run`, final mission eligibility, and artifact integrity
 - the invalid April 28 run is debugging evidence only, not current proof
 - broad visual or capability work before proof risks optimizing from stale or invalid evidence
 

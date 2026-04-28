@@ -107,17 +107,20 @@ Current workflow:
 9. arm `Proof Wave`; do not manually manage auto capture, auto-save, proof stills, or the route for serious proof
 10. verify the proof-readiness checks are green before pressing `Start Show`
 11. run one mission cleanly
-12. if using manual capture, click `Stop + Save`
-13. if using auto capture, let the app write the run package and clip `.json` captures into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-14. use `Load Latest Auto`, `Load`, `Play`, `Pause`, `Restart`, `Return To Live`, and the scrub bar to review the capture
+12. end serious proof with `Finish Proof Run`; this closes pending clips, finalizes the journal/manifest, checks artifact integrity, and shows the receipt commands
+13. for exploratory manual capture only, click `Stop + Save`
+14. if using auto capture, let the app write the run package and clip `.json` captures into [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
+15. use `Load Latest Auto`, `Load`, `Play`, `Pause`, `Restart`, `Return To Live`, and the scrub bar to review the capture
 
 Important:
 - manual capture and auto evidence capture are intentionally paused while replay mode is active
 - return to live mode before expecting new evidence to be recorded
 - serious proof is mission-gated; `Start Show` should not count as a serious run when folder, build identity, mission, replay, or route-coherence checks fail
 - a serious run gets a `ProofMissionSnapshot` at run start; samples, clips, stills, journal, and manifest should inherit that locked mission
+- `currentProofEligible` is finalization-derived from `deriveProofMissionEligibility(...)`; live readiness is not proof eligibility
+- clip references should register only after the clip JSON saves successfully, and run review/promotion should fail dangling references
 - remembered local preferences are only defaults; the mission snapshot is the evidence truth
-- `M` and Advanced steering are suppressed or invalidating during serious no-touch missions
+- `M`, route changes, manual capture, replay, and evidence setting changes are suppressed during live serious no-touch missions unless the operator explicitly overrides the run to exploratory
 - fresh auto captures should now save with real wall-clock labels such as `auto_drop_2026-04-07_21-50-53.json`
 - if you still see new captures saving as `1969-12-31...`, refresh the app before collecting more evidence
 - newer captures now store source mode, quick-start profile, trigger count, and extension count

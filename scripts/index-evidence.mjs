@@ -54,6 +54,19 @@ function ensureSchema(db) {
       resolved_route TEXT,
       proof_wave_armed INTEGER,
       proof_scenario_kind TEXT,
+      proof_run_state TEXT,
+      proof_mission_kind TEXT,
+      proof_mission_label TEXT,
+      proof_mission_locked_at TEXT,
+      proof_mission_expected_route TEXT,
+      proof_mission_expected_source TEXT,
+      proof_mission_strict_no_touch INTEGER,
+      proof_mission_duration_min_s REAL,
+      proof_mission_duration_max_s REAL,
+      proof_mission_eligibility_verdict TEXT,
+      proof_mission_eligibility_current INTEGER,
+      artifact_integrity_verdict TEXT,
+      artifact_integrity_issues_json TEXT,
       declared_scenario TEXT,
       derived_scenario TEXT,
       scenario_validated INTEGER,
@@ -90,6 +103,10 @@ function ensureSchema(db) {
       captured_at TEXT,
       trigger_kind TEXT,
       proof_scenario_kind TEXT,
+      proof_mission_kind TEXT,
+      proof_mission_label TEXT,
+      proof_mission_eligibility_verdict TEXT,
+      artifact_integrity_verdict TEXT,
       declared_scenario TEXT,
       derived_scenario TEXT,
       scenario_validated INTEGER,
@@ -138,7 +155,24 @@ function ensureSchema(db) {
 
   for (const statement of [
     'ALTER TABLE runs ADD COLUMN build_built_at TEXT',
-    'ALTER TABLE clips ADD COLUMN build_built_at TEXT'
+    'ALTER TABLE clips ADD COLUMN build_built_at TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_run_state TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_kind TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_label TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_locked_at TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_expected_route TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_expected_source TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_strict_no_touch INTEGER',
+    'ALTER TABLE runs ADD COLUMN proof_mission_duration_min_s REAL',
+    'ALTER TABLE runs ADD COLUMN proof_mission_duration_max_s REAL',
+    'ALTER TABLE runs ADD COLUMN proof_mission_eligibility_verdict TEXT',
+    'ALTER TABLE runs ADD COLUMN proof_mission_eligibility_current INTEGER',
+    'ALTER TABLE runs ADD COLUMN artifact_integrity_verdict TEXT',
+    'ALTER TABLE runs ADD COLUMN artifact_integrity_issues_json TEXT',
+    'ALTER TABLE clips ADD COLUMN proof_mission_kind TEXT',
+    'ALTER TABLE clips ADD COLUMN proof_mission_label TEXT',
+    'ALTER TABLE clips ADD COLUMN proof_mission_eligibility_verdict TEXT',
+    'ALTER TABLE clips ADD COLUMN artifact_integrity_verdict TEXT'
   ]) {
     try {
       db.exec(statement);
@@ -194,7 +228,12 @@ function insertRuns(db, runArtifacts) {
     INSERT INTO runs (
       run_id, journal_path, manifest_path, build_version, build_commit, build_built_at, build_lane, build_valid,
       lifecycle_state, source_mode, source_label, show_start_route, resolved_route, proof_wave_armed,
-      proof_scenario_kind, declared_scenario, derived_scenario, scenario_validated,
+      proof_scenario_kind, proof_run_state, proof_mission_kind, proof_mission_label,
+      proof_mission_locked_at, proof_mission_expected_route, proof_mission_expected_source,
+      proof_mission_strict_no_touch, proof_mission_duration_min_s, proof_mission_duration_max_s,
+      proof_mission_eligibility_verdict, proof_mission_eligibility_current,
+      artifact_integrity_verdict, artifact_integrity_issues_json,
+      declared_scenario, derived_scenario, scenario_validated,
       scenario_confidence, proof_ready, proof_valid, current_proof_eligible, readiness_checks_json, invalidation_count,
       invalidation_reasons_json, recovery_guidance, session_started_at, session_elapsed_ms,
       intervention_count, no_touch_window_passed, sample_count, marker_count, marker_counts_json,
@@ -203,7 +242,12 @@ function insertRuns(db, runArtifacts) {
     ) VALUES (
       @run_id, @journal_path, @manifest_path, @build_version, @build_commit, @build_built_at, @build_lane, @build_valid,
       @lifecycle_state, @source_mode, @source_label, @show_start_route, @resolved_route, @proof_wave_armed,
-      @proof_scenario_kind, @declared_scenario, @derived_scenario, @scenario_validated,
+      @proof_scenario_kind, @proof_run_state, @proof_mission_kind, @proof_mission_label,
+      @proof_mission_locked_at, @proof_mission_expected_route, @proof_mission_expected_source,
+      @proof_mission_strict_no_touch, @proof_mission_duration_min_s, @proof_mission_duration_max_s,
+      @proof_mission_eligibility_verdict, @proof_mission_eligibility_current,
+      @artifact_integrity_verdict, @artifact_integrity_issues_json,
+      @declared_scenario, @derived_scenario, @scenario_validated,
       @scenario_confidence, @proof_ready, @proof_valid, @current_proof_eligible, @readiness_checks_json, @invalidation_count,
       @invalidation_reasons_json, @recovery_guidance, @session_started_at, @session_elapsed_ms,
       @intervention_count, @no_touch_window_passed, @sample_count, @marker_count, @marker_counts_json,
@@ -222,6 +266,9 @@ function insertRuns(db, runArtifacts) {
     const scenarioAssessment = metadata.scenarioAssessment ?? {};
     const proofReadiness = metadata.proofReadiness ?? {};
     const proofValidity = metadata.proofValidity ?? {};
+    const proofMission = metadata.proofMission ?? {};
+    const proofMissionEligibility = metadata.proofMissionEligibility ?? {};
+    const artifactIntegrity = metadata.artifactIntegrity ?? {};
     const markerCounts = Object.fromEntries(
       (entry.journal?.markers ?? []).reduce((counts, marker) => {
         const nextCount = counts.get(marker.kind) ?? 0;
@@ -274,6 +321,28 @@ function insertRuns(db, runArtifacts) {
       resolved_route: metadata.resolvedRoute ?? null,
       proof_wave_armed: toInt(metadata.proofWaveArmed === true),
       proof_scenario_kind: metadata.proofScenarioKind ?? null,
+      proof_run_state: metadata.proofRunState ?? null,
+      proof_mission_kind: proofMission.kind ?? null,
+      proof_mission_label: proofMission.label ?? null,
+      proof_mission_locked_at: proofMission.lockedAt ?? null,
+      proof_mission_expected_route: proofMission.expectedRoute ?? null,
+      proof_mission_expected_source: proofMission.expectedSourceMode ?? null,
+      proof_mission_strict_no_touch: toInt(proofMission.strictNoTouch === true),
+      proof_mission_duration_min_s:
+        typeof proofMission.expectedDurationSeconds?.min === 'number'
+          ? proofMission.expectedDurationSeconds.min
+          : null,
+      proof_mission_duration_max_s:
+        typeof proofMission.expectedDurationSeconds?.max === 'number'
+          ? proofMission.expectedDurationSeconds.max
+          : null,
+      proof_mission_eligibility_verdict:
+        proofMissionEligibility.verdict ?? null,
+      proof_mission_eligibility_current: toInt(
+        proofMissionEligibility.currentProofEligible === true
+      ),
+      artifact_integrity_verdict: artifactIntegrity.verdict ?? null,
+      artifact_integrity_issues_json: JSON.stringify(artifactIntegrity.issues ?? []),
       declared_scenario: scenarioAssessment.declaredScenario ?? null,
       derived_scenario: scenarioAssessment.derivedScenario ?? null,
       scenario_validated: toInt(scenarioAssessment.validated === true),
@@ -395,12 +464,16 @@ function insertClips(db, summaries) {
   const insertClip = db.prepare(`
     INSERT INTO clips (
       file_path, run_id, label, capture_mode, captured_at, trigger_kind, proof_scenario_kind,
+      proof_mission_kind, proof_mission_label, proof_mission_eligibility_verdict,
+      artifact_integrity_verdict,
       declared_scenario, derived_scenario, scenario_validated, scenario_confidence,
       build_commit, build_built_at, build_valid, no_touch_window_passed, intervention_count,
       overbright_rate, world_dominance_mean, chamber_presence_mean, ring_authority_mean,
       hero_coverage_mean, quality_flags_json
     ) VALUES (
       @file_path, @run_id, @label, @capture_mode, @captured_at, @trigger_kind, @proof_scenario_kind,
+      @proof_mission_kind, @proof_mission_label, @proof_mission_eligibility_verdict,
+      @artifact_integrity_verdict,
       @declared_scenario, @derived_scenario, @scenario_validated, @scenario_confidence,
       @build_commit, @build_built_at, @build_valid, @no_touch_window_passed, @intervention_count,
       @overbright_rate, @world_dominance_mean, @chamber_presence_mean, @ring_authority_mean,
@@ -411,6 +484,7 @@ function insertClips(db, summaries) {
   for (const summary of summaries) {
     const metadata = summary?.metadata ?? {};
     const scenarioAssessment = metadata.scenarioAssessment ?? {};
+    const proofMission = metadata.proofMission ?? {};
 
     insertClip.run({
       file_path: summary.filePath,
@@ -420,6 +494,11 @@ function insertClips(db, summaries) {
       captured_at: metadata.capturedAt ?? null,
       trigger_kind: metadata.triggerKind ?? null,
       proof_scenario_kind: metadata.proofScenarioKind ?? null,
+      proof_mission_kind: proofMission.kind ?? null,
+      proof_mission_label: proofMission.label ?? null,
+      proof_mission_eligibility_verdict:
+        metadata.proofMissionEligibility?.verdict ?? null,
+      artifact_integrity_verdict: metadata.artifactIntegrity?.verdict ?? null,
       declared_scenario: scenarioAssessment.declaredScenario ?? null,
       derived_scenario: scenarioAssessment.derivedScenario ?? null,
       scenario_validated: toInt(scenarioAssessment.validated === true),

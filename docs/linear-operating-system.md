@@ -28,7 +28,8 @@ Current confirmed state:
 - Project exists: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c).
 - Project document exists: [Proof Backbone Operating Notes](https://linear.app/visulive/document/proof-backbone-operating-notes-df03eeaad9bb).
 - Seeded issues exist as `VIS-5` through `VIS-16`.
-- Active tracker edge: `VIS-12` is the current canary task; `VIS-14` is blocked by `VIS-12`; `VIS-13` is blocked by `VIS-14`; `VIS-15` is blocked by `VIS-14` and `VIS-13`; `VIS-16` is blocked by `VIS-15`.
+- `VIS-17` tracks the Proof Mission lifecycle/final eligibility correction that must land before the next canary.
+- Active tracker edge: `VIS-17` blocks `VIS-12`; `VIS-12` is the next canary task after this hardening is committed; `VIS-14` is blocked by `VIS-12`; `VIS-13` is blocked by `VIS-14`; `VIS-15` is blocked by `VIS-14` and `VIS-13`; `VIS-16` is blocked by `VIS-15`.
 
 Connector warning:
 
@@ -103,11 +104,12 @@ The current serious proof flow is:
 4. arm `Proof Wave`
 5. verify readiness is green
 6. run the mission
-7. `npm run proof:current`
-8. `npm run evidence:index`
-9. `npm run run:review -- --run-id <runId>`
-10. promote or archive the whole run package
-11. update Linear with the run verdict and next tuning target
+7. use `Finish Proof Run`
+8. `npm run proof:current`
+9. `npm run evidence:index`
+10. `npm run run:review -- --run-id <runId>`
+11. promote or archive the whole run package
+12. update Linear with the run verdict and next tuning target
 
 `npm run proof:current` refreshes reports. It is not a hard gate. Use strict proof-pack and benchmark validation for release/current-canonical decisions.
 
@@ -127,8 +129,9 @@ If primary benchmark or operator-trust proof fails, the next issue should be a n
 
 Current issue order:
 
-1. `VIS-12` Run primary-benchmark proof canary.
-2. `VIS-14` Collect clean primary-benchmark proof.
-3. `VIS-13` Collect clean operator-trust proof.
-4. `VIS-15` Review proof recommendations and decide governance follow-up.
-5. `VIS-16` Decide PostSystem readiness after authority proof.
+1. `VIS-17` Correct Proof Mission lifecycle and final eligibility before canary.
+2. `VIS-12` Run primary-benchmark proof canary.
+3. `VIS-14` Collect clean primary-benchmark proof.
+4. `VIS-13` Collect clean operator-trust proof.
+5. `VIS-15` Review proof recommendations and decide governance follow-up.
+6. `VIS-16` Decide PostSystem readiness after authority proof.

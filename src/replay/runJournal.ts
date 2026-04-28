@@ -15,16 +15,20 @@ import type {
 } from '../types/director';
 import type {
   ReplayBuildInfo,
+  ReplayArtifactIntegrity,
   ReplayProofInvalidation,
   ReplayProofInvalidationCode,
   ReplayProofInvalidationDisposition,
+  ReplayProofMissionEligibility,
   ReplayProofMissionSnapshot,
   ReplayProofReadiness,
   ReplayProofReadinessCheck,
   ReplayProofReadinessCheckId,
   ReplayProofValidity,
   ReplayRunLifecycleState,
+  ReplayProofRunState,
   ReplayProofScenarioKind,
+  ReplaySuppressedIntervention,
   ReplayRunClipReference,
   ReplayRunEventMarker,
   ReplayRunEventMarkerKind,
@@ -65,6 +69,12 @@ type ReplayRunJournalContext = {
   scenarioAssessment?: ReplayScenarioAssessment;
   proofReadiness?: ReplayProofReadiness;
   proofValidity?: ReplayProofValidity;
+  proofRunState?: ReplayProofRunState;
+  finishedAt?: string;
+  finalizedAt?: string;
+  proofMissionEligibility?: ReplayProofMissionEligibility;
+  suppressedInterventions?: ReplaySuppressedIntervention[];
+  artifactIntegrity?: ReplayArtifactIntegrity;
   lifecycleState?: ReplayRunLifecycleState;
   sessionStartedAt: string;
   sessionElapsedMs: number;
@@ -93,6 +103,21 @@ type ReplayProofValidityInput = {
   readiness?: ReplayProofReadiness | null;
   startedReady?: boolean;
   invalidations?: ReplayProofInvalidation[];
+  missionEligibility?: ReplayProofMissionEligibility | null;
+};
+
+type ReplayProofMissionEligibilityInput = {
+  proofWaveArmed: boolean;
+  proofMission?: ReplayProofMissionSnapshot | null;
+  sourceMode: ListeningMode;
+  showStartRoute?: ShowStartRoute;
+  proofReadiness?: ReplayProofReadiness | null;
+  scenarioAssessment?: ReplayScenarioAssessment | null;
+  invalidations?: ReplayProofInvalidation[];
+  artifactIntegrity?: ReplayArtifactIntegrity | null;
+  noTouchWindowPassed?: boolean;
+  durationMs: number;
+  buildInfo?: Partial<ReplayBuildInfo> | BuildInfo | null;
 };
 
 type ReplayRunJournalSampleInput = {
@@ -342,7 +367,15 @@ export function deriveReplayScenarioAssessment(
   ];
 
   const ranked = [...scores].sort((left, right) => right.score - left.score);
-  const best = ranked[0] ?? null;
+  const declaredScore = declaredScenario
+    ? scores.find((score) => score.kind === declaredScenario)
+    : null;
+  const best =
+    declaredScore &&
+    declaredScore.score >= 0.45 &&
+    declaredScore.score >= (ranked[0]?.score ?? 0) - 0.001
+      ? declaredScore
+      : ranked[0] ?? null;
   const derivedScenario =
     best && best.score >= 0.45 ? best.kind : declaredScenario === 'coverage' ? 'coverage' : null;
   const mismatchReasons = [];
@@ -526,6 +559,230 @@ function resolveRecoveryGuidance(
   }
 }
 
+function buildRunGateOutcome(
+  id: string,
+  passed: boolean,
+  passRationale: string,
+  failRationale: string,
+  failStatus: 'warn' | 'fail' = 'fail'
+): ReplayRunGateOutcome {
+  return {
+    id,
+    status: passed ? 'pass' : failStatus,
+    rationale: passed ? passRationale : failRationale
+  };
+}
+
+export function deriveReplayArtifactIntegrityFromJournal(
+  journal: ReplayRunJournal
+): ReplayArtifactIntegrity {
+  const issues: ReplayArtifactIntegrity['issues'] = [];
+  const seenClips = new Set<string>();
+  const seenStills = new Set<string>();
+
+  for (const clip of journal.clips) {
+    if (!clip.fileName || !clip.fileName.endsWith('.json')) {
+      issues.push({
+        id: 'clip-reference-invalid',
+        severity: 'fail',
+        reason: `Clip reference for ${clip.captureLabel || 'unknown clip'} does not point at a JSON artifact.`,
+        fileName: clip.fileName
+      });
+    }
+
+    if (clip.fileName && seenClips.has(clip.fileName)) {
+      issues.push({
+        id: 'clip-reference-duplicate',
+        severity: 'fail',
+        reason: `Clip reference ${clip.fileName} is duplicated in the run journal.`,
+        fileName: clip.fileName
+      });
+    }
+    seenClips.add(clip.fileName);
+  }
+
+  for (const still of journal.checkpointStills) {
+    if (!still.fileName || !still.fileName.endsWith('.png')) {
+      issues.push({
+        id: 'still-reference-invalid',
+        severity: 'fail',
+        reason: `Still reference for ${still.kind} does not point at a PNG artifact.`,
+        fileName: still.fileName
+      });
+    }
+
+    if (still.fileName && seenStills.has(still.fileName)) {
+      issues.push({
+        id: 'still-reference-duplicate',
+        severity: 'fail',
+        reason: `Still reference ${still.fileName} is duplicated in the run journal.`,
+        fileName: still.fileName
+      });
+    }
+    seenStills.add(still.fileName);
+  }
+
+  if (journal.metadata.clipCount !== journal.clips.length) {
+    issues.push({
+      id: 'clip-count-mismatch',
+      severity: 'fail',
+      reason: `Journal metadata clipCount=${journal.metadata.clipCount} does not match ${journal.clips.length} clip references.`
+    });
+  }
+
+  if (journal.metadata.checkpointStillCount !== journal.checkpointStills.length) {
+    issues.push({
+      id: 'still-count-mismatch',
+      severity: 'fail',
+      reason: `Journal metadata checkpointStillCount=${journal.metadata.checkpointStillCount} does not match ${journal.checkpointStills.length} still references.`
+    });
+  }
+
+  const hasFailures = issues.some((issue) => issue.severity === 'fail');
+  const hasWarnings = issues.some((issue) => issue.severity === 'warn');
+
+  return {
+    verdict: hasFailures ? 'fail' : hasWarnings ? 'warn' : 'pass',
+    checkedAt: new Date().toISOString(),
+    clipReferenceCount: journal.clips.length,
+    stillReferenceCount: journal.checkpointStills.length,
+    issues
+  };
+}
+
+export function deriveProofMissionEligibility(
+  input: ReplayProofMissionEligibilityInput
+): ReplayProofMissionEligibility {
+  const mission = input.proofMission ?? null;
+  const invalidations = Array.isArray(input.invalidations) ? input.invalidations : [];
+  const artifactIntegrity = input.artifactIntegrity ?? null;
+  const durationMs = Math.max(0, input.durationMs);
+
+  if (!input.proofWaveArmed || !mission || mission.kind === 'steering') {
+    return {
+      verdict: 'exploratory',
+      currentProofEligible: false,
+      checkedAt: new Date().toISOString(),
+      missionKind: mission?.kind,
+      durationMs,
+      gates: [],
+      rationale: [
+        !mission
+          ? 'No Proof Mission snapshot is locked for this run.'
+          : mission.kind === 'steering'
+          ? 'Steering missions are explicitly exploratory.'
+          : 'Proof Wave was not armed for this run.'
+      ]
+    };
+  }
+
+  const scenarioAssessment = input.scenarioAssessment ?? null;
+  const readiness = input.proofReadiness ?? null;
+  const routeMatches =
+    input.showStartRoute === mission.expectedRoute &&
+    input.sourceMode === mission.expectedSourceMode;
+  const durationMinMs = mission.expectedDurationSeconds.min * 1000;
+  const durationMaxMs = mission.expectedDurationSeconds.max * 1000;
+  const noTouchPass = !mission.strictNoTouch || input.noTouchWindowPassed === true;
+  const scenarioPass =
+    scenarioAssessment?.validated === true &&
+    scenarioAssessment.declaredScenario === mission.scenarioKind &&
+    scenarioAssessment.derivedScenario === mission.scenarioKind;
+  const artifactPass = artifactIntegrity?.verdict === 'pass';
+  const artifactRefsPass =
+    (artifactIntegrity?.clipReferenceCount ?? 0) > 0 &&
+    (artifactIntegrity?.stillReferenceCount ?? 0) > 0;
+  const gates: ReplayRunGateOutcome[] = [
+    buildRunGateOutcome(
+      'mission-present',
+      true,
+      `Mission ${mission.kind} is locked.`,
+      'No Proof Mission snapshot is locked for this run.'
+    ),
+    buildRunGateOutcome(
+      'route-source',
+      routeMatches,
+      `Route/source match ${mission.expectedRoute}/${mission.expectedSourceMode}.`,
+      `Route/source drifted from locked mission ${mission.expectedRoute}/${mission.expectedSourceMode}.`
+    ),
+    buildRunGateOutcome(
+      'build-identity',
+      isReplayBuildInfoValid(input.buildInfo),
+      'Build identity is attributable, non-dev, and clean.',
+      'Build identity is missing, dev/unverified, dirty, or unattributable.'
+    ),
+    buildRunGateOutcome(
+      'readiness',
+      readiness?.ready === true,
+      'Start readiness was green.',
+      'Start readiness was not green for the locked mission.'
+    ),
+    buildRunGateOutcome(
+      'no-touch',
+      noTouchPass,
+      mission.strictNoTouch
+        ? 'No-touch requirement cleared.'
+        : 'Mission allows operator steering.',
+      'Strict no-touch mission did not clear the no-touch window.'
+    ),
+    buildRunGateOutcome(
+      'duration-minimum',
+      durationMs >= durationMinMs,
+      `Run duration ${(durationMs / 1000).toFixed(1)}s meets minimum ${mission.expectedDurationSeconds.min}s.`,
+      `Run duration ${(durationMs / 1000).toFixed(1)}s is below mission minimum ${mission.expectedDurationSeconds.min}s.`
+    ),
+    buildRunGateOutcome(
+      'duration-maximum',
+      durationMs <= durationMaxMs,
+      `Run duration ${(durationMs / 1000).toFixed(1)}s is within mission maximum ${mission.expectedDurationSeconds.max}s.`,
+      `Run duration ${(durationMs / 1000).toFixed(1)}s exceeds mission maximum ${mission.expectedDurationSeconds.max}s.`,
+      'warn'
+    ),
+    buildRunGateOutcome(
+      'zero-invalidations',
+      invalidations.length === 0,
+      'No proof invalidations were recorded.',
+      invalidations.length === 1
+        ? 'One proof invalidation was recorded.'
+        : `${invalidations.length} proof invalidations were recorded.`
+    ),
+    buildRunGateOutcome(
+      'scenario-validation',
+      scenarioPass,
+      `Final scenario assessment validates ${mission.scenarioKind}.`,
+      'Final scenario assessment does not validate the locked mission scenario.'
+    ),
+    buildRunGateOutcome(
+      'artifact-integrity',
+      artifactPass,
+      'Artifact integrity passed.',
+      artifactIntegrity
+        ? `Artifact integrity verdict is ${artifactIntegrity.verdict}.`
+        : 'Artifact integrity was not checked.'
+    ),
+    buildRunGateOutcome(
+      'artifact-references',
+      artifactRefsPass,
+      'Run package has both clip and still references.',
+      'Run package is missing clip or still references.'
+    )
+  ];
+  const failedGates = gates.filter((gate) => gate.status === 'fail');
+
+  return {
+    verdict: failedGates.length === 0 ? 'eligible' : 'ineligible',
+    currentProofEligible: failedGates.length === 0,
+    checkedAt: new Date().toISOString(),
+    missionKind: mission.kind,
+    durationMs,
+    gates,
+    rationale:
+      failedGates.length === 0
+        ? ['Locked Proof Mission is eligible for current-proof review.']
+        : failedGates.map((gate) => gate.rationale)
+  };
+}
+
 export function buildReplayProofInvalidation(
   code: ReplayProofInvalidationCode,
   timestampMs: number,
@@ -552,12 +809,15 @@ export function deriveReplayProofValidity(
   let currentProofEligible = false;
 
   if (seriousRun) {
-    if (!startedReady || readiness?.ready !== true || invalidations.length > 0) {
+    if (input.missionEligibility) {
+      verdict = input.missionEligibility.currentProofEligible ? 'valid' : 'invalid';
+      currentProofEligible = input.missionEligibility.currentProofEligible;
+    } else if (!startedReady || readiness?.ready !== true || invalidations.length > 0) {
       verdict = 'invalid';
       currentProofEligible = false;
     } else {
       verdict = 'valid';
-      currentProofEligible = true;
+      currentProofEligible = false;
     }
   }
 
@@ -595,6 +855,12 @@ export function createReplayRunJournal(context: ReplayRunJournalContext): Replay
       scenarioAssessment: context.scenarioAssessment,
       proofReadiness: context.proofReadiness,
       proofValidity: context.proofValidity,
+      proofRunState: context.proofRunState ?? 'live',
+      finishedAt: context.finishedAt,
+      finalizedAt: context.finalizedAt,
+      proofMissionEligibility: context.proofMissionEligibility,
+      suppressedInterventions: [...(context.suppressedInterventions ?? [])],
+      artifactIntegrity: context.artifactIntegrity,
       lifecycleState: context.lifecycleState ?? 'inbox',
       sessionStartedAt: context.sessionStartedAt,
       sessionElapsedMs: context.sessionElapsedMs,
@@ -726,6 +992,12 @@ export function buildReplayRunManifest(
       scenarioAssessment: journal.metadata.scenarioAssessment,
       proofReadiness: journal.metadata.proofReadiness,
       proofValidity: journal.metadata.proofValidity,
+      proofRunState: journal.metadata.proofRunState,
+      finishedAt: journal.metadata.finishedAt,
+      finalizedAt: journal.metadata.finalizedAt,
+      proofMissionEligibility: journal.metadata.proofMissionEligibility,
+      suppressedInterventions: journal.metadata.suppressedInterventions,
+      artifactIntegrity: journal.metadata.artifactIntegrity,
       lifecycleState: journal.metadata.lifecycleState,
       clipCount: options.clipFiles.length,
       stillCount: options.stillFiles.length,

@@ -3,7 +3,8 @@ import path from 'node:path';
 import {
   loadRunPackage,
   moveRunPackage,
-  updateRunPackageArtifacts
+  updateRunPackageArtifacts,
+  validateRunPackageIntegrity
 } from './run-package-utils.mjs';
 
 function parseArgs(argv) {
@@ -41,7 +42,14 @@ function parseArgs(argv) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runPackage = await loadRunPackage(args.runId);
+  const integrity = await validateRunPackageIntegrity(runPackage);
   const proofValidity = runPackage.journal.metadata.proofValidity;
+
+  if (integrity.verdict !== 'pass') {
+    throw new Error(
+      `Run "${args.runId}" has artifact-integrity verdict ${integrity.verdict} and cannot be promoted.`
+    );
+  }
 
   if (proofValidity?.currentProofEligible !== true) {
     throw new Error(

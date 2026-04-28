@@ -66,6 +66,8 @@ import {
   createReplayBuildInfo,
   createReplayRunId,
   createReplayRunJournal,
+  deriveProofMissionEligibility,
+  deriveReplayArtifactIntegrityFromJournal,
   deriveReplayProofReadiness,
   deriveReplayProofValidity,
   deriveReplayScenarioAssessment,
@@ -77,10 +79,13 @@ import {
 } from '../replay/runJournal';
 import type {
   ReplayCaptureFrame,
+  ReplayArtifactIntegrity,
+  ReplayProofMissionEligibility,
   ReplayProofInvalidationCode,
   ReplayProofMissionKind,
   ReplayProofMissionSnapshot,
   ReplayProofReadiness,
+  ReplayProofRunState,
   ReplayProofReadinessCheck,
   ReplayProofValidity,
   ReplayProofScenarioKind,
@@ -263,6 +268,7 @@ type RunJournalStatus = {
   proofWaveArmed: boolean;
   runId: string | null;
   proofMission: ReplayProofMissionSnapshot | null;
+  proofRunState: ReplayProofRunState;
   sampleCount: number;
   markerCount: number;
   clipCount: number;
@@ -272,6 +278,9 @@ type RunJournalStatus = {
   scenarioAssessment: ReplayScenarioAssessment | null;
   readiness: ReplayProofReadiness | null;
   proofValidity: ReplayProofValidity | null;
+  proofMissionEligibility: ReplayProofMissionEligibility | null;
+  artifactIntegrity: ReplayArtifactIntegrity | null;
+  suppressedInterventionCount: number;
   lifecycleState: ReplayRunLifecycleState;
 };
 
@@ -323,6 +332,7 @@ const INITIAL_RUN_JOURNAL_STATUS: RunJournalStatus = {
   proofWaveArmed: false,
   runId: null,
   proofMission: null,
+  proofRunState: 'idle',
   sampleCount: 0,
   markerCount: 0,
   clipCount: 0,
@@ -332,6 +342,9 @@ const INITIAL_RUN_JOURNAL_STATUS: RunJournalStatus = {
   scenarioAssessment: null,
   readiness: null,
   proofValidity: null,
+  proofMissionEligibility: null,
+  artifactIntegrity: null,
+  suppressedInterventionCount: 0,
   lifecycleState: 'inbox'
 };
 
@@ -853,12 +866,18 @@ export function App() {
     journal: ReplayRunJournal | null,
     nextScenarioAssessment?: ReplayScenarioAssessment | null
   ) => {
+    const proofRunState = journal?.metadata.proofRunState ?? (proofWaveArmedRef.current ? 'armed' : 'idle');
+    const active =
+      journal !== null &&
+      proofRunState !== 'finalized';
+
     setRunJournalStatus({
-      active: journal !== null,
+      active,
       proofWaveArmed:
         journal?.metadata.proofWaveArmed ?? proofWaveArmedRef.current,
       runId: journal?.metadata.runId ?? null,
       proofMission: journal?.metadata.proofMission ?? null,
+      proofRunState,
       sampleCount: journal?.samples.length ?? 0,
       markerCount: journal?.markers.length ?? 0,
       clipCount: journal?.clips.length ?? 0,
@@ -874,6 +893,11 @@ export function App() {
         nextScenarioAssessment ?? journal?.metadata.scenarioAssessment ?? null,
       readiness: journal?.metadata.proofReadiness ?? currentProofReadiness,
       proofValidity: journal?.metadata.proofValidity ?? currentProofValidity,
+      proofMissionEligibility:
+        journal?.metadata.proofMissionEligibility ?? null,
+      artifactIntegrity: journal?.metadata.artifactIntegrity ?? null,
+      suppressedInterventionCount:
+        journal?.metadata.suppressedInterventions?.length ?? 0,
       lifecycleState: journal?.metadata.lifecycleState ?? 'inbox'
     });
   };
@@ -1049,7 +1073,8 @@ export function App() {
       readiness,
       startedReady:
         journal.metadata.proofValidity?.startedReady ?? readiness.ready,
-      invalidations: journal.metadata.proofValidity?.invalidations ?? []
+      invalidations: journal.metadata.proofValidity?.invalidations ?? [],
+      missionEligibility: journal.metadata.proofMissionEligibility
     });
     journal.metadata.updatedAt = new Date().toISOString();
   };
@@ -1079,14 +1104,17 @@ export function App() {
       buildReplayProofInvalidation(code, timestampMs, reason, recommendedDisposition)
     ];
 
+    journal.metadata.proofMissionEligibility = undefined;
     journal.metadata.proofValidity = deriveReplayProofValidity({
       proofWaveArmed: true,
       readiness: journal.metadata.proofReadiness ?? currentProofReadiness,
       startedReady:
         journal.metadata.proofValidity?.startedReady ??
         journal.metadata.proofReadiness?.ready === true,
-      invalidations
+      invalidations,
+      missionEligibility: journal.metadata.proofMissionEligibility
     });
+    journal.metadata.proofRunState = 'invalidated';
     journal.metadata.updatedAt = new Date().toISOString();
     appendRunJournalMarker('proof-invalidated', timestampMs, reason, {
       code,
@@ -1094,6 +1122,79 @@ export function App() {
     });
     updateRunJournalStatusFromJournal(journal);
     return true;
+  };
+
+  const proofRunLocksControls = () =>
+    proofWaveArmedRef.current &&
+    status.phase === 'live' &&
+    (runJournalRef.current.journal?.metadata.proofMission?.lockAdvancedControls ??
+      proofMissionProfile.lockAdvancedControls);
+
+  const recordSuppressedProofIntervention = (
+    reason: string,
+    source: 'ui' | 'keyboard-shortcut' | 'system' = 'ui'
+  ) => {
+    const journal = runJournalRef.current.journal;
+    const session = sessionInterventionRef.current;
+    const timestampMs =
+      session.sessionStartedAtMs === null
+        ? journal?.samples[journal.samples.length - 1]?.timestampMs ?? 0
+        : Math.max(0, Date.now() - session.sessionStartedAtMs);
+
+    setStartError(
+      'Proof Mission blocked that control. Use Finish Proof Run, then rerun if setup was wrong.'
+    );
+
+    if (!journal) {
+      return;
+    }
+
+    journal.metadata.suppressedInterventions = [
+      ...(journal.metadata.suppressedInterventions ?? []),
+      {
+        reason,
+        source,
+        timestampMs
+      }
+    ];
+    appendRunJournalMarker('suppressed-intervention', timestampMs, reason, {
+      source
+    });
+    journal.metadata.updatedAt = new Date().toISOString();
+    updateRunJournalStatusFromJournal(journal);
+    void persistRunJournalArtifacts(true);
+  };
+
+  const overrideProofRunToExploratory = (reason: string) => {
+    const journal = runJournalRef.current.journal;
+    const timestampMs =
+      journal?.samples[journal.samples.length - 1]?.timestampMs ??
+      Math.max(
+        0,
+        Date.now() - (sessionInterventionRef.current.sessionStartedAtMs ?? Date.now())
+      );
+
+    if (journal) {
+      appendRunJournalMarker('exploratory-override', timestampMs, reason, {
+        source: 'ui'
+      });
+    }
+
+    markSessionIntervention('explicit-exploratory-override', 'ui');
+    invalidateActiveProofRun(
+      'explicit-exploratory-override',
+      timestampMs,
+      reason,
+      'continue-exploratory'
+    );
+    if (journal) {
+      journal.metadata.proofWaveArmed = false;
+      refreshRunJournalProofState(journal);
+      updateRunJournalStatusFromJournal(journal);
+      void persistRunJournalArtifacts(true);
+    }
+    setProofWaveArmed(false);
+    setStartError('This run is now exploratory only.');
   };
 
   const captureRunCheckpointStill = (
@@ -1380,14 +1481,24 @@ export function App() {
     proofWaveArmedRef.current = proofWaveArmed;
 
     if (runJournalRef.current.journal) {
-      runJournalRef.current.journal.metadata.proofWaveArmed = proofWaveArmed;
-      refreshRunJournalProofState(runJournalRef.current.journal);
-      updateRunJournalStatusFromJournal(runJournalRef.current.journal);
-      void persistRunJournalArtifacts(true);
+      const journal = runJournalRef.current.journal;
+      const mutableRun =
+        journal.metadata.proofRunState !== 'finalized' &&
+        journal.metadata.proofRunState !== 'invalidated';
+
+      if (mutableRun) {
+        journal.metadata.proofWaveArmed = proofWaveArmed;
+        refreshRunJournalProofState(journal);
+        updateRunJournalStatusFromJournal(journal);
+        void persistRunJournalArtifacts(true);
+      } else {
+        updateRunJournalStatusFromJournal(journal);
+      }
     } else {
       setRunJournalStatus((current) => ({
         ...current,
         proofWaveArmed,
+        proofRunState: proofWaveArmed ? 'armed' : 'idle',
         readiness: currentProofReadiness,
         proofValidity: currentProofValidity
       }));
@@ -1459,6 +1570,11 @@ export function App() {
       return;
     }
 
+    if (journal.metadata.proofRunState === 'finalized') {
+      updateRunJournalStatusFromJournal(journal);
+      return;
+    }
+
     if (journal.metadata.proofMission) {
       const lockedScenario = journal.metadata.proofMission.scenarioKind;
       if (proofScenarioKind !== lockedScenario) {
@@ -1495,6 +1611,11 @@ export function App() {
     const journal = runJournalRef.current.journal;
 
     if (journal) {
+      if (journal.metadata.proofRunState === 'finalized') {
+        updateRunJournalStatusFromJournal(journal);
+        return;
+      }
+
       refreshRunJournalProofState(journal, {
         sourceMode: journal.metadata.sourceMode,
         replayActive
@@ -1507,6 +1628,7 @@ export function App() {
     setRunJournalStatus((current) => ({
       ...current,
       proofWaveArmed,
+      proofRunState: proofWaveArmed ? 'armed' : 'idle',
       readiness: currentProofReadiness,
       proofValidity: currentProofValidity,
       buildIdentityValid: isReplayBuildInfoValid(BUILD_INFO)
@@ -1621,6 +1743,7 @@ export function App() {
             key: event.key
           })
         ) {
+          recordSuppressedProofIntervention('advanced:keyboard-shortcut', 'keyboard-shortcut');
           setStartError(
             'Proof Wave suppressed the Advanced shortcut. Serious proof requires no steering after Start Show.'
           );
@@ -2313,48 +2436,14 @@ export function App() {
           capture
         };
 
-        const activeRunJournal = runJournalRef.current.journal;
-        if (
-          activeRunJournal &&
-          capture.metadata.runId &&
-          activeRunJournal.metadata.runId === capture.metadata.runId
-        ) {
-          const captureFileName = `${capture.metadata.label}.json`;
-          registerReplayRunClip(activeRunJournal, {
-            captureLabel: capture.metadata.label,
-            fileName: captureFileName,
-            captureMode: capture.metadata.captureMode,
-            capturedAt: capture.metadata.capturedAt,
-            triggerKind: capture.metadata.triggerKind,
-            triggerTimestampMs: capture.metadata.triggerTimestampMs,
-            qualityFlags: capture.metadata.qualityFlags,
-            scenarioAssessment: capture.metadata.scenarioAssessment
-          });
-          activeRunJournal.metadata.scenarioAssessment =
-            capture.metadata.scenarioAssessment ?? activeRunJournal.metadata.scenarioAssessment;
-          appendRunJournalMarker(
-            'clip-saved',
-            pendingCapture.trigger.timestampMs,
-            `${pendingCapture.trigger.kind} clip saved`,
-            {
-              triggerKind: pendingCapture.trigger.kind,
-              captureLabel: capture.metadata.label
-            }
-          );
-          updateRunJournalStatusFromJournal(
-            activeRunJournal,
-            capture.metadata.scenarioAssessment ?? null
-          );
-
-          if (capture.metadata.scenarioAssessment?.validated !== true) {
-            invalidateActiveProofRun(
-              'scenario-drift',
-              capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
-              `Declared proof scenario no longer matches the saved clip evidence for ${capture.metadata.label}.`,
-              'restart-run'
-            );
+        const savedForEvidence = await saveRunCaptureAndRegister(
+          capture,
+          capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
+          `${pendingCapture.trigger.kind} clip saved`,
+          {
+            triggerKind: pendingCapture.trigger.kind
           }
-        }
+        );
 
         setAutoCaptures((current) =>
           [summary, ...current].slice(0, MAX_AUTO_CAPTURE_HISTORY)
@@ -2370,20 +2459,9 @@ export function App() {
           captureCount: current.captureCount + 1
         }));
 
-        if (captureFolderStatusRef.current.autoSave) {
-          const saved = await saveCaptureToConfiguredFolder(capture);
-
-          if (!saved) {
-            invalidateActiveProofRun(
-              'capture-save-failed',
-              capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
-              `Capture ${capture.metadata.label} failed to save into the run package.`,
-              'restart-run'
-            );
-          }
+        if (!savedForEvidence && capture.metadata.runId) {
+          return;
         }
-
-        await persistRunJournalArtifacts(true);
 
         if (liveAutoCaptureStatus.autoDownload) {
           downloadReplayCapture(capture);
@@ -2572,10 +2650,29 @@ export function App() {
     setAdvancedDrawerTab(null);
     setReplayError(null);
     beginNoTouchSession();
-    startRunJournal(nextSourceMode, diagnostics);
-    await audioRef.current?.setSourceMode(nextSourceMode);
-    audioRef.current?.setTuning(audioTuning);
-    await audioRef.current?.start();
+    try {
+      await audioRef.current?.setSourceMode(nextSourceMode);
+      audioRef.current?.setTuning(audioTuning);
+      await audioRef.current?.start();
+      const startedStatus = audioRef.current?.getStatus();
+
+      if (startedStatus?.phase === 'error') {
+        throw new Error(startedStatus.error ?? 'Audio engine failed to start.');
+      }
+
+      startRunJournal(
+        nextSourceMode,
+        audioRef.current?.getDiagnostics() ?? diagnostics
+      );
+    } catch (error) {
+      updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Audio engine failed to start.';
+      setStartError(message);
+      setReplayError(message);
+    }
   };
 
   const buildDirectorCaptureContext = (
@@ -2688,6 +2785,17 @@ export function App() {
         activeJournal?.metadata.proofReadiness ?? currentProofReadiness,
       proofValidity:
         activeJournal?.metadata.proofValidity ?? currentProofValidity,
+      proofRunState:
+        activeJournal?.metadata.proofRunState ??
+        (proofWaveArmedRef.current ? 'armed' : 'idle'),
+      finishedAt: activeJournal?.metadata.finishedAt,
+      finalizedAt: activeJournal?.metadata.finalizedAt,
+      proofMissionEligibility:
+        activeJournal?.metadata.proofMissionEligibility,
+      suppressedInterventions:
+        activeJournal?.metadata.suppressedInterventions,
+      artifactIntegrity:
+        activeJournal?.metadata.artifactIntegrity,
       runLifecycleState:
         activeJournal?.metadata.lifecycleState ?? 'inbox',
       directorBiasSnapshot: appliedAtCapture.compatibilityIntent.biases
@@ -2753,6 +2861,365 @@ export function App() {
     }
   };
 
+  const saveRunCaptureAndRegister = async (
+    capture: ReturnType<typeof buildReplayCapture>,
+    markerTimestampMs: number,
+    markerReason: string,
+    markerMetadata?: Record<string, string | number | boolean | null | undefined>
+  ): Promise<boolean> => {
+    const activeRunJournal = runJournalRef.current.journal;
+    const captureBelongsToActiveRun =
+      Boolean(activeRunJournal && capture.metadata.runId) &&
+      activeRunJournal?.metadata.runId === capture.metadata.runId;
+    const captureFileName = `${capture.metadata.label}.json`;
+
+    if (!captureBelongsToActiveRun) {
+      if (captureFolderStatusRef.current.autoSave) {
+        return saveCaptureToConfiguredFolder(capture);
+      }
+
+      return true;
+    }
+
+    if (!captureFolderStatusRef.current.autoSave) {
+      invalidateActiveProofRun(
+        'capture-save-failed',
+        markerTimestampMs,
+        `Capture ${capture.metadata.label} could not be saved because auto-save-to-folder is off.`,
+        'restart-run'
+      );
+      await persistRunJournalArtifacts(true);
+      return false;
+    }
+
+    const saved = await saveCaptureToConfiguredFolder(capture);
+
+    if (!saved) {
+      invalidateActiveProofRun(
+        'capture-save-failed',
+        markerTimestampMs,
+        `Capture ${capture.metadata.label} failed to save into the run package.`,
+        'restart-run'
+      );
+      await persistRunJournalArtifacts(true);
+      return false;
+    }
+
+    if (!activeRunJournal) {
+      return true;
+    }
+
+    registerReplayRunClip(activeRunJournal, {
+      captureLabel: capture.metadata.label,
+      fileName: captureFileName,
+      captureMode: capture.metadata.captureMode,
+      capturedAt: capture.metadata.capturedAt,
+      triggerKind: capture.metadata.triggerKind,
+      triggerTimestampMs: capture.metadata.triggerTimestampMs,
+      qualityFlags: capture.metadata.qualityFlags,
+      scenarioAssessment: capture.metadata.scenarioAssessment
+    });
+    activeRunJournal.metadata.scenarioAssessment =
+      capture.metadata.scenarioAssessment ?? activeRunJournal.metadata.scenarioAssessment;
+    appendRunJournalMarker('clip-saved', markerTimestampMs, markerReason, {
+      ...markerMetadata,
+      captureLabel: capture.metadata.label
+    });
+    updateRunJournalStatusFromJournal(
+      activeRunJournal,
+      capture.metadata.scenarioAssessment ?? null
+    );
+
+    if (capture.metadata.scenarioAssessment?.validated !== true) {
+      invalidateActiveProofRun(
+        'scenario-drift',
+        markerTimestampMs,
+        `Declared proof scenario no longer matches the saved clip evidence for ${capture.metadata.label}.`,
+        'restart-run'
+      );
+    }
+
+    await persistRunJournalArtifacts(true);
+    return true;
+  };
+
+  const finalizePendingAutoCaptureWindow = async (
+    reason = 'finish-proof-run'
+  ): Promise<boolean> => {
+    const pendingCapture = autoCaptureRef.current.pending;
+
+    if (!pendingCapture || pendingCapture.frames.length === 0) {
+      return true;
+    }
+
+    autoCaptureRef.current.pending = null;
+    setAutoCaptureStatus((current) => {
+      const nextStatus = {
+        ...current,
+        pending: false,
+        pendingLabel: null,
+        currentTriggerProfile: null
+      };
+
+      autoCaptureStatusRef.current = nextStatus;
+      return nextStatus;
+    });
+
+    const capturedAt = new Date();
+    const finalizedDiagnostics = audioRef.current?.getDiagnostics() ?? audioDiagnostics;
+    const finalizedSourceMode = finalizedDiagnostics.sourceMode;
+    const activeQuickStartProfile = getActiveQuickStartProfile(
+      controlsRef.current,
+      finalizedSourceMode
+    );
+    const launchQuickStartProfile = launchQuickStartIdRef.current
+      ? QUICK_START_PROFILES[launchQuickStartIdRef.current]
+      : activeQuickStartProfile;
+    const label = buildAutoCaptureLabel(pendingCapture.trigger.kind, capturedAt);
+    const proofStillBundle = buildProofStillBundle(
+      label,
+      pendingCapture.trigger.timestampMs,
+      pendingCapture.proofStillSamples
+    );
+    let proofStillSummary = proofStillBundle.proofStillSummary;
+    const proofStillFiles = proofStillBundle.files;
+
+    if (
+      captureFolderStatusRef.current.autoSave &&
+      proofStillFiles.length > 0 &&
+      captureDirectoryRef.current
+    ) {
+      const permissionGranted = await ensureCaptureDirectoryPermission(
+        captureDirectoryRef.current,
+        false
+      );
+
+      if (permissionGranted) {
+        const proofSaveResult = await saveCaptureBlobsToDirectory(
+          captureDirectoryRef.current,
+          proofStillFiles,
+          {
+            subdirectories: getRunSubdirectories(['stills'])
+          }
+        );
+
+        proofStillSummary = {
+          ...proofStillSummary,
+          saved: proofStillSummary.saved.filter((entry) =>
+            proofSaveResult.savedFileNames.includes(entry.fileName)
+          )
+        };
+
+        if (proofSaveResult.warning) {
+          proofStillSummary = {
+            ...proofStillSummary,
+            warning: proofSaveResult.warning
+          };
+        }
+      } else {
+        proofStillSummary = {
+          ...proofStillSummary,
+          saved: [],
+          warning:
+            'Proof stills were requested, but the capture folder is no longer writable.'
+        };
+      }
+    }
+
+    const capture = buildReplayCapture(
+      pendingCapture.frames,
+      finalizedDiagnostics,
+      rendererRef.current?.getDiagnostics() ?? INITIAL_RENDERER_STATE,
+      controlsRef.current,
+      {
+        label,
+        captureMode: 'auto',
+        triggerKind: pendingCapture.trigger.kind,
+        triggerReason: `${pendingCapture.trigger.reason} (${reason})`,
+        sourceMode: finalizedSourceMode,
+        launchQuickStartProfileId: launchQuickStartProfile?.id ?? null,
+        launchQuickStartProfileLabel: launchQuickStartProfile?.label ?? null,
+        quickStartProfileId: activeQuickStartProfile?.id ?? null,
+        quickStartProfileLabel: activeQuickStartProfile?.label ?? null,
+        triggerCount: pendingCapture.triggerCount,
+        extensionCount: pendingCapture.extensionCount,
+        triggerTimestampMs: pendingCapture.trigger.timestampMs,
+        proofStills: proofStillSummary,
+        ...buildDirectorCaptureContext(
+          finalizedDiagnostics,
+          finalizedSourceMode,
+          finalizedDiagnostics.listeningFrame
+        )
+      }
+    );
+    const summary: AutoCaptureSummary = {
+      id: `${capture.metadata.label}_${capture.metadata.capturedAt}`,
+      label: capture.metadata.label,
+      triggerLabel: pendingCapture.trigger.label,
+      triggerReason: pendingCapture.trigger.reason,
+      capturedAt: capture.metadata.capturedAt,
+      frameCount: pendingCapture.frames.length,
+      durationMs: Math.max(
+        0,
+        pendingCapture.lastTimestampMs - pendingCapture.firstTimestampMs
+      ),
+      peakDropImpact: pendingCapture.peakDropImpact,
+      peakSectionChange: pendingCapture.peakSectionChange,
+      peakBeatConfidence: pendingCapture.peakBeatConfidence,
+      peakMusicConfidence: pendingCapture.peakMusicConfidence,
+      capture
+    };
+    const saved = await saveRunCaptureAndRegister(
+      capture,
+      capture.metadata.triggerTimestampMs ?? pendingCapture.trigger.timestampMs,
+      `${pendingCapture.trigger.kind} clip saved during finish`,
+      {
+        triggerKind: pendingCapture.trigger.kind
+      }
+    );
+
+    if (saved) {
+      setAutoCaptures((current) =>
+        [summary, ...current].slice(0, MAX_AUTO_CAPTURE_HISTORY)
+      );
+      setAutoCaptureStatus((current) => {
+        const nextStatus = {
+          ...current,
+          latestLabel: summary.label,
+          latestTriggerLabel: summary.triggerLabel,
+          latestDurationMs: summary.durationMs,
+          latestTriggerReason: summary.triggerReason,
+          latestTriggerProfile: pendingCapture.trigger.kind,
+          latestProofStillCount: proofStillSummary.saved.length,
+          captureCount: current.captureCount + 1
+        };
+
+        autoCaptureStatusRef.current = nextStatus;
+        return nextStatus;
+      });
+    }
+
+    return saved;
+  };
+
+  const handleFinishProofRun = async () => {
+    const journal = runJournalRef.current.journal;
+
+    if (!journal) {
+      await audioRef.current?.stop();
+      setProofWaveArmed(false);
+      return;
+    }
+
+    journal.metadata.proofRunState = 'finishing';
+    updateRunJournalStatusFromJournal(journal);
+    const session = sessionInterventionRef.current;
+    const elapsedMs =
+      session.sessionStartedAtMs === null
+        ? journal.metadata.sessionElapsedMs
+        : Math.max(0, Date.now() - session.sessionStartedAtMs);
+    const finalNoTouchPassed =
+      session.sessionStartedAtMs !== null &&
+      session.interventionCount === 0 &&
+      elapsedMs >= NO_TOUCH_PROOF_WINDOW_MS;
+
+    appendRunJournalMarker('run-finish', elapsedMs, 'Finish Proof Run requested.', {
+      runId: journal.metadata.runId
+    });
+
+    const pendingSaved = await finalizePendingAutoCaptureWindow();
+    await audioRef.current?.stop();
+
+    journal.metadata.finishedAt = new Date().toISOString();
+    journal.metadata.sessionElapsedMs = elapsedMs;
+    journal.metadata.interventionCount = session.interventionCount;
+    journal.metadata.interventionReasons = [...session.interventionReasons];
+    journal.metadata.noTouchWindowPassed = finalNoTouchPassed;
+    journal.metadata.scenarioAssessment = deriveReplayScenarioAssessment({
+      declaredScenario:
+        journal.metadata.proofMission?.scenarioKind ??
+        journal.metadata.proofScenarioKind ??
+        null,
+      sourceMode: journal.metadata.sourceMode,
+      showStartRoute: journal.metadata.showStartRoute,
+      noTouchWindowPassed: finalNoTouchPassed,
+      interventionCount: session.interventionCount,
+      interventionReasons: session.interventionReasons,
+      captureMode: 'auto',
+      hasBuildIdentity: journal.metadata.buildInfo.valid === true
+    });
+    refreshRunJournalProofState(journal, {
+      sourceMode: journal.metadata.sourceMode,
+      replayActive: false
+    });
+
+    if (!pendingSaved) {
+      invalidateActiveProofRun(
+        'capture-save-failed',
+        elapsedMs,
+        'Pending auto-capture could not be closed and saved during Finish Proof Run.',
+        'restart-run'
+      );
+    }
+
+    const artifactIntegrity = deriveReplayArtifactIntegrityFromJournal(journal);
+    journal.metadata.artifactIntegrity = artifactIntegrity;
+    const invalidations = journal.metadata.proofValidity?.invalidations ?? [];
+    const eligibility = deriveProofMissionEligibility({
+      proofWaveArmed: journal.metadata.proofWaveArmed,
+      proofMission: journal.metadata.proofMission,
+      sourceMode: journal.metadata.sourceMode,
+      showStartRoute: journal.metadata.showStartRoute,
+      proofReadiness: journal.metadata.proofReadiness,
+      scenarioAssessment: journal.metadata.scenarioAssessment,
+      invalidations,
+      artifactIntegrity,
+      noTouchWindowPassed: finalNoTouchPassed,
+      durationMs: elapsedMs,
+      buildInfo: journal.metadata.buildInfo
+    });
+
+    journal.metadata.proofMissionEligibility = eligibility;
+    journal.metadata.proofValidity = deriveReplayProofValidity({
+      proofWaveArmed: journal.metadata.proofWaveArmed,
+      readiness: journal.metadata.proofReadiness,
+      startedReady:
+        journal.metadata.proofValidity?.startedReady ??
+        journal.metadata.proofReadiness?.ready === true,
+      invalidations,
+      missionEligibility: eligibility
+    });
+    journal.metadata.finalizedAt = new Date().toISOString();
+    journal.metadata.proofRunState = 'finalized';
+    appendRunJournalMarker(
+      'run-finalized',
+      elapsedMs,
+      `Finish verdict: ${eligibility.verdict}`,
+      {
+        currentProofEligible: eligibility.currentProofEligible,
+        artifactIntegrity: artifactIntegrity.verdict
+      }
+    );
+    journal.metadata.updatedAt = new Date().toISOString();
+    updateRunJournalStatusFromJournal(journal);
+    const persisted = await persistRunJournalArtifacts(true);
+
+    if (!persisted) {
+      invalidateActiveProofRun(
+        'run-finalize-failed',
+        elapsedMs,
+        'Finish Proof Run could not persist the finalized journal/manifest.',
+        'restart-run'
+      );
+      updateRunJournalStatusFromJournal(journal);
+    }
+
+    setProofWaveArmed(false);
+    setStartError(
+      `Proof run ${journal.metadata.runId} finalized as ${eligibility.verdict}. Review: npm run proof:current && npm run evidence:index && npm run run:review -- --run-id ${journal.metadata.runId}`
+    );
+  };
+
   const handleRecalibrate = async () => {
     await audioRef.current?.restart();
   };
@@ -2767,14 +3234,10 @@ export function App() {
   };
 
   const handleShowStartRouteChange = (nextRoute: ShowStartRoute) => {
-    if (
-      proofWaveArmedRef.current &&
-      status.phase === 'live' &&
-      proofMissionProfile.lockAdvancedControls
-    ) {
-      markSessionIntervention(`start-route:${nextRoute}`, 'ui');
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention(`start-route:${nextRoute}`, 'ui');
       setStartError(
-        'Proof Mission locks the route during serious proof. Stop and rerun if the route was wrong.'
+        'Proof Mission locks the route during serious proof. Use Finish Proof Run, then rerun if the route was wrong.'
       );
       return;
     }
@@ -2921,14 +3384,10 @@ export function App() {
   };
 
   const openAdvancedDrawer = (tab: Exclude<AdvancedDrawerTab, null>) => {
-    if (
-      proofWaveArmedRef.current &&
-      status.phase === 'live' &&
-      proofMissionProfile.lockAdvancedControls
-    ) {
-      markSessionIntervention(`advanced:${tab}`, 'ui');
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention(`advanced:${tab}`, 'ui');
       setStartError(
-        'Proof Mission locks Advanced controls during serious proof. Stop and rerun if steering was needed.'
+        'Proof Mission locks Advanced controls during serious proof. Use Finish Proof Run, then rerun if steering was needed.'
       );
       return;
     }
@@ -2956,6 +3415,11 @@ export function App() {
   };
 
   const handleStartCapture = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('manual-capture:start', 'ui');
+      return;
+    }
+
     if (replayRef.current.hasCapture()) {
       setReplayError(
         'Return to live mode before starting a new capture.'
@@ -2979,6 +3443,11 @@ export function App() {
   };
 
   const handleToggleAutoCapture = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('auto-capture:toggle', 'ui');
+      return;
+    }
+
     setAutoCaptureStatus((current) => {
       const enabled = !current.enabled;
 
@@ -3014,6 +3483,11 @@ export function App() {
   };
 
   const handleToggleProofStills = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('proof-stills:toggle', 'ui');
+      return;
+    }
+
     setAutoCaptureStatus((current) => {
       const proofStillsEnabled = !current.proofStillsEnabled;
       const nextStatus = {
@@ -3029,7 +3503,11 @@ export function App() {
 
   const handleProofMissionChange = (nextMission: ReplayProofMissionKind) => {
     const mission = getReplayProofMissionProfile(nextMission);
-    if (runJournalRef.current.journal?.metadata.proofWaveArmed) {
+    const activeJournal = runJournalRef.current.journal;
+    if (
+      activeJournal?.metadata.proofWaveArmed &&
+      activeJournal.metadata.proofRunState !== 'finalized'
+    ) {
       setStartError(
         'Proof mission is locked for the active run. Stop and start a new run to change missions.'
       );
@@ -3162,6 +3640,11 @@ export function App() {
   };
 
   const handleChooseCaptureFolder = async () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('capture-folder:choose', 'ui');
+      return;
+    }
+
     markSessionIntervention('capture-folder:choose');
     try {
       const handle = await pickCaptureDirectoryHandle();
@@ -3203,6 +3686,11 @@ export function App() {
   };
 
   const handleToggleAutoSaveToFolder = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('auto-save:toggle', 'ui');
+      return;
+    }
+
     setCaptureFolderStatus((current) => {
       if (!current.supported) {
         return {
@@ -3244,6 +3732,11 @@ export function App() {
   };
 
   const handleForgetCaptureFolder = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('capture-folder:forget', 'ui');
+      return;
+    }
+
     const latestRunTimestamp =
       runJournalRef.current.journal?.samples[
         Math.max(0, (runJournalRef.current.journal?.samples.length ?? 1) - 1)
@@ -3267,6 +3760,11 @@ export function App() {
   };
 
   const handleStopCapture = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('manual-capture:stop', 'ui');
+      return;
+    }
+
     markSessionIntervention('manual-capture:stop');
     const recording = recordingRef.current;
 
@@ -3305,47 +3803,6 @@ export function App() {
     const replay = replayRef.current;
     replay.load(capture);
     setReplayStatus(replay.getStatus());
-    const activeRunJournal = runJournalRef.current.journal;
-    if (
-      activeRunJournal &&
-      capture.metadata.runId &&
-      activeRunJournal.metadata.runId === capture.metadata.runId
-    ) {
-      registerReplayRunClip(activeRunJournal, {
-        captureLabel: capture.metadata.label,
-        fileName: `${capture.metadata.label}.json`,
-        captureMode: capture.metadata.captureMode,
-        capturedAt: capture.metadata.capturedAt,
-        triggerKind: capture.metadata.triggerKind,
-        triggerTimestampMs: capture.metadata.triggerTimestampMs,
-        qualityFlags: capture.metadata.qualityFlags,
-        scenarioAssessment: capture.metadata.scenarioAssessment
-      });
-      activeRunJournal.metadata.scenarioAssessment =
-        capture.metadata.scenarioAssessment ?? activeRunJournal.metadata.scenarioAssessment;
-      appendRunJournalMarker(
-        'clip-saved',
-        capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
-        'manual clip saved',
-        {
-          captureLabel: capture.metadata.label,
-          captureMode: capture.metadata.captureMode
-        }
-      );
-      updateRunJournalStatusFromJournal(
-        activeRunJournal,
-        capture.metadata.scenarioAssessment ?? null
-      );
-      if (capture.metadata.scenarioAssessment?.validated !== true) {
-        invalidateActiveProofRun(
-          'scenario-drift',
-          capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
-          `Declared proof scenario no longer matches the saved clip evidence for ${capture.metadata.label}.`,
-          'restart-run'
-        );
-      }
-      void persistRunJournalArtifacts(true);
-    }
     setRecordingSummary({
       active: false,
       frameCount: recording.frames.length,
@@ -3362,14 +3819,15 @@ export function App() {
       lastTimestampMs: 0
     };
     if (captureFolderStatusRef.current.autoSave) {
-      void saveCaptureToConfiguredFolder(capture).then((saved) => {
+      void saveRunCaptureAndRegister(
+        capture,
+        capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
+        'manual clip saved',
+        {
+          captureMode: capture.metadata.captureMode
+        }
+      ).then((saved) => {
         if (!saved) {
-          invalidateActiveProofRun(
-            'capture-save-failed',
-            capture.frames[capture.frames.length - 1]?.timestampMs ?? 0,
-            `Capture ${capture.metadata.label} failed to save into the run package.`,
-            'restart-run'
-          );
           downloadReplayCapture(capture);
         }
       });
@@ -3380,6 +3838,11 @@ export function App() {
   };
 
   const handleOpenReplayFile = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('replay:open-file', 'ui');
+      return;
+    }
+
     markSessionIntervention('replay:open-file');
     replayFileInputRef.current?.click();
   };
@@ -3419,6 +3882,11 @@ export function App() {
   };
 
   const handleToggleReplayPlayback = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('replay:toggle-playback', 'ui');
+      return;
+    }
+
     markSessionIntervention('replay:toggle-playback');
     const replay = replayRef.current;
     const nextStatus = replay.getStatus();
@@ -3433,12 +3901,22 @@ export function App() {
   };
 
   const handleStopReplay = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('replay:stop', 'ui');
+      return;
+    }
+
     markSessionIntervention('replay:stop');
     replayRef.current.stop();
     setReplayStatus(replayRef.current.getStatus());
   };
 
   const handleClearReplay = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('replay:clear', 'ui');
+      return;
+    }
+
     markSessionIntervention('replay:clear');
     replayRef.current.clear();
     setReplayStatus(replayRef.current.getStatus());
@@ -3446,6 +3924,11 @@ export function App() {
   };
 
   const handleLoadLatestAutoCapture = () => {
+    if (proofRunLocksControls()) {
+      recordSuppressedProofIntervention('replay:load-latest-auto', 'ui');
+      return;
+    }
+
     markSessionIntervention('replay:load-latest-auto');
     const latestCapture = autoCaptures[0];
 
@@ -3569,6 +4052,32 @@ export function App() {
     : status.phase === 'live'
       ? frame.showState
       : status.message;
+  const proofElapsedMs =
+    sessionInterventionSummary.sessionStartedAtMs === null
+      ? runJournalStatus.proofMissionEligibility?.durationMs ?? 0
+      : Math.max(0, Date.now() - sessionInterventionSummary.sessionStartedAtMs);
+  const proofHudStatus = runJournalStatus.active
+    ? {
+        active: true,
+        missionLabel:
+          runJournalStatus.proofMission?.label ?? proofMissionProfile.label ?? null,
+        runId: runJournalStatus.runId,
+        elapsedSeconds: proofElapsedMs / 1000,
+        targetSeconds:
+          runJournalStatus.proofMission?.expectedDurationSeconds.min ?? null,
+        noTouchPassed:
+          sessionInterventionSummary.sessionStartedAtMs !== null &&
+          sessionInterventionSummary.interventionCount === 0 &&
+          proofElapsedMs >= NO_TOUCH_PROOF_WINDOW_MS,
+        clipCount: runJournalStatus.clipCount,
+        stillCount: runJournalStatus.checkpointStillCount,
+        lastPersistedAt: runJournalStatus.lastPersistedAt,
+        validityLabel:
+          runJournalStatus.proofMissionEligibility?.verdict ??
+          runJournalStatus.proofValidity?.verdict ??
+          runJournalStatus.proofRunState
+      }
+    : undefined;
 
   return (
     <main
@@ -3591,9 +4100,13 @@ export function App() {
       <ShowHud
         currentRouteId={resolveRouteIdFromListeningMode(sourceMode)}
         onApplyRouteRecommendation={applyRouteRecommendation}
+        onFinishProofRun={() => {
+          void handleFinishProofRun();
+        }}
         onOpenAdvanced={() => {
           openAdvancedDrawer('steer');
         }}
+        proofStatus={proofHudStatus}
         routeRecommendation={routeRecommendation}
         showCapabilityMode={appliedShowIntent.showCapabilityMode}
         statusLabel={topStatusLabel}
@@ -3610,7 +4123,7 @@ export function App() {
         }}
         renderer={rendererDiagnostics}
         proofReadiness={currentProofReadiness}
-        proofAdvancedLocked={proofWaveArmed && proofMissionProfile.lockAdvancedControls}
+        proofAdvancedLocked={proofRunLocksControls()}
         proofMissionLabel={proofMissionProfile.label}
         proofScenarioKind={proofScenarioKind}
         proofWaveArmed={proofWaveArmed}
@@ -3636,6 +4149,10 @@ export function App() {
         proofWaveArmed={proofWaveArmed}
         proofMissionKind={proofMissionKind}
         onAdvancedTabChange={(tab) => {
+          if (tab !== 'backstage' && proofRunLocksControls()) {
+            recordSuppressedProofIntervention(`advanced-tab:${tab}`, 'ui');
+            return;
+          }
           setAdvancedDrawerTab(tab);
         }}
         onApplyCurrentDriftAnchors={handleApplyStyleAnchorFromAuto}
@@ -3649,6 +4166,14 @@ export function App() {
         onClose={closeAdvancedDrawer}
         onDeleteSavedStance={handleDeleteSavedStance}
         onForgetCaptureFolder={handleForgetCaptureFolder}
+        onFinishProofRun={() => {
+          void handleFinishProofRun();
+        }}
+        onOverrideProofToExploratory={() => {
+          overrideProofRunToExploratory(
+            'Operator explicitly overrode the serious proof run to exploratory.'
+          );
+        }}
         onApplyRouteRecommendation={applyRouteRecommendation}
         onBiasChange={handleDirectorBiasChange}
         onInputDeviceChange={handleInputDeviceChange}

@@ -972,6 +972,13 @@ async function main() {
   const benchmarkSummaries = await loadManifestBenchmarkSummaries(summaries);
   const manifestHealth = await collectBenchmarkManifestHealth();
   const runArtifacts = await collectRunArtifacts([capturesPath]);
+  const runIntegrityFailures = runArtifacts.filter((entry) => {
+    if (entry.artifactType !== 'run-journal' && entry.artifactType !== 'run-manifest') {
+      return false;
+    }
+
+    return entry.artifact?.metadata?.artifactIntegrity?.verdict === 'fail';
+  });
   const missedEntries = await collectMissedCaptureOpportunities([capturesPath]);
   const reportText = await readTextIfExists(reportPath);
   const looseScreenshots = await collectScreenshotInventory(screenshotsPath);
@@ -1154,6 +1161,14 @@ async function main() {
       true
     ),
     buildGateStatus(
+      'run artifact integrity',
+      runIntegrityFailures.length === 0,
+      runIntegrityFailures.length === 0
+        ? 'Run journals/manifests do not report artifact-integrity failures.'
+        : `${runIntegrityFailures.length} run artifact(s) report artifact-integrity failures.`,
+      true
+    ),
+    buildGateStatus(
       'missed capture opportunities',
       missedEntries.length === 0,
       missedEntries.length === 0
@@ -1235,6 +1250,7 @@ async function main() {
         scenarioCoverage.primaryBenchmarkNoTouchAuthorityCount,
       operatorTrustCount: scenarioCoverage.operatorTrustCount
     },
+    runArtifactIntegrityFailureCount: runIntegrityFailures.length,
     missedOpportunityCount: missedEntries.length,
     releaseReady: failedGates.length === 0 && warningGates.length === 0,
     strictGateFailureCount: failedGates.length,
@@ -1334,9 +1350,10 @@ async function main() {
     console.log(`Captured ${summaries.length} evidence set(s) and ${screenshots.length} screenshot reference(s).`);
   }
 
-  if (args.strict && failedGates.length > 0) {
+  if (args.strict && manifest.releaseReady !== true) {
+    const strictBlockers = [...failedGates, ...warningGates];
     console.error(
-      `Proof pack strict mode failed: ${failedGates
+      `Proof pack strict mode failed: ${strictBlockers
         .map((gate) => gate.label)
         .join(', ')}.`
     );

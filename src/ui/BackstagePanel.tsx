@@ -8,8 +8,11 @@ import type {
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import type {
   ReplayProofReadiness,
+  ReplayArtifactIntegrity,
+  ReplayProofMissionEligibility,
   ReplayProofMissionKind,
   ReplayProofMissionSnapshot,
+  ReplayProofRunState,
   ReplayProofValidity,
   ReplayRunLifecycleState
 } from '../replay/types';
@@ -82,6 +85,7 @@ type RunJournalStatus = {
   proofWaveArmed: boolean;
   runId: string | null;
   proofMission: ReplayProofMissionSnapshot | null;
+  proofRunState: ReplayProofRunState;
   sampleCount: number;
   markerCount: number;
   clipCount: number;
@@ -97,6 +101,9 @@ type RunJournalStatus = {
   } | null;
   readiness: ReplayProofReadiness | null;
   proofValidity: ReplayProofValidity | null;
+  proofMissionEligibility: ReplayProofMissionEligibility | null;
+  artifactIntegrity: ReplayArtifactIntegrity | null;
+  suppressedInterventionCount: number;
   lifecycleState: ReplayRunLifecycleState;
 };
 
@@ -154,6 +161,8 @@ type BackstagePanelProps = {
   onToggleDiagnostics: () => void;
   onChooseCaptureFolder: () => void;
   onArmProofWave: () => void;
+  onFinishProofRun: () => void;
+  onOverrideProofToExploratory: () => void;
   onProofMissionChange: (kind: ReplayProofMissionKind) => void;
   onForgetCaptureFolder: () => void;
   onToggleAutoCapture: () => void;
@@ -264,6 +273,8 @@ export function BackstagePanel({
   onToggleDiagnostics,
   onChooseCaptureFolder,
   onArmProofWave,
+  onFinishProofRun,
+  onOverrideProofToExploratory,
   onProofMissionChange,
   onForgetCaptureFolder,
   onToggleAutoCapture,
@@ -740,10 +751,29 @@ export function BackstagePanel({
                   <button
                     className={`backstage-action ${proofWaveArmed ? 'backstage-action--ghost' : ''}`}
                     onClick={onArmProofWave}
+                    disabled={runJournalStatus.active}
                     type="button"
                   >
                     {proofWaveArmed ? 'Proof Wave Armed' : 'Arm Proof Wave'}
                   </button>
+                  {runJournalStatus.active ? (
+                    <button
+                      className="backstage-action"
+                      onClick={onFinishProofRun}
+                      type="button"
+                    >
+                      Finish Proof Run
+                    </button>
+                  ) : null}
+                  {runJournalStatus.active && runJournalStatus.proofWaveArmed ? (
+                    <button
+                      className="backstage-action backstage-action--ghost"
+                      onClick={onOverrideProofToExploratory}
+                      type="button"
+                    >
+                      Override To Exploratory
+                    </button>
+                  ) : null}
                   <button
                     className="backstage-action"
                     onClick={onChooseCaptureFolder}
@@ -821,8 +851,18 @@ export function BackstagePanel({
                 <div className="backstage-note">
                   {runJournalStatus.active
                     ? `Run ${runJournalStatus.runId} | samples ${runJournalStatus.sampleCount} | markers ${runJournalStatus.markerCount} | clips ${runJournalStatus.clipCount} | stills ${runJournalStatus.checkpointStillCount}`
-                    : 'Run journal will start on the next Start Show.'}
+                    : runJournalStatus.runId
+                      ? `Last run ${runJournalStatus.runId} | clips ${runJournalStatus.clipCount} | stills ${runJournalStatus.checkpointStillCount}`
+                      : 'Run journal will start after Start Show succeeds.'}
                 </div>
+                {runJournalStatus.runId ? (
+                  <div className="backstage-note">
+                    state {runJournalStatus.proofRunState} | suppressed attempts{' '}
+                    {runJournalStatus.suppressedInterventionCount} | integrity{' '}
+                    {runJournalStatus.artifactIntegrity?.verdict ?? 'pending'} | eligibility{' '}
+                    {runJournalStatus.proofMissionEligibility?.verdict ?? 'pending'}
+                  </div>
+                ) : null}
                 <div className="backstage-note">
                   Build identity {runJournalStatus.buildIdentityValid ? 'recording' : 'invalid'} | scenario{' '}
                   {runJournalStatus.scenarioAssessment?.validated === true
@@ -853,6 +893,15 @@ export function BackstagePanel({
                 {runJournalStatus.proofValidity?.recoveryGuidance ? (
                   <div className="backstage-note backstage-note--error">
                     {runJournalStatus.proofValidity.recoveryGuidance}
+                  </div>
+                ) : null}
+                {!runJournalStatus.active &&
+                runJournalStatus.runId &&
+                runJournalStatus.proofRunState !== 'idle' ? (
+                  <div className="backstage-note">
+                    Receipt: captures/inbox/runs/{runJournalStatus.runId}. Then run npm run
+                    proof:current; npm run evidence:index; npm run run:review -- --run-id{' '}
+                    {runJournalStatus.runId}.
                   </div>
                 ) : null}
               </section>

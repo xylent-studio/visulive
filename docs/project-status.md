@@ -24,10 +24,11 @@ Latest local verification on `codex/full-version-foundation` after proof-run rel
 - `npm run proof:audit` passes
 - `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
-- `npm run analyze:captures` passes
+- `npm run evidence:index` passes
+- `npm run evidence:query -- --runs --limit 5` passes
 - `npm run proof-pack -- --limit 1 --strict` intentionally fails because no current-proof-eligible run exists yet
-- `npm run prod:smoke -- --include-http` passes
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
+- `npm run proof:preflight` intentionally fails while this implementation is uncommitted; it should pass after commit and before the next serious run
 
 Current standing warning:
 
@@ -47,7 +48,7 @@ But it is still transitional in four important ways:
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, and stage-runtime orchestration; the scene still assembles compatibility context, but chamber/world authority math no longer lives there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
-- Proof Mission Control is now the serious-run setup layer, but it still needs a fresh canary to prove run-start locking, mission propagation, shortcut suppression, still/clip save integrity, and no invalidations on this exact build
+- Proof Mission Control is now the serious-run setup and finalization layer, but it still needs a fresh canary to prove audio-start-gated journaling, mission propagation, `Finish Proof Run`, artifact-integrity validation, clip/still save integrity, and no invalidations on this exact build
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -85,6 +86,7 @@ The next wave is:
 
 - `Proof / Authority Validation`
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
+- end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - start with the 60-90 second `Primary benchmark` canary tracked by `VIS-12`, then run the 6-8 minute primary benchmark tracked by `VIS-14`
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
@@ -171,7 +173,7 @@ The anthology program is ahead of code in these ways:
 - the mastery review system is installed, but its first golden review set is still provisional because fresh canonical captures have not yet replaced the older report-derived stills
 - `stable` is the only active public release lane today; a separate frontier host is future staging infrastructure and is not yet provisioned in production
 - the legacy V1 preservation system is installed and live, but historical proof-pack and screenshot recovery for the original April 2026 release is still incomplete
-- build identity exists in the app today, but lane and proof-pack identity still need fuller implementation
+- build identity exists in the app and strict proof tooling; fresh proof still needs a clean committed build launched through `npm run dev:proof`
 
 ## Installed But Still Unproven
 

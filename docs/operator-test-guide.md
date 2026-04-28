@@ -61,11 +61,11 @@ If you are running a serious review pass instead of a casual look:
 
 - run `npm run proof:preflight` before opening the browser; serious proof requires a clean committed workspace
 - start the local app with `npm run dev:proof`
-- arm `Proof Wave`
-- confirm the capture folder points at [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
 - set `Backstage -> Capture -> Proof Mission` before the run starts
+- arm `Proof Wave`; it should force auto capture, auto-save, proof stills, route/source, and mission metadata
+- confirm the capture folder points at [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
 - verify `Proof ready: yes` in diagnostics or backstage before pressing `Start Show`
-- finish by reviewing the analyzer report and writing one short note
+- end with `Finish Proof Run`, then review the run package and write one short note
 
 `Proof Wave` is now a setup transaction, not a loose toggle:
 
@@ -76,8 +76,10 @@ If you are running a serious review pass instead of a casual look:
 - enables auto save to folder
 - enables proof stills
 - starts the run journal automatically on the next `Start Show`
+- starts the run journal only after audio startup succeeds
 - records build identity into captures
 - resets serious-proof advanced curation and steering unless the mission is explicitly exploratory
+- finalizes the run only through `Finish Proof Run`, where mission eligibility and artifact integrity are derived
 
 `Start Show` is now hard-gated for serious proof:
 - if the capture folder is not writable in the repo inbox, the run should not start as serious proof
@@ -99,9 +101,10 @@ Use these mission defaults:
 For the next proof wave, run one mission per run:
 
 1. `Primary benchmark`, PC Audio, EDM/electronic, no-touch, 60-90 seconds as the canary.
-2. If the canary is valid, `Primary benchmark`, PC Audio, no-touch, 6-8 minutes.
-3. If primary proof is valid, `Operator trust`, no-touch, 6-8 minutes.
-4. Run `Acoustic/drums stress`, `Room floor`, `Sparse/silence`, and `Coverage` only after the primary authority path is trustworthy.
+2. Use `Finish Proof Run`, then run `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`.
+3. If the canary is valid, `Primary benchmark`, PC Audio, no-touch, 6-8 minutes.
+4. If primary proof is valid, `Operator trust`, no-touch, 6-8 minutes.
+5. Run `Acoustic/drums stress`, `Room floor`, `Sparse/silence`, and `Coverage` only after the primary authority path is trustworthy.
 
 ## What The No-Touch Pass Must Prove
 

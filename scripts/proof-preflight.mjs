@@ -1,11 +1,13 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
 const allowDirty = args.has('--allow-dirty');
+const allowExistingInbox =
+  args.has('--allow-existing-inbox') || args.has('--exploratory');
 
 function git(args) {
   return execFileSync('git', args, {
@@ -44,6 +46,24 @@ async function canWriteCaptureInbox() {
   await unlink(testPath);
 
   return inboxPath;
+}
+
+async function collectActiveInboxRuns() {
+  const runsPath = path.join(repoRoot, 'captures', 'inbox', 'runs');
+
+  try {
+    const entries = await readdir(runsPath, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+  } catch (error) {
+    if (error && typeof error === 'object' && error.code === 'ENOENT') {
+      return [];
+    }
+
+    throw error;
+  }
 }
 
 function printResult({ failures, warnings, branch, commit, dirtyCount, inboxPath }) {
@@ -98,6 +118,7 @@ async function main() {
   let commit = 'unknown';
   let dirtyOutput = '';
   let inboxPath = path.join(repoRoot, 'captures', 'inbox');
+  let activeInboxRuns = [];
 
   if (!nodeVersionPasses(process.versions.node)) {
     failures.push(`Node ${process.versions.node} is below the required >=22.12.0 runtime.`);
@@ -136,9 +157,20 @@ async function main() {
 
   try {
     inboxPath = await canWriteCaptureInbox();
+    activeInboxRuns = await collectActiveInboxRuns();
   } catch (error) {
     failures.push(
       `captures/inbox is not writable: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+
+  if (activeInboxRuns.length > 0 && !allowExistingInbox) {
+    failures.push(
+      `Proof Mission inbox is not clean: captures/inbox/runs contains ${activeInboxRuns.length} active run package(s). Review, promote, or archive them before serious proof.`
+    );
+  } else if (activeInboxRuns.length > 0) {
+    warnings.push(
+      `captures/inbox/runs contains ${activeInboxRuns.length} run package(s). --allow-existing-inbox/--exploratory was used, so this cannot be a clean serious proof wave.`
     );
   }
 

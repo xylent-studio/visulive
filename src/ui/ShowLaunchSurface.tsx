@@ -149,7 +149,7 @@ export function ShowLaunchSurface({
             onClick={onOpenAdvanced}
             title={
               proofAdvancedLocked
-                ? 'Proof Mission locks Advanced controls before serious proof.'
+                ? 'Proof Mission locks Advanced controls during serious proof.'
                 : undefined
             }
             type="button"

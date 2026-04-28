@@ -199,6 +199,7 @@ Own:
 - [session.ts](C:/dev/GitHub/visulive/src/replay/session.ts)
 - [ReplayController.ts](C:/dev/GitHub/visulive/src/replay/ReplayController.ts)
 - [proofMission.ts](C:/dev/GitHub/visulive/src/replay/proofMission.ts)
+- [runJournal.ts](C:/dev/GitHub/visulive/src/replay/runJournal.ts)
 - [types.ts](C:/dev/GitHub/visulive/src/replay/types.ts)
 - [capture-analysis-core.mjs](C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs)
 - [analyze-captures.mjs](C:/dev/GitHub/visulive/scripts/analyze-captures.mjs)
@@ -207,6 +208,7 @@ Own:
 Own specifically:
 - capture windows
 - proof missions, mission snapshots, and mission/scenario propagation
+- proof run lifecycle, final mission eligibility, suppressed interventions, and artifact integrity
 - evidence-quality flags
 - report generation
 - inbox/canonical/archive handling
@@ -256,10 +258,10 @@ Parallel work is safe now only for these disjoint write scopes:
 - renderer policy
 - show-direction contract
 
-Parallel work is not yet safe for multiple visual specialists inside [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) unless:
-- one agent owns `buildHero()` / `updateHero(...)`
-- one agent owns chamber/world/lighting methods
-- one agent owns motion/camera/event methods
+Parallel work is not yet safe for multiple visual specialists around the remaining scene compatibility shell unless:
+- one agent owns [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts)
+- one agent owns [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), or authority-fed lighting/particles
+- one agent owns remaining motion/camera/event methods still routed through [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) or stage rigs
 
 If that separation is not explicit for a pass, sequence the work instead of parallelizing it.
 
@@ -322,6 +324,7 @@ Before heavy parallel visual work, prove the current backbone:
 - choose `Backstage -> Capture -> Proof Mission -> Primary benchmark`
 - arm `Proof Wave`
 - run a 60-90 second PC Audio no-touch canary
+- end with `Finish Proof Run`; do not rely on closing the tab or stopping audio informally
 - review `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`
 
 If the canary is valid, run the full `Primary benchmark` and then `Operator trust`.

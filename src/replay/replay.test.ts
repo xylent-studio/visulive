@@ -19,9 +19,14 @@ import {
   buildReplayRunPersistenceArtifacts,
   createReplayBuildInfo,
   createReplayRunJournal,
+  deriveProofMissionEligibility,
+  deriveReplayArtifactIntegrityFromJournal,
   deriveReplayProofValidity,
+  deriveReplayScenarioAssessment,
   hasReplayProofInvalidation,
-  isReplayBuildInfoValid
+  isReplayBuildInfoValid,
+  registerReplayRunClip,
+  registerReplayRunStill
 } from './runJournal';
 import {
   buildReplayProofMissionSnapshot,
@@ -211,6 +216,105 @@ describe('replay workflow', () => {
         )
       )
     ).toBe(true);
+  });
+
+  it('derives final Proof Mission eligibility only after duration, no-touch, scenario, and artifact integrity pass', () => {
+    const buildInfo = createReplayBuildInfo({
+      version: '1.0.0-test',
+      commit: 'abc1234',
+      branch: 'codex/full-version-foundation',
+      builtAt: '2026-04-23T13:00:00.000Z',
+      lane: 'stable',
+      proofStatus: 'proof-pack',
+      dirty: false
+    });
+    const proofMission = buildReplayProofMissionSnapshot('primary-benchmark', {
+      lockedAt: '2026-04-23T13:00:59.000Z'
+    });
+    const readiness = {
+      seriousRun: true,
+      ready: true,
+      checkedAt: '2026-04-23T13:00:59.000Z',
+      checks: []
+    };
+    const journal = createReplayRunJournal({
+      buildInfo,
+      runId: 'run-proof-eligible',
+      sourceMode: 'system-audio',
+      sourceLabel: 'PC Audio',
+      showStartRoute: proofMission.expectedRoute,
+      proofWaveArmed: true,
+      proofScenarioKind: 'primary-benchmark',
+      proofMission,
+      proofReadiness: readiness,
+      sessionStartedAt: '2026-04-23T13:01:00.000Z',
+      sessionElapsedMs: 65_000,
+      interventionCount: 0,
+      interventionReasons: [],
+      noTouchWindowPassed: true
+    });
+
+    registerReplayRunClip(journal, {
+      captureLabel: 'auto_authority-turn_2026-04-23_13-01-30',
+      fileName: 'auto_authority-turn_2026-04-23_13-01-30.json',
+      captureMode: 'auto',
+      capturedAt: '2026-04-23T13:01:30.000Z',
+      triggerKind: 'authority-turn',
+      triggerTimestampMs: 30_000
+    });
+    registerReplayRunStill(journal, {
+      kind: 'authority',
+      timestampMs: 30_000,
+      fileName: 'run-proof-eligible__authority_30000.png'
+    });
+
+    const scenarioAssessment = deriveReplayScenarioAssessment({
+      declaredScenario: 'primary-benchmark',
+      sourceMode: 'system-audio',
+      showStartRoute: 'pc-audio',
+      noTouchWindowPassed: true,
+      interventionCount: 0,
+      interventionReasons: [],
+      captureMode: 'auto',
+      hasBuildIdentity: true
+    });
+    const artifactIntegrity = deriveReplayArtifactIntegrityFromJournal(journal);
+    const eligibility = deriveProofMissionEligibility({
+      proofWaveArmed: true,
+      proofMission,
+      sourceMode: 'system-audio',
+      showStartRoute: 'pc-audio',
+      proofReadiness: readiness,
+      scenarioAssessment,
+      invalidations: [],
+      artifactIntegrity,
+      noTouchWindowPassed: true,
+      durationMs: 65_000,
+      buildInfo
+    });
+
+    expect(artifactIntegrity.verdict).toBe('pass');
+    expect(eligibility.verdict).toBe('eligible');
+    expect(eligibility.currentProofEligible).toBe(true);
+
+    const tooShort = deriveProofMissionEligibility({
+      proofWaveArmed: true,
+      proofMission,
+      sourceMode: 'system-audio',
+      showStartRoute: 'pc-audio',
+      proofReadiness: readiness,
+      scenarioAssessment,
+      invalidations: [],
+      artifactIntegrity,
+      noTouchWindowPassed: true,
+      durationMs: 20_000,
+      buildInfo
+    });
+
+    expect(tooShort.verdict).toBe('ineligible');
+    expect(
+      tooShort.gates.find((gate) => gate.id === 'duration-minimum')?.status
+    ).toBe('fail');
   });
 
   it('builds and parses replay captures with diagnostics', () => {

@@ -30,8 +30,10 @@ Read first:
 - Linear project is created: [Proof Backbone & Clean Workspace](https://linear.app/visulive/project/proof-backbone-and-clean-workspace-c336ef31d99c), with issues `VIS-5` through `VIS-16`
 - Proof-run persistence now snapshots run journals/manifests before async writes, retries transient File System Access write-state failures, and avoids recursive `run-journal-save-failed` invalidation loops
 - Proof Mission Control now makes `Proof Wave` a setup transaction: the operator chooses a mission, the app forces route/source, auto capture, auto-save, proof stills, run journal, and locked mission metadata before `Start Show`
-- serious proof now suppresses the `M` Advanced shortcut during live no-touch missions and records mission snapshots into journal samples, clips, stills, and manifests
+- serious proof now starts the run journal only after audio startup succeeds, suppresses accidental live proof controls without contaminating no-touch proof, and records mission snapshots into journal samples, clips, stills, and manifests
+- `Finish Proof Run` is now the canonical end path: it stops audio, closes pending auto clips, writes finish/finalized markers, derives final mission eligibility, checks artifact integrity, disarms Proof Wave, and shows review commands
 - the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing mission/build/folder/replay readiness is visible before `Start Show`
+- the live HUD now shows proof mission, elapsed/target time, no-touch state, clip/still counts, last persistence state, and a `Finish Proof Run` action
 - invalid April 28 runs are debugging evidence only and should be archived before the next proof pass
 
 This means the next agent should return to proof validation work, not release cleanup or capability expansion.
@@ -63,6 +65,7 @@ The highest-leverage move is:
    - use `Primary benchmark` for the first canary and real primary proof
    - start only when the launch surface reports serious proof is ready
    - first run `Primary benchmark` as a 60-90 second canary to prove folder write, journal, clips, stills, no-touch tracking, and zero invalidations
+   - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
    - fresh no-touch `PC Audio` benchmark batch
    - analyzer review
    - proof-pack review

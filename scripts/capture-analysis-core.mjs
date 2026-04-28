@@ -212,6 +212,14 @@ export function resolveCaptureReviewScenarioKind(summaryOrMetadata = {}) {
     metadata?.scenarioAssessment && typeof metadata.scenarioAssessment === 'object'
       ? metadata.scenarioAssessment
       : null;
+  const proofMission =
+    metadata?.proofMission && typeof metadata.proofMission === 'object'
+      ? metadata.proofMission
+      : null;
+
+  if (isCurrentProofScenarioKind(proofMission?.scenarioKind)) {
+    return proofMission.scenarioKind;
+  }
 
   if (
     scenarioAssessment?.validated === true &&

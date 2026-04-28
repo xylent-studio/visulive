@@ -122,7 +122,7 @@ function buildClipsQuery(args, resolved) {
 
   if (args.scenario) {
     clauses.push(
-      '(clips.derived_scenario = @scenario OR clips.proof_scenario_kind = @scenario OR runs.derived_scenario = @scenario)'
+      '(clips.derived_scenario = @scenario OR clips.proof_scenario_kind = @scenario OR clips.proof_mission_kind = @scenario OR runs.derived_scenario = @scenario OR runs.proof_mission_kind = @scenario)'
     );
     parameters.scenario = args.scenario;
   }
@@ -182,6 +182,10 @@ function buildClipsQuery(args, resolved) {
         clips.captured_at,
         clips.trigger_kind,
         clips.proof_scenario_kind,
+        clips.proof_mission_kind,
+        clips.proof_mission_label,
+        clips.proof_mission_eligibility_verdict,
+        clips.artifact_integrity_verdict,
         clips.derived_scenario,
         clips.scenario_validated,
         clips.build_commit,
@@ -216,7 +220,7 @@ function buildRunsQuery(args, resolved) {
 
   if (args.scenario) {
     clauses.push(
-      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario)'
+      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario OR runs.proof_mission_kind = @scenario)'
     );
     parameters.scenario = args.scenario;
   }
@@ -279,6 +283,12 @@ function buildRunsQuery(args, resolved) {
         runs.build_built_at,
         runs.build_lane,
         runs.proof_scenario_kind,
+        runs.proof_run_state,
+        runs.proof_mission_kind,
+        runs.proof_mission_label,
+        runs.proof_mission_eligibility_verdict,
+        runs.proof_mission_eligibility_current,
+        runs.artifact_integrity_verdict,
         runs.declared_scenario,
         runs.derived_scenario,
         runs.scenario_validated,
@@ -330,7 +340,7 @@ function buildRecommendationsQuery(args, resolved) {
 
   if (args.scenario) {
     clauses.push(
-      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario)'
+      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario OR runs.proof_mission_kind = @scenario)'
     );
     parameters.scenario = args.scenario;
   }
@@ -371,6 +381,9 @@ function buildRecommendationsQuery(args, resolved) {
         runs.build_commit,
         runs.build_built_at,
         runs.proof_scenario_kind,
+        runs.proof_mission_kind,
+        runs.proof_mission_eligibility_verdict,
+        runs.artifact_integrity_verdict,
         runs.current_proof_eligible
       FROM recommendations
       LEFT JOIN runs ON runs.run_id = recommendations.run_id
@@ -402,7 +415,8 @@ function formatClipRow(row) {
     `- ${row.label} (${row.capture_mode}, ${row.trigger_kind ?? 'manual'})`,
     `  - file: ${row.file_path}`,
     `  - run: ${row.run_id ?? 'none'} | lifecycle: ${row.lifecycle_state ?? 'unknown'} | build: ${row.build_commit ?? 'unknown'} @ ${row.build_built_at ?? 'unknown'} (${row.build_valid ? 'valid' : 'invalid'})`,
-    `  - scenario: ${row.derived_scenario ?? row.proof_scenario_kind ?? 'unassigned'} (${row.scenario_validated ? 'validated' : 'pending/mismatch'})`,
+    `  - scenario: ${row.derived_scenario ?? row.proof_scenario_kind ?? 'unassigned'} (${row.scenario_validated ? 'validated' : 'pending/mismatch'}) | mission: ${row.proof_mission_label ?? row.proof_mission_kind ?? 'none'}`,
+    `  - eligibility/integrity: ${row.proof_mission_eligibility_verdict ?? 'pending'} / ${row.artifact_integrity_verdict ?? 'pending'}`,
     `  - no-touch: ${row.no_touch_window_passed ? 'yes' : 'no'} | proof wave: ${row.proof_wave_armed ? 'armed' : 'off'} | current-proof: ${row.current_proof_eligible ? 'yes' : 'no'}`,
     `  - world/chamber/overbright/hero/ring: ${row.world_dominance_mean ?? 'n/a'} / ${row.chamber_presence_mean ?? 'n/a'} / ${row.overbright_rate ?? 'n/a'} / ${row.hero_coverage_mean ?? 'n/a'} / ${row.ring_authority_mean ?? 'n/a'}`,
     `  - flags: ${row.quality_flags_json ?? '[]'}`
@@ -413,6 +427,7 @@ function formatRunRow(row) {
   return [
     `- ${row.run_id} (${row.lifecycle_state ?? 'unknown'})`,
     `  - build: ${row.build_commit ?? 'unknown'} / ${row.build_lane ?? 'unknown'} / ${row.build_built_at ?? 'unknown'} | scenario: ${row.derived_scenario ?? row.proof_scenario_kind ?? 'unassigned'}`,
+    `  - mission: ${row.proof_mission_label ?? row.proof_mission_kind ?? 'none'} | state=${row.proof_run_state ?? 'legacy'} | eligibility=${row.proof_mission_eligibility_verdict ?? 'pending'} | integrity=${row.artifact_integrity_verdict ?? 'pending'}`,
     `  - proof: ready=${row.proof_ready ? 'yes' : 'no'} valid=${row.proof_valid ? 'yes' : 'no'} current=${row.current_proof_eligible ? 'yes' : 'no'}`,
     `  - no-touch/interventions: ${row.no_touch_window_passed ? 'pass' : 'no'} / ${row.intervention_count ?? 0}`,
     `  - samples/markers/clips/stills: ${row.sample_count ?? 0} / ${row.marker_count ?? 0} / ${row.clip_count ?? 0} / ${row.checkpoint_still_count ?? 0}`,
@@ -427,7 +442,7 @@ function formatRecommendationRow(row) {
     `- ${row.issue_id} [${row.severity}] ${row.title}`,
     `  - run: ${row.run_id} | lifecycle: ${row.lifecycle_state ?? 'unknown'} | build: ${row.build_commit ?? 'unknown'} @ ${row.build_built_at ?? 'unknown'} | current-proof: ${row.current_proof_eligible ? 'yes' : 'no'}`,
     `  - owner lane: ${row.owner_lane} | subsystem: ${row.subsystem}`,
-    `  - scenario: ${row.proof_scenario_kind ?? 'unassigned'} | next proof: ${row.recommended_next_scenario ?? 'none'}`,
+    `  - scenario: ${row.proof_scenario_kind ?? 'unassigned'} | mission: ${row.proof_mission_kind ?? 'none'} (${row.proof_mission_eligibility_verdict ?? 'pending'} / ${row.artifact_integrity_verdict ?? 'pending'}) | next proof: ${row.recommended_next_scenario ?? 'none'}`,
     `  - confidence: ${row.confidence ?? 'n/a'} | impacted gates: ${row.impacted_gates_json ?? '[]'}`,
     `  - cause: ${row.suspected_cause}`,
     `  - clips: ${row.clip_files_json ?? '[]'} | stills: ${row.still_files_json ?? '[]'}`

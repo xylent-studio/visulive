@@ -12,6 +12,19 @@ type ShowHudProps = {
   statusLabel: string;
   showCapabilityMode: ShowCapabilityMode;
   routeRecommendation: AutoRouteRecommendation | null;
+  proofStatus?: {
+    active: boolean;
+    missionLabel: string | null;
+    runId: string | null;
+    elapsedSeconds: number;
+    targetSeconds: number | null;
+    noTouchPassed: boolean;
+    clipCount: number;
+    stillCount: number;
+    lastPersistedAt: string | null;
+    validityLabel: string;
+  };
+  onFinishProofRun?: () => void;
   onOpenAdvanced: () => void;
   onApplyRouteRecommendation: () => void;
 };
@@ -22,6 +35,8 @@ export function ShowHud({
   statusLabel,
   showCapabilityMode,
   routeRecommendation,
+  proofStatus,
+  onFinishProofRun,
   onOpenAdvanced,
   onApplyRouteRecommendation
 }: ShowHudProps) {
@@ -65,6 +80,33 @@ export function ShowHud({
             <strong>{routeRecommendation.recommendedRoute}</strong>
           </div>
         ) : null}
+        {proofStatus?.active ? (
+          <>
+            <div className="show-hud__pill">
+              <span>proof</span>
+              <strong>{proofStatus.missionLabel ?? 'mission'}</strong>
+            </div>
+            <div className="show-hud__pill">
+              <span>elapsed</span>
+              <strong>
+                {Math.floor(proofStatus.elapsedSeconds)}s
+                {proofStatus.targetSeconds
+                  ? ` / ${Math.floor(proofStatus.targetSeconds)}s`
+                  : ''}
+              </strong>
+            </div>
+            <div className="show-hud__pill">
+              <span>no-touch</span>
+              <strong>{proofStatus.noTouchPassed ? 'clear' : 'running'}</strong>
+            </div>
+            <div className="show-hud__pill">
+              <span>evidence</span>
+              <strong>
+                {proofStatus.clipCount} clips / {proofStatus.stillCount} stills
+              </strong>
+            </div>
+          </>
+        ) : null}
       </div>
       <div className="show-hud__actions">
         {routeRecommendation ? (
@@ -76,6 +118,15 @@ export function ShowHud({
             Use Recommendation
           </button>
         ) : null}
+        {proofStatus?.active && onFinishProofRun ? (
+          <button
+            className="show-hud__button"
+            onClick={onFinishProofRun}
+            type="button"
+          >
+            Finish Proof Run
+          </button>
+        ) : null}
         <button
           className="show-hud__button show-hud__button--ghost"
           onClick={onOpenAdvanced}
@@ -85,7 +136,9 @@ export function ShowHud({
         </button>
       </div>
       <div className="show-hud__build">
-        {BUILD_INFO.lane} / {BUILD_INFO.proofStatus}
+        {proofStatus?.active
+          ? `${proofStatus.validityLabel} / ${proofStatus.lastPersistedAt ? 'saved' : 'not saved yet'}`
+          : `${BUILD_INFO.lane} / ${BUILD_INFO.proofStatus}`}
       </div>
     </div>
   );

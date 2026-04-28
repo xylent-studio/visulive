@@ -7,7 +7,8 @@ import {
   copyFileIntoRunPackage,
   loadRunPackage,
   resolveRunClipPaths,
-  updateRunPackageArtifacts
+  updateRunPackageArtifacts,
+  validateRunPackageIntegrity
 } from './run-package-utils.mjs';
 
 function parseArgs(argv) {
@@ -46,7 +47,13 @@ function parseArgs(argv) {
   return args;
 }
 
-function buildSummaryMarkdown(runPackage, summaries, recommendationsArtifact, missedEntries) {
+function buildSummaryMarkdown(
+  runPackage,
+  summaries,
+  recommendationsArtifact,
+  missedEntries,
+  integrity
+) {
   const proofValidity = runPackage.journal.metadata.proofValidity;
   const invalidations = proofValidity?.invalidations ?? [];
   const gateLines = (recommendationsArtifact.metadata.gateOutcomes ?? []).map(
@@ -68,6 +75,9 @@ function buildSummaryMarkdown(runPackage, summaries, recommendationsArtifact, mi
     `Lifecycle: ${runPackage.journal.metadata.lifecycleState}`,
     `Proof verdict: ${proofValidity?.verdict ?? 'exploratory'}`,
     `Current-proof-eligible: ${proofValidity?.currentProofEligible === true ? 'yes' : 'no'}`,
+    `Proof run state: ${runPackage.journal.metadata.proofRunState ?? 'legacy'}`,
+    `Mission eligibility: ${runPackage.journal.metadata.proofMissionEligibility?.verdict ?? 'missing'}`,
+    `Artifact integrity: ${integrity.verdict}`,
     `Recovery guidance: ${proofValidity?.recoveryGuidance ?? 'none'}`,
     `Scenario: ${runPackage.journal.metadata.proofScenarioKind ?? 'unassigned'}`,
     `Clip count: ${summaries.length}`,
@@ -83,6 +93,14 @@ function buildSummaryMarkdown(runPackage, summaries, recommendationsArtifact, mi
     '',
     '## Gate outcomes',
     ...(gateLines.length > 0 ? gateLines : ['- none']),
+    '',
+    '## Artifact integrity',
+    ...(integrity.issues.length > 0
+      ? integrity.issues.map(
+          (issue) =>
+            `- ${issue.id}: ${issue.severity} - ${issue.reason}${issue.fileName ? ` (${issue.fileName})` : ''}`
+        )
+      : ['- pass']),
     '',
     '## Missed opportunities',
     ...(missedEntries.length > 0
@@ -101,6 +119,9 @@ function buildSummaryMarkdown(runPackage, summaries, recommendationsArtifact, mi
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runPackage = await loadRunPackage(args.runId);
+  const integrity = await validateRunPackageIntegrity(runPackage);
+  runPackage.journal.metadata.artifactIntegrity = integrity;
+  runPackage.manifest.metadata.artifactIntegrity = integrity;
   const clipPaths = resolveRunClipPaths(runPackage);
   const summaries = await analyzeCaptureTargets(clipPaths);
   const missedEntries = (await collectMissedCaptureOpportunities([runPackage.runDirectory])).filter(
@@ -123,7 +144,13 @@ async function main() {
 
   await fs.writeFile(
     summaryPath,
-    buildSummaryMarkdown(runPackage, summaries, recommendationsArtifact, missedEntries),
+    buildSummaryMarkdown(
+      runPackage,
+      summaries,
+      recommendationsArtifact,
+      missedEntries,
+      integrity
+    ),
     'utf8'
   );
   await fs.writeFile(
