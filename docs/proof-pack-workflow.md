@@ -239,6 +239,14 @@ npm run run:review -- --run-id <runId> --review-note <path-to-note>
 npm run run:promote -- --run-id <runId> --state reviewed-candidate
 ```
 
+For signature-moment or playable-scene work, also generate a local still review sheet:
+
+```bash
+npm run moment:sheet -- --run-id <runId>
+```
+
+Use that sheet for the across-room thumbnail assay and temporal-strip review before making taste claims from memory.
+
 ## Practical Note
 
 This workflow is intentionally lightweight.

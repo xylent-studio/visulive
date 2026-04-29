@@ -66,6 +66,7 @@ April 28 proof-first override:
 - `overbright` in older reports is now treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail; the latest signature run showed high legacy glow spend but low perceptual washout, matching the user's washed/unsaturated visual read better than a literal "too bright" diagnosis
 - the user-approved Mythic Signature Moment Engine and Authored Playable Motif System slice is now the active exception to the earlier proof-first hold; the current code direction is neon-portals first, with risk-based safe-neon, rarer phrase-scale moments, signature-aware ring decay, stronger collapse/cathedral/ghost/quiet silhouettes, and five owned playable scene postures; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab/contact sheets, proof-tuned, and operator-trust proof is restored
 - the latest semantic-motif pass makes color and hero form changes meaning-bearing instead of novelty-driven: show direction now derives a `VisualMotifSnapshot`, palette identity has a held base plus continuous modulation, `HeroSystem` defaults to semantic form arbitration with longer dwell, pressure waves use the palette-frame transient role, `PlayableMotifSystem` turns motifs into stable authored scenes, and analyzer/recommendation output can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, scene churn, scene-motif mismatch, and samey scene silhouettes
+- [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) is now the active real-world reference translation: the relevant lesson from Sphere, Phish, Radiohead, Anyma, Prydz, Chemical Brothers, Massive Attack/UVA, Amon Tobin, projectM/MilkDrop, and TouchDesigner is authored playable systems with stable image classes, not more random effects
 
 ## Immediate Start-Right Gate
 
@@ -162,6 +163,7 @@ The next sequence is:
    - high legacy glow-spend with low washout: tune/relabel spend governance without globally dimming or flattening saturation
    - generic signature treatment, weak moment distinctness, weak playable-scene silhouette, washed-out post, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, `PlayableMotifSystem`, `CompositorSystem`, signature-fed system consumers, or cue policy only
    - random-feeling color or hero-shape changes: `showDirection` motif routing, `HeroSystem` form arbitration, `PaletteFrame` consumers, or analyzer thresholds only; do not reintroduce hash/novelty rotation as the default
+   - reference-inspired ideas that do not strengthen authored scenes, phrase arcs, scene dwell, or proof review tooling: reject or defer them
    - cue/silence/diversity failure: audio/show-direction governance only
 6. if signature/playable-scene proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence
 7. widen repertoire through owned systems only after proof and ownership are both real

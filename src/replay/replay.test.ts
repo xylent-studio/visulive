@@ -162,6 +162,7 @@ describe('replay workflow', () => {
     expect(sample.autonomy.proofScenarioKind).toBe('primary-benchmark');
     expect(sample.autonomy.proofMissionKind).toBe('primary-benchmark');
     expect(sample.direction.showStartRoute).toBe('pc-audio');
+    expect(sample.playableMotif.activePlayableMotifScene).toBe('none');
   });
 
   it('preserves an explicit mission scenario assessment on capture clips', () => {

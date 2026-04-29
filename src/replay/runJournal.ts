@@ -974,6 +974,17 @@ export function buildReplayRunJournalSample(
       perceptualColorfulnessScore: telemetry.perceptualColorfulnessScore,
       perceptualWashoutRisk: telemetry.perceptualWashoutRisk
     },
+    playableMotif: {
+      activePlayableMotifScene: telemetry.activePlayableMotifScene,
+      playableMotifSceneAgeSeconds: telemetry.playableMotifSceneAgeSeconds,
+      playableMotifSceneTransitionReason: telemetry.playableMotifSceneTransitionReason,
+      playableMotifSceneIntensity: telemetry.playableMotifSceneIntensity,
+      playableMotifSceneMotifMatch: telemetry.playableMotifSceneMotifMatch,
+      playableMotifScenePaletteMatch: telemetry.playableMotifScenePaletteMatch,
+      playableMotifSceneDistinctness: telemetry.playableMotifSceneDistinctness,
+      playableMotifSceneSilhouetteConfidence:
+        telemetry.playableMotifSceneSilhouetteConfidence
+    },
     authority: {
       heroCoverageEstimate: telemetry.heroCoverageEstimate,
       ringAuthority: telemetry.ringAuthority,

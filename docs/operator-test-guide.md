@@ -102,9 +102,10 @@ For the next proof wave, run one mission per run:
 
 1. `Primary benchmark`, PC Audio, EDM/electronic, no-touch, 60-90 seconds as the canary.
 2. Use `Finish Proof Run`, then run `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`.
-3. If the canary is valid, `Primary benchmark`, PC Audio, no-touch, 6-8 minutes.
-4. If primary proof is valid, `Operator trust`, no-touch, 6-8 minutes.
-5. Run `Acoustic/drums stress`, `Room floor`, `Sparse/silence`, and `Coverage` only after the primary authority path is trustworthy.
+3. For signature-moment or playable-scene review, run `npm run moment:sheet -- --run-id <runId>` and inspect the generated contact sheet before deciding whether the run proves distinct image classes.
+4. If the canary is valid, `Primary benchmark`, PC Audio, no-touch, 6-8 minutes.
+5. If primary proof is valid, `Operator trust`, no-touch, 6-8 minutes.
+6. Run `Acoustic/drums stress`, `Room floor`, `Sparse/silence`, and `Coverage` only after the primary authority path is trustworthy.
 
 ## What The No-Touch Pass Must Prove
 

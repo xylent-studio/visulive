@@ -37,6 +37,7 @@
     "evidence:query": "node ./scripts/query-evidence.mjs",
     "evidence:compare": "node ./scripts/compare-evidence.mjs",
     "evidence:missed": "node ./scripts/report-missed-opportunities.mjs",
+    "moment:sheet": "node ./scripts/build-moment-review-sheet.mjs",
     "prod:smoke": "node ./scripts/prod-smoke.mjs",
     "prod:smoke:stable": "node ./scripts/prod-smoke.mjs --lane stable",
     "prod:smoke:frontier": "node ./scripts/prod-smoke.mjs --lane frontier",

@@ -528,6 +528,16 @@ export type ReplayRunJournalSample = {
     perceptualColorfulnessScore?: number;
     perceptualWashoutRisk?: number;
   };
+  playableMotif: {
+    activePlayableMotifScene?: VisualTelemetryFrame['activePlayableMotifScene'];
+    playableMotifSceneAgeSeconds?: number;
+    playableMotifSceneTransitionReason?: VisualTelemetryFrame['playableMotifSceneTransitionReason'];
+    playableMotifSceneIntensity?: number;
+    playableMotifSceneMotifMatch?: boolean;
+    playableMotifScenePaletteMatch?: boolean;
+    playableMotifSceneDistinctness?: number;
+    playableMotifSceneSilhouetteConfidence?: number;
+  };
   authority: {
     heroCoverageEstimate?: number;
     ringAuthority?: number;

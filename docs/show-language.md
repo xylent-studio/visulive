@@ -38,6 +38,8 @@ The show should feel **directed from within**, not merely steered by exposed con
 
 That means color, framing, chamber activation, laser drive, and radiance should be able to drift and intensify over time with the music even when the operator touches nothing.
 
+The active reference translation layer is [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md). Use it for real-world live show patterns, but treat the conclusions as VisuLive-specific engineering rules, not as permission to copy another show's surface style.
+
 ## Anthology Rule
 
 VisuLive is one public portal into a larger anthology engine.

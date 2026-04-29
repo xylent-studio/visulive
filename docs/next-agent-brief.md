@@ -43,6 +43,7 @@ Read first:
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
 - color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
 - the Authored Playable Motif System vertical slice is now installed: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, and samey scene silhouettes
+- [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) translates current real-world references into VisuLive-specific rules: playable systems, stable scene identity, simple operator surfaces, large readable image classes, phrase envelopes, and review tooling before taste claims
 
 This means the next agent should return to proof validation and playable-scene/signature-moment tuning, not release cleanup or another capability expansion.
 
@@ -72,6 +73,7 @@ The highest-leverage move is:
    - [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts)
 2. run the live sanity pass:
    - use `Backstage -> Capture -> Moment Lab` on localhost/dev proof builds to preview all 4 moments across contrast/neon/ambient styles and save exploratory receipts
+   - generate a local review sheet with `npm run moment:sheet -- --run-id <runId>` whenever a run has useful stills; use it for across-room thumbnail review and temporal-strip review
    - confirm start/stop, chamber presence, world takeover, signature moments, compositor masks, aftermath clearance, disposal, and authority-driven lighting still read correctly
 3. run the proof wave:
    - launch with `npm run dev:proof`
