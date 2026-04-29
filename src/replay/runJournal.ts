@@ -797,6 +797,25 @@ export function buildReplayProofInvalidation(
   };
 }
 
+export function shouldApplyReplayProofInvalidation(input: {
+  proofWaveArmed?: boolean;
+  proofRunState?: ReplayProofRunState;
+  code: ReplayProofInvalidationCode;
+}): boolean {
+  if (input.proofWaveArmed !== true) {
+    return false;
+  }
+
+  if (
+    input.proofRunState === 'finalized' &&
+    input.code !== 'run-finalize-failed'
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function deriveReplayProofValidity(
   input: ReplayProofValidityInput
 ): ReplayProofValidity {

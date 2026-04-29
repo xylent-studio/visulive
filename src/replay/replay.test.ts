@@ -26,7 +26,8 @@ import {
   hasReplayProofInvalidation,
   isReplayBuildInfoValid,
   registerReplayRunClip,
-  registerReplayRunStill
+  registerReplayRunStill,
+  shouldApplyReplayProofInvalidation
 } from './runJournal';
 import {
   buildReplayProofMissionSnapshot,
@@ -590,6 +591,30 @@ describe('replay workflow', () => {
         key: 'm'
       })
     ).toBe(false);
+  });
+
+  it('does not apply operator invalidations after a proof run is finalized', () => {
+    expect(
+      shouldApplyReplayProofInvalidation({
+        proofWaveArmed: true,
+        proofRunState: 'finalized',
+        code: 'operator-intervention'
+      })
+    ).toBe(false);
+    expect(
+      shouldApplyReplayProofInvalidation({
+        proofWaveArmed: true,
+        proofRunState: 'finalized',
+        code: 'run-finalize-failed'
+      })
+    ).toBe(true);
+    expect(
+      shouldApplyReplayProofInvalidation({
+        proofWaveArmed: true,
+        proofRunState: 'live',
+        code: 'operator-intervention'
+      })
+    ).toBe(true);
   });
 
   it('plays captures forward and supports seeking', () => {

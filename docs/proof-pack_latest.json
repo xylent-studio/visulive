@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-04-29T00:50:26.533Z",
+  "generatedAt": "2026-04-29T04:21:22.383Z",
   "sourceReportPath": "C:\\dev\\GitHub\\visulive\\captures\\reports\\capture-analysis_latest.md",
-  "reportTimestamp": "2026-04-29T00:50:05.850Z",
-  "reportCaptureCount": 69,
+  "reportTimestamp": "2026-04-29T04:20:53.101Z",
+  "reportCaptureCount": 80,
   "capturesPaths": [
     "C:\\dev\\GitHub\\visulive\\captures\\inbox",
     "C:\\dev\\GitHub\\visulive\\captures\\canonical"
   ],
   "screenshotsPath": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\screenshots",
-  "captureCount": 69,
+  "captureCount": 80,
   "proofEligibleCaptureCount": 41,
   "benchmarkScenarioCount": 2,
   "evidenceFreshness": {
     "currentBatchRange": {
-      "count": 69,
+      "count": 80,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-29T04:19:27.484Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-29T04:19:27.484Z"
     },
     "currentReviewRange": {
-      "count": 69,
+      "count": 80,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-29T04:19:27.484Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-29T04:19:27.484Z"
     },
     "historicalBaselineRange": {
       "count": 2,
@@ -34,13 +34,13 @@
       "newestIso": "2026-04-09T14:22:43.998Z"
     },
     "allAttachedRange": {
-      "count": 71,
+      "count": 82,
       "oldest": "2026-04-09T06:51:04.103Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-29T04:19:27.484Z",
       "oldestIso": "2026-04-09T06:51:04.103Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-29T04:19:27.484Z"
     },
-    "currentReviewCount": 69,
+    "currentReviewCount": 80,
     "historicalBaselineCount": 2,
     "currentBranchProofCutoffAt": "2026-04-23T08:28:02.000Z",
     "seriousProofMaxAgeDays": 7,
@@ -51,9 +51,9 @@
     ],
     "summaryLine": "Current review captures satisfy the current branch proof cutoff and freshness window.",
     "lines": [
-      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T00:44:04.808Z",
-      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z",
-      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z",
+      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T04:19:27.484Z",
+      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T04:19:27.484Z",
+      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T04:19:27.484Z",
       "- Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z",
       "- Current branch proof cutoff: 2026-04-23T08:28:02.000Z",
       "- Serious proof max age: 7 day(s)",
@@ -63,11 +63,11 @@
   },
   "screenshotFreshness": {
     "range": {
-      "count": 271,
+      "count": 315,
       "oldestIso": "2026-04-28T23:29:06.062Z",
-      "newestIso": "2026-04-29T00:44:54.021Z",
+      "newestIso": "2026-04-29T04:19:31.849Z",
       "oldest": "2026-04-28T23:29:06.062Z",
-      "newest": "2026-04-29T00:44:54.021Z"
+      "newest": "2026-04-29T04:19:31.849Z"
     },
     "currentReviewReady": true,
     "summaryLine": "Screenshot references satisfy the current proof cutoff and freshness window."
@@ -206,7 +206,7 @@
       "label": "proof-pack completeness",
       "status": "pass",
       "required": true,
-      "rationale": "271 current screenshot reference(s) are available and all captures are attributable to a valid build."
+      "rationale": "315 current screenshot reference(s) are available and all captures are attributable to a valid build."
     },
     {
       "label": "no-touch autonomy",
@@ -270,7 +270,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-29T00:50:26.533Z",
+        "generatedAt": "2026-04-29T04:21:22.382Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -553,7 +553,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-29T00:50:26.533Z",
+        "generatedAt": "2026-04-29T04:21:22.382Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1034,7 +1034,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-29T00:50:26.533Z",
+        "generatedAt": "2026-04-29T04:21:22.383Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1322,6 +1322,394 @@
           }
         }
       ]
+    },
+    "run_20260429_001641_272u9p": {
+      "version": 1,
+      "metadata": {
+        "app": "visulive",
+        "artifactType": "run-recommendations",
+        "runId": "run_20260429_001641_272u9p",
+        "generatedAt": "2026-04-29T04:21:22.383Z",
+        "lifecycleState": "inbox",
+        "proofValidity": {
+          "verdict": "valid",
+          "currentProofEligible": false,
+          "startedReady": true,
+          "lastCheckedAt": "2026-04-29T04:16:41.385Z",
+          "invalidations": [],
+          "recoveryGuidance": null
+        },
+        "gateOutcomes": [
+          {
+            "id": "truth",
+            "status": "fail",
+            "rationale": "Run readiness or proof validity does not yet clear the truth gate."
+          },
+          {
+            "id": "hierarchy",
+            "status": "fail",
+            "rationale": "hero=0.000 world=0.000 ring=0.000"
+          },
+          {
+            "id": "coverage",
+            "status": "fail",
+            "rationale": "cue classes=0 families=0"
+          },
+          {
+            "id": "taste",
+            "status": "fail",
+            "rationale": "overbright=0.000 chamber=0.000"
+          },
+          {
+            "id": "operator-trust",
+            "status": "fail",
+            "rationale": "No-touch operator trust was not maintained for this run."
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "issueId": "proof-invalid",
+          "severity": "critical",
+          "title": "Proof run is not eligible as current truth",
+          "ownerLane": "evidence-capture-analyzer",
+          "subsystem": "Proof Wave / run package lifecycle",
+          "suspectedCause": "The serious-run readiness or validity contract was not maintained.",
+          "impactedGates": [
+            "truth",
+            "operator trust"
+          ],
+          "targetMetrics": [
+            "currentProofEligible=true",
+            "invalidationCount=0"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.98,
+          "evidence": {
+            "runId": "run_20260429_001641_272u9p",
+            "clipFiles": [],
+            "stillFiles": []
+          }
+        },
+        {
+          "issueId": "weak-world-delivery",
+          "severity": "high",
+          "title": "World takeover is still too weak or decorative",
+          "ownerLane": "chamber-environment-lighting",
+          "subsystem": "WorldSystem + ChamberSystem",
+          "suspectedCause": "Chamber/world participation is present, but not decisive enough to read across the room.",
+          "impactedGates": [
+            "hierarchy",
+            "coverage",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageWorldDominance >= 0.22",
+            "averageChamberPresence >= 0.18"
+          ],
+          "recommendedNextProofScenario": "coverage",
+          "confidence": 0.78,
+          "evidence": {
+            "runId": "run_20260429_001641_272u9p",
+            "clipFiles": [],
+            "stillFiles": []
+          }
+        }
+      ]
+    },
+    "run_20260429_001700_pxazsb": {
+      "version": 1,
+      "metadata": {
+        "app": "visulive",
+        "artifactType": "run-recommendations",
+        "runId": "run_20260429_001700_pxazsb",
+        "generatedAt": "2026-04-29T04:21:22.383Z",
+        "lifecycleState": "inbox",
+        "proofValidity": {
+          "verdict": "invalid",
+          "currentProofEligible": false,
+          "startedReady": true,
+          "lastCheckedAt": "2026-04-29T04:19:40.007Z",
+          "invalidations": [
+            {
+              "code": "operator-intervention",
+              "timestampMs": 170057,
+              "reason": "Serious proof was touched by ui: advanced:style.",
+              "recommendedDisposition": "restart-run"
+            }
+          ],
+          "recoveryGuidance": "Restart the serious run after fixing the invalidation cause."
+        },
+        "gateOutcomes": [
+          {
+            "id": "truth",
+            "status": "fail",
+            "rationale": "Serious proof was touched by ui: advanced:style."
+          },
+          {
+            "id": "hierarchy",
+            "status": "pass",
+            "rationale": "hero=0.057 world=0.932 ring=0.967"
+          },
+          {
+            "id": "coverage",
+            "status": "pass",
+            "rationale": "cue classes=4 families=3"
+          },
+          {
+            "id": "taste",
+            "status": "fail",
+            "rationale": "overbright=0.883 chamber=0.937"
+          },
+          {
+            "id": "operator-trust",
+            "status": "fail",
+            "rationale": "No-touch operator trust was not maintained for this run."
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "issueId": "proof-invalid",
+          "severity": "critical",
+          "title": "Proof run is not eligible as current truth",
+          "ownerLane": "evidence-capture-analyzer",
+          "subsystem": "Proof Wave / run package lifecycle",
+          "suspectedCause": "Serious proof was touched by ui: advanced:style.",
+          "impactedGates": [
+            "truth",
+            "operator trust"
+          ],
+          "targetMetrics": [
+            "currentProofEligible=true",
+            "invalidationCount=0"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.98,
+          "evidence": {
+            "runId": "run_20260429_001700_pxazsb",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_00-17-05.json",
+              "auto_authority-turn_2026-04-29_00-17-14.json",
+              "auto_authority-turn_2026-04-29_00-17-23.json",
+              "auto_authority-turn_2026-04-29_00-17-57.json",
+              "auto_authority-turn_2026-04-29_00-18-05.json",
+              "auto_authority-turn_2026-04-29_00-18-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-44.json",
+              "auto_signature-moment-peak_2026-04-29_00-18-59.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-12.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-26.json"
+            ],
+            "stillFiles": [
+              "run_20260429_001700_pxazsb__authority_2003.png",
+              "run_20260429_001700_pxazsb__checkpoint_2003.png",
+              "run_20260429_001700_pxazsb__authority_9960.png",
+              "run_20260429_001700_pxazsb__authority_11859.png",
+              "run_20260429_001700_pxazsb__authority_17608.png",
+              "run_20260429_001700_pxazsb__authority_21224.png",
+              "run_20260429_001700_pxazsb__authority_24456.png",
+              "run_20260429_001700_pxazsb__authority_27837.png",
+              "run_20260429_001700_pxazsb__authority_30877.png",
+              "run_20260429_001700_pxazsb__authority_33491.png",
+              "run_20260429_001700_pxazsb__authority_36968.png",
+              "run_20260429_001700_pxazsb__authority_38984.png",
+              "run_20260429_001700_pxazsb__authority_39859.png",
+              "run_20260429_001700_pxazsb__authority_44723.png",
+              "run_20260429_001700_pxazsb__authority_46792.png",
+              "run_20260429_001700_pxazsb__trust_49096.png",
+              "run_20260429_001700_pxazsb__authority_52104.png",
+              "run_20260429_001700_pxazsb__authority_56392.png",
+              "run_20260429_001700_pxazsb__authority_60051.png",
+              "run_20260429_001700_pxazsb__authority_62664.png",
+              "run_20260429_001700_pxazsb__authority_63880.png",
+              "run_20260429_001700_pxazsb__authority_70312.png",
+              "run_20260429_001700_pxazsb__authority_76200.png",
+              "run_20260429_001700_pxazsb__authority_82429.png",
+              "run_20260429_001700_pxazsb__authority_85555.png",
+              "run_20260429_001700_pxazsb__authority_88499.png",
+              "run_20260429_001700_pxazsb__authority_92104.png",
+              "run_20260429_001700_pxazsb__authority_95176.png",
+              "run_20260429_001700_pxazsb__authority_98611.png",
+              "run_20260429_001700_pxazsb__authority_101224.png",
+              "run_20260429_001700_pxazsb__authority_104435.png",
+              "run_20260429_001700_pxazsb__authority_107507.png",
+              "run_20260429_001700_pxazsb__authority_110280.png",
+              "run_20260429_001700_pxazsb__authority_113437.png",
+              "run_20260429_001700_pxazsb__authority_116061.png",
+              "run_20260429_001700_pxazsb__authority_117523.png",
+              "run_20260429_001700_pxazsb__authority_121267.png",
+              "run_20260429_001700_pxazsb__checkpoint_122205.png",
+              "run_20260429_001700_pxazsb__authority_127976.png",
+              "run_20260429_001700_pxazsb__authority_130888.png",
+              "run_20260429_001700_pxazsb__authority_137864.png",
+              "run_20260429_001700_pxazsb__authority_141779.png",
+              "run_20260429_001700_pxazsb__authority_145533.png",
+              "run_20260429_001700_pxazsb__authority_147795.png"
+            ]
+          }
+        },
+        {
+          "issueId": "overbright-governance",
+          "severity": "critical",
+          "title": "Overbright governance is still spending too early or too long",
+          "ownerLane": "renderer-safe-tier",
+          "subsystem": "AuthorityGovernor + LightingSystem",
+          "suspectedCause": "Authority and lighting ceilings are not suppressing washout early enough.",
+          "impactedGates": [
+            "hierarchy",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageOverbrightRate <= 0.08",
+            "compositionSafetyScore up"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.86,
+          "evidence": {
+            "runId": "run_20260429_001700_pxazsb",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_00-17-05.json",
+              "auto_authority-turn_2026-04-29_00-17-14.json",
+              "auto_authority-turn_2026-04-29_00-17-23.json",
+              "auto_authority-turn_2026-04-29_00-17-57.json",
+              "auto_authority-turn_2026-04-29_00-18-05.json",
+              "auto_authority-turn_2026-04-29_00-18-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-44.json",
+              "auto_signature-moment-peak_2026-04-29_00-18-59.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-12.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-26.json"
+            ],
+            "stillFiles": [
+              "run_20260429_001700_pxazsb__authority_2003.png",
+              "run_20260429_001700_pxazsb__checkpoint_2003.png",
+              "run_20260429_001700_pxazsb__authority_9960.png",
+              "run_20260429_001700_pxazsb__authority_11859.png",
+              "run_20260429_001700_pxazsb__authority_17608.png",
+              "run_20260429_001700_pxazsb__authority_21224.png",
+              "run_20260429_001700_pxazsb__authority_24456.png",
+              "run_20260429_001700_pxazsb__authority_27837.png",
+              "run_20260429_001700_pxazsb__authority_30877.png",
+              "run_20260429_001700_pxazsb__authority_33491.png",
+              "run_20260429_001700_pxazsb__authority_36968.png",
+              "run_20260429_001700_pxazsb__authority_38984.png",
+              "run_20260429_001700_pxazsb__authority_39859.png",
+              "run_20260429_001700_pxazsb__authority_44723.png",
+              "run_20260429_001700_pxazsb__authority_46792.png",
+              "run_20260429_001700_pxazsb__trust_49096.png",
+              "run_20260429_001700_pxazsb__authority_52104.png",
+              "run_20260429_001700_pxazsb__authority_56392.png",
+              "run_20260429_001700_pxazsb__authority_60051.png",
+              "run_20260429_001700_pxazsb__authority_62664.png",
+              "run_20260429_001700_pxazsb__authority_63880.png",
+              "run_20260429_001700_pxazsb__authority_70312.png",
+              "run_20260429_001700_pxazsb__authority_76200.png",
+              "run_20260429_001700_pxazsb__authority_82429.png",
+              "run_20260429_001700_pxazsb__authority_85555.png",
+              "run_20260429_001700_pxazsb__authority_88499.png",
+              "run_20260429_001700_pxazsb__authority_92104.png",
+              "run_20260429_001700_pxazsb__authority_95176.png",
+              "run_20260429_001700_pxazsb__authority_98611.png",
+              "run_20260429_001700_pxazsb__authority_101224.png",
+              "run_20260429_001700_pxazsb__authority_104435.png",
+              "run_20260429_001700_pxazsb__authority_107507.png",
+              "run_20260429_001700_pxazsb__authority_110280.png",
+              "run_20260429_001700_pxazsb__authority_113437.png",
+              "run_20260429_001700_pxazsb__authority_116061.png",
+              "run_20260429_001700_pxazsb__authority_117523.png",
+              "run_20260429_001700_pxazsb__authority_121267.png",
+              "run_20260429_001700_pxazsb__checkpoint_122205.png",
+              "run_20260429_001700_pxazsb__authority_127976.png",
+              "run_20260429_001700_pxazsb__authority_130888.png",
+              "run_20260429_001700_pxazsb__authority_137864.png",
+              "run_20260429_001700_pxazsb__authority_141779.png",
+              "run_20260429_001700_pxazsb__authority_145533.png",
+              "run_20260429_001700_pxazsb__authority_147795.png"
+            ]
+          }
+        },
+        {
+          "issueId": "ring-overdraw",
+          "severity": "medium",
+          "title": "Ring authority is lingering too long or over-drawing the chamber read",
+          "ownerLane": "chamber-environment-lighting",
+          "subsystem": "ChamberSystem + ParticleSystem",
+          "suspectedCause": "Ring persistence and field density are staying too dominant after the cue should move on.",
+          "impactedGates": [
+            "hierarchy",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageRingAuthority <= 0.95",
+            "ringBeltPersistence down"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.74,
+          "evidence": {
+            "runId": "run_20260429_001700_pxazsb",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_00-17-05.json",
+              "auto_authority-turn_2026-04-29_00-17-14.json",
+              "auto_authority-turn_2026-04-29_00-17-23.json",
+              "auto_authority-turn_2026-04-29_00-17-57.json",
+              "auto_authority-turn_2026-04-29_00-18-05.json",
+              "auto_authority-turn_2026-04-29_00-18-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-31.json",
+              "auto_signature-moment-peak_2026-04-29_00-17-44.json",
+              "auto_signature-moment-peak_2026-04-29_00-18-59.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-12.json",
+              "auto_signature-moment-peak_2026-04-29_00-19-26.json"
+            ],
+            "stillFiles": [
+              "run_20260429_001700_pxazsb__authority_2003.png",
+              "run_20260429_001700_pxazsb__checkpoint_2003.png",
+              "run_20260429_001700_pxazsb__authority_9960.png",
+              "run_20260429_001700_pxazsb__authority_11859.png",
+              "run_20260429_001700_pxazsb__authority_17608.png",
+              "run_20260429_001700_pxazsb__authority_21224.png",
+              "run_20260429_001700_pxazsb__authority_24456.png",
+              "run_20260429_001700_pxazsb__authority_27837.png",
+              "run_20260429_001700_pxazsb__authority_30877.png",
+              "run_20260429_001700_pxazsb__authority_33491.png",
+              "run_20260429_001700_pxazsb__authority_36968.png",
+              "run_20260429_001700_pxazsb__authority_38984.png",
+              "run_20260429_001700_pxazsb__authority_39859.png",
+              "run_20260429_001700_pxazsb__authority_44723.png",
+              "run_20260429_001700_pxazsb__authority_46792.png",
+              "run_20260429_001700_pxazsb__trust_49096.png",
+              "run_20260429_001700_pxazsb__authority_52104.png",
+              "run_20260429_001700_pxazsb__authority_56392.png",
+              "run_20260429_001700_pxazsb__authority_60051.png",
+              "run_20260429_001700_pxazsb__authority_62664.png",
+              "run_20260429_001700_pxazsb__authority_63880.png",
+              "run_20260429_001700_pxazsb__authority_70312.png",
+              "run_20260429_001700_pxazsb__authority_76200.png",
+              "run_20260429_001700_pxazsb__authority_82429.png",
+              "run_20260429_001700_pxazsb__authority_85555.png",
+              "run_20260429_001700_pxazsb__authority_88499.png",
+              "run_20260429_001700_pxazsb__authority_92104.png",
+              "run_20260429_001700_pxazsb__authority_95176.png",
+              "run_20260429_001700_pxazsb__authority_98611.png",
+              "run_20260429_001700_pxazsb__authority_101224.png",
+              "run_20260429_001700_pxazsb__authority_104435.png",
+              "run_20260429_001700_pxazsb__authority_107507.png",
+              "run_20260429_001700_pxazsb__authority_110280.png",
+              "run_20260429_001700_pxazsb__authority_113437.png",
+              "run_20260429_001700_pxazsb__authority_116061.png",
+              "run_20260429_001700_pxazsb__authority_117523.png",
+              "run_20260429_001700_pxazsb__authority_121267.png",
+              "run_20260429_001700_pxazsb__checkpoint_122205.png",
+              "run_20260429_001700_pxazsb__authority_127976.png",
+              "run_20260429_001700_pxazsb__authority_130888.png",
+              "run_20260429_001700_pxazsb__authority_137864.png",
+              "run_20260429_001700_pxazsb__authority_141779.png",
+              "run_20260429_001700_pxazsb__authority_145533.png",
+              "run_20260429_001700_pxazsb__authority_147795.png"
+            ]
+          }
+        }
+      ]
     }
   },
   "strongEvidence": [
@@ -1540,6 +1928,270 @@
     }
   ],
   "screenshots": [
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_147795.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_147795.png",
+      "sizeBytes": 411643,
+      "modifiedAt": "2026-04-29T04:19:31.849Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_145533.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_145533.png",
+      "sizeBytes": 646535,
+      "modifiedAt": "2026-04-29T04:19:29.016Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_141779.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_141779.png",
+      "sizeBytes": 816992,
+      "modifiedAt": "2026-04-29T04:19:25.691Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_137864.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_137864.png",
+      "sizeBytes": 822625,
+      "modifiedAt": "2026-04-29T04:19:22.795Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_130888.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_130888.png",
+      "sizeBytes": 704870,
+      "modifiedAt": "2026-04-29T04:19:19.852Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_127976.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_127976.png",
+      "sizeBytes": 684512,
+      "modifiedAt": "2026-04-29T04:19:11.280Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__checkpoint_122205.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__checkpoint_122205.png",
+      "sizeBytes": 814495,
+      "modifiedAt": "2026-04-29T04:19:07.928Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_121267.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_121267.png",
+      "sizeBytes": 1038275,
+      "modifiedAt": "2026-04-29T04:19:05.038Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_117523.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_117523.png",
+      "sizeBytes": 725823,
+      "modifiedAt": "2026-04-29T04:19:02.332Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_116061.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_116061.png",
+      "sizeBytes": 661327,
+      "modifiedAt": "2026-04-29T04:18:59.199Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_113437.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_113437.png",
+      "sizeBytes": 637502,
+      "modifiedAt": "2026-04-29T04:18:56.157Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_110280.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_110280.png",
+      "sizeBytes": 420119,
+      "modifiedAt": "2026-04-29T04:18:53.075Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_107507.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_107507.png",
+      "sizeBytes": 825518,
+      "modifiedAt": "2026-04-29T04:18:50.373Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_104435.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_104435.png",
+      "sizeBytes": 789082,
+      "modifiedAt": "2026-04-29T04:18:47.351Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_101224.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_101224.png",
+      "sizeBytes": 754476,
+      "modifiedAt": "2026-04-29T04:18:44.464Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_98611.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_98611.png",
+      "sizeBytes": 903538,
+      "modifiedAt": "2026-04-29T04:18:41.494Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_95176.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_95176.png",
+      "sizeBytes": 805659,
+      "modifiedAt": "2026-04-29T04:18:38.388Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_92104.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_92104.png",
+      "sizeBytes": 928355,
+      "modifiedAt": "2026-04-29T04:18:35.471Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_88499.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_88499.png",
+      "sizeBytes": 850703,
+      "modifiedAt": "2026-04-29T04:18:31.469Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_85555.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_85555.png",
+      "sizeBytes": 641955,
+      "modifiedAt": "2026-04-29T04:18:28.315Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_82429.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_82429.png",
+      "sizeBytes": 1030910,
+      "modifiedAt": "2026-04-29T04:18:25.007Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_76200.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_76200.png",
+      "sizeBytes": 1176846,
+      "modifiedAt": "2026-04-29T04:18:22.019Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_70312.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_70312.png",
+      "sizeBytes": 747401,
+      "modifiedAt": "2026-04-29T04:18:18.700Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_63880.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_63880.png",
+      "sizeBytes": 738909,
+      "modifiedAt": "2026-04-29T04:18:08.739Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_62664.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_62664.png",
+      "sizeBytes": 541690,
+      "modifiedAt": "2026-04-29T04:18:06.047Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_60051.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_60051.png",
+      "sizeBytes": 720053,
+      "modifiedAt": "2026-04-29T04:18:02.790Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_56392.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_56392.png",
+      "sizeBytes": 601316,
+      "modifiedAt": "2026-04-29T04:17:58.907Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_52104.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_52104.png",
+      "sizeBytes": 769038,
+      "modifiedAt": "2026-04-29T04:17:56.049Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__trust_49096.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__trust_49096.png",
+      "sizeBytes": 637075,
+      "modifiedAt": "2026-04-29T04:17:53.143Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_46792.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_46792.png",
+      "sizeBytes": 507413,
+      "modifiedAt": "2026-04-29T04:17:50.222Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_44723.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_44723.png",
+      "sizeBytes": 1347431,
+      "modifiedAt": "2026-04-29T04:17:47.753Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_39859.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_39859.png",
+      "sizeBytes": 908535,
+      "modifiedAt": "2026-04-29T04:17:44.685Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_38984.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_38984.png",
+      "sizeBytes": 677456,
+      "modifiedAt": "2026-04-29T04:17:41.883Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_36968.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_36968.png",
+      "sizeBytes": 486017,
+      "modifiedAt": "2026-04-29T04:17:39.581Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_33491.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_33491.png",
+      "sizeBytes": 1053764,
+      "modifiedAt": "2026-04-29T04:17:35.958Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_30877.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_30877.png",
+      "sizeBytes": 884740,
+      "modifiedAt": "2026-04-29T04:17:33.887Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_27837.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_27837.png",
+      "sizeBytes": 678217,
+      "modifiedAt": "2026-04-29T04:17:30.586Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_24456.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_24456.png",
+      "sizeBytes": 808933,
+      "modifiedAt": "2026-04-29T04:17:27.437Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_21224.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_21224.png",
+      "sizeBytes": 916777,
+      "modifiedAt": "2026-04-29T04:17:23.955Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_17608.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_17608.png",
+      "sizeBytes": 643923,
+      "modifiedAt": "2026-04-29T04:17:20.651Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_11859.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_11859.png",
+      "sizeBytes": 935621,
+      "modifiedAt": "2026-04-29T04:17:15.330Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_9960.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_9960.png",
+      "sizeBytes": 390009,
+      "modifiedAt": "2026-04-29T04:17:12.563Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__checkpoint_2003.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__checkpoint_2003.png",
+      "sizeBytes": 387538,
+      "modifiedAt": "2026-04-29T04:17:08.235Z"
+    },
+    {
+      "name": "run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_2003.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_001700_pxazsb\\stills\\run_20260429_001700_pxazsb__authority_2003.png",
+      "sizeBytes": 339751,
+      "modifiedAt": "2026-04-29T04:17:05.141Z"
+    },
     {
       "name": "run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png",
       "path": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_203658_8yovza\\stills\\run_20260428_203658_8yovza__authority_471155.png",

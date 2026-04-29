@@ -1,28 +1,28 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-29T00:50:26.534Z
+Generated: 2026-04-29T04:21:22.384Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-29T00:50:05.850Z
-Report capture count: 69
+Report timestamp: 2026-04-29T04:20:53.101Z
+Report capture count: 80
 
 ## Executive Read
-- Captures analyzed: 69
+- Captures analyzed: 80
 - Current-proof-eligible captures: 41
 - Safe-tier captures: 41/41
-- Screenshot references: 271
+- Screenshot references: 315
 - Strong evidence picks: 5
 - Weak evidence picks: 5
 
 ## Evidence Freshness
-- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T00:44:04.808Z
-- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
-- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
+- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T04:19:27.484Z
+- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T04:19:27.484Z
+- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T04:19:27.484Z
 - Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z
 - Current branch proof cutoff: 2026-04-23T08:28:02.000Z
 - Serious proof max age: 7 day(s)
 - Current branch proof freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - Screenshot review freshness: pass - Screenshot references satisfy the current proof cutoff and freshness window.
-- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-29T00:44:54.021Z
+- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-29T04:19:31.849Z
 
 ## Validation Gates
 - current-branch freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
@@ -32,7 +32,7 @@ Report capture count: 69
 - compositor consequence: pass - At least one capture shows visible event-glow spend.
 - build identity: pass - All current captures include valid build identity.
 - scenario validation: pass - Current capture scenarios are validated or unrecorded.
-- proof-pack completeness: pass - 271 current screenshot reference(s) are available and all captures are attributable to a valid build.
+- proof-pack completeness: pass - 315 current screenshot reference(s) are available and all captures are attributable to a valid build.
 - no-touch autonomy: pass - 28 capture(s) cleared the no-touch proof window.
 - authority split validation: fail - authority-ready 2/41; world 0.951; chamber 0.960; hierarchy 0.787; hero coverage 0.058; overbright 93.4%; risks hero/chamber/world/overbright 0/0/0/39.
 - primary authority proof: pass - 17 no-touch primary benchmark capture(s) show world/chamber authority.
@@ -93,6 +93,21 @@ Report capture count: 69
 ## Compositor Consequence
 - `consequence`: 41 capture(s)
 
+## Signature Moments
+- `none`: weighted presence 41.00
+- `collapse-scar`: weighted presence 0.00
+- `cathedral-open`: weighted presence 0.00
+- `ghost-residue`: weighted presence 0.00
+- `silence-constellation`: weighted presence 0.00
+### Style Spread
+- `contrast-mythic`: weighted presence 0.00
+- `maximal-neon`: weighted presence 0.00
+- `ambient-premium`: weighted presence 0.00
+- Signature moment evidence: 0/41 capture(s)
+- Active rate / intensity mean / peak: 0.0% / 0.000 / n/a
+- Aftermath clearance / post consequence / post overprocess risk: 1.000 / 0.000 / 0.000
+- Perceptual colorfulness / washout risk / compositor risk: 0.000 / 0.000 / 0.000
+
 ## Spend Governance
 - `earned`: weighted presence 38.22
 - `withheld`: weighted presence 2.78
@@ -114,6 +129,7 @@ Report capture count: 69
   - dominant chamber family: portal-iris
   - authority: world 0.992; chamber 1.000; hierarchy 0.769; hero coverage 0.057
   - compositor: event glow 0.919 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
@@ -131,6 +147,7 @@ Report capture count: 69
   - dominant chamber family: portal-iris
   - authority: world 0.989; chamber 1.000; hierarchy 0.778; hero coverage 0.055
   - compositor: event glow 0.920 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
@@ -148,6 +165,7 @@ Report capture count: 69
   - dominant chamber family: liquid-pressure-core
   - authority: world 0.993; chamber 1.000; hierarchy 0.775; hero coverage 0.060
   - compositor: event glow 0.920 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
@@ -165,6 +183,7 @@ Report capture count: 69
   - dominant chamber family: liquid-pressure-core
   - authority: world 0.991; chamber 1.000; hierarchy 0.771; hero coverage 0.040
   - compositor: event glow 0.898 mean / 0.918 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
@@ -182,6 +201,7 @@ Report capture count: 69
   - dominant chamber family: liquid-pressure-core
   - authority: world 0.992; chamber 1.000; hierarchy 0.772; hero coverage 0.046
   - compositor: event glow 0.919 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
@@ -201,6 +221,7 @@ Report capture count: 69
   - dominant chamber family: spectral-plume
   - authority: world 0.488; chamber 0.509; hierarchy 0.823; hero coverage 0.024
   - compositor: event glow 0.333 mean / 0.466 peak; bloom 0.398 mean / 0.520 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: withheld; overbright 0.0%; hero scale peak 0.987
   - interventions: 0; no-touch window not proven
   - safe tier: yes
@@ -218,6 +239,7 @@ Report capture count: 69
   - dominant chamber family: spectral-plume
   - authority: world 0.491; chamber 0.513; hierarchy 0.822; hero coverage 0.028
   - compositor: event glow 0.341 mean / 0.467 peak; bloom 0.405 mean / 0.520 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: withheld; overbright 0.0%; hero scale peak 0.987
   - interventions: 0; no-touch window not proven
   - safe tier: yes
@@ -235,6 +257,7 @@ Report capture count: 69
   - dominant chamber family: spectral-plume
   - authority: world 0.648; chamber 0.695; hierarchy 0.815; hero coverage 0.064
   - compositor: event glow 0.402 mean / 0.586 peak; bloom 0.485 mean / 0.707 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 43.0%; hero scale peak 1.150
   - interventions: 0; no-touch window not proven
   - safe tier: yes
@@ -252,6 +275,7 @@ Report capture count: 69
   - dominant chamber family: cathedral-rings
   - authority: world 0.913; chamber 0.930; hierarchy 0.811; hero coverage 0.071
   - compositor: event glow 0.698 mean / 0.802 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 88.3%; hero scale peak 1.250
   - interventions: 0; no-touch window not proven
   - safe tier: yes
@@ -269,12 +293,57 @@ Report capture count: 69
   - dominant chamber family: liquid-pressure-core
   - authority: world 0.998; chamber 0.997; hierarchy 0.789; hero coverage 0.060
   - compositor: event glow 0.880 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - signature: none / contrast-mythic; washout 0.000
   - spend: earned; overbright 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
   - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, undercommittedDrop, ringOverdrawRisk
 
 ## Screenshot Review Set
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_147795.png` (402 KB, modified 2026-04-29T04:19:31.849Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_145533.png` (631 KB, modified 2026-04-29T04:19:29.016Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_141779.png` (798 KB, modified 2026-04-29T04:19:25.691Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_137864.png` (803 KB, modified 2026-04-29T04:19:22.795Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_130888.png` (688 KB, modified 2026-04-29T04:19:19.852Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_127976.png` (668 KB, modified 2026-04-29T04:19:11.280Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__checkpoint_122205.png` (795 KB, modified 2026-04-29T04:19:07.928Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_121267.png` (1014 KB, modified 2026-04-29T04:19:05.038Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_117523.png` (709 KB, modified 2026-04-29T04:19:02.332Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_116061.png` (646 KB, modified 2026-04-29T04:18:59.199Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_113437.png` (623 KB, modified 2026-04-29T04:18:56.157Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_110280.png` (410 KB, modified 2026-04-29T04:18:53.075Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_107507.png` (806 KB, modified 2026-04-29T04:18:50.373Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_104435.png` (771 KB, modified 2026-04-29T04:18:47.351Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_101224.png` (737 KB, modified 2026-04-29T04:18:44.464Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_98611.png` (882 KB, modified 2026-04-29T04:18:41.494Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_95176.png` (787 KB, modified 2026-04-29T04:18:38.388Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_92104.png` (907 KB, modified 2026-04-29T04:18:35.471Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_88499.png` (831 KB, modified 2026-04-29T04:18:31.469Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_85555.png` (627 KB, modified 2026-04-29T04:18:28.315Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_82429.png` (1007 KB, modified 2026-04-29T04:18:25.007Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_76200.png` (1149 KB, modified 2026-04-29T04:18:22.019Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_70312.png` (730 KB, modified 2026-04-29T04:18:18.700Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_63880.png` (722 KB, modified 2026-04-29T04:18:08.739Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_62664.png` (529 KB, modified 2026-04-29T04:18:06.047Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_60051.png` (703 KB, modified 2026-04-29T04:18:02.790Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_56392.png` (587 KB, modified 2026-04-29T04:17:58.907Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_52104.png` (751 KB, modified 2026-04-29T04:17:56.049Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__trust_49096.png` (622 KB, modified 2026-04-29T04:17:53.143Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_46792.png` (496 KB, modified 2026-04-29T04:17:50.222Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_44723.png` (1316 KB, modified 2026-04-29T04:17:47.753Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_39859.png` (887 KB, modified 2026-04-29T04:17:44.685Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_38984.png` (662 KB, modified 2026-04-29T04:17:41.883Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_36968.png` (475 KB, modified 2026-04-29T04:17:39.581Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_33491.png` (1029 KB, modified 2026-04-29T04:17:35.958Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_30877.png` (864 KB, modified 2026-04-29T04:17:33.887Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_27837.png` (662 KB, modified 2026-04-29T04:17:30.586Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_24456.png` (790 KB, modified 2026-04-29T04:17:27.437Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_21224.png` (895 KB, modified 2026-04-29T04:17:23.955Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_17608.png` (629 KB, modified 2026-04-29T04:17:20.651Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_11859.png` (914 KB, modified 2026-04-29T04:17:15.330Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_9960.png` (381 KB, modified 2026-04-29T04:17:12.563Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__checkpoint_2003.png` (378 KB, modified 2026-04-29T04:17:08.235Z)
+- `run_20260429_001700_pxazsb/run_20260429_001700_pxazsb__authority_2003.png` (332 KB, modified 2026-04-29T04:17:05.141Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_464275.png` (1070 KB, modified 2026-04-29T00:44:51.297Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_461181.png` (980 KB, modified 2026-04-29T00:44:42.764Z)

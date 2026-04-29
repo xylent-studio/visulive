@@ -76,7 +76,8 @@ import {
   isAutonomyBreakingIntervention,
   isReplayBuildInfoValid,
   registerReplayRunClip,
-  registerReplayRunStill
+  registerReplayRunStill,
+  shouldApplyReplayProofInvalidation
 } from '../replay/runJournal';
 import type {
   ReplayCaptureFrame,
@@ -1187,7 +1188,14 @@ export function App() {
   ) => {
     const journal = runJournalRef.current.journal;
 
-    if (!journal || journal.metadata.proofWaveArmed !== true) {
+    if (
+      !journal ||
+      !shouldApplyReplayProofInvalidation({
+        proofWaveArmed: journal.metadata.proofWaveArmed,
+        proofRunState: journal.metadata.proofRunState,
+        code
+      })
+    ) {
       return false;
     }
 
@@ -1246,6 +1254,10 @@ export function App() {
     );
 
     if (!journal) {
+      return;
+    }
+
+    if (journal.metadata.proofRunState === 'finalized') {
       return;
     }
 
@@ -1619,8 +1631,13 @@ export function App() {
     source: 'ui' | 'keyboard-shortcut' | 'system' = 'ui'
   ) => {
     const current = sessionInterventionRef.current;
+    const journal = runJournalRef.current.journal;
 
     if (current.sessionStartedAtMs === null) {
+      return;
+    }
+
+    if (journal?.metadata.proofRunState === 'finalized') {
       return;
     }
 
@@ -1637,14 +1654,11 @@ export function App() {
 
     updateSessionInterventionSummary(nextSummary);
 
-    if (runJournalRef.current.journal) {
+    if (journal) {
       const autonomyBreaking = isAutonomyBreakingIntervention(reason);
-      runJournalRef.current.journal.metadata.interventionCount =
-        nextSummary.interventionCount;
-      runJournalRef.current.journal.metadata.interventionReasons = [
-        ...nextSummary.interventionReasons
-      ];
-      runJournalRef.current.journal.metadata.sessionElapsedMs = elapsedMs;
+      journal.metadata.interventionCount = nextSummary.interventionCount;
+      journal.metadata.interventionReasons = [...nextSummary.interventionReasons];
+      journal.metadata.sessionElapsedMs = elapsedMs;
       appendRunJournalMarker(
         'intervention',
         elapsedMs,
@@ -1655,11 +1669,15 @@ export function App() {
           autonomyBreaking
         }
       );
-      refreshRunJournalProofState(runJournalRef.current.journal, {
-        sourceMode: runJournalRef.current.journal.metadata.sourceMode
+      refreshRunJournalProofState(journal, {
+        sourceMode: journal.metadata.sourceMode
       });
       if (
-        runJournalRef.current.journal.metadata.proofWaveArmed &&
+        shouldApplyReplayProofInvalidation({
+          proofWaveArmed: journal.metadata.proofWaveArmed,
+          proofRunState: journal.metadata.proofRunState,
+          code: 'operator-intervention'
+        }) &&
         autonomyBreaking
       ) {
         invalidateActiveProofRun(
@@ -3657,6 +3675,7 @@ export function App() {
       updateRunJournalStatusFromJournal(journal);
     }
 
+    updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
     setProofWaveArmed(false);
     setStartError(
       `Proof run ${journal.metadata.runId} finalized as ${eligibility.verdict}. Review: npm run proof:current && npm run evidence:index && npm run run:review -- --run-id ${journal.metadata.runId}`
