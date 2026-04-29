@@ -1,6 +1,6 @@
 # VisuLive Current Program
 
-Date: 2026-04-28
+Date: 2026-04-29
 Status: Active canonical program brief
 
 This file is the repo's active marching order.
@@ -60,7 +60,9 @@ April 28 proof-first override:
 - `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
-- primary-benchmark proof now has reviewed-candidate evidence, but strict proof remains blocked by missing operator-trust coverage and repeated overbright/ring taste failures
+- primary-benchmark proof now has valid reviewed development evidence, including archived run `run_20260429_004346_zsvdmx` on commit `2fbce57`; it proves the no-touch mission path, strong world/chamber authority, and natural signature moment firing
+- strict release proof remains blocked by non-promoted benchmark truth, incomplete scenario coverage, and missed-opportunity cleanup; do not promote archived diagnostic runs as current-canonical proof
+- `overbright` in older reports is now treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail; the latest signature run showed high legacy glow spend but low perceptual washout, matching the user's washed/unsaturated visual read better than a literal "too bright" diagnosis
 - the user-approved Mythic Signature Moment Engine full-capability slice is now the active exception to the earlier proof-first hold; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab, proof-tuned, and operator-trust proof is restored
 
 ## Immediate Start-Right Gate
@@ -143,17 +145,19 @@ The next sequence is:
    - treat invalid April 28 evidence as debugging context only
 3. continue the serious signature-moment proof wave
    - select one `Backstage -> Capture -> Proof Mission` per run
-   - `Primary benchmark` canary and full primary run are done as reviewed-candidate packages
+   - `Primary benchmark` canary and full primary signature runs are done as reviewed diagnostic packages, with `run_20260429_004346_zsvdmx` archived after review to keep the active inbox clean
    - end every serious run with `Finish Proof Run` so pending clips close, journal/manifest finalization is written, and the receipt commands are shown
-   - run a new short `Primary benchmark` canary on the signature-moment build, then a full primary if the canary is valid
-   - run `Operator trust`, no-touch, 6-8 minutes after the signature moment primary proof is usable
+   - before the next proof run, commit the analyzer/capture fixes and launch from a clean inbox with `npm run dev:proof`
+   - run a new short `Primary benchmark` canary only after the safety-still and proof-report fixes are committed
+   - run `Operator trust`, no-touch, 6-8 minutes after the next primary proof has no missed governance/signature opportunities
    - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid
 4. keep canon aligned around the anthology engine, runtime architecture, and graduation model
    - use [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the hard continuation layer
 5. if proof fails, do the narrow correction implied by the evidence
    - readiness or persistence failure: evidence/operator tooling only
    - start/stop failure: narrow runtime regression only
-   - authority or overbright failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, or stage cue policy only
+   - authority or true perceptual washout failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, compositor post-profile, or stage cue policy only
+   - high legacy glow-spend with low washout: tune/relabel spend governance without globally dimming or flattening saturation
    - generic signature treatment, weak moment distinctness, washed-out post, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, `CompositorSystem`, signature-fed system consumers, or cue policy only
    - cue/silence/diversity failure: audio/show-direction governance only
 6. if signature proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence

@@ -161,6 +161,24 @@ async function main() {
 
   runPackage.journal.metadata.recommendationFileName = recommendationsFileName;
   runPackage.manifest.recommendationFileName = recommendationsFileName;
+  const existingRecommendationIndex = (runPackage.recommendationFiles ?? []).findIndex(
+    (recommendationFile) =>
+      path.basename(recommendationFile.filePath) === recommendationsFileName
+  );
+  const recommendationPackageEntry = {
+    filePath: recommendationsPath,
+    artifact: recommendationsArtifact
+  };
+
+  if (existingRecommendationIndex >= 0) {
+    runPackage.recommendationFiles[existingRecommendationIndex] =
+      recommendationPackageEntry;
+  } else {
+    runPackage.recommendationFiles = [
+      ...(runPackage.recommendationFiles ?? []),
+      recommendationPackageEntry
+    ];
+  }
 
   if (args.reviewNote) {
     const reviewNoteFileName = `${args.runId}__review-note${path.extname(args.reviewNote) || '.md'}`;

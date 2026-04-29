@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   analyzeCaptureTargets,
   archiveRoot,
@@ -19,14 +20,21 @@ const MISSABLE_MARKER_KINDS = new Set([
   'signature-moment-peak',
   'signature-moment-residue'
 ]);
+const SIGNATURE_MARKER_KINDS = new Set([
+  'signature-moment-precharge',
+  'signature-moment-peak',
+  'signature-moment-residue'
+]);
 const MATCH_WINDOW_MS = 2_500;
 const CLUSTER_GAP_MS = 5_000;
-const STILL_MATCH_WINDOW_MS = 1_500;
+const DEFAULT_STILL_MATCH_WINDOW_MS = 1_500;
+const SIGNATURE_STILL_MATCH_WINDOW_MS = 5_000;
 
 function parseArgs(argv) {
   const args = {
     targets: [inboxRoot, canonicalRoot, archiveRoot],
-    json: false
+    json: false,
+    explicitTargets: []
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -34,7 +42,7 @@ function parseArgs(argv) {
 
     switch (value) {
       case '--target':
-        args.targets.push(path.resolve(workspaceRoot, argv[++index] ?? ''));
+        args.explicitTargets.push(path.resolve(workspaceRoot, argv[++index] ?? ''));
         break;
       case '--json':
         args.json = true;
@@ -44,7 +52,12 @@ function parseArgs(argv) {
     }
   }
 
-  args.targets = [...new Set(args.targets.filter(Boolean))];
+  args.targets = [
+    ...new Set(
+      (args.explicitTargets.length > 0 ? args.explicitTargets : args.targets).filter(Boolean)
+    )
+  ];
+  delete args.explicitTargets;
   return args;
 }
 
@@ -160,12 +173,16 @@ function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
     return true;
   }
 
+  const stillMatchWindowMs = SIGNATURE_MARKER_KINDS.has(cluster.markerKind)
+    ? SIGNATURE_STILL_MATCH_WINDOW_MS
+    : DEFAULT_STILL_MATCH_WINDOW_MS;
+
   return runStills.some((still) => {
     const timestampMs = still?.timestampMs;
     return (
       typeof timestampMs === 'number' &&
-      timestampMs >= cluster.timestampMs - STILL_MATCH_WINDOW_MS &&
-      timestampMs <= cluster.endTimestampMs + STILL_MATCH_WINDOW_MS
+      timestampMs >= cluster.timestampMs - stillMatchWindowMs &&
+      timestampMs <= cluster.endTimestampMs + stillMatchWindowMs
     );
   });
 }
@@ -238,4 +255,6 @@ async function main() {
   );
 }
 
-await main();
+if (import.meta.url === pathToFileURL(path.resolve(process.argv[1] ?? '')).href) {
+  await main();
+}

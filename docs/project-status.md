@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the Mythic Signature Moment Engine full-capability hardening pass:
+Latest local verification on `codex/full-version-foundation` after the Signature Moment proof review and capture/analyzer correction pass:
 
 - `npm run anthology:validate` passes
 - `npm run test` passes
@@ -23,13 +23,13 @@ Latest local verification on `codex/full-version-foundation` after the Mythic Si
 - `npm run check` passes
 - `npm run proof:audit` passes
 - `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
-- `npm run proof-pack -- --limit 1` passes and now includes a `Signature Moments` section
+- `npm run proof-pack -- --limit 1` passes and now distinguishes legacy glow-spend from perceptual washout/colorfulness
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run evidence:index` passes
 - `npm run evidence:query -- --runs --limit 5` passes
-- `npm run proof-pack -- --limit 1 --strict` intentionally fails because strict release proof still has authority split, missed-opportunity, and scenario-coverage blockers
+- `npm run proof-pack -- --limit 1 --strict` intentionally fails because strict release proof still has missed-opportunity and scenario-coverage blockers
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
-- `npm run proof:preflight` must pass after the signature-moment build is committed and before the next serious run
+- `npm run proof:preflight` must pass after the current analyzer/capture fixes are committed and before the next serious run
 
 Current standing warning:
 
@@ -37,7 +37,8 @@ Current standing warning:
 - the invalid April 28 run is now archived as debugging evidence only: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
 - the later April 28 diagnostic run `run_20260428_165811_8gs5ht` showed strong chamber/world authority but invalid proof metadata: primary-benchmark manifest with room-floor route invalidation, null sample scenario, null clip declared scenario, and false `advanced:steer` contamination; it must remain diagnostic until the Mission Control pass is rerun cleanly
 - Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
-- regenerated proof-pack output reports `0/41` signature moment evidence because current captures predate this hardening pass; fresh Moment Lab receipts and primary proof must be collected on this build before tuning claims are made
+- archived primary signature run `run_20260429_004346_zsvdmx` is valid, no-touch, finalized, and artifact-integrity clean; it is development evidence, not current-canonical proof, because it still has one missed governance-risk opportunity and no benchmark promotion
+- regenerated current proof-pack output may report no signature moment evidence after inbox cleanup because the latest signature run was archived intentionally; use the archived run package for development diagnosis and collect a fresh canary after committing the current fixes
 
 ## Start-Right Audit Snapshot
 
@@ -50,7 +51,8 @@ But it is still transitional in four important ways:
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, `PostSystem`, and bounded `CompositorSystem`; the scene still assembles compatibility context, but chamber/world authority math and first-wave signature moment eligibility no longer live there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
-- Proof Mission Control has produced valid current-proof-eligible primary benchmark run packages, but operator-trust proof is still missing and the latest full run exposed one evidence-platform gap: `operator-trust-clear` was journaled but not captured as a supporting still/clip because authority still work was in flight
+- Proof Mission Control has produced valid current-proof-eligible primary benchmark and operator-trust run packages, but strict release proof still needs clean scenario coverage, benchmark promotion, and no missed opportunities
+- The latest full primary signature run exposed one evidence-platform gap: a governance-risk marker was not matched to a supporting clip/still because higher-priority moment/authority capture won the slot; future governance-risk markers now request a `safety` still
 - The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rare moments with style routing and candidate state, `PostSystem` owns first-wave style-matrix consequence rendering/telemetry/disposal, `CompositorSystem` owns bounded screen-space/post-profile response, Moment Lab can preview the 4x3 variant matrix locally, and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, and washout from fresh captures
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.

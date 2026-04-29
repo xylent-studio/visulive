@@ -312,7 +312,8 @@ const AUTHORITY_PROOF_THRESHOLDS = {
   chamberPresenceMean: 0.24,
   frameHierarchyMean: 0.62,
   heroCoverageMeanMax: 0.32,
-  overbrightRateMax: 0.12,
+  legacyGlowSpendRateMax: 0.12,
+  perceptualWashoutRiskMax: 0.12,
   worldDominanceDeliveredMean: 0.28
 };
 
@@ -332,6 +333,15 @@ function isSharedOrDominantWorldAuthority(summary) {
 
 function hasAuthorityProofShape(summary) {
   const visual = summary?.visualSummary ?? {};
+  const legacyGlowSpendRate = visual.overbrightRate;
+  const perceptualWashoutRisk = visual.perceptualWashoutRiskMean;
+  const perceptualWashoutClear =
+    isNumber(perceptualWashoutRisk)
+      ? perceptualWashoutRisk <= AUTHORITY_PROOF_THRESHOLDS.perceptualWashoutRiskMax
+      : isNumber(legacyGlowSpendRate)
+        ? legacyGlowSpendRate <= AUTHORITY_PROOF_THRESHOLDS.legacyGlowSpendRateMax
+        : false;
+
   return (
     isSharedOrDominantWorldAuthority(summary) &&
     (visual.chamberPresenceMean ?? 0) >=
@@ -340,7 +350,7 @@ function hasAuthorityProofShape(summary) {
       AUTHORITY_PROOF_THRESHOLDS.frameHierarchyMean &&
     (visual.heroCoverageMean ?? 1) <=
       AUTHORITY_PROOF_THRESHOLDS.heroCoverageMeanMax &&
-    (visual.overbrightRate ?? 1) <= AUTHORITY_PROOF_THRESHOLDS.overbrightRateMax
+    perceptualWashoutClear
   );
 }
 
@@ -526,7 +536,8 @@ function summarizeCoverage(summaries) {
   let heroMonopolyRiskCount = 0;
   let lowChamberPresenceCount = 0;
   let weakWorldAuthorityCount = 0;
-  let overbrightRiskCount = 0;
+  let legacyGlowSpendRiskCount = 0;
+  let perceptualWashoutRiskCount = 0;
   let worldAuthorityEvidenceCount = 0;
   let largeHeroCount = 0;
   let ringAuthoritySum = 0;
@@ -652,9 +663,19 @@ function summarizeCoverage(summaries) {
     if (typeof visual.overbrightRate === 'number') {
       overbrightRateSum += visual.overbrightRate;
       overbrightSamples += 1;
-      if (visual.overbrightRate > AUTHORITY_PROOF_THRESHOLDS.overbrightRateMax) {
-        overbrightRiskCount += 1;
+      if (
+        visual.overbrightRate >
+        AUTHORITY_PROOF_THRESHOLDS.legacyGlowSpendRateMax
+      ) {
+        legacyGlowSpendRiskCount += 1;
       }
+    }
+    if (
+      isNumber(visual.perceptualWashoutRiskMean) &&
+      visual.perceptualWashoutRiskMean >
+        AUTHORITY_PROOF_THRESHOLDS.perceptualWashoutRiskMax
+    ) {
+      perceptualWashoutRiskCount += 1;
     }
     if (hasAuthorityProofShape(summary)) {
       authorityReadyCount += 1;
@@ -697,7 +718,9 @@ function summarizeCoverage(summaries) {
     heroMonopolyRiskCount,
     lowChamberPresenceCount,
     weakWorldAuthorityCount,
-    overbrightRiskCount,
+    overbrightRiskCount: legacyGlowSpendRiskCount,
+    legacyGlowSpendRiskCount,
+    perceptualWashoutRiskCount,
     worldAuthorityEvidenceCount,
     signatureMomentEvidenceCount,
     averageSignatureMomentActiveRate:
@@ -968,7 +991,7 @@ function buildMarkdown({
         )}; hero coverage ${formatNumber(visual.heroCoverageMean)}`,
         `  - compositor: event glow ${formatNumber(visual.eventGlowMean ?? 0)} mean / ${formatNumber(visual.eventGlowPeak ?? 0)} peak; bloom ${formatNumber(visual.bloomStrengthMean ?? 0)} mean / ${formatNumber(visual.bloomStrengthPeak ?? 0)} peak`,
         `  - signature: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}; washout ${formatNumber(visual.perceptualWashoutRiskMean)}`,
-        `  - spend: ${visual.dominantSpendProfile ?? 'unavailable'}; overbright ${visual.overbrightRate == null ? 'n/a' : formatPercent(visual.overbrightRate)}; hero scale peak ${visual.heroScalePeak == null ? 'n/a' : formatNumber(visual.heroScalePeak)}`,
+        `  - spend: ${visual.dominantSpendProfile ?? 'unavailable'}; legacy glow ${visual.overbrightRate == null ? 'n/a' : formatPercent(visual.overbrightRate)}; hero scale peak ${visual.heroScalePeak == null ? 'n/a' : formatNumber(visual.heroScalePeak)}`,
         `  - interventions: ${summary.metadata?.interventionCount ?? 'unknown'}; no-touch window ${summary.metadata?.noTouchWindowPassed === true ? 'passed' : 'not proven'}`,
         `  - safe tier: ${visual.dominantQualityTier === 'safe' ? 'yes' : 'no'}`,
         `  - flags: ${flags}`
@@ -1072,12 +1095,19 @@ function buildMarkdown({
     `- Hero coverage mean: ${formatNumber(
       aggregate.averageHeroCoverage
     )} (target <= ${formatNumber(AUTHORITY_PROOF_THRESHOLDS.heroCoverageMeanMax)})`,
-    `- Overbright rate: ${
+    `- Legacy glow-spend rate: ${
       aggregate.averageOverbrightRate == null
         ? 'unavailable'
         : formatPercent(aggregate.averageOverbrightRate)
-    } (target <= ${formatPercent(AUTHORITY_PROOF_THRESHOLDS.overbrightRateMax)})`,
-    `- Risk counts: hero monopoly ${aggregate.heroMonopolyRiskCount}/${proofEligibleCount || 0}; low chamber ${aggregate.lowChamberPresenceCount}/${proofEligibleCount || 0}; weak world ${aggregate.weakWorldAuthorityCount}/${proofEligibleCount || 0}; overbright ${aggregate.overbrightRiskCount}/${proofEligibleCount || 0}`,
+    } (legacy watch target <= ${formatPercent(
+      AUTHORITY_PROOF_THRESHOLDS.legacyGlowSpendRateMax
+    )})`,
+    `- Perceptual washout risk: ${formatNumber(
+      aggregate.averagePerceptualWashoutRisk
+    )} (release-blocking target <= ${formatNumber(
+      AUTHORITY_PROOF_THRESHOLDS.perceptualWashoutRiskMax
+    )})`,
+    `- Risk counts: hero monopoly ${aggregate.heroMonopolyRiskCount}/${proofEligibleCount || 0}; low chamber ${aggregate.lowChamberPresenceCount}/${proofEligibleCount || 0}; weak world ${aggregate.weakWorldAuthorityCount}/${proofEligibleCount || 0}; legacy glow ${aggregate.legacyGlowSpendRiskCount}/${proofEligibleCount || 0}; perceptual washout ${aggregate.perceptualWashoutRiskCount}/${proofEligibleCount || 0}`,
     ...(worldAuthorityLines.length > 0
       ? ['### World authority state spread', ...worldAuthorityLines]
       : ['### World authority state spread', '- No world-authority state telemetry available.']),
@@ -1120,7 +1150,7 @@ function buildMarkdown({
     ...(spendLines.length > 0
       ? spendLines
       : ['- Spend profile telemetry unavailable in this batch.']),
-    `- Overbright risk: ${
+    `- Legacy glow-spend risk: ${
       aggregate.averageOverbrightRate == null
         ? 'unavailable'
         : formatPercent(aggregate.averageOverbrightRate)
@@ -1226,11 +1256,13 @@ async function main() {
         aggregate.averageWorldDominanceDelivered
       )}; chamber ${formatNumber(aggregate.averageChamberPresence)}; hierarchy ${formatNumber(
         aggregate.averageFrameHierarchy
-      )}; hero coverage ${formatNumber(aggregate.averageHeroCoverage)}; overbright ${
+      )}; hero coverage ${formatNumber(aggregate.averageHeroCoverage)}; legacy glow ${
         aggregate.averageOverbrightRate == null
           ? 'unavailable'
           : formatPercent(aggregate.averageOverbrightRate)
-      }; risks hero/chamber/world/overbright ${aggregate.heroMonopolyRiskCount}/${aggregate.lowChamberPresenceCount}/${aggregate.weakWorldAuthorityCount}/${aggregate.overbrightRiskCount}.`;
+      }; perceptual washout ${formatNumber(
+        aggregate.averagePerceptualWashoutRisk
+      )}; risks hero/chamber/world/washout ${aggregate.heroMonopolyRiskCount}/${aggregate.lowChamberPresenceCount}/${aggregate.weakWorldAuthorityCount}/${aggregate.perceptualWashoutRiskCount}.`;
   const gates = [
     buildGateStatus(
       'current-branch freshness',
@@ -1321,7 +1353,7 @@ async function main() {
       hasCurrentCaptures &&
         aggregate.authorityReadyCount > 0 &&
         aggregate.heroMonopolyRiskCount === 0 &&
-        aggregate.overbrightRiskCount === 0,
+        aggregate.perceptualWashoutRiskCount === 0,
       authoritySplitRationale,
       true
     ),
@@ -1420,11 +1452,16 @@ async function main() {
       lowChamberPresenceCount: aggregate.lowChamberPresenceCount,
       weakWorldAuthorityCount: aggregate.weakWorldAuthorityCount,
       overbrightRiskCount: aggregate.overbrightRiskCount,
+      legacyGlowSpendRiskCount: aggregate.legacyGlowSpendRiskCount,
+      perceptualWashoutRiskCount: aggregate.perceptualWashoutRiskCount,
       averageChamberPresence: aggregate.averageChamberPresence,
       averageFrameHierarchy: aggregate.averageFrameHierarchy,
       averageHeroCoverage: aggregate.averageHeroCoverage,
       averageWorldDominanceDelivered: aggregate.averageWorldDominanceDelivered,
       averageOverbrightRate: aggregate.averageOverbrightRate,
+      averagePerceptualWashoutRisk: aggregate.averagePerceptualWashoutRisk,
+      averagePerceptualColorfulness: aggregate.averagePerceptualColorfulness,
+      averageCompositorOverprocessRisk: aggregate.averageCompositorOverprocessRisk,
       largeHeroCount: aggregate.largeHeroCount,
       averageRingAuthority: aggregate.averageRingAuthority
     },

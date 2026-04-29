@@ -197,9 +197,10 @@ const RUN_CHECKPOINT_STILL_PRIORITY: Record<ReplayRunStillKind, number> = {
   checkpoint: 1,
   quiet: 2,
   authority: 3,
-  trust: 4,
-  signature: 5,
-  'signature-preview': 6
+  safety: 4,
+  trust: 5,
+  signature: 6,
+  'signature-preview': 7
 };
 
 const cloneReplayCaptureFrameSnapshot = (
@@ -2533,6 +2534,7 @@ export function App() {
                 nextFrame.visualTelemetry.compositionSafetyFlag === true
             }
           );
+          captureRunCheckpointStill(nextTimestampMs, nextFrame, 'safety');
         }
         runJournalState.lastGovernanceRisk = governanceRisk;
 

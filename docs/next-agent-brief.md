@@ -1,6 +1,6 @@
 # VisuLive Next Agent Brief
 
-Date: 2026-04-28  
+Date: 2026-04-29  
 Status: Active cold-start handoff
 
 Use this if you are the next agent starting development work after the V1 preservation pass.
@@ -36,7 +36,9 @@ Read first:
 - the live HUD now shows proof mission, elapsed/target time, no-touch state, clip/still counts, last persistence state, and a `Finish Proof Run` action
 - invalid April 28 runs are debugging evidence only; active `captures/inbox/runs` should be empty before the next proof pass
 - `Primary benchmark` canary `run_20260428_192855_gnmlg1` and full run `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, not current-canonical release proof
-- the full primary run confirms strong chamber/world authority and no hero monopoly, but strict proof is blocked by overbright/ring taste failures and one missed `operator-trust-clear` evidence opportunity
+- the latest full primary signature run `run_20260429_004346_zsvdmx` is valid, no-touch, finalized, and artifact-integrity clean; it was archived after review as development evidence, not promoted to current-canonical proof
+- that run confirms strong chamber/world authority, low hero monopoly, natural signature moment firing, and low perceptual washout; the old high `overbright` read should be treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail
+- strict proof remains blocked by incomplete scenario coverage, no current-canonical benchmark promotion, and missed-opportunity cleanup; the active inbox should be empty before the next proof pass
 - the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, and `updateCompositorSystem`
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures, but they are unproven until Moment Lab preview plus fresh capture review
 
@@ -52,6 +54,7 @@ The highest-leverage move is:
 
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
+- use the archived `run_20260429_004346_zsvdmx` findings to do narrow tuning/capture fixes first: legacy glow-spend language, ring persistence, governance-risk evidence coverage, and natural style diversity
 - prove the authority split plus the first 4x3 signature moment matrix with Moment Lab preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
@@ -70,12 +73,12 @@ The highest-leverage move is:
 3. run the proof wave:
    - launch with `npm run dev:proof`
    - select the mission under `Backstage -> Capture -> Proof Mission`
-   - use a short `Primary benchmark` canary first for the new signature-moment build, then a full `Primary benchmark` if the canary is valid
+   - use a short `Primary benchmark` canary first after the current analyzer/capture fixes are committed, then a full `Primary benchmark` if the canary is valid
    - start only when the launch surface reports serious proof is ready
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
    - analyzer review
    - proof-pack review
-   - require the analyzer to report signature moment coverage, style spread, overbright/ring impact, perceptual washout/colorfulness, aftermath clearance, and distinctness before tuning from the run
+   - require the analyzer to report signature moment coverage, style spread, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:

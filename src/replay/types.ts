@@ -444,6 +444,7 @@ export type ReplayRunStillKind =
   | 'checkpoint'
   | 'authority'
   | 'quiet'
+  | 'safety'
   | 'trust'
   | 'signature'
   | 'signature-preview';

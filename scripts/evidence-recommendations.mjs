@@ -16,8 +16,22 @@ function clamp01(value) {
   return Math.max(0, Math.min(1, value));
 }
 
+const TASTE_THRESHOLDS = {
+  perceptualWashoutPassMax: 0.08,
+  perceptualWashoutWarnMax: 0.14,
+  colorfulnessPassMin: 0.09,
+  colorfulnessWarnMin: 0.055,
+  chamberPassMin: 0.16,
+  chamberWarnMin: 0.12,
+  legacyGlowSpendPassMax: 0.35,
+  legacyGlowSpendWarnMax: 0.95
+};
+
 function collectRunMetrics(summaries = []) {
   const overbrightRates = [];
+  const perceptualWashoutRisks = [];
+  const perceptualColorfulness = [];
+  const compositorOverprocessRisks = [];
   const heroCoverage = [];
   const worldDominance = [];
   const chamberPresence = [];
@@ -35,6 +49,18 @@ function collectRunMetrics(summaries = []) {
 
     if (typeof visual.overbrightRate === 'number') {
       overbrightRates.push(visual.overbrightRate);
+    }
+
+    if (typeof visual.perceptualWashoutRiskMean === 'number') {
+      perceptualWashoutRisks.push(visual.perceptualWashoutRiskMean);
+    }
+
+    if (typeof visual.perceptualColorfulnessMean === 'number') {
+      perceptualColorfulness.push(visual.perceptualColorfulnessMean);
+    }
+
+    if (typeof visual.compositorOverprocessRiskMean === 'number') {
+      compositorOverprocessRisks.push(visual.compositorOverprocessRiskMean);
     }
 
     if (typeof visual.heroCoverageMean === 'number') {
@@ -87,6 +113,12 @@ function collectRunMetrics(summaries = []) {
   return {
     clipCount: summaries.length,
     averageOverbrightRate: average(overbrightRates),
+    averagePerceptualWashoutRisk: average(perceptualWashoutRisks),
+    averagePerceptualColorfulness: average(perceptualColorfulness),
+    averageCompositorOverprocessRisk: average(compositorOverprocessRisks),
+    perceptualWashoutSampleCount: perceptualWashoutRisks.length,
+    perceptualColorfulnessSampleCount: perceptualColorfulness.length,
+    compositorOverprocessSampleCount: compositorOverprocessRisks.length,
     averageHeroCoverage: average(heroCoverage),
     averageWorldDominance: average(worldDominance),
     averageChamberPresence: average(chamberPresence),
@@ -110,6 +142,28 @@ function buildGateOutcomes({ journal, summaries, missedEntries = [] }) {
   const proofValidity = journal?.metadata?.proofValidity;
   const noTouch = journal?.metadata?.noTouchWindowPassed === true;
   const interventions = journal?.metadata?.interventionCount ?? 0;
+  const hasPerceptualTaste =
+    metrics.perceptualWashoutSampleCount > 0 &&
+    metrics.perceptualColorfulnessSampleCount > 0;
+  const tastePass =
+    summaries.length > 0 &&
+    hasPerceptualTaste &&
+    metrics.averagePerceptualWashoutRisk <=
+      TASTE_THRESHOLDS.perceptualWashoutPassMax &&
+    metrics.averagePerceptualColorfulness >=
+      TASTE_THRESHOLDS.colorfulnessPassMin &&
+    metrics.averageChamberPresence >= TASTE_THRESHOLDS.chamberPassMin &&
+    metrics.averageOverbrightRate <= TASTE_THRESHOLDS.legacyGlowSpendPassMax;
+  const tasteWarn =
+    summaries.length > 0 &&
+    metrics.averageChamberPresence >= TASTE_THRESHOLDS.chamberWarnMin &&
+    (hasPerceptualTaste
+      ? metrics.averagePerceptualWashoutRisk <=
+          TASTE_THRESHOLDS.perceptualWashoutWarnMax &&
+        metrics.averagePerceptualColorfulness >=
+          TASTE_THRESHOLDS.colorfulnessWarnMin &&
+        metrics.averageOverbrightRate <= TASTE_THRESHOLDS.legacyGlowSpendWarnMax
+      : metrics.averageOverbrightRate <= 0.12);
 
   return [
     {
@@ -155,15 +209,10 @@ function buildGateOutcomes({ journal, summaries, missedEntries = [] }) {
     },
     {
       id: 'taste',
-      status:
-        metrics.averageOverbrightRate <= 0.08 &&
-        metrics.averageChamberPresence >= 0.16
-          ? 'pass'
-          : metrics.averageOverbrightRate <= 0.12 &&
-              metrics.averageChamberPresence >= 0.12
-            ? 'warn'
-            : 'fail',
-      rationale: `overbright=${metrics.averageOverbrightRate.toFixed(3)} chamber=${metrics.averageChamberPresence.toFixed(3)}`
+      status: tastePass ? 'pass' : tasteWarn ? 'warn' : 'fail',
+      rationale: hasPerceptualTaste
+        ? `legacyGlow=${metrics.averageOverbrightRate.toFixed(3)} washout=${metrics.averagePerceptualWashoutRisk.toFixed(3)} color=${metrics.averagePerceptualColorfulness.toFixed(3)} chamber=${metrics.averageChamberPresence.toFixed(3)}`
+        : `legacyGlow=${metrics.averageOverbrightRate.toFixed(3)} chamber=${metrics.averageChamberPresence.toFixed(3)}`
     },
     {
       id: 'operator-trust',
@@ -258,23 +307,58 @@ export function buildRunRecommendationArtifact({
     );
   }
 
-  if (metrics.averageOverbrightRate >= 0.1) {
+  const hasPerceptualTaste =
+    metrics.perceptualWashoutSampleCount > 0 &&
+    metrics.perceptualColorfulnessSampleCount > 0;
+  const perceptualWashoutFailure =
+    hasPerceptualTaste &&
+    (metrics.averagePerceptualWashoutRisk >
+      TASTE_THRESHOLDS.perceptualWashoutWarnMax ||
+      metrics.averagePerceptualColorfulness <
+        TASTE_THRESHOLDS.colorfulnessWarnMin);
+
+  if (perceptualWashoutFailure || metrics.averageOverbrightRate >= 0.1) {
+    const legacyOnlyGlowSpend =
+      !perceptualWashoutFailure &&
+      hasPerceptualTaste &&
+      metrics.averagePerceptualWashoutRisk <=
+        TASTE_THRESHOLDS.perceptualWashoutPassMax;
+
     recommendations.push(
       buildRecommendation({
         runId,
         clipFiles,
         stillFiles,
-        issueId: 'overbright-governance',
-        severity: metrics.averageOverbrightRate >= 0.16 ? 'critical' : 'high',
-        title: 'Overbright governance is still spending too early or too long',
+        issueId: legacyOnlyGlowSpend ? 'glow-spend-calibration' : 'overbright-governance',
+        severity: perceptualWashoutFailure
+          ? metrics.averagePerceptualWashoutRisk >= 0.22
+            ? 'critical'
+            : 'high'
+          : metrics.averageOverbrightRate >= 0.85
+            ? 'medium'
+            : 'low',
+        title: legacyOnlyGlowSpend
+          ? 'Legacy glow-spend telemetry is high without perceptual washout'
+          : 'Overbright governance is producing perceptual washout risk',
         ownerLane: 'renderer-safe-tier',
         subsystem: 'AuthorityGovernor + LightingSystem',
-        suspectedCause:
-          'Authority and lighting ceilings are not suppressing washout early enough.',
-        impactedGates: ['hierarchy', 'taste'],
-        targetMetrics: ['averageOverbrightRate <= 0.08', 'compositionSafetyScore up'],
+        suspectedCause: legacyOnlyGlowSpend
+          ? 'The legacy overbright metric is measuring sustained glow spend; tune or relabel it separately from visible washout.'
+          : 'Authority, compositor, or lighting ceilings are not preserving contrast and saturation early enough.',
+        impactedGates: legacyOnlyGlowSpend ? ['taste'] : ['hierarchy', 'taste'],
+        targetMetrics: legacyOnlyGlowSpend
+          ? [
+              'averageOverbrightRate trend down without dimming',
+              'perceptualWashoutRisk remains low',
+              'perceptualColorfulness remains stable'
+            ]
+          : [
+              'perceptualWashoutRisk <= 0.14',
+              'perceptualColorfulness >= 0.055',
+              'compositionSafetyScore up'
+            ],
         recommendedNextProofScenario: 'primary-benchmark',
-        confidence: 0.86
+        confidence: legacyOnlyGlowSpend ? 0.7 : 0.86
       })
     );
   }
