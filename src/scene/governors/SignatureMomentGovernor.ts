@@ -4,6 +4,7 @@ import type {
   AuthorityFrameSnapshot,
   ResolvedSignatureMomentStyle,
   SignatureMomentCandidateScores,
+  SignatureMomentDecisionTrace,
   SignatureMomentDevOverride,
   SignatureMomentDistinctnessHint,
   SignatureMomentKind,
@@ -33,6 +34,7 @@ export type SignatureMomentGovernorInput = {
 type ActiveSignatureMoment = {
   kind: MomentKind;
   style: ResolvedSignatureMomentStyle;
+  requestedStyle: ResolvedSignatureMomentStyle;
   startedAtSeconds: number;
   seed: number;
   sourceScore: number;
@@ -63,17 +65,17 @@ const MOMENT_KINDS: MomentKind[] = [
 ];
 
 const MOMENT_DURATIONS: Record<MomentKind, number> = {
-  'collapse-scar': 4.8,
-  'cathedral-open': 5.4,
-  'ghost-residue': 5.8,
-  'silence-constellation': 7.6
+  'collapse-scar': 4.2,
+  'cathedral-open': 4.9,
+  'ghost-residue': 5.0,
+  'silence-constellation': 6.2
 };
 
 const MOMENT_COOLDOWNS: Record<MomentKind, number> = {
-  'collapse-scar': 7.2,
-  'cathedral-open': 8.4,
-  'ghost-residue': 5.8,
-  'silence-constellation': 4.8
+  'collapse-scar': 10.5,
+  'cathedral-open': 12,
+  'ghost-residue': 9.5,
+  'silence-constellation': 8.5
 };
 
 const MOMENT_ARM_WINDOW_SECONDS: Record<MomentKind, number> = {
@@ -171,6 +173,7 @@ export function deriveSignatureMomentStyle(
 ): ResolvedSignatureMomentStyle {
   const frame = input.frame;
   const stage = input.stageCuePlan;
+  const composition = input.stageCompositionPlan;
   const safetyRisk =
     (1 - input.authority.compositionSafetyScore) * 0.54 +
     input.authority.overbright * 0.36;
@@ -180,22 +183,36 @@ export function deriveSignatureMomentStyle(
     frame.releaseTail * 0.18 +
     (frame.musicConfidence < 0.18 ? 0.2 : 0) +
     (stage.family === 'release' || stage.family === 'haunt' ? 0.08 : 0);
-  const neonScore =
-    frame.musicConfidence * 0.16 +
-    frame.shimmer * 0.2 +
-    frame.beatConfidence * 0.12 +
+  const darkPressureScore =
+    frame.dropImpact * 0.32 +
+    frame.lowMidBody * 0.16 +
+    frame.body * 0.12 +
+    (stage.family === 'rupture' ? 0.24 : 0) +
+    (stage.worldMode === 'collapse-well' ? 0.18 : 0) +
+    (composition.shotClass === 'worldTakeover' ? 0.08 : 0);
+  const neonPortalScore =
+    frame.musicConfidence * 0.14 +
+    frame.shimmer * 0.22 +
+    frame.beatConfidence * 0.14 +
+    frame.transientConfidence * 0.12 +
     frame.sectionChange * 0.18 +
-    frame.preDropTension * 0.12 +
-    (stage.family === 'reveal' || stage.family === 'gather' ? 0.12 : 0) +
-    (stage.worldMode === 'fan-sweep' || stage.worldMode === 'field-bloom'
-      ? 0.1
-      : 0);
+    frame.preDropTension * 0.16 +
+    frame.tonalStability * 0.06 +
+    (stage.family === 'reveal' || stage.family === 'gather' ? 0.14 : 0) +
+    (stage.worldMode === 'fan-sweep' || stage.worldMode === 'cathedral-rise'
+      ? 0.14
+      : 0) +
+    (stage.transformIntent === 'open' ? 0.08 : 0);
 
-  if (quietScore >= 0.62 && frame.dropImpact < 0.22) {
+  if (quietScore >= 0.62 && frame.dropImpact < 0.22 && darkPressureScore < 0.38) {
     return 'ambient-premium';
   }
 
-  if (neonScore >= 0.58 && safetyRisk < 0.42) {
+  if (darkPressureScore >= 0.58 && frame.dropImpact > 0.42) {
+    return 'contrast-mythic';
+  }
+
+  if (neonPortalScore >= 0.54 && safetyRisk < 0.56) {
     return 'maximal-neon';
   }
 
@@ -331,6 +348,7 @@ export class SignatureMomentGovernor {
       kind: override.kind,
       phase,
       style,
+      requestedStyle: resolveSignatureMomentStyle(override.style, input),
       intensity,
       ageSeconds,
       seed: hashSignature(
@@ -441,7 +459,7 @@ export class SignatureMomentGovernor {
     const duration = MOMENT_DURATIONS[this.activeMoment.kind];
     const silenceStillEligible =
       this.activeMoment.kind === 'silence-constellation' &&
-      candidateScores['silence-constellation'] >= 0.32;
+      candidateScores['silence-constellation'] >= 0.46;
 
     if (ageSeconds > duration && !silenceStillEligible) {
       this.cooldownUntilSeconds =
@@ -469,6 +487,7 @@ export class SignatureMomentGovernor {
       kind: this.activeMoment.kind,
       phase,
       style: this.activeMoment.style,
+      requestedStyle: this.activeMoment.requestedStyle,
       intensity,
       ageSeconds,
       seed: this.activeMoment.seed,
@@ -496,7 +515,17 @@ export class SignatureMomentGovernor {
       suppressionReason,
       safetyRisk,
       candidateScores: { ...candidateScores },
-      rarityBudget: 1
+      rarityBudget: 1,
+      decisionTrace: this.buildDecisionTrace({
+        kind: null,
+        style: deriveSignatureMomentStyle(input),
+        input,
+        candidateScores,
+        suppressionReason,
+        safetyRisk,
+        triggerConfidence: 0,
+        forcedPreview: false
+      })
     };
   }
 
@@ -546,6 +575,7 @@ export class SignatureMomentGovernor {
     kind: MomentKind;
     phase: SignatureMomentPhase;
     style: ResolvedSignatureMomentStyle;
+    requestedStyle?: ResolvedSignatureMomentStyle;
     intensity: number;
     ageSeconds: number;
     seed: number;
@@ -572,6 +602,17 @@ export class SignatureMomentGovernor {
       rarityBudget: clamp01(input.rarityBudget),
       prechargeProgress: clamp01(input.prechargeProgress),
       distinctnessHint: distinctnessForKind(input.kind),
+      decisionTrace: this.buildDecisionTrace({
+        kind: input.kind,
+        style: input.style,
+        requestedStyle: input.requestedStyle,
+        input: input.input,
+        candidateScores: input.candidateScores,
+        suppressionReason: input.suppressionReason,
+        safetyRisk: input.safetyRisk,
+        triggerConfidence: input.triggerConfidence,
+        forcedPreview: input.forcedPreview
+      }),
       forcedPreview: input.forcedPreview,
       worldLead: this.resolveWorldLead(input.kind, input.intensity, input.style),
       heroSuppression: this.resolveHeroSuppression(
@@ -591,6 +632,62 @@ export class SignatureMomentGovernor {
       ),
       memoryStrength: this.resolveMemoryStrength(input.kind, input.intensity),
       safetyRisk: input.safetyRisk
+    };
+  }
+
+  private buildDecisionTrace(input: {
+    kind: MomentKind | null;
+    style: ResolvedSignatureMomentStyle;
+    requestedStyle?: ResolvedSignatureMomentStyle;
+    input: SignatureMomentGovernorInput;
+    candidateScores: SignatureMomentCandidateScores;
+    suppressionReason: SignatureMomentSuppressionReason;
+    safetyRisk: number;
+    triggerConfidence: number;
+    forcedPreview: boolean;
+  }): SignatureMomentDecisionTrace {
+    const dominant = MOMENT_KINDS.reduce(
+      (best, kind) =>
+        input.candidateScores[kind] > best.score
+          ? { kind, score: input.candidateScores[kind] }
+          : best,
+      { kind: null as MomentKind | null, score: 0 }
+    );
+    const preferredStyle = input.requestedStyle ?? deriveSignatureMomentStyle(input.input);
+    const convertedFromStyle =
+      preferredStyle !== input.style ? preferredStyle : null;
+    const safetyAction =
+      convertedFromStyle === 'maximal-neon' && input.style === 'contrast-mythic'
+        ? 'convert-contrast'
+        : convertedFromStyle === 'maximal-neon' && input.style === 'ambient-premium'
+          ? 'convert-ambient'
+          : input.style === 'maximal-neon'
+            ? 'preserve-neon'
+            : 'none';
+    const selectedReason = input.forcedPreview
+      ? 'forced-preview'
+      : input.kind
+        ? `${input.kind}:${input.triggerConfidence >= 0.62 ? 'phrase-strike' : 'precharge'}`
+        : input.suppressionReason === 'none'
+          ? 'idle'
+          : `deferred:${input.suppressionReason}`;
+    const styleReason =
+      input.style === 'ambient-premium'
+        ? 'quiet-release-space'
+        : input.style === 'maximal-neon'
+          ? 'neon-portal-energy'
+          : input.safetyRisk > 0.56
+            ? 'contrast-safety'
+            : 'dark-pressure-contrast';
+
+    return {
+      selectedReason,
+      styleReason,
+      safetyAction,
+      deferredReason: input.suppressionReason,
+      convertedFromStyle,
+      dominantCandidate: dominant.kind,
+      dominantCandidateScore: clamp01(dominant.score)
     };
   }
 
@@ -638,7 +735,7 @@ export class SignatureMomentGovernor {
       score: 0,
       suppressionReason: 'insufficient-cue' as const
     };
-    const threshold = winner.kind === 'silence-constellation' ? 0.4 : 0.46;
+    const threshold = winner.kind === 'silence-constellation' ? 0.46 : 0.48;
 
     if (winner.score < threshold) {
       if (
@@ -685,7 +782,7 @@ export class SignatureMomentGovernor {
       candidate.kind === 'silence-constellation' &&
       armAge > 1.0 &&
       input.frame.dropImpact < 0.12;
-    const enoughScore = candidate.score * (0.72 + rarityBudget * 0.28) >= 0.58;
+    const enoughScore = candidate.score * (0.7 + rarityBudget * 0.3) >= 0.62;
 
     return (
       enoughScore &&
@@ -730,6 +827,7 @@ export class SignatureMomentGovernor {
     return {
       kind,
       style: this.convertStyleForSafety(kind, style, input),
+      requestedStyle: style,
       startedAtSeconds: input.elapsedSeconds,
       seed: hashSignature(
         `${kind}:${style}:${Math.floor(input.elapsedSeconds * 2)}:${input.stageCuePlan.family}:${input.stageCuePlan.worldMode}`
@@ -745,18 +843,32 @@ export class SignatureMomentGovernor {
     style: ResolvedSignatureMomentStyle,
     input: SignatureMomentGovernorInput
   ): ResolvedSignatureMomentStyle {
+    if (style !== 'maximal-neon') {
+      return style;
+    }
+
+    const safetyRisk = this.resolveSafetyRisk(input);
+    const ringRisk = Math.max(0, input.authority.ringBeltPersistence - 0.34);
+    const cleanNeonWindow =
+      input.authority.overbright < 0.3 &&
+      input.authority.compositionSafetyScore >= 0.7 &&
+      ringRisk < 0.22;
+
+    if (kind === 'silence-constellation') {
+      return safetyRisk > 0.54 ? 'ambient-premium' : style;
+    }
+
     if (
       kind === 'cathedral-open' &&
-      style === 'maximal-neon' &&
-      (input.authority.overbright > 0.24 || input.authority.compositionSafetyScore < 0.76)
+      (input.authority.overbright > 0.42 ||
+        input.authority.compositionSafetyScore < 0.62 ||
+        safetyRisk > 0.68)
     ) {
       return 'contrast-mythic';
     }
 
-    if (input.qualityTier === 'safe' && style === 'maximal-neon') {
-      return kind === 'silence-constellation'
-        ? 'ambient-premium'
-        : 'contrast-mythic';
+    if (input.qualityTier === 'safe' && !cleanNeonWindow) {
+      return safetyRisk > 0.62 ? 'contrast-mythic' : style;
     }
 
     return style;

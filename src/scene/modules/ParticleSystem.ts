@@ -182,6 +182,12 @@ export class ParticleSystem {
       context.signatureMoment.kind === 'silence-constellation'
         ? context.signatureMoment.intensity
         : 0;
+    const signatureNeonPortal =
+      context.signatureMoment.style === 'maximal-neon'
+        ? cathedralOpenMoment * 0.68 +
+          silenceConstellationMoment * 0.22 +
+          context.signatureMoment.postConsequence * 0.1
+        : 0;
     const warmBias = Math.max(0, (context.director.colorBias - 0.5) * 2);
     const coolBias = Math.max(0, (0.5 - context.director.colorBias) * 2);
     const chromaPulse =
@@ -379,7 +385,9 @@ export class ParticleSystem {
         )
         .lerp(TRON_BLUE, silenceConstellationMoment * 0.12)
         .lerp(VOLT_VIOLET, ghostResidueMoment * 0.12 + collapseScarMoment * 0.08)
-        .lerp(ELECTRIC_WHITE, cathedralOpenMoment * 0.08);
+        .lerp(HOT_MAGENTA, signatureNeonPortal * 0.1)
+        .lerp(ACID_LIME, signatureNeonPortal * 0.08)
+        .lerp(ELECTRIC_WHITE, cathedralOpenMoment * 0.05);
 
       colorArray[baseIndex] = baseColor.r;
       colorArray[baseIndex + 1] = baseColor.g;
@@ -415,7 +423,8 @@ export class ParticleSystem {
         authorityWashoutSuppression * 0.03 +
         silenceConstellationMoment * 0.026 +
         ghostResidueMoment * 0.018 +
-        cathedralOpenMoment * 0.012 -
+        cathedralOpenMoment * 0.012 +
+        signatureNeonPortal * 0.016 -
         collapseScarMoment * 0.02) *
       context.qualityProfile.particleOpacityMultiplier;
     this.material.opacity = THREE.MathUtils.clamp(
@@ -442,7 +451,8 @@ export class ParticleSystem {
       context.audio.dropImpact * 0.016 +
       context.director.colorWarp * 0.014 +
       silenceConstellationMoment * 0.012 +
-      cathedralOpenMoment * 0.008 -
+      cathedralOpenMoment * 0.008 +
+      signatureNeonPortal * 0.006 -
       collapseScarMoment * 0.006;
     this.cloud.rotation.y =
       context.elapsedSeconds *

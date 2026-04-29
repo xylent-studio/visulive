@@ -283,6 +283,16 @@ export type SignatureMomentSuppressionReason =
   | 'insufficient-cue'
   | 'memory-empty';
 
+export type SignatureMomentDecisionTrace = {
+  selectedReason: string;
+  styleReason: string;
+  safetyAction: 'none' | 'preserve-neon' | 'convert-contrast' | 'convert-ambient';
+  deferredReason: SignatureMomentSuppressionReason;
+  convertedFromStyle: ResolvedSignatureMomentStyle | null;
+  dominantCandidate: Exclude<SignatureMomentKind, 'none'> | null;
+  dominantCandidateScore: number;
+};
+
 export type SignatureMomentSnapshot = {
   kind: SignatureMomentKind;
   phase: SignatureMomentPhase;
@@ -297,6 +307,7 @@ export type SignatureMomentSnapshot = {
   rarityBudget: number;
   prechargeProgress: number;
   distinctnessHint: SignatureMomentDistinctnessHint;
+  decisionTrace: SignatureMomentDecisionTrace;
   forcedPreview: boolean;
   worldLead: number;
   heroSuppression: number;
@@ -977,6 +988,15 @@ export const DEFAULT_SIGNATURE_MOMENT_SNAPSHOT: SignatureMomentSnapshot = {
   rarityBudget: 1,
   prechargeProgress: 0,
   distinctnessHint: 'none',
+  decisionTrace: {
+    selectedReason: 'idle',
+    styleReason: 'default',
+    safetyAction: 'none',
+    deferredReason: 'none',
+    convertedFromStyle: null,
+    dominantCandidate: null,
+    dominantCandidateScore: 0
+  },
   forcedPreview: false,
   worldLead: 0,
   heroSuppression: 0,

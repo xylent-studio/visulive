@@ -245,7 +245,9 @@ function buildRecommendation({
   impactedGates,
   targetMetrics,
   recommendedNextProofScenario,
-  confidence
+  confidence,
+  markers = [],
+  details = {}
 }) {
   return {
     issueId,
@@ -261,8 +263,10 @@ function buildRecommendation({
     evidence: {
       runId,
       clipFiles,
-      stillFiles
-    }
+      stillFiles,
+      markers
+    },
+    details
   };
 }
 
@@ -476,22 +480,41 @@ export function buildRunRecommendationArtifact({
   }
 
   if (missedEntries.length > 0) {
+    const missedMarkers = missedEntries.map((entry) => ({
+      markerKind: entry.markerKind,
+      severity: entry.severity ?? 'medium',
+      timestampMs: entry.timestampMs,
+      endTimestampMs: entry.endTimestampMs,
+      markerCount: entry.markerCount ?? 1,
+      expectedEvidence: entry.expectedEvidence ?? 'matching clip or still',
+      reason: entry.reason ?? null
+    }));
+    const highSeverityMisses = missedMarkers.filter(
+      (entry) => entry.severity === 'high'
+    ).length;
+
     recommendations.push(
       buildRecommendation({
         runId,
         clipFiles,
         stillFiles,
         issueId: 'missed-opportunities',
-        severity: missedEntries.length >= 3 ? 'high' : 'medium',
+        severity:
+          highSeverityMisses > 0 || missedEntries.length >= 3 ? 'high' : 'medium',
         title: 'Run journal shows meaningful moments with no matching saved clip',
         ownerLane: 'evidence-capture-analyzer',
         subsystem: 'authority-aware auto capture',
         suspectedCause:
-          'Trigger windows or clip finalization are missing meaningful authority or governance moments.',
+          'Trigger windows or clip finalization are missing kind-specific evidence for meaningful authority, governance, quiet, trust, or signature moments.',
         impactedGates: ['truth', 'operator trust'],
         targetMetrics: ['missedOpportunityCount=0'],
         recommendedNextProofScenario: dominantScenario ?? 'coverage',
-        confidence: 0.8
+        confidence: 0.84,
+        markers: missedMarkers,
+        details: {
+          missedOpportunityCount: missedEntries.length,
+          highSeverityMissCount: highSeverityMisses
+        }
       })
     );
   }

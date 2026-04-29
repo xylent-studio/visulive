@@ -58,12 +58,13 @@ April 28 proof-first override:
 - architecture progress is not enough to start more creative repertoire work
 - the next active gate is fresh valid local proof on the current authority/runtime backbone
 - `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
+- `npm run proof:refresh` is the preferred one-command development refresh when the evidence catalog should be updated alongside benchmark/analyzer/proof-pack output
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
 - primary-benchmark proof now has valid reviewed development evidence, including archived run `run_20260429_004346_zsvdmx` on commit `2fbce57`; it proves the no-touch mission path, strong world/chamber authority, and natural signature moment firing
 - strict release proof remains blocked by non-promoted benchmark truth, incomplete scenario coverage, and missed-opportunity cleanup; do not promote archived diagnostic runs as current-canonical proof
 - `overbright` in older reports is now treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail; the latest signature run showed high legacy glow spend but low perceptual washout, matching the user's washed/unsaturated visual read better than a literal "too bright" diagnosis
-- the user-approved Mythic Signature Moment Engine full-capability slice is now the active exception to the earlier proof-first hold; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab, proof-tuned, and operator-trust proof is restored
+- the user-approved Mythic Signature Moment Engine full-capability slice is now the active exception to the earlier proof-first hold; the current code direction is neon-portals first, with risk-based safe-neon, rarer phrase-scale moments, signature-aware ring decay, and stronger collapse/cathedral/ghost/quiet silhouettes; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab, proof-tuned, and operator-trust proof is restored
 
 ## Immediate Start-Right Gate
 

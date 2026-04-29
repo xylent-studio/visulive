@@ -26,6 +26,10 @@ function parseArgs(argv) {
     currentProof: false,
     ownerLane: null,
     issueId: null,
+    markerKind: null,
+    stillKind: null,
+    hasMissed: false,
+    integrity: null,
     limit: 20,
     json: false
   };
@@ -45,6 +49,16 @@ function parseArgs(argv) {
         break;
       case '--recommendations':
         args.entity = 'recommendations';
+        break;
+      case '--markers':
+        args.entity = 'markers';
+        break;
+      case '--stills':
+        args.entity = 'stills';
+        break;
+      case '--missed':
+        args.entity = 'missed';
+        args.hasMissed = true;
         break;
       case '--scenario':
         args.scenario = argv[++index] ?? null;
@@ -99,6 +113,18 @@ function parseArgs(argv) {
         break;
       case '--issue-id':
         args.issueId = argv[++index] ?? null;
+        break;
+      case '--marker-kind':
+        args.markerKind = argv[++index] ?? null;
+        break;
+      case '--still-kind':
+        args.stillKind = argv[++index] ?? null;
+        break;
+      case '--has-missed':
+        args.hasMissed = true;
+        break;
+      case '--integrity':
+        args.integrity = argv[++index] ?? null;
         break;
       case '--limit':
         args.limit = Math.max(1, Number.parseInt(argv[++index] ?? '20', 10) || 20);
@@ -223,6 +249,42 @@ function buildClipsQuery(args, resolved) {
     clauses.push('runs.current_proof_eligible = 1');
   }
 
+  if (args.integrity) {
+    clauses.push('(clips.artifact_integrity_verdict = @integrity OR runs.artifact_integrity_verdict = @integrity)');
+    parameters.integrity = args.integrity;
+  }
+
+  if (args.markerKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM markers
+        WHERE markers.run_id = clips.run_id
+          AND markers.kind = @markerKind
+      )
+    `);
+    parameters.markerKind = args.markerKind;
+  }
+
+  if (args.stillKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM stills
+        WHERE stills.run_id = clips.run_id
+          AND stills.kind = @stillKind
+      )
+    `);
+    parameters.stillKind = args.stillKind;
+  }
+
+  if (args.hasMissed) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM missed_opportunities
+        WHERE missed_opportunities.run_id = clips.run_id
+      )
+    `);
+  }
+
   const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
 
   return {
@@ -306,6 +368,42 @@ function buildRunsQuery(args, resolved) {
 
   if (args.currentProof) {
     clauses.push('runs.current_proof_eligible = 1');
+  }
+
+  if (args.integrity) {
+    clauses.push('runs.artifact_integrity_verdict = @integrity');
+    parameters.integrity = args.integrity;
+  }
+
+  if (args.markerKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM markers
+        WHERE markers.run_id = runs.run_id
+          AND markers.kind = @markerKind
+      )
+    `);
+    parameters.markerKind = args.markerKind;
+  }
+
+  if (args.stillKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM stills
+        WHERE stills.run_id = runs.run_id
+          AND stills.kind = @stillKind
+      )
+    `);
+    parameters.stillKind = args.stillKind;
+  }
+
+  if (args.hasMissed) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM missed_opportunities
+        WHERE missed_opportunities.run_id = runs.run_id
+      )
+    `);
   }
 
   if (Number.isFinite(args.minWorldDominance)) {
@@ -455,6 +553,42 @@ function buildRecommendationsQuery(args, resolved) {
     clauses.push('runs.current_proof_eligible = 1');
   }
 
+  if (args.integrity) {
+    clauses.push('runs.artifact_integrity_verdict = @integrity');
+    parameters.integrity = args.integrity;
+  }
+
+  if (args.markerKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM markers
+        WHERE markers.run_id = recommendations.run_id
+          AND markers.kind = @markerKind
+      )
+    `);
+    parameters.markerKind = args.markerKind;
+  }
+
+  if (args.stillKind) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM stills
+        WHERE stills.run_id = recommendations.run_id
+          AND stills.kind = @stillKind
+      )
+    `);
+    parameters.stillKind = args.stillKind;
+  }
+
+  if (args.hasMissed) {
+    clauses.push(`
+      EXISTS (
+        SELECT 1 FROM missed_opportunities
+        WHERE missed_opportunities.run_id = recommendations.run_id
+      )
+    `);
+  }
+
   const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
 
   return {
@@ -473,6 +607,7 @@ function buildRecommendationsQuery(args, resolved) {
         recommendations.confidence,
         recommendations.clip_files_json,
         recommendations.still_files_json,
+        recommendations.marker_refs_json,
         runs.lifecycle_state,
         runs.build_commit,
         runs.build_built_at,
@@ -494,7 +629,219 @@ function buildRecommendationsQuery(args, resolved) {
   };
 }
 
+function buildMarkersQuery(args, resolved) {
+  const clauses = [];
+  const parameters = {};
+
+  if (args.runId) {
+    clauses.push('markers.run_id = @runId');
+    parameters.runId = args.runId;
+  }
+
+  if (args.markerKind) {
+    clauses.push('markers.kind = @markerKind');
+    parameters.markerKind = args.markerKind;
+  }
+
+  if (args.scenario) {
+    clauses.push(
+      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario OR runs.proof_mission_kind = @scenario)'
+    );
+    parameters.scenario = args.scenario;
+  }
+
+  if (args.afterCommit) {
+    clauses.push('runs.build_built_at >= @afterCommitBuiltAt');
+    parameters.afterCommitBuiltAt = resolved.afterCommitBuiltAt;
+  }
+
+  if (args.lifecycle) {
+    clauses.push('runs.lifecycle_state = @lifecycle');
+    parameters.lifecycle = args.lifecycle;
+  }
+
+  if (args.currentProof) {
+    clauses.push('runs.current_proof_eligible = 1');
+  }
+
+  if (args.integrity) {
+    clauses.push('runs.artifact_integrity_verdict = @integrity');
+    parameters.integrity = args.integrity;
+  }
+
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+
+  return {
+    sql: `
+      SELECT
+        markers.run_id,
+        markers.marker_id,
+        markers.kind,
+        markers.timestamp_ms,
+        markers.reason,
+        markers.metadata_json,
+        runs.lifecycle_state,
+        runs.build_commit,
+        runs.build_built_at,
+        runs.proof_mission_kind,
+        runs.current_proof_eligible
+      FROM markers
+      LEFT JOIN runs ON runs.run_id = markers.run_id
+      ${where}
+      ORDER BY runs.updated_at DESC, markers.timestamp_ms DESC
+      LIMIT @limit
+    `,
+    parameters: { ...parameters, limit: args.limit }
+  };
+}
+
+function buildStillsQuery(args, resolved) {
+  const clauses = [];
+  const parameters = {};
+
+  if (args.runId) {
+    clauses.push('stills.run_id = @runId');
+    parameters.runId = args.runId;
+  }
+
+  if (args.stillKind) {
+    clauses.push('stills.kind = @stillKind');
+    parameters.stillKind = args.stillKind;
+  }
+
+  if (args.scenario) {
+    clauses.push(
+      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario OR runs.proof_mission_kind = @scenario)'
+    );
+    parameters.scenario = args.scenario;
+  }
+
+  if (args.afterCommit) {
+    clauses.push('runs.build_built_at >= @afterCommitBuiltAt');
+    parameters.afterCommitBuiltAt = resolved.afterCommitBuiltAt;
+  }
+
+  if (args.lifecycle) {
+    clauses.push('runs.lifecycle_state = @lifecycle');
+    parameters.lifecycle = args.lifecycle;
+  }
+
+  if (args.currentProof) {
+    clauses.push('runs.current_proof_eligible = 1');
+  }
+
+  if (args.integrity) {
+    clauses.push('runs.artifact_integrity_verdict = @integrity');
+    parameters.integrity = args.integrity;
+  }
+
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+
+  return {
+    sql: `
+      SELECT
+        stills.run_id,
+        stills.file_name,
+        stills.file_path,
+        stills.kind,
+        stills.timestamp_ms,
+        runs.lifecycle_state,
+        runs.build_commit,
+        runs.build_built_at,
+        runs.proof_mission_kind,
+        runs.current_proof_eligible
+      FROM stills
+      LEFT JOIN runs ON runs.run_id = stills.run_id
+      ${where}
+      ORDER BY runs.updated_at DESC, stills.timestamp_ms DESC
+      LIMIT @limit
+    `,
+    parameters: { ...parameters, limit: args.limit }
+  };
+}
+
+function buildMissedQuery(args, resolved) {
+  const clauses = [];
+  const parameters = {};
+
+  if (args.runId) {
+    clauses.push('missed_opportunities.run_id = @runId');
+    parameters.runId = args.runId;
+  }
+
+  if (args.markerKind) {
+    clauses.push('missed_opportunities.marker_kind = @markerKind');
+    parameters.markerKind = args.markerKind;
+  }
+
+  if (args.scenario) {
+    clauses.push(
+      '(runs.derived_scenario = @scenario OR runs.declared_scenario = @scenario OR runs.proof_scenario_kind = @scenario OR runs.proof_mission_kind = @scenario)'
+    );
+    parameters.scenario = args.scenario;
+  }
+
+  if (args.afterCommit) {
+    clauses.push('runs.build_built_at >= @afterCommitBuiltAt');
+    parameters.afterCommitBuiltAt = resolved.afterCommitBuiltAt;
+  }
+
+  if (args.lifecycle) {
+    clauses.push('runs.lifecycle_state = @lifecycle');
+    parameters.lifecycle = args.lifecycle;
+  }
+
+  if (args.currentProof) {
+    clauses.push('runs.current_proof_eligible = 1');
+  }
+
+  if (args.integrity) {
+    clauses.push('runs.artifact_integrity_verdict = @integrity');
+    parameters.integrity = args.integrity;
+  }
+
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+
+  return {
+    sql: `
+      SELECT
+        missed_opportunities.run_id,
+        missed_opportunities.marker_kind,
+        missed_opportunities.severity,
+        missed_opportunities.timestamp_ms,
+        missed_opportunities.end_timestamp_ms,
+        missed_opportunities.marker_count,
+        missed_opportunities.reason,
+        missed_opportunities.expected_evidence,
+        missed_opportunities.journal_path,
+        runs.lifecycle_state,
+        runs.build_commit,
+        runs.build_built_at,
+        runs.proof_mission_kind,
+        runs.current_proof_eligible
+      FROM missed_opportunities
+      LEFT JOIN runs ON runs.run_id = missed_opportunities.run_id
+      ${where}
+      ORDER BY runs.updated_at DESC, missed_opportunities.timestamp_ms DESC
+      LIMIT @limit
+    `,
+    parameters: { ...parameters, limit: args.limit }
+  };
+}
+
 function buildQuery(args, resolved) {
+  if (args.entity === 'markers') {
+    return buildMarkersQuery(args, resolved);
+  }
+
+  if (args.entity === 'stills') {
+    return buildStillsQuery(args, resolved);
+  }
+
+  if (args.entity === 'missed') {
+    return buildMissedQuery(args, resolved);
+  }
+
   if (args.entity === 'runs') {
     return buildRunsQuery(args, resolved);
   }
@@ -543,11 +890,54 @@ function formatRecommendationRow(row) {
     `  - scenario: ${row.proof_scenario_kind ?? 'unassigned'} | mission: ${row.proof_mission_kind ?? 'none'} (${row.proof_mission_eligibility_verdict ?? 'pending'} / ${row.artifact_integrity_verdict ?? 'pending'}) | next proof: ${row.recommended_next_scenario ?? 'none'}`,
     `  - confidence: ${row.confidence ?? 'n/a'} | impacted gates: ${row.impacted_gates_json ?? '[]'}`,
     `  - cause: ${row.suspected_cause}`,
-    `  - clips: ${row.clip_files_json ?? '[]'} | stills: ${row.still_files_json ?? '[]'}`
+    `  - clips: ${row.clip_files_json ?? '[]'} | stills: ${row.still_files_json ?? '[]'} | markers: ${row.marker_refs_json ?? '[]'}`
+  ].join('\n');
+}
+
+function formatMarkerRow(row) {
+  return [
+    `- ${row.run_id} | ${row.kind} @ ${row.timestamp_ms ?? 'n/a'}ms`,
+    `  - marker: ${row.marker_id}`,
+    `  - lifecycle/build: ${row.lifecycle_state ?? 'unknown'} / ${row.build_commit ?? 'unknown'} @ ${row.build_built_at ?? 'unknown'}`,
+    `  - mission/current: ${row.proof_mission_kind ?? 'none'} / ${row.current_proof_eligible ? 'yes' : 'no'}`,
+    `  - reason: ${row.reason ?? 'none'}`,
+    `  - metadata: ${row.metadata_json ?? '{}'}`
+  ].join('\n');
+}
+
+function formatStillRow(row) {
+  return [
+    `- ${row.run_id} | ${row.kind} @ ${row.timestamp_ms ?? 'n/a'}ms`,
+    `  - file: ${row.file_path}`,
+    `  - lifecycle/build: ${row.lifecycle_state ?? 'unknown'} / ${row.build_commit ?? 'unknown'} @ ${row.build_built_at ?? 'unknown'}`,
+    `  - mission/current: ${row.proof_mission_kind ?? 'none'} / ${row.current_proof_eligible ? 'yes' : 'no'}`
+  ].join('\n');
+}
+
+function formatMissedRow(row) {
+  return [
+    `- ${row.run_id} | ${row.marker_kind} [${row.severity ?? 'unknown'}] @ ${row.timestamp_ms ?? 'n/a'}-${row.end_timestamp_ms ?? 'n/a'}ms`,
+    `  - expected: ${row.expected_evidence ?? 'matching evidence'}`,
+    `  - markers: ${row.marker_count ?? 1} | lifecycle/current: ${row.lifecycle_state ?? 'unknown'} / ${row.current_proof_eligible ? 'yes' : 'no'}`,
+    `  - build: ${row.build_commit ?? 'unknown'} @ ${row.build_built_at ?? 'unknown'} | mission: ${row.proof_mission_kind ?? 'none'}`,
+    `  - reason: ${row.reason ?? 'none'}`,
+    `  - journal: ${row.journal_path ?? 'unknown'}`
   ].join('\n');
 }
 
 function formatRows(entity, rows) {
+  if (entity === 'markers') {
+    return rows.map(formatMarkerRow).join('\n');
+  }
+
+  if (entity === 'stills') {
+    return rows.map(formatStillRow).join('\n');
+  }
+
+  if (entity === 'missed') {
+    return rows.map(formatMissedRow).join('\n');
+  }
+
   if (entity === 'runs') {
     return rows.map(formatRunRow).join('\n');
   }

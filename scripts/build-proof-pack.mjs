@@ -23,6 +23,10 @@ import {
 } from './capture-analysis-core.mjs';
 import { buildBatchRecommendationArtifact } from './evidence-recommendations.mjs';
 import { collectMissedCaptureOpportunities } from './report-missed-opportunities.mjs';
+import {
+  loadRunPackageFromDirectory,
+  validateRunPackageIntegrity
+} from './run-package-utils.mjs';
 
 function parseArgs(argv) {
   const args = {
@@ -397,6 +401,81 @@ function buildRunProofEligibilityMap(runArtifacts = []) {
   }
 
   return eligibilityByRunId;
+}
+
+async function collectRunPackageIntegrityFailures(runArtifacts = []) {
+  const runDirectoriesById = new Map();
+
+  for (const entry of runArtifacts) {
+    if (entry.artifactType !== 'run-journal' && entry.artifactType !== 'run-manifest') {
+      continue;
+    }
+
+    const runId = entry.artifact?.metadata?.runId;
+    if (typeof runId !== 'string' || runId.length === 0) {
+      continue;
+    }
+
+    const runDirectory = path.dirname(entry.filePath);
+    const directories = runDirectoriesById.get(runId) ?? new Set();
+    directories.add(runDirectory);
+    runDirectoriesById.set(runId, directories);
+  }
+
+  const failures = [];
+
+  for (const [runId, runDirectories] of runDirectoriesById.entries()) {
+    if (runDirectories.size > 1) {
+      failures.push({
+        runId,
+        runDirectory: null,
+        integrity: {
+          verdict: 'fail',
+          checkedAt: new Date().toISOString(),
+          issues: [
+            {
+              id: 'duplicate-run-id-in-target',
+              severity: 'fail',
+              reason: `Selected proof targets contain run id "${runId}" in multiple directories: ${[...runDirectories].join(', ')}.`
+            }
+          ]
+        }
+      });
+      continue;
+    }
+
+    const runDirectory = [...runDirectories][0];
+    try {
+      const runPackage = await loadRunPackageFromDirectory(runDirectory);
+      const integrity = await validateRunPackageIntegrity(runPackage);
+
+      if (integrity.verdict === 'fail') {
+        failures.push({
+          runId,
+          runDirectory: runPackage.runDirectory,
+          integrity
+        });
+      }
+    } catch (error) {
+      failures.push({
+        runId,
+        runDirectory: null,
+        integrity: {
+          verdict: 'fail',
+          checkedAt: new Date().toISOString(),
+          issues: [
+            {
+              id: 'integrity-recompute-failed',
+              severity: 'fail',
+              reason: error instanceof Error ? error.message : 'unknown error'
+            }
+          ]
+        }
+      });
+    }
+  }
+
+  return failures;
 }
 
 function isCurrentProofEligible(summary, runEligibilityById = new Map()) {
@@ -807,6 +886,7 @@ function summarizeScenarioCoverage(
   runEligibilityById = new Map()
 ) {
   const currentScenarioCounts = new Map();
+  const currentMissionCounts = new Map();
   const historicalScenarioCounts = new Map();
   const currentReviewSummaries = [
     ...summaries.filter((summary) =>
@@ -839,6 +919,14 @@ function summarizeScenarioCoverage(
       );
     } else {
       unclassifiedCurrentCount += 1;
+    }
+
+    const missionKind = summary?.metadata?.proofMission?.kind;
+    if (typeof missionKind === 'string' && missionKind.length > 0) {
+      currentMissionCounts.set(
+        missionKind,
+        (currentMissionCounts.get(missionKind) ?? 0) + 1
+      );
     }
 
     if ((summary?.metadata?.interventionCount ?? 1) === 0) {
@@ -890,6 +978,7 @@ function summarizeScenarioCoverage(
 
   return {
     currentScenarioCounts,
+    currentMissionCounts,
     historicalScenarioCounts,
     currentReviewCaptureCount: currentReviewSummaries.length,
     historicalBaselineCount: historicalBaselineSummaries.length,
@@ -1001,6 +1090,9 @@ function buildMarkdown({
   const currentScenarioLines = [...scenarioCoverage.currentScenarioCounts.entries()]
     .sort((left, right) => left[0].localeCompare(right[0]))
     .map(([scenarioKind, count]) => `- \`${scenarioKind}\`: ${count} capture(s)`);
+  const currentMissionLines = [...scenarioCoverage.currentMissionCounts.entries()]
+    .sort((left, right) => left[0].localeCompare(right[0]))
+    .map(([missionKind, count]) => `- \`${missionKind}\`: ${count} capture(s)`);
   const historicalScenarioLines = [...scenarioCoverage.historicalScenarioCounts.entries()]
     .sort((left, right) => left[0].localeCompare(right[0]))
     .map(([scenarioKind, count]) => `- \`${scenarioKind}\`: ${count} capture(s)`);
@@ -1060,6 +1152,10 @@ function buildMarkdown({
     ...(currentScenarioLines.length > 0
       ? ['### Current scenarios', ...currentScenarioLines]
       : ['### Current scenarios', '- No current scenario captures were attached to this review pack.']),
+    '',
+    ...(currentMissionLines.length > 0
+      ? ['### Current Proof Missions', ...currentMissionLines]
+      : ['### Current Proof Missions', '- No current Proof Mission captures were attached to this review pack.']),
     '',
     ...(historicalScenarioLines.length > 0
       ? ['### Historical baselines', ...historicalScenarioLines]
@@ -1193,13 +1289,7 @@ async function main() {
   const proofEligibleSummaries = summaries.filter((summary) =>
     isCurrentProofEligible(summary, runEligibilityById)
   );
-  const runIntegrityFailures = runArtifacts.filter((entry) => {
-    if (entry.artifactType !== 'run-journal' && entry.artifactType !== 'run-manifest') {
-      return false;
-    }
-
-    return entry.artifact?.metadata?.artifactIntegrity?.verdict === 'fail';
-  });
+  const runIntegrityFailures = await collectRunPackageIntegrityFailures(runArtifacts);
   const missedEntries = await collectMissedCaptureOpportunities(captureTargets);
   const reportText = await readTextIfExists(reportPath);
   const looseScreenshots = await collectScreenshotInventory(screenshotsPath);
@@ -1392,7 +1482,7 @@ async function main() {
       runIntegrityFailures.length === 0,
       runIntegrityFailures.length === 0
         ? 'Run journals/manifests do not report artifact-integrity failures.'
-        : `${runIntegrityFailures.length} run artifact(s) report artifact-integrity failures.`,
+        : `${runIntegrityFailures.length} run package(s) failed recomputed artifact integrity.`,
       true
     ),
     buildGateStatus(
@@ -1467,6 +1557,9 @@ async function main() {
     },
     scenarioCoverage: {
       currentCounts: Object.fromEntries(scenarioCoverage.currentScenarioCounts.entries()),
+      currentMissionCounts: Object.fromEntries(
+        scenarioCoverage.currentMissionCounts.entries()
+      ),
       historicalBaselineCounts: Object.fromEntries(
         scenarioCoverage.historicalScenarioCounts.entries()
       ),
@@ -1483,6 +1576,7 @@ async function main() {
       operatorTrustCount: scenarioCoverage.operatorTrustCount
     },
     runArtifactIntegrityFailureCount: runIntegrityFailures.length,
+    runArtifactIntegrityFailures: runIntegrityFailures,
     missedOpportunityCount: missedEntries.length,
     releaseReady: failedGates.length === 0 && warningGates.length === 0,
     strictGateFailureCount: failedGates.length,

@@ -448,6 +448,36 @@ export class ChamberSystem {
       context.signatureMoment.kind === 'silence-constellation'
         ? context.signatureMoment.chamberArchitecture
         : 0;
+    const signaturePhase = context.signatureMoment.phase;
+    const signatureStyle = context.signatureMoment.style;
+    const signatureResidueOrClear =
+      signaturePhase === 'residue' || signaturePhase === 'clear'
+        ? context.signatureMoment.intensity
+        : 0;
+    const signaturePortalActive =
+      context.signatureMoment.kind === 'cathedral-open' &&
+      (signaturePhase === 'precharge' ||
+        signaturePhase === 'strike' ||
+        signaturePhase === 'hold')
+        ? cathedralOpenMoment
+        : 0;
+    const signaturePortalArchitectureLift = THREE.MathUtils.clamp(
+      signaturePortalActive *
+        (signatureStyle === 'maximal-neon' ? 0.34 : 0.18) *
+        (signaturePhase === 'strike' || signaturePhase === 'hold' ? 1 : 0.58),
+      0,
+      0.34
+    );
+    const signatureRingDemotion = THREE.MathUtils.clamp(
+      collapseScarMoment * 0.38 +
+        ghostResidueMoment * 0.24 +
+        silenceConstellationMoment * 0.28 +
+        signatureResidueOrClear * 0.34 +
+        Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.24) * 0.24 -
+        signaturePortalArchitectureLift * 0.72,
+      0,
+      0.68
+    );
     const ringSuppression = context.sceneVariation.ringSuppression;
     const portalSuppression = context.sceneVariation.portalSuppression;
     const latticeBoost = context.sceneVariation.latticeBoost;
@@ -502,10 +532,11 @@ export class ChamberSystem {
         crystalMatter * 0.1 +
         chamberPresenceFloor * 0.42 +
         chamberDominanceFloor * 0.38 +
-        chamberWorldTakeoverBias * 0.34 +
-        context.tuning.neonStageFloor * 0.22 +
-        context.tuning.worldBootFloor * 0.18 +
+          chamberWorldTakeoverBias * 0.34 +
+          context.tuning.neonStageFloor * 0.22 +
+          context.tuning.worldBootFloor * 0.18 +
         cathedralOpenMoment * 0.26 +
+        signaturePortalArchitectureLift * 0.22 +
         silenceConstellationMoment * 0.18 +
         ghostResidueMoment * 0.12 -
         collapseScarMoment * 0.06,
@@ -828,6 +859,7 @@ export class ChamberSystem {
               cueReveal * 0.08 +
               cueGather * 0.04) +
           cathedralOpenMoment * 0.028 +
+          signaturePortalArchitectureLift * 0.018 +
           ghostResidueMoment * 0.014 +
           silenceConstellationMoment * 0.018,
         0,
@@ -845,7 +877,12 @@ export class ChamberSystem {
         0.18,
         1
       );
-      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.16;
+      ring.mesh.material.opacity *= THREE.MathUtils.clamp(
+        1 - signatureRingDemotion * (0.58 + index * 0.035),
+        0.12,
+        1
+      );
+      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.2;
       ring.mesh.material.opacity *=
         1 -
         peakSpend *
@@ -903,6 +940,7 @@ export class ChamberSystem {
         portalOpen * 0.7 +
         apertureCage * 0.22 +
         cathedralOpenMoment * 0.48 +
+        signaturePortalArchitectureLift * 0.42 +
         eclipse * 0.22 +
         worldActivity * 0.16 +
         shellBloom * 0.12 +
@@ -1013,6 +1051,7 @@ export class ChamberSystem {
               cueReveal * 0.12 +
               shotWorldTakeover * 0.1) +
           cathedralOpenMoment * 0.034 +
+          signaturePortalArchitectureLift * 0.032 +
           ghostResidueMoment * 0.016,
         0,
         Math.max(
@@ -1031,7 +1070,14 @@ export class ChamberSystem {
         0.16,
         1
       );
-      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.12;
+      ring.mesh.material.opacity *= THREE.MathUtils.clamp(
+        1 -
+          Math.max(0, signatureRingDemotion - signaturePortalArchitectureLift * 0.7) *
+            (0.5 + index * 0.04),
+        0.1,
+        1
+      );
+      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.16;
       ring.mesh.material.opacity *=
         1 -
         peakSpend *

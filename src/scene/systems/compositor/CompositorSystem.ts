@@ -47,11 +47,11 @@ function clamp01(value: number): number {
 }
 
 function styleSaturation(style: ResolvedSignatureMomentStyle): number {
-  return style === 'maximal-neon' ? 1 : style === 'ambient-premium' ? 0.46 : 0.64;
+  return style === 'maximal-neon' ? 1.18 : style === 'ambient-premium' ? 0.58 : 0.68;
 }
 
 function styleContrast(style: ResolvedSignatureMomentStyle): number {
-  return style === 'contrast-mythic' ? 1 : style === 'ambient-premium' ? 0.54 : 0.78;
+  return style === 'contrast-mythic' ? 1.08 : style === 'ambient-premium' ? 0.6 : 0.86;
 }
 
 export class CompositorSystem {
@@ -198,12 +198,14 @@ export class CompositorSystem {
         (style === 'contrast-mythic' ? signatureMask * 0.12 : 0)
     );
     const chromaticAmount = clamp01(
-      cathedral * 0.52 * saturationBias +
+      cathedral * 0.6 * saturationBias +
         collapse * 0.18 +
         ghost * 0.16 +
-        (style === 'maximal-neon' ? signatureMask * 0.22 : 0)
+        (style === 'maximal-neon' ? signatureMask * 0.28 : 0)
     );
-    const edgeWindowAmount = clamp01(cathedral * 0.68 + quiet * 0.34);
+    const edgeWindowAmount = clamp01(
+      cathedral * (style === 'maximal-neon' ? 0.84 : 0.68) + quiet * 0.38
+    );
 
     this.updateVignette(vignetteAmount, contrastBias, safetyDamp);
     this.updateCuts(context, cutAmount, contrastBias, safetyDamp);
@@ -214,7 +216,7 @@ export class CompositorSystem {
       cutAmount * 0.4 + vignetteAmount * 0.26 + edgeWindowAmount * 0.18
     );
     const compositorSaturationLift = clamp01(
-      chromaticAmount * 0.42 + quiet * 0.12 + cathedral * 0.16
+      chromaticAmount * 0.46 + quiet * 0.14 + cathedral * 0.22
     );
     const perceptualContrastScore = clamp01(
       0.5 +
@@ -252,10 +254,10 @@ export class CompositorSystem {
       compositorSaturationLift,
       compositorExposureBias:
         compositorContrastLift * -0.038 +
-        compositorSaturationLift * 0.014 -
+        compositorSaturationLift * (style === 'maximal-neon' ? 0.006 : 0.014) -
         perceptualWashoutRisk * 0.04,
       compositorBloomBias:
-        compositorSaturationLift * 0.08 -
+        compositorSaturationLift * (style === 'maximal-neon' ? 0.05 : 0.08) -
         compositorContrastLift * 0.06 -
         perceptualWashoutRisk * 0.12,
       compositorAfterImageBias:
@@ -348,9 +350,9 @@ export class CompositorSystem {
         .lerp(paletteMix, amount * 0.18)
         .lerp(GHOST_WARM, context.signatureMoment.style === 'ambient-premium' ? 0.18 : 0);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (0.035 + index * 0.01) * saturationBias * safetyDamp * this.qualityScalar,
+        amount * (0.042 + index * 0.012) * saturationBias * safetyDamp * this.qualityScalar,
         0,
-        0.12
+        0.16
       );
       mesh.position.set(
         Math.sin(context.elapsedSeconds * (0.12 + index * 0.02)) * amount * 0.2,
@@ -378,10 +380,10 @@ export class CompositorSystem {
       mesh.material.opacity = THREE.MathUtils.clamp(
         amount * (0.05 + lane * 0.018) * safetyDamp * this.qualityScalar,
         0,
-        0.16
+        style === 'maximal-neon' ? 0.2 : 0.16
       );
       mesh.position.set(
-        side * (5.1 - amount * (0.9 + lane * 0.36)),
+        side * (5.45 - amount * (1.18 + lane * 0.46)),
         Math.sin(context.elapsedSeconds * 0.12 + lane) * amount * 0.1,
         0.06 + index * 0.008
       );

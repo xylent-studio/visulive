@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the Signature Moment proof review and capture/analyzer correction pass:
+Latest local verification on `codex/full-version-foundation` after the neon-portal Signature Moment and proof-intelligence pass:
 
 - `npm run anthology:validate` passes
 - `npm run test` passes
@@ -27,6 +27,7 @@ Latest local verification on `codex/full-version-foundation` after the Signature
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run evidence:index` passes
 - `npm run evidence:query -- --runs --limit 5` passes
+- `npm run evidence:query -- --missed --limit 5` passes and surfaces missed marker kind, severity, expected evidence, and run provenance
 - `npm run proof-pack -- --limit 1 --strict` intentionally fails because strict release proof still has missed-opportunity and scenario-coverage blockers
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
 - `npm run proof:preflight` must pass after the current analyzer/capture fixes are committed and before the next serious run
@@ -52,8 +53,8 @@ But it is still transitional in four important ways:
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark and operator-trust run packages, but strict release proof still needs clean scenario coverage, benchmark promotion, and no missed opportunities
-- The latest full primary signature run exposed one evidence-platform gap: a governance-risk marker was not matched to a supporting clip/still because higher-priority moment/authority capture won the slot; future governance-risk markers now request a `safety` still
-- The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rare moments with style routing and candidate state, `PostSystem` owns first-wave style-matrix consequence rendering/telemetry/disposal, `CompositorSystem` owns bounded screen-space/post-profile response, Moment Lab can preview the 4x3 variant matrix locally, and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, and washout from fresh captures
+- The latest proof-pack now exposes the evidence-platform gap more honestly: stricter kind-aware matching reports 30 missed marker clusters across the current reviewed set, mostly governance-risk/authority moments that need explicit trigger clips or safety/authority stills rather than generic nearby evidence
+- The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the 4x3 variant matrix locally; and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -93,7 +94,7 @@ The next wave is:
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
-- next, commit/restart the signature-moment build, use local Moment Lab to preview the 4 moments across contrast/neon/ambient styles, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
+- next, commit/restart the signature-moment build, use local Moment Lab to preview the 4 moments across contrast/neon/ambient styles, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; refresh serious evidence with `npm run proof:refresh`; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start

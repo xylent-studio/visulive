@@ -85,4 +85,36 @@ describe('CompositorSystem', () => {
     expect(telemetry.perceptualWashoutRisk).toBeGreaterThanOrEqual(0);
     expect(() => system.dispose()).not.toThrow();
   });
+
+  it('preserves neon through saturation and edge windows instead of exposure washout', () => {
+    const system = new CompositorSystem();
+    const context = buildContext();
+
+    system.build();
+    system.update({
+      ...context,
+      signatureMoment: {
+        ...context.signatureMoment,
+        kind: 'cathedral-open',
+        style: 'maximal-neon',
+        chamberArchitecture: 0.9,
+        postConsequence: 0.72
+      },
+      postTelemetry: {
+        ...context.postTelemetry,
+        activeSignatureMoment: 'cathedral-open',
+        signatureMomentStyle: 'maximal-neon',
+        cathedralOpenAmount: 0.86,
+        collapseScarAmount: 0
+      }
+    });
+
+    const telemetry = system.collectTelemetryInputs();
+
+    expect(telemetry.compositorSaturationLift).toBeGreaterThan(0.1);
+    expect(telemetry.compositorEdgeWindowAmount).toBeGreaterThan(0.2);
+    expect(telemetry.compositorExposureBias).toBeLessThan(0.04);
+    expect(telemetry.perceptualColorfulnessScore).toBeGreaterThan(0.45);
+    system.dispose();
+  });
 });

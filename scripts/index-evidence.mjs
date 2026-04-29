@@ -9,11 +9,13 @@ import {
   inboxRoot,
   workspaceRoot
 } from './capture-reporting.mjs';
+import { collectMissedCaptureOpportunities } from './report-missed-opportunities.mjs';
 
 function parseArgs(argv) {
   const args = {
     db: path.join(workspaceRoot, 'captures', 'evidence-catalog.sqlite'),
-    targets: [inboxRoot, canonicalRoot, archiveRoot]
+    targets: [inboxRoot, canonicalRoot, archiveRoot],
+    explicitTargets: []
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -24,14 +26,17 @@ function parseArgs(argv) {
         args.db = path.resolve(workspaceRoot, argv[++index] ?? args.db);
         break;
       case '--target':
-        args.targets.push(path.resolve(workspaceRoot, argv[++index] ?? ''));
+        args.explicitTargets.push(path.resolve(workspaceRoot, argv[++index] ?? ''));
         break;
       default:
         break;
     }
   }
 
-  args.targets = [...new Set(args.targets.filter(Boolean))];
+  args.targets = [
+    ...new Set((args.explicitTargets.length > 0 ? args.explicitTargets : args.targets).filter(Boolean))
+  ];
+  delete args.explicitTargets;
   return args;
 }
 
@@ -159,12 +164,41 @@ function ensureSchema(db) {
       confidence REAL,
       clip_files_json TEXT,
       still_files_json TEXT,
+      marker_refs_json TEXT,
       PRIMARY KEY (run_id, issue_id)
+    );
+    CREATE TABLE IF NOT EXISTS markers (
+      run_id TEXT,
+      marker_id TEXT,
+      kind TEXT,
+      timestamp_ms REAL,
+      reason TEXT,
+      metadata_json TEXT,
+      PRIMARY KEY (run_id, marker_id)
+    );
+    CREATE TABLE IF NOT EXISTS missed_opportunities (
+      run_id TEXT,
+      marker_kind TEXT,
+      severity TEXT,
+      timestamp_ms REAL,
+      end_timestamp_ms REAL,
+      marker_count INTEGER,
+      reason TEXT,
+      expected_evidence TEXT,
+      journal_path TEXT,
+      PRIMARY KEY (run_id, marker_kind, timestamp_ms)
+    );
+    CREATE TABLE IF NOT EXISTS catalog_metadata (
+      key TEXT PRIMARY KEY,
+      value TEXT
     );
     DELETE FROM runs;
     DELETE FROM clips;
     DELETE FROM stills;
     DELETE FROM recommendations;
+    DELETE FROM markers;
+    DELETE FROM missed_opportunities;
+    DELETE FROM catalog_metadata;
   `);
 
   for (const statement of [
@@ -200,7 +234,8 @@ function ensureSchema(db) {
     'ALTER TABLE clips ADD COLUMN signature_moment_forced_preview_rate REAL',
     'ALTER TABLE clips ADD COLUMN compositor_overprocess_risk_mean REAL',
     'ALTER TABLE clips ADD COLUMN perceptual_washout_risk_mean REAL',
-    'ALTER TABLE clips ADD COLUMN perceptual_colorfulness_mean REAL'
+    'ALTER TABLE clips ADD COLUMN perceptual_colorfulness_mean REAL',
+    'ALTER TABLE recommendations ADD COLUMN marker_refs_json TEXT'
   ]) {
     try {
       db.exec(statement);
@@ -366,6 +401,10 @@ function insertRuns(db, runArtifacts) {
     INSERT INTO stills (run_id, file_name, file_path, kind, timestamp_ms)
     VALUES (@run_id, @file_name, @file_path, @kind, @timestamp_ms)
   `);
+  const insertMarker = db.prepare(`
+    INSERT INTO markers (run_id, marker_id, kind, timestamp_ms, reason, metadata_json)
+    VALUES (@run_id, @marker_id, @kind, @timestamp_ms, @reason, @metadata_json)
+  `);
 
   for (const entry of groupedRuns.values()) {
     const metadata = entry.journal?.metadata ?? entry.manifest?.metadata ?? {};
@@ -530,6 +569,66 @@ function insertRuns(db, runArtifacts) {
         timestamp_ms: still.timestampMs
       });
     }
+
+    for (const marker of entry.journal.markers ?? []) {
+      insertMarker.run({
+        run_id: entry.runId,
+        marker_id:
+          typeof marker.id === 'string'
+            ? marker.id
+            : `${entry.runId}:${marker.kind}:${marker.timestampMs}`,
+        kind: marker.kind ?? null,
+        timestamp_ms:
+          typeof marker.timestampMs === 'number' ? marker.timestampMs : null,
+        reason: marker.reason ?? null,
+        metadata_json: JSON.stringify(marker.metadata ?? {})
+      });
+    }
+  }
+}
+
+function insertMissedOpportunities(db, missedEntries) {
+  const insertMissed = db.prepare(`
+    INSERT INTO missed_opportunities (
+      run_id, marker_kind, severity, timestamp_ms, end_timestamp_ms,
+      marker_count, reason, expected_evidence, journal_path
+    ) VALUES (
+      @run_id, @marker_kind, @severity, @timestamp_ms, @end_timestamp_ms,
+      @marker_count, @reason, @expected_evidence, @journal_path
+    )
+  `);
+
+  for (const entry of missedEntries) {
+    insertMissed.run({
+      run_id: entry.runId,
+      marker_kind: entry.markerKind,
+      severity: entry.severity ?? null,
+      timestamp_ms: entry.timestampMs,
+      end_timestamp_ms: entry.endTimestampMs,
+      marker_count: entry.markerCount ?? 1,
+      reason: entry.reason ?? null,
+      expected_evidence: entry.expectedEvidence ?? null,
+      journal_path: entry.journalPath ?? null
+    });
+  }
+}
+
+function insertCatalogMetadata(db, args, counts) {
+  const insertMetadata = db.prepare(`
+    INSERT INTO catalog_metadata (key, value)
+    VALUES (@key, @value)
+  `);
+
+  const rows = {
+    indexed_at: new Date().toISOString(),
+    source_roots_json: JSON.stringify(args.targets),
+    run_artifact_count: String(counts.runArtifacts),
+    clip_summary_count: String(counts.summaries),
+    missed_opportunity_count: String(counts.missedEntries)
+  };
+
+  for (const [key, value] of Object.entries(rows)) {
+    insertMetadata.run({ key, value });
   }
 }
 
@@ -539,10 +638,11 @@ function insertRecommendations(db, runArtifacts) {
       run_id, issue_id, severity, title, owner_lane, subsystem, suspected_cause,
       impacted_gates_json, target_metrics_json, recommended_next_scenario,
       confidence, clip_files_json, still_files_json
+      , marker_refs_json
     ) VALUES (
       @run_id, @issue_id, @severity, @title, @owner_lane, @subsystem, @suspected_cause,
       @impacted_gates_json, @target_metrics_json, @recommended_next_scenario,
-      @confidence, @clip_files_json, @still_files_json
+      @confidence, @clip_files_json, @still_files_json, @marker_refs_json
     )
   `);
 
@@ -574,7 +674,8 @@ function insertRecommendations(db, runArtifacts) {
             ? recommendation.confidence
             : null,
         clip_files_json: JSON.stringify(recommendation.evidence?.clipFiles ?? []),
-        still_files_json: JSON.stringify(recommendation.evidence?.stillFiles ?? [])
+        still_files_json: JSON.stringify(recommendation.evidence?.stillFiles ?? []),
+        marker_refs_json: JSON.stringify(recommendation.evidence?.markers ?? [])
       });
     }
   }
@@ -672,6 +773,7 @@ async function main() {
 
   const runArtifacts = await collectRunArtifacts(args.targets);
   const summaries = await analyzeCaptureTargets(args.targets);
+  const missedEntries = await collectMissedCaptureOpportunities(args.targets);
   const db = new DatabaseSync(args.db);
 
   try {
@@ -679,12 +781,18 @@ async function main() {
     insertRuns(db, runArtifacts);
     insertClips(db, summaries);
     insertRecommendations(db, runArtifacts);
+    insertMissedOpportunities(db, missedEntries);
+    insertCatalogMetadata(db, args, {
+      runArtifacts: runArtifacts.length,
+      summaries: summaries.length,
+      missedEntries: missedEntries.length
+    });
   } finally {
     db.close();
   }
 
   console.log(
-    `Indexed ${runArtifacts.length} run artifact(s) and ${summaries.length} clip summary record(s) into ${path.relative(workspaceRoot, args.db)}.`
+    `Indexed ${runArtifacts.length} run artifact(s), ${summaries.length} clip summary record(s), and ${missedEntries.length} missed opportunity record(s) into ${path.relative(workspaceRoot, args.db)}.`
   );
 }
 

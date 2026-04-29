@@ -28,6 +28,7 @@
     "proof:audit": "node ./scripts/proof-audit.mjs",
     "proof:preflight": "node ./scripts/proof-preflight.mjs",
     "proof:current": "node ./scripts/run-proof-cycle.mjs",
+    "proof:refresh": "node ./scripts/run-proof-cycle.mjs --index",
     "proof:review-note": "node ./scripts/write-proof-review-note.mjs",
     "run:review": "node ./scripts/review-run-package.mjs",
     "run:promote": "node ./scripts/promote-run-package.mjs",

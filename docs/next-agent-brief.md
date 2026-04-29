@@ -40,7 +40,7 @@ Read first:
 - that run confirms strong chamber/world authority, low hero monopoly, natural signature moment firing, and low perceptual washout; the old high `overbright` read should be treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail
 - strict proof remains blocked by incomplete scenario coverage, no current-canonical benchmark promotion, and missed-opportunity cleanup; the active inbox should be empty before the next proof pass
 - the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, and `updateCompositorSystem`
-- the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures, but they are unproven until Moment Lab preview plus fresh capture review
+- the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
 
 This means the next agent should return to proof validation and signature-moment tuning, not release cleanup or another capability expansion.
 
@@ -54,7 +54,7 @@ The highest-leverage move is:
 
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
-- use the archived `run_20260429_004346_zsvdmx` findings to do narrow tuning/capture fixes first: legacy glow-spend language, ring persistence, governance-risk evidence coverage, and natural style diversity
+- use the archived `run_20260429_004346_zsvdmx` findings as diagnostic context only; the current code already targets its main gaps: legacy glow-spend language, ring persistence, governance-risk evidence coverage, safe-neon preservation, and natural style diversity
 - prove the authority split plus the first 4x3 signature moment matrix with Moment Lab preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
@@ -80,7 +80,7 @@ The highest-leverage move is:
    - proof-pack review
    - require the analyzer to report signature moment coverage, style spread, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
-   - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
+   - prefer `npm run proof:refresh` for benchmark/analyzer/proof-pack refresh plus evidence indexing; `npm run proof:current` remains report refresh without indexing
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
    - tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), authority-fed lighting/particles, or stage cue policy without moving ownership back into the scene
 5. if signature proof holds:

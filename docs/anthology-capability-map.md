@@ -131,6 +131,7 @@ Short version:
   - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility/style/candidate state, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the style-matrix consequence lifecycle, and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice; the remaining blocker is fresh preview and proof that the moments are distinct, rare, safe-tier viable, and not washed out or overbright
 - last meaningful pass:
   - 2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded `CompositorSystem`, renderer post-profile inputs, and perceptual washout telemetry
+  - 2026-04-29 neon-portal hardening with decision traces, risk-based safe-neon preservation, stronger moment silhouettes, signature-aware ring decay, kind-aware missed-opportunity matching, recomputed package integrity, and `proof:refresh`
 - current biggest failure mode:
   - the four moments could still read as generic treatment, washed-out post, or ring overdraw until Moment Lab receipts and fresh proof show recognizable image classes and clean aftermath clearance
 

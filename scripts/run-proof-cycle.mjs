@@ -12,6 +12,7 @@ function parseArgs(argv) {
     manifest: path.join('docs', 'proof-pack_latest.json'),
     recommendations: path.join('docs', 'proof-pack_recommendations_latest.json'),
     limit: 5,
+    index: false,
     reviewNote: false,
     reviewNoteOutput: null
   };
@@ -40,6 +41,9 @@ function parseArgs(argv) {
         break;
       case '--limit':
         args.limit = Math.max(1, Number.parseInt(argv[++index] ?? '5', 10) || 5);
+        break;
+      case '--index':
+        args.index = true;
         break;
       case '--review-note':
         args.reviewNote = true;
@@ -132,6 +136,16 @@ async function main() {
     }
   }
 
+  if (args.index) {
+    const indexArgs = args.captures ? ['--target', args.captures] : [];
+    const indexExitCode = await runNodeScript('scripts/index-evidence.mjs', indexArgs);
+
+    if (indexExitCode !== 0) {
+      process.exitCode = indexExitCode;
+      return;
+    }
+  }
+
   if (analyzeExitCode !== 0) {
     console.error(
       'proof:current | analyzer did not find a current inbox batch. Reports were refreshed, but fresh proof is still missing.'
@@ -140,7 +154,11 @@ async function main() {
     return;
   }
 
-  console.log('proof:current | benchmark validation, analysis, and proof-pack refresh completed.');
+  console.log(
+    args.index
+      ? 'proof:refresh | benchmark validation, analysis, proof-pack refresh, and evidence indexing completed.'
+      : 'proof:current | benchmark validation, analysis, and proof-pack refresh completed.'
+  );
 }
 
 await main();

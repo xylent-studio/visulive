@@ -74,7 +74,9 @@ async function resolveClipCoverage(summary) {
     if (timestamps.length > 0) {
       return {
         startMs: Math.min(...timestamps),
-        endMs: Math.max(...timestamps)
+        endMs: Math.max(...timestamps),
+        triggerKind: summary?.metadata?.triggerKind ?? null,
+        version: typeof parsed?.version === 'number' ? parsed.version : null
       };
     }
   } catch {
@@ -92,7 +94,9 @@ async function resolveClipCoverage(summary) {
 
   return {
     startMs: triggerTimestampMs - halfWindowMs,
-    endMs: triggerTimestampMs + halfWindowMs
+    endMs: triggerTimestampMs + halfWindowMs,
+    triggerKind: summary?.metadata?.triggerKind ?? null,
+    version: typeof summary?.metadata?.version === 'number' ? summary.metadata.version : null
   };
 }
 
@@ -162,29 +166,93 @@ function clusterMissableMarkers(markers = []) {
   return clusters.sort((left, right) => left.timestampMs - right.timestampMs);
 }
 
+function resolveExpectedEvidence(cluster) {
+  switch (cluster.markerKind) {
+    case 'governance-risk':
+      return {
+        severity: 'high',
+        clipKinds: new Set(['governance-risk']),
+        stillKinds: new Set(['safety']),
+        label: 'governance-risk clip or safety still'
+      };
+    case 'quiet-beauty':
+      return {
+        severity: 'medium',
+        clipKinds: new Set(['quiet-beauty']),
+        stillKinds: new Set(['quiet']),
+        label: 'quiet-beauty clip or quiet still'
+      };
+    case 'operator-trust-clear':
+      return {
+        severity: 'high',
+        clipKinds: new Set(['operator-trust-clear']),
+        stillKinds: new Set(['trust']),
+        label: 'operator-trust clip or trust still'
+      };
+    case 'quality-downgrade':
+      return {
+        severity: 'high',
+        clipKinds: new Set(['quality-downgrade']),
+        stillKinds: new Set(['safety']),
+        label: 'quality-downgrade clip or safety still'
+      };
+    case 'signature-moment-precharge':
+    case 'signature-moment-peak':
+    case 'signature-moment-residue':
+      return {
+        severity: cluster.markerKind === 'signature-moment-peak' ? 'high' : 'medium',
+        clipKinds: new Set([cluster.markerKind]),
+        stillKinds: new Set(['signature', 'signature-preview']),
+        label: `${cluster.markerKind} clip or signature still`
+      };
+    case 'authority-turn':
+    default:
+      return {
+        severity: 'medium',
+        clipKinds: new Set(['authority-turn']),
+        stillKinds: new Set(['authority']),
+        label: 'authority-turn clip or authority still'
+      };
+  }
+}
+
 function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
   const clusterStart = cluster.timestampMs - MATCH_WINDOW_MS;
   const clusterEnd = cluster.endTimestampMs + MATCH_WINDOW_MS;
+  const expectedEvidence = resolveExpectedEvidence(cluster);
   const matchedClip = runClips.some(
-    (clip) => clip.endMs >= clusterStart && clip.startMs <= clusterEnd
+    (clip) =>
+      clip.endMs >= clusterStart &&
+      clip.startMs <= clusterEnd &&
+      (expectedEvidence.clipKinds.has(clip.triggerKind) ||
+        (clip.triggerKind === null && (clip.version ?? 0) < 3))
   );
 
   if (matchedClip) {
-    return true;
+    return {
+      matched: true,
+      expectedEvidence
+    };
   }
 
   const stillMatchWindowMs = SIGNATURE_MARKER_KINDS.has(cluster.markerKind)
     ? SIGNATURE_STILL_MATCH_WINDOW_MS
     : DEFAULT_STILL_MATCH_WINDOW_MS;
 
-  return runStills.some((still) => {
+  const matchedStill = runStills.some((still) => {
     const timestampMs = still?.timestampMs;
     return (
       typeof timestampMs === 'number' &&
+      expectedEvidence.stillKinds.has(still?.kind) &&
       timestampMs >= cluster.timestampMs - stillMatchWindowMs &&
       timestampMs <= cluster.endTimestampMs + stillMatchWindowMs
     );
   });
+
+  return {
+    matched: matchedStill,
+    expectedEvidence
+  };
 }
 
 export async function collectMissedCaptureOpportunities(targets = [inboxRoot, canonicalRoot, archiveRoot]) {
@@ -212,14 +280,17 @@ export async function collectMissedCaptureOpportunities(targets = [inboxRoot, ca
     const clusters = clusterMissableMarkers(journal.markers ?? []);
 
     for (const cluster of clusters) {
-      if (!clusterHasSavedEvidence(cluster, runClips, runStills)) {
+      const evidenceMatch = clusterHasSavedEvidence(cluster, runClips, runStills);
+      if (!evidenceMatch.matched) {
         missed.push({
           runId,
           markerKind: cluster.markerKind,
+          severity: evidenceMatch.expectedEvidence.severity,
           timestampMs: cluster.timestampMs,
           endTimestampMs: cluster.endTimestampMs,
           markerCount: cluster.markerCount,
           reason: cluster.reason,
+          expectedEvidence: evidenceMatch.expectedEvidence.label,
           journalPath: entry.filePath
         });
       }
@@ -249,7 +320,7 @@ async function main() {
       '',
       ...missed.map(
         (entry) =>
-          `- ${entry.runId} | ${entry.markerKind} @ ${entry.timestampMs}-${entry.endTimestampMs}ms (${entry.markerCount} marker(s)) | ${entry.reason} | ${entry.journalPath}`
+          `- ${entry.runId} | ${entry.markerKind} [${entry.severity}] @ ${entry.timestampMs}-${entry.endTimestampMs}ms (${entry.markerCount} marker(s)) | expected ${entry.expectedEvidence} | ${entry.reason} | ${entry.journalPath}`
       )
     ].join('\n')
   );

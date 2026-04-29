@@ -18,6 +18,7 @@ function buildInput(input: {
   stage?: Partial<StageCuePlan>;
   composition?: Partial<StageCompositionPlan>;
   authority?: Partial<AuthorityFrameSnapshot>;
+  qualityTier?: 'safe' | 'balanced' | 'premium';
   elapsedSeconds?: number;
   devOverride?: Parameters<SignatureMomentGovernor['resolveFrame']>[0]['devOverride'];
 }) {
@@ -43,7 +44,7 @@ function buildInput(input: {
       }
     },
     authority: { ...DEFAULT_AUTHORITY_FRAME_SNAPSHOT, ...input.authority },
-    qualityTier: 'premium' as const,
+    qualityTier: input.qualityTier ?? ('premium' as const),
     devOverride: input.devOverride
   };
 }
@@ -308,6 +309,54 @@ describe('SignatureMomentGovernor', () => {
     expect(snapshot.kind).toBe('ghost-residue');
     expect(snapshot.style).toBe('ambient-premium');
     expect(snapshot.forcedPreview).toBe(true);
+  });
+
+  it('preserves clean safe-tier neon and converts only risky neon', () => {
+    const clean = new SignatureMomentGovernor().resolveFrame(
+      buildInput({
+        elapsedSeconds: 30,
+        qualityTier: 'safe',
+        authority: {
+          compositionSafetyScore: 0.88,
+          overbright: 0.08,
+          ringBeltPersistence: 0.18
+        },
+        devOverride: {
+          kind: 'cathedral-open',
+          style: 'maximal-neon',
+          syntheticProfile: 'reveal',
+          startedAtSeconds: 29.5,
+          durationSeconds: 4,
+          intensity: 1
+        }
+      })
+    );
+
+    expect(clean.style).toBe('maximal-neon');
+    expect(clean.decisionTrace.safetyAction).toBe('preserve-neon');
+
+    const risky = new SignatureMomentGovernor().resolveFrame(
+      buildInput({
+        elapsedSeconds: 30,
+        qualityTier: 'safe',
+        authority: {
+          compositionSafetyScore: 0.48,
+          overbright: 0.52,
+          ringBeltPersistence: 0.74
+        },
+        devOverride: {
+          kind: 'cathedral-open',
+          style: 'maximal-neon',
+          syntheticProfile: 'reveal',
+          startedAtSeconds: 29.5,
+          durationSeconds: 4,
+          intensity: 1
+        }
+      })
+    );
+
+    expect(risky.style).toBe('contrast-mythic');
+    expect(risky.decisionTrace.safetyAction).toBe('convert-contrast');
   });
 
   it('does not spend natural rarity budget for forced preview overrides', () => {

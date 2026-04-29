@@ -73,7 +73,16 @@ export async function loadRunPackage(runId) {
     throw new Error(`Run package "${runId}" was not found under captures/inbox, canonical, or archive.`);
   }
 
-  const entries = await fs.readdir(located.runDirectory, { withFileTypes: true });
+  return loadRunPackageFromDirectory(located.runDirectory, located);
+}
+
+export async function loadRunPackageFromDirectory(runDirectory, located = null) {
+  const resolvedRunDirectory = path.resolve(workspaceRoot, runDirectory);
+  const runId = located?.runId ?? path.basename(resolvedRunDirectory);
+  const rootPath = located?.rootPath ?? path.dirname(path.dirname(resolvedRunDirectory));
+  const rootKind = located?.rootKind ?? classifyRoot(rootPath);
+
+  const entries = await fs.readdir(resolvedRunDirectory, { withFileTypes: true });
   let journal = null;
   let journalPath = null;
   let manifest = null;
@@ -85,7 +94,7 @@ export async function loadRunPackage(runId) {
       continue;
     }
 
-    const filePath = path.join(located.runDirectory, entry.name);
+    const filePath = path.join(resolvedRunDirectory, entry.name);
     const parsed = await readJson(filePath);
     const artifactType = parsed?.metadata?.artifactType;
 
@@ -108,7 +117,10 @@ export async function loadRunPackage(runId) {
   }
 
   return {
-    ...located,
+    runId,
+    rootPath,
+    rootKind,
+    runDirectory: resolvedRunDirectory,
     journal,
     journalPath,
     manifest,
@@ -240,6 +252,30 @@ export async function validateRunPackageIntegrity(runPackage) {
   const stillFiles = runPackage.manifest?.stillFiles ?? [];
   const journalClips = runPackage.journal?.clips ?? [];
   const journalStills = runPackage.journal?.checkpointStills ?? [];
+  const duplicateClipFiles = clipFiles.filter(
+    (relativePath, index) => clipFiles.indexOf(relativePath) !== index
+  );
+  const duplicateStillFiles = stillFiles.filter(
+    (relativePath, index) => stillFiles.indexOf(relativePath) !== index
+  );
+
+  for (const relativePath of new Set(duplicateClipFiles)) {
+    addIssue(
+      'duplicate-clip-file',
+      'fail',
+      `Referenced clip ${relativePath} appears more than once in the manifest.`,
+      relativePath
+    );
+  }
+
+  for (const relativePath of new Set(duplicateStillFiles)) {
+    addIssue(
+      'duplicate-still-file',
+      'fail',
+      `Referenced still ${relativePath} appears more than once in the manifest.`,
+      relativePath
+    );
+  }
 
   if (clipFiles.length !== journalClips.length) {
     addIssue(
@@ -283,6 +319,44 @@ export async function validateRunPackageIntegrity(runPackage) {
         `Referenced clip ${relativePath} does not exist in the run package.`,
         relativePath
       );
+      continue;
+    }
+
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.size <= 0) {
+        addIssue(
+          'empty-clip-file',
+          'fail',
+          `Referenced clip ${relativePath} is empty.`,
+          relativePath
+        );
+        continue;
+      }
+
+      const parsed = await readJson(filePath);
+      if (!parsed?.metadata?.runId && parsed?.version >= 3) {
+        addIssue(
+          'clip-run-id-missing',
+          'fail',
+          `Referenced v3 clip ${relativePath} is missing metadata.runId.`,
+          relativePath
+        );
+      } else if (parsed?.metadata?.runId && parsed.metadata.runId !== runPackage.runId) {
+        addIssue(
+          'clip-run-id-mismatch',
+          'fail',
+          `Referenced clip ${relativePath} belongs to run ${parsed.metadata.runId}, not ${runPackage.runId}.`,
+          relativePath
+        );
+      }
+    } catch (error) {
+      addIssue(
+        'unreadable-clip-file',
+        'fail',
+        `Referenced clip ${relativePath} could not be parsed: ${error instanceof Error ? error.message : 'unknown error'}.`,
+        relativePath
+      );
     }
   }
 
@@ -294,6 +368,26 @@ export async function validateRunPackageIntegrity(runPackage) {
         'missing-still-file',
         'fail',
         `Referenced still ${relativePath} does not exist in the run package.`,
+        relativePath
+      );
+      continue;
+    }
+
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.size <= 0) {
+        addIssue(
+          'empty-still-file',
+          'fail',
+          `Referenced still ${relativePath} is empty.`,
+          relativePath
+        );
+      }
+    } catch (error) {
+      addIssue(
+        'unreadable-still-file',
+        'fail',
+        `Referenced still ${relativePath} could not be read: ${error instanceof Error ? error.message : 'unknown error'}.`,
         relativePath
       );
     }

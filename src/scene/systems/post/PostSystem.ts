@@ -83,32 +83,32 @@ type StylePosture = {
 
 const STYLE_POSTURES: Record<ResolvedSignatureMomentStyle, StylePosture> = {
   'contrast-mythic': {
-    veil: 1.18,
-    scar: 1.22,
-    architecture: 0.84,
-    ghost: 0.9,
+    veil: 1.04,
+    scar: 1.42,
+    architecture: 0.78,
+    ghost: 0.86,
     constellation: 0.82,
-    saturation: 0.88,
-    darkness: 1,
-    neon: 0.28
+    saturation: 0.82,
+    darkness: 1.18,
+    neon: 0.24
   },
   'maximal-neon': {
-    veil: 0.64,
-    scar: 1.05,
-    architecture: 1.24,
-    ghost: 1.02,
-    constellation: 1.15,
-    saturation: 1.22,
-    darkness: 0.32,
-    neon: 1
+    veil: 0.46,
+    scar: 1.16,
+    architecture: 1.5,
+    ghost: 1.08,
+    constellation: 1.28,
+    saturation: 1.48,
+    darkness: 0.42,
+    neon: 1.18
   },
   'ambient-premium': {
-    veil: 0.78,
-    scar: 0.68,
-    architecture: 0.92,
-    ghost: 1.2,
-    constellation: 1.34,
-    saturation: 0.78,
+    veil: 0.66,
+    scar: 0.58,
+    architecture: 0.86,
+    ghost: 1.34,
+    constellation: 1.58,
+    saturation: 0.92,
     darkness: 0.48,
     neon: 0.18
   }
@@ -588,24 +588,29 @@ export class PostSystem {
         Math.sin(context.elapsedSeconds * (0.3 + index * 0.04) + seed * 6.28) *
         0.18;
       const amount = collapseScarAmount + memoryTraceStrength * 0.18;
+      const bite = collapseScarAmount * stylePosture.scar;
 
       mesh.material.color
         .copy(SCAR_VIOLET)
-        .lerp(HOT_MAGENTA, (index * 0.08 + collapseScarAmount * 0.16) * stylePosture.neon)
+        .lerp(HOT_MAGENTA, (index * 0.08 + collapseScarAmount * 0.22) * stylePosture.neon)
         .lerp(LASER_CYAN, (index % 2 === 0 ? 0.18 : 0.06) * stylePosture.saturation)
-        .lerp(VOID_BLACK, stylePosture.darkness * collapseScarAmount * 0.24);
+        .lerp(VOID_BLACK, stylePosture.darkness * collapseScarAmount * 0.42);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (0.08 + index * 0.012) * qualityScalar * stylePosture.scar,
+        amount * (0.1 + index * 0.016) * qualityScalar * stylePosture.scar,
         0,
-        0.2
+        0.28
       );
-      mesh.position.set(side * (0.4 + seed * 1.8) + sway, 0, index * 0.012);
+      mesh.position.set(
+        side * (0.28 + seed * 1.42 + bite * 0.52) + sway,
+        side * bite * 0.12,
+        index * 0.012
+      );
       mesh.rotation.z =
-        side * (0.38 + seed * 0.54) +
-        context.signatureMoment.ageSeconds * 0.04 * side;
+        side * (0.48 + seed * 0.78 + bite * 0.28) +
+        context.signatureMoment.ageSeconds * 0.055 * side;
       mesh.scale.set(
-        1 + collapseScarAmount * 2.4,
-        1 + collapseScarAmount * 0.3,
+        1 + bite * (3.4 + index * 0.18),
+        0.82 + collapseScarAmount * (0.18 + index * 0.02),
         1
       );
     });
@@ -622,33 +627,35 @@ export class PostSystem {
       const side = index < 3 ? -1 : 1;
       const lane = index % 3;
       const open = cathedralOpenAmount * (0.86 + lane * 0.08);
-      const sweep = context.stageCuePlan.wipeAmount * 0.4 + open * 2.2;
+      const neonVault = open * stylePosture.architecture;
+      const sweep = context.stageCuePlan.wipeAmount * 0.34 + neonVault * 2.75;
 
       mesh.material.color
         .copy(side < 0 ? LASER_CYAN : HOT_MAGENTA)
-        .lerp(ACID_LIME, (lane === 1 ? 0.16 + open * 0.1 : 0.04) * stylePosture.neon)
+        .lerp(ACID_LIME, (lane === 1 ? 0.18 + open * 0.14 : 0.05) * stylePosture.neon)
         .lerp(GHOST_PALE, open * 0.12 * (1.2 - stylePosture.neon))
-        .lerp(SOLAR_ORANGE, open * 0.08 * stylePosture.saturation);
+        .lerp(SOLAR_ORANGE, open * 0.1 * stylePosture.saturation);
       mesh.material.opacity = THREE.MathUtils.clamp(
         open *
-          (0.035 + lane * 0.012) *
+          (0.04 + lane * 0.014) *
           qualityScalar *
           stylePosture.architecture,
         0,
-        0.16
+        0.22
       );
       mesh.position.x =
-        side * (4.7 - sweep - lane * 0.38) +
+        side * (5.35 - sweep - lane * 0.46) +
         Math.sin(context.elapsedSeconds * 0.22 + lane) * 0.08;
       mesh.position.y =
-        (lane - 1) * 0.24 + Math.sin(context.elapsedSeconds * 0.18) * 0.06;
+        (lane - 1) * (0.28 + neonVault * 0.08) +
+        Math.sin(context.elapsedSeconds * 0.18) * 0.06;
       mesh.position.z = 0.04 + lane * 0.012;
       mesh.rotation.z =
-        side * (0.18 + lane * 0.1 + open * 0.16) +
+        side * (0.18 + lane * 0.12 + neonVault * 0.24) +
         Math.sin(context.elapsedSeconds * 0.12 + lane) * 0.02;
       mesh.scale.set(
-        1 + open * (1.8 + lane * 0.3),
-        1 + phasePulse * open * 0.22,
+        1 + neonVault * (2.25 + lane * 0.4),
+        1 + phasePulse * neonVault * 0.28,
         1
       );
     });
@@ -666,32 +673,42 @@ export class PostSystem {
       const traceStrength = trace
         ? trace.intensity * clamp01(1 - trace.ageSeconds / 12)
         : 0;
-      const amount = ghostResidueAmount + memoryTraceStrength * 0.24 + traceStrength * 0.18;
+      const delayedEcho = trace
+        ? clamp01(trace.ageSeconds / 8) * stylePosture.ghost
+        : 0;
+      const amount =
+        ghostResidueAmount + memoryTraceStrength * 0.3 + traceStrength * 0.22;
 
       mesh.material.color
         .copy(trace?.color ?? GHOST_PALE)
-        .lerp(GHOST_PALE, 0.36 + stylePosture.ghost * 0.08)
+        .lerp(GHOST_PALE, 0.28 + stylePosture.ghost * 0.12)
         .lerp(LASER_CYAN, index * 0.08 * stylePosture.saturation)
-        .lerp(TOXIC_PINK, stylePosture.neon * ghostResidueAmount * 0.08);
+        .lerp(TOXIC_PINK, stylePosture.neon * ghostResidueAmount * 0.12);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (0.05 + index * 0.012) * qualityScalar * stylePosture.ghost,
+        amount *
+          (0.055 + index * 0.014 + delayedEcho * 0.012) *
+          qualityScalar *
+          stylePosture.ghost,
         0,
-        0.16
+        0.2
       );
       mesh.position.x =
         Math.cos((trace?.direction ?? 0) + context.elapsedSeconds * 0.08) *
         amount *
-        0.42;
+        (0.48 + delayedEcho * 0.5);
       mesh.position.y =
         Math.sin((trace?.direction ?? 0) + context.elapsedSeconds * 0.06) *
         amount *
-        0.24;
+        (0.28 + delayedEcho * 0.24);
       mesh.position.z = 0.08 + index * 0.018;
       mesh.rotation.z =
         (trace?.direction ?? 0) +
         context.elapsedSeconds * (0.08 + index * 0.02);
       mesh.scale.setScalar(
-        1.2 + amount * (1.4 + index * 0.32) + context.audio.releaseTail * 0.18
+        1.16 +
+          amount * (1.65 + index * 0.4) +
+          context.audio.releaseTail * 0.2 +
+          delayedEcho * 0.34
       );
     });
   }
@@ -717,17 +734,17 @@ export class PostSystem {
     copyPaletteColor(this.colorScratch, context.paletteState);
     this.constellationMaterial.opacity = THREE.MathUtils.clamp(
       amount *
-        (0.12 +
+        (0.13 +
           context.authority.chamberPresenceScore * 0.05 +
           phasePulse * 0.02) *
         stylePosture.constellation *
         qualityScalar,
       0,
-      0.24
+      0.28
     );
     this.constellationMaterial.size =
       0.026 +
-      amount * 0.03 * stylePosture.constellation +
+      amount * 0.035 * stylePosture.constellation +
       beatPulse * 0.004 +
       context.audio.shimmer * 0.008;
     this.constellationPoints.rotation.z =

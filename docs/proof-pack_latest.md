@@ -1,8 +1,8 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-29T05:08:19.304Z
+Generated: 2026-04-29T06:07:42.470Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-29T05:08:16.311Z
+Report timestamp: 2026-04-29T06:07:39.859Z
 Report capture count: 69
 
 ## Executive Read
@@ -40,11 +40,15 @@ Report capture count: 69
 - world authority delivery: pass - 41 capture(s) show shared or dominant world authority.
 - operator trust: pass - 15 operator-trust scenario capture(s) are attached.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
-- missed capture opportunities: fail - 1 meaningful run marker(s) were not matched to saved clips.
+- missed capture opportunities: fail - 30 meaningful run marker(s) were not matched to saved clips.
 - scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
 ### Current scenarios
+- `operator-trust`: 15 capture(s)
+- `primary-benchmark`: 26 capture(s)
+
+### Current Proof Missions
 - `operator-trust`: 15 capture(s)
 - `primary-benchmark`: 26 capture(s)
 

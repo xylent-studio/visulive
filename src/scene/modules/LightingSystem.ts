@@ -141,6 +141,12 @@ export class LightingSystem {
       context.signatureMoment.kind === 'silence-constellation'
         ? context.signatureMoment.intensity
         : 0;
+    const signatureNeonPortal =
+      context.signatureMoment.style === 'maximal-neon'
+        ? cathedralOpenMoment * 0.74 +
+          silenceConstellationMoment * 0.24 +
+          context.signatureMoment.postConsequence * 0.12
+        : 0;
     const warmBias = Math.max(0, (context.director.colorBias - 0.5) * 2);
     const coolBias = Math.max(0, (0.5 - context.director.colorBias) * 2);
     const chromaPulse =
@@ -187,9 +193,11 @@ export class LightingSystem {
       1
     );
     const chromaRecoveryLift = THREE.MathUtils.clamp(
-      authorityWashoutSuppression * 0.16 + authorityRingSuppression * 0.08,
+      authorityWashoutSuppression * 0.16 +
+        authorityRingSuppression * 0.08 +
+        signatureNeonPortal * 0.1,
       0,
-      0.18
+      0.24
     );
     const lightIntensityGuard = THREE.MathUtils.clamp(
       1 - authorityWashoutSuppression * 0.28 - authorityRingSuppression * 0.12,
@@ -213,6 +221,7 @@ export class LightingSystem {
         authorityRingSuppression * 0.12 -
         authorityWashoutSuppression * 0.08 +
         cathedralOpenMoment * 0.16 +
+        signatureNeonPortal * 0.18 +
         ghostResidueMoment * 0.08 +
         silenceConstellationMoment * 0.1 -
         collapseScarMoment * 0.08,
@@ -285,7 +294,8 @@ export class LightingSystem {
       .lerp(
         TOXIC_PINK,
         context.sceneVariation.prismaticProfile * 0.12 +
-          context.sceneVariation.solarProfile * 0.06
+          context.sceneVariation.solarProfile * 0.06 +
+          signatureNeonPortal * 0.12
       )
       .lerp(
         ACID_LIME,
@@ -293,7 +303,8 @@ export class LightingSystem {
           context.actWeights.matrix * 0.1 +
           paletteAcid * 0.14 +
           stageColorLift * 0.08 +
-          chromaRecoveryLift * 0.2
+          chromaRecoveryLift * 0.2 +
+          signatureNeonPortal * 0.08
       )
       .lerp(
         ELECTRIC_WHITE,
@@ -349,7 +360,8 @@ export class LightingSystem {
           chromaPulse * 0.04 +
           paletteAcid * 0.18 +
           stageColorLift * 0.08 +
-          chromaRecoveryLift * 0.18
+          chromaRecoveryLift * 0.18 +
+          signatureNeonPortal * 0.08
       )
       .lerp(
         HOT_MAGENTA,
@@ -362,7 +374,8 @@ export class LightingSystem {
       .lerp(
         TOXIC_PINK,
         context.sceneVariation.prismaticProfile * 0.12 +
-          context.sceneVariation.solarProfile * 0.08
+          context.sceneVariation.solarProfile * 0.08 +
+          signatureNeonPortal * 0.1
       )
       .lerp(MATRIX_GREEN, context.director.colorWarp * 0.06 + paletteAcid * 0.12)
       .lerp(
@@ -413,12 +426,14 @@ export class LightingSystem {
           context.actWeights.laser * 0.04 +
           paletteSolar * 0.04 +
           stageColorLift * 0.06 +
-          chromaRecoveryLift * 0.16
+          chromaRecoveryLift * 0.16 +
+          signatureNeonPortal * 0.08
       )
       .lerp(
         TOXIC_PINK,
         context.sceneVariation.solarProfile * 0.12 +
-          context.sceneVariation.prismaticProfile * 0.08
+          context.sceneVariation.prismaticProfile * 0.08 +
+          signatureNeonPortal * 0.1
       )
       .lerp(
         ELECTRIC_WHITE,
@@ -492,7 +507,8 @@ export class LightingSystem {
           chromaPulse * 0.06 +
           paletteAcid * 0.18 +
           stageColorLift * 0.08 +
-          chromaRecoveryLift * 0.2
+          chromaRecoveryLift * 0.2 +
+          signatureNeonPortal * 0.08
       )
       .lerp(
         CYBER_YELLOW,
@@ -505,7 +521,8 @@ export class LightingSystem {
       .lerp(
         TOXIC_PINK,
         context.sceneVariation.prismaticProfile * 0.1 +
-          context.sceneVariation.solarProfile * 0.04
+          context.sceneVariation.solarProfile * 0.04 +
+          signatureNeonPortal * 0.08
       )
       .lerp(
         HOT_MAGENTA,
