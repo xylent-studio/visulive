@@ -129,7 +129,7 @@ function summarizeSample(sample) {
   return {
     cue: `${stage.canonicalCueClass ?? 'unknown'} / ${stage.stageCueFamily ?? 'unknown'} / ${stage.stageWorldMode ?? 'unknown'}`,
     signature: `${signature.activeSignatureMoment ?? 'none'} / ${signature.signatureMomentPhase ?? 'idle'} / ${signature.signatureMomentStyle ?? 'n/a'} / i=${formatNumber(signature.signatureMomentIntensity)}`,
-    scene: `${playable.activePlayableMotifScene ?? 'n/a'} / ${playable.playableMotifSceneProfileId ?? 'n/a'} / ${playable.playableMotifSceneSilhouetteFamily ?? 'n/a'} / ${playable.playableMotifSceneSurfaceRole ?? 'n/a'} / mask=${playable.compositorMaskFamily ?? 'n/a'} / job=${playable.particleFieldJob ?? 'n/a'} / i=${formatNumber(playable.playableMotifSceneIntensity)} / silhouette=${formatNumber(playable.playableMotifSceneSilhouetteConfidence)}`,
+    scene: `${playable.activePlayableMotifScene ?? 'n/a'} / ${playable.playableMotifSceneProfileId ?? 'n/a'} / ${playable.playableMotifSceneSilhouetteFamily ?? 'n/a'} / ${playable.playableMotifSceneSurfaceRole ?? 'n/a'} / packs=${Array.isArray(playable.playableMotifSceneAssetPackIds) ? playable.playableMotifSceneAssetPackIds.join(',') : 'n/a'} / mask=${playable.compositorMaskFamily ?? 'n/a'} / job=${playable.particleFieldJob ?? 'n/a'} / i=${formatNumber(playable.playableMotifSceneIntensity)} / silhouette=${formatNumber(playable.playableMotifSceneSilhouetteConfidence)}`,
     authority: `world=${formatNumber(authority.worldDominanceDelivered)} chamber=${formatNumber(authority.chamberPresenceScore)} ring=${formatNumber(authority.ringAuthority)}`,
     safety: `wash=${formatNumber(signature.perceptualWashoutRisk)} color=${formatNumber(signature.perceptualColorfulnessScore)} over=${formatNumber(authority.overbright)}`
   };

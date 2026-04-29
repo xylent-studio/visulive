@@ -43,7 +43,7 @@ The current runtime split is improving, but not honest enough to treat as done:
 - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns rare moment eligibility, music-character style routing, candidate precharge, cooldown/rarity, phase, forced-preview, and suppression/conversion decisions for the first mythic consequence wave
 - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) now owns the first consequence/aftermath render lifecycle, style-matrix postures, stronger neon-portal moment silhouettes, post telemetry, memory-trace cap, quality reset, and disposal for collapse scar, cathedral open, ghost residue, and silence constellation
 - [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) now owns the first authored playable scene layer: neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar scene posture, scene dwell, scene driver/intent match, motif/palette/profile match telemetry, procedural scene-profile handoff, and camera-space scene silhouettes
-- [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) now owns procedural-only scene ontology contracts for silhouette family, surface role, palette base, ring posture, hero role/form, compositor mask family, particle field job, asset-pack provenance, and minimum dwell; this is not a media asset browser or stock-content import path
+- [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) now owns procedural-only scene ontology contracts for silhouette family, surface role, palette base, ring posture, hero role/form, compositor mask family, particle field job, and minimum dwell; [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts) owns the small source-defined mask/glyph/surface/geometry/particle/post-memory pack catalog, legality metadata, fallback behavior, and provenance; this is not a media asset browser or stock-content import path
 - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns the bounded signature-moment compositor slice and consumes playable motif/profile telemetry: screen-space masks, cuts, vignettes, chromatic bands, edge windows, renderer post-profile inputs, and perceptual contrast/colorfulness/washout telemetry tuned to preserve saturation before adding brightness
 - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) and [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) now consume a typed authority snapshot instead of scene-local chamber/world heuristics
 - [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), [StageFrameSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/StageFrameSystem.ts), [MotionSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/MotionSystem.ts), and [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now consume the signature moment snapshot where the moment needs whole-frame coordination; chamber now treats rings as semantic posture (`cathedral-architecture`, `event-strike`, `residue-trace`, `suppressed`) rather than default wallpaper
@@ -149,7 +149,8 @@ Until that happens:
 - ownership status: `owned-system` for the first authored scene layer
 - current runtime owner:
   - [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) for scene selection from signature/motif/stage/authority context, dwell, camera-space scene silhouettes, scene driver/intent telemetry, motif/palette match telemetry, and quality/disposal lifecycle
-  - [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) for procedural scene profile definitions, asset-pack provenance, silhouette family, surface role, hero/ring expectations, compositor mask family, and particle field job
+  - [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) for procedural scene profile definitions, silhouette family, surface role, hero/ring expectations, compositor mask family, and particle field job
+  - [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts) for source-owned asset-pack provenance, legality, fallback behavior, and generator seeds
   - [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) for semantic motif and palette-frame intent that playable scenes consume
   - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) for explicit sequencing between `PostSystem` and `CompositorSystem`
 - still lives in `ObsidianBloomScene.ts`:
@@ -234,19 +235,19 @@ Until that happens:
 
 ### Content / Asset Packs
 
-- ownership status: `legacy-monolith`
+- ownership status: `lab`
 - current runtime owner:
-  - no dedicated runtime owner yet
+  - source definitions live in [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts)
 - still lives in `ObsidianBloomScene.ts`:
-  - not as a formal content system yet, which is exactly the gap
+  - no large-media content system is mounted there; playable scene rendering is still procedural through owned systems
 - next extraction target:
   - `ContentSystem`
 - owner lane:
   - `Mixed Media / Compositor / Content`
 - blocker:
-  - authored asset packs, legality metadata, and declaration ownership do not have a runtime home
+  - the procedural declaration layer exists, but there is no broader `ContentSystem` for future media packs, licensing review, or generated atlas lifecycle
 - completion condition:
-  - content packs and legality metadata live in `systems/content/*`
+  - broader content packs and legality metadata live in `systems/content/*`; until then, only the small source-defined procedural catalog is allowed
 
 ## Parallel Work Safety Rule
 

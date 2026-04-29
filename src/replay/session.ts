@@ -65,6 +65,7 @@ import {
   type StageIntent,
   type StageShotClass,
   type StageWorldMode,
+  type VisualAssetPackId,
   type VisualMotifKind,
   type VisualTelemetryFrame,
   type VisualTelemetrySummary,
@@ -785,6 +786,18 @@ const PARTICLE_FIELD_JOB_KEYS: ParticleFieldJob[] = [
   'residue',
   'memory-echo',
   'pressure-dust'
+];
+const VISUAL_ASSET_PACK_ID_KEYS: VisualAssetPackId[] = [
+  'portal-aperture-mask',
+  'cathedral-rib-geometry',
+  'machine-shutter-mask',
+  'machine-depth-glyphs',
+  'void-pressure-scrim',
+  'void-dust-field',
+  'ghost-constellation-map',
+  'ghost-memory-veil',
+  'collapse-scar-matte',
+  'collapse-residue-trace'
 ];
 
 type AxisTracker = {
@@ -5152,6 +5165,15 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.playableMotifSceneProfileId)
         ? telemetry.playableMotifSceneProfileId
         : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneProfileId,
+    playableMotifSceneAssetPackIds: Array.isArray(
+      telemetry?.playableMotifSceneAssetPackIds
+    )
+      ? telemetry.playableMotifSceneAssetPackIds.filter(
+          (packId): packId is VisualAssetPackId =>
+            typeof packId === 'string' &&
+            VISUAL_ASSET_PACK_ID_KEYS.includes(packId as VisualAssetPackId)
+        )
+      : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneAssetPackIds,
     playableMotifSceneSilhouetteFamily:
       telemetry?.playableMotifSceneSilhouetteFamily &&
       SCENE_SILHOUETTE_FAMILY_KEYS.includes(telemetry.playableMotifSceneSilhouetteFamily)

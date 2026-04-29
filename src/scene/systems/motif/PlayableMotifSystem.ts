@@ -13,6 +13,7 @@ import type {
   SceneSurfaceRole,
   SignatureMomentSnapshot,
   StageCuePlan,
+  VisualAssetPackId,
   VisualMotifKind
 } from '../../../types/visual';
 import {
@@ -46,6 +47,7 @@ export type PlayableMotifSystemUpdateContext = {
 export type PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: PlayableMotifSceneKind;
   playableMotifSceneProfileId: PlayableMotifSceneKind;
+  playableMotifSceneAssetPackIds: readonly VisualAssetPackId[];
   playableMotifSceneSilhouetteFamily: SceneSilhouetteFamily;
   playableMotifSceneSurfaceRole: SceneSurfaceRole;
   playableMotifSceneProfileMatch: boolean;
@@ -281,6 +283,7 @@ export class PlayableMotifSystem {
   private telemetry: PlayableMotifSystemTelemetry = {
     activePlayableMotifScene: 'none',
     playableMotifSceneProfileId: 'none',
+    playableMotifSceneAssetPackIds: [],
     playableMotifSceneSilhouetteFamily: 'none',
     playableMotifSceneSurfaceRole: 'none',
     playableMotifSceneProfileMatch: true,
@@ -424,6 +427,7 @@ export class PlayableMotifSystem {
     this.telemetry = {
       activePlayableMotifScene: this.activeScene,
       playableMotifSceneProfileId: profile?.id ?? 'none',
+      playableMotifSceneAssetPackIds: profile?.assetPackIds ?? [],
       playableMotifSceneSilhouetteFamily: profile?.silhouetteFamily ?? 'none',
       playableMotifSceneSurfaceRole: profile?.surfaceRole ?? 'none',
       playableMotifSceneProfileMatch: profileMatch,

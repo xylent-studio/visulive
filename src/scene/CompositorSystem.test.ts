@@ -43,6 +43,7 @@ const POST_TELEMETRY: PostSystemTelemetry = {
 const PLAYABLE_MOTIF_TELEMETRY: PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: 'collapse-scar',
   playableMotifSceneProfileId: 'collapse-scar',
+  playableMotifSceneAssetPackIds: ['collapse-scar-matte', 'collapse-residue-trace'],
   playableMotifSceneSilhouetteFamily: 'diagonal-rupture',
   playableMotifSceneSurfaceRole: 'scar-matte',
   playableMotifSceneProfileMatch: true,

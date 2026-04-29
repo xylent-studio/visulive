@@ -45,7 +45,7 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `Authored Procedural Scene Ontology` proof on top of semantic episode routing, style-aware `PostSystem`, first `PlayableMotifSystem`, bounded `CompositorSystem`, and code-native `visualAssetProfiles`
+  - `Authored Procedural Scene Ontology` proof on top of semantic episode routing, style-aware `PostSystem`, first `PlayableMotifSystem`, bounded `CompositorSystem`, code-native `visualAssetProfiles`, and source-owned `visualAssetPacks`
 - single highest-leverage next move:
   - use `run_20260429_123116_jzqbjo` as diagnostic context, then run a fresh no-touch proof wave that shows neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar as stable, readable scene silhouettes with semantic hero form, ring posture, and palette-base coherence
 - single blocking extraction:
@@ -193,7 +193,7 @@ Short version:
   - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns screen-space masks/cuts/vignettes/bands for signature moments and consumes procedural scene-profile mask families; mixed-media layers, large content packs, and broader legality metadata are still future work
 - last meaningful pass:
   - 2026-04-29 bounded `CompositorSystem` slice for signature moments
-  - 2026-04-29 authored procedural asset profile pass for five playable scene ontologies, compositor mask family telemetry, particle field job telemetry, and quick contact-sheet scoring tags
+  - 2026-04-29 authored procedural asset profile and pack-catalog pass for five playable scene ontologies, compositor mask family telemetry, particle field job telemetry, asset legality/fallback metadata, and quick contact-sheet scoring tags
 - current biggest failure mode:
   - mixed media could arrive as collage novelty instead of authored show language; reject opaque media unless it improves thumbnail readability or aftermath memory beyond the procedural engine
 

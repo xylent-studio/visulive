@@ -977,6 +977,7 @@ export function buildReplayRunJournalSample(
     playableMotif: {
       activePlayableMotifScene: telemetry.activePlayableMotifScene,
       playableMotifSceneProfileId: telemetry.playableMotifSceneProfileId,
+      playableMotifSceneAssetPackIds: telemetry.playableMotifSceneAssetPackIds,
       playableMotifSceneSilhouetteFamily:
         telemetry.playableMotifSceneSilhouetteFamily,
       playableMotifSceneSurfaceRole: telemetry.playableMotifSceneSurfaceRole,

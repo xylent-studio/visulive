@@ -97,6 +97,9 @@ describe('PlayableMotifSystem', () => {
     expect(system.collectTelemetryInputs().playableMotifSceneSilhouetteFamily).toBe(
       'negative-space-mass'
     );
+    expect(system.collectTelemetryInputs().playableMotifSceneAssetPackIds).toContain(
+      'void-pressure-scrim'
+    );
     expect(system.collectTelemetryInputs().particleFieldJob).toBe('pressure-dust');
 
     system.dispose();
@@ -129,6 +132,10 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneDriver).toBe('signature');
     expect(telemetry.playableMotifSceneIntentMatch).toBe(true);
     expect(telemetry.playableMotifSceneProfileId).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneAssetPackIds).toEqual([
+      'portal-aperture-mask',
+      'cathedral-rib-geometry'
+    ]);
     expect(telemetry.playableMotifSceneSurfaceRole).toBe('architectural-aperture');
     expect(telemetry.compositorMaskFamily).toBe('portal-aperture');
     expect(telemetry.playableMotifSceneSilhouetteConfidence).toBeGreaterThan(0.7);

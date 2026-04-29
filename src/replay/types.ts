@@ -531,6 +531,7 @@ export type ReplayRunJournalSample = {
   playableMotif: {
     activePlayableMotifScene?: VisualTelemetryFrame['activePlayableMotifScene'];
     playableMotifSceneProfileId?: VisualTelemetryFrame['playableMotifSceneProfileId'];
+    playableMotifSceneAssetPackIds?: VisualTelemetryFrame['playableMotifSceneAssetPackIds'];
     playableMotifSceneSilhouetteFamily?: VisualTelemetryFrame['playableMotifSceneSilhouetteFamily'];
     playableMotifSceneSurfaceRole?: VisualTelemetryFrame['playableMotifSceneSurfaceRole'];
     playableMotifSceneProfileMatch?: boolean;

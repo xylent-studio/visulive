@@ -2972,6 +2972,8 @@ export class ObsidianBloomScene {
         playableMotifTelemetry.activePlayableMotifScene,
       playableMotifSceneProfileId:
         playableMotifTelemetry.playableMotifSceneProfileId,
+      playableMotifSceneAssetPackIds:
+        playableMotifTelemetry.playableMotifSceneAssetPackIds,
       playableMotifSceneSilhouetteFamily:
         playableMotifTelemetry.playableMotifSceneSilhouetteFamily,
       playableMotifSceneSurfaceRole:

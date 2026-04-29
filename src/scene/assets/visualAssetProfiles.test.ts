@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { VISUAL_ASSET_PACKS } from './visualAssetPacks';
 import { SCENE_VISUAL_PROFILES } from './visualAssetProfiles';
 
 describe('scene visual asset profiles', () => {
@@ -54,6 +55,31 @@ describe('scene visual asset profiles', () => {
       expect(profile.provenance.source).toBe('procedural-code');
       expect(profile.provenance.license).toBe('project-owned');
       expect(profile.assetPacks.length).toBeGreaterThan(0);
+      expect(profile.assetPackIds.length).toBeGreaterThan(0);
+
+      for (const packId of profile.assetPackIds) {
+        const pack = VISUAL_ASSET_PACKS[packId];
+        expect(pack).toBeDefined();
+        expect(pack.provenance.source).toBe('procedural-code');
+        expect(pack.provenance.license).toBe('project-owned');
+        expect(pack.legalScenes).toContain(profile.id);
+        expect(profile.assetPacks).toContain(pack.kind);
+        expect(pack.fallbackBehavior.length).toBeGreaterThan(12);
+        expect(pack.generatorSeed).toMatch(/:v\d:/);
+      }
+    }
+  });
+
+  it('keeps the asset catalog small, legal, and source-defined', () => {
+    const packs = Object.values(VISUAL_ASSET_PACKS);
+
+    expect(packs.length).toBeGreaterThanOrEqual(10);
+
+    for (const pack of packs) {
+      expect(pack.legalScenes.length).toBeGreaterThan(0);
+      expect(pack.legalMoments.length).toBeGreaterThan(0);
+      expect(pack.commitPolicy).toMatch(/source-definition-only|small-generated-atlas-allowed/);
+      expect(pack.provenance.notes).toMatch(/No stock VJ loops/i);
     }
   });
 });

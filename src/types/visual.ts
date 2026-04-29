@@ -328,6 +328,18 @@ export type VisualAssetPackKind =
   | 'particle-job-pack'
   | 'post-memory-pack';
 
+export type VisualAssetPackId =
+  | 'portal-aperture-mask'
+  | 'cathedral-rib-geometry'
+  | 'machine-shutter-mask'
+  | 'machine-depth-glyphs'
+  | 'void-pressure-scrim'
+  | 'void-dust-field'
+  | 'ghost-constellation-map'
+  | 'ghost-memory-veil'
+  | 'collapse-scar-matte'
+  | 'collapse-residue-trace';
+
 export type VisualAssetProvenanceSource =
   | 'procedural-code'
   | 'generated-local'
@@ -380,6 +392,7 @@ export type SceneVisualProfile = {
   id: Exclude<PlayableMotifSceneKind, 'none'>;
   label: string;
   assetPacks: readonly VisualAssetPackKind[];
+  assetPackIds: readonly VisualAssetPackId[];
   provenance: VisualAssetProvenance;
   silhouetteFamily: SceneSilhouetteFamily;
   surfaceRole: SceneSurfaceRole;
@@ -420,6 +433,21 @@ export type SignatureMomentKind =
   | 'cathedral-open'
   | 'ghost-residue'
   | 'silence-constellation';
+
+export type VisualAssetPack = {
+  id: VisualAssetPackId;
+  label: string;
+  kind: VisualAssetPackKind;
+  provenance: VisualAssetProvenance;
+  legalScenes: readonly Exclude<PlayableMotifSceneKind, 'none'>[];
+  legalMoments: readonly Exclude<SignatureMomentKind, 'none'>[];
+  surfaceRole?: SceneSurfaceRole;
+  compositorMask?: CompositorMaskFamily;
+  particleJob?: ParticleFieldJob;
+  fallbackBehavior: string;
+  generatorSeed: string;
+  commitPolicy: 'source-definition-only' | 'small-generated-atlas-allowed';
+};
 
 export type SignatureMomentPhase =
   | 'idle'
@@ -862,6 +890,7 @@ export type VisualTelemetryFrame = {
   perceptualWashoutRisk?: number;
   activePlayableMotifScene?: PlayableMotifSceneKind;
   playableMotifSceneProfileId?: PlayableMotifSceneKind;
+  playableMotifSceneAssetPackIds?: readonly VisualAssetPackId[];
   playableMotifSceneSilhouetteFamily?: SceneSilhouetteFamily;
   playableMotifSceneSurfaceRole?: SceneSurfaceRole;
   playableMotifSceneProfileMatch?: boolean;
@@ -1543,6 +1572,7 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   perceptualWashoutRisk: 0,
   activePlayableMotifScene: 'none',
   playableMotifSceneProfileId: 'none',
+  playableMotifSceneAssetPackIds: [],
   playableMotifSceneSilhouetteFamily: 'none',
   playableMotifSceneSurfaceRole: 'none',
   playableMotifSceneProfileMatch: true,
