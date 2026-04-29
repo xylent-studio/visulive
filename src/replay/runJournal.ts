@@ -937,13 +937,23 @@ export function buildReplayRunJournalSample(
     signatureMoment: {
       activeSignatureMoment: telemetry.activeSignatureMoment,
       signatureMomentPhase: telemetry.signatureMomentPhase,
+      signatureMomentStyle: telemetry.signatureMomentStyle,
       signatureMomentIntensity: telemetry.signatureMomentIntensity,
+      signatureMomentTriggerConfidence: telemetry.signatureMomentTriggerConfidence,
+      signatureMomentPrechargeProgress: telemetry.signatureMomentPrechargeProgress,
+      signatureMomentForcedPreview: telemetry.signatureMomentForcedPreview,
+      signatureMomentDistinctnessHint: telemetry.signatureMomentDistinctnessHint,
       collapseScarAmount: telemetry.collapseScarAmount,
       cathedralOpenAmount: telemetry.cathedralOpenAmount,
       ghostResidueAmount: telemetry.ghostResidueAmount,
       silenceConstellationAmount: telemetry.silenceConstellationAmount,
       postConsequenceIntensity: telemetry.postConsequenceIntensity,
-      postOverprocessRisk: telemetry.postOverprocessRisk
+      postOverprocessRisk: telemetry.postOverprocessRisk,
+      compositorContrastLift: telemetry.compositorContrastLift,
+      compositorSaturationLift: telemetry.compositorSaturationLift,
+      perceptualContrastScore: telemetry.perceptualContrastScore,
+      perceptualColorfulnessScore: telemetry.perceptualColorfulnessScore,
+      perceptualWashoutRisk: telemetry.perceptualWashoutRisk
     },
     authority: {
       heroCoverageEstimate: telemetry.heroCoverageEstimate,

@@ -1,6 +1,6 @@
 # VisuLive Project Status
 
-Date: 2026-04-28
+Date: 2026-04-29
 Status: Active implementation snapshot
 
 This file answers five practical questions quickly:
@@ -15,19 +15,19 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the Mythic Signature Moment Engine vertical slice:
+Latest local verification on `codex/full-version-foundation` after the Mythic Signature Moment Engine full-capability hardening pass:
 
 - `npm run anthology:validate` passes
-- `npm run check` passes
 - `npm run test` passes
 - `npm run build` passes
+- `npm run check` passes
 - `npm run proof:audit` passes
 - `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
 - `npm run proof-pack -- --limit 1` passes and now includes a `Signature Moments` section
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run evidence:index` passes
 - `npm run evidence:query -- --runs --limit 5` passes
-- `npm run proof-pack -- --limit 3 --strict` intentionally fails because strict release proof still lacks operator-trust and full scenario coverage, and current primary proof still fails overbright/ring taste gates
+- `npm run proof-pack -- --limit 1 --strict` intentionally fails because strict release proof still has authority split, missed-opportunity, and scenario-coverage blockers
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
 - `npm run proof:preflight` must pass after the signature-moment build is committed and before the next serious run
 
@@ -37,7 +37,7 @@ Current standing warning:
 - the invalid April 28 run is now archived as debugging evidence only: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
 - the later April 28 diagnostic run `run_20260428_165811_8gs5ht` showed strong chamber/world authority but invalid proof metadata: primary-benchmark manifest with room-floor route invalidation, null sample scenario, null clip declared scenario, and false `advanced:steer` contamination; it must remain diagnostic until the Mission Control pass is rerun cleanly
 - Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
-- current proof-pack output correctly reports zero signature-moment evidence from old captures; fresh proof must be collected on this build before tuning claims are made
+- regenerated proof-pack output reports `0/41` signature moment evidence because current captures predate this hardening pass; fresh Moment Lab receipts and primary proof must be collected on this build before tuning claims are made
 
 ## Start-Right Audit Snapshot
 
@@ -47,11 +47,11 @@ and canon.
 
 But it is still transitional in four important ways:
 
-- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, and `PostSystem`; the scene still assembles compatibility context, but chamber/world authority math and first-wave signature moment eligibility no longer live there
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, `PostSystem`, and bounded `CompositorSystem`; the scene still assembles compatibility context, but chamber/world authority math and first-wave signature moment eligibility no longer live there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark run packages, but operator-trust proof is still missing and the latest full run exposed one evidence-platform gap: `operator-trust-clear` was journaled but not captured as a supporting still/clip because authority still work was in flight
-- The Mythic Signature Moment Engine vertical slice is now implemented but unproven: `SignatureMomentGovernor` selects rare moments, `PostSystem` owns first-wave consequence rendering/telemetry/disposal, and the analyzer can report signature moment coverage and post risk from fresh captures
+- The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rare moments with style routing and candidate state, `PostSystem` owns first-wave style-matrix consequence rendering/telemetry/disposal, `CompositorSystem` owns bounded screen-space/post-profile response, Moment Lab can preview the 4x3 variant matrix locally, and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, and washout from fresh captures
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -91,7 +91,7 @@ The next wave is:
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
-- next, commit/restart the signature-moment build, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
+- next, commit/restart the signature-moment build, use local Moment Lab to preview the 4 moments across contrast/neon/ambient styles, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start

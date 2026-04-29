@@ -93,6 +93,13 @@ function ensureSchema(db) {
       recommendation_count INTEGER,
       recommendation_issue_ids_json TEXT,
       gate_outcomes_json TEXT,
+      dominant_signature_moment TEXT,
+      dominant_signature_style TEXT,
+      signature_moment_active_rate REAL,
+      signature_moment_forced_preview_rate REAL,
+      compositor_overprocess_risk_mean REAL,
+      perceptual_washout_risk_mean REAL,
+      perceptual_colorfulness_mean REAL,
       updated_at TEXT
     );
     CREATE TABLE IF NOT EXISTS clips (
@@ -121,6 +128,13 @@ function ensureSchema(db) {
       chamber_presence_mean REAL,
       ring_authority_mean REAL,
       hero_coverage_mean REAL,
+      dominant_signature_moment TEXT,
+      dominant_signature_style TEXT,
+      signature_moment_active_rate REAL,
+      signature_moment_forced_preview_rate REAL,
+      compositor_overprocess_risk_mean REAL,
+      perceptual_washout_risk_mean REAL,
+      perceptual_colorfulness_mean REAL,
       quality_flags_json TEXT
     );
     CREATE TABLE IF NOT EXISTS stills (
@@ -172,7 +186,21 @@ function ensureSchema(db) {
     'ALTER TABLE clips ADD COLUMN proof_mission_kind TEXT',
     'ALTER TABLE clips ADD COLUMN proof_mission_label TEXT',
     'ALTER TABLE clips ADD COLUMN proof_mission_eligibility_verdict TEXT',
-    'ALTER TABLE clips ADD COLUMN artifact_integrity_verdict TEXT'
+    'ALTER TABLE clips ADD COLUMN artifact_integrity_verdict TEXT',
+    'ALTER TABLE runs ADD COLUMN dominant_signature_moment TEXT',
+    'ALTER TABLE runs ADD COLUMN dominant_signature_style TEXT',
+    'ALTER TABLE runs ADD COLUMN signature_moment_active_rate REAL',
+    'ALTER TABLE runs ADD COLUMN signature_moment_forced_preview_rate REAL',
+    'ALTER TABLE runs ADD COLUMN compositor_overprocess_risk_mean REAL',
+    'ALTER TABLE runs ADD COLUMN perceptual_washout_risk_mean REAL',
+    'ALTER TABLE runs ADD COLUMN perceptual_colorfulness_mean REAL',
+    'ALTER TABLE clips ADD COLUMN dominant_signature_moment TEXT',
+    'ALTER TABLE clips ADD COLUMN dominant_signature_style TEXT',
+    'ALTER TABLE clips ADD COLUMN signature_moment_active_rate REAL',
+    'ALTER TABLE clips ADD COLUMN signature_moment_forced_preview_rate REAL',
+    'ALTER TABLE clips ADD COLUMN compositor_overprocess_risk_mean REAL',
+    'ALTER TABLE clips ADD COLUMN perceptual_washout_risk_mean REAL',
+    'ALTER TABLE clips ADD COLUMN perceptual_colorfulness_mean REAL'
   ]) {
     try {
       db.exec(statement);
@@ -184,6 +212,78 @@ function ensureSchema(db) {
 
 function toInt(value) {
   return value ? 1 : 0;
+}
+
+function mean(values) {
+  const numericValues = values.filter(
+    (value) => typeof value === 'number' && Number.isFinite(value)
+  );
+
+  if (numericValues.length === 0) {
+    return null;
+  }
+
+  return numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length;
+}
+
+function dominantCounterKey(counts, fallback = null) {
+  let bestKey = fallback;
+  let bestCount = 0;
+
+  for (const [key, count] of counts.entries()) {
+    if (count > bestCount) {
+      bestKey = key;
+      bestCount = count;
+    }
+  }
+
+  return bestKey;
+}
+
+function summarizeRunSignaturePosture(journal) {
+  const samples = Array.isArray(journal?.samples) ? journal.samples : [];
+  const momentCounts = new Map();
+  const styleCounts = new Map();
+  const forcedPreviewSamples = [];
+  const compositorRiskSamples = [];
+  const washoutSamples = [];
+  const colorfulnessSamples = [];
+  let activeSamples = 0;
+
+  for (const sample of samples) {
+    const signature = sample?.signatureMoment ?? {};
+    const activeMoment =
+      typeof signature.activeSignatureMoment === 'string'
+        ? signature.activeSignatureMoment
+        : 'none';
+
+    if (activeMoment !== 'none') {
+      activeSamples += 1;
+      momentCounts.set(activeMoment, (momentCounts.get(activeMoment) ?? 0) + 1);
+
+      const style =
+        typeof signature.signatureMomentStyle === 'string'
+          ? signature.signatureMomentStyle
+          : 'contrast-mythic';
+      styleCounts.set(style, (styleCounts.get(style) ?? 0) + 1);
+    }
+
+    forcedPreviewSamples.push(signature.signatureMomentForcedPreview === true ? 1 : 0);
+    compositorRiskSamples.push(signature.compositorOverprocessRisk);
+    washoutSamples.push(signature.perceptualWashoutRisk);
+    colorfulnessSamples.push(signature.perceptualColorfulnessScore);
+  }
+
+  return {
+    dominantSignatureMoment: dominantCounterKey(momentCounts, 'none'),
+    dominantSignatureStyle: dominantCounterKey(styleCounts, null),
+    signatureMomentActiveRate:
+      samples.length > 0 ? activeSamples / samples.length : null,
+    signatureMomentForcedPreviewRate: mean(forcedPreviewSamples),
+    compositorOverprocessRiskMean: mean(compositorRiskSamples),
+    perceptualWashoutRiskMean: mean(washoutSamples),
+    perceptualColorfulnessMean: mean(colorfulnessSamples)
+  };
 }
 
 function insertRuns(db, runArtifacts) {
@@ -238,7 +338,10 @@ function insertRuns(db, runArtifacts) {
       invalidation_reasons_json, recovery_guidance, session_started_at, session_elapsed_ms,
       intervention_count, no_touch_window_passed, sample_count, marker_count, marker_counts_json,
       clip_count, checkpoint_still_count, still_counts_json, review_note_path, recommendation_path,
-      recommendation_count, recommendation_issue_ids_json, gate_outcomes_json, updated_at
+      recommendation_count, recommendation_issue_ids_json, gate_outcomes_json,
+      dominant_signature_moment, dominant_signature_style, signature_moment_active_rate,
+      signature_moment_forced_preview_rate, compositor_overprocess_risk_mean,
+      perceptual_washout_risk_mean, perceptual_colorfulness_mean, updated_at
     ) VALUES (
       @run_id, @journal_path, @manifest_path, @build_version, @build_commit, @build_built_at, @build_lane, @build_valid,
       @lifecycle_state, @source_mode, @source_label, @show_start_route, @resolved_route, @proof_wave_armed,
@@ -252,7 +355,10 @@ function insertRuns(db, runArtifacts) {
       @invalidation_reasons_json, @recovery_guidance, @session_started_at, @session_elapsed_ms,
       @intervention_count, @no_touch_window_passed, @sample_count, @marker_count, @marker_counts_json,
       @clip_count, @checkpoint_still_count, @still_counts_json, @review_note_path, @recommendation_path,
-      @recommendation_count, @recommendation_issue_ids_json, @gate_outcomes_json, @updated_at
+      @recommendation_count, @recommendation_issue_ids_json, @gate_outcomes_json,
+      @dominant_signature_moment, @dominant_signature_style, @signature_moment_active_rate,
+      @signature_moment_forced_preview_rate, @compositor_overprocess_risk_mean,
+      @perceptual_washout_risk_mean, @perceptual_colorfulness_mean, @updated_at
     )
   `);
 
@@ -269,6 +375,10 @@ function insertRuns(db, runArtifacts) {
     const proofMission = metadata.proofMission ?? {};
     const proofMissionEligibility = metadata.proofMissionEligibility ?? {};
     const artifactIntegrity = metadata.artifactIntegrity ?? {};
+    const currentProofEligible = proofMission.kind
+      ? proofMissionEligibility.currentProofEligible === true
+      : proofValidity.currentProofEligible === true;
+    const signaturePosture = summarizeRunSignaturePosture(entry.journal);
     const markerCounts = Object.fromEntries(
       (entry.journal?.markers ?? []).reduce((counts, marker) => {
         const nextCount = counts.get(marker.kind) ?? 0;
@@ -352,7 +462,7 @@ function insertRuns(db, runArtifacts) {
           : null,
       proof_ready: toInt(proofReadiness.ready === true),
       proof_valid: toInt(proofValidity.verdict === 'valid'),
-      current_proof_eligible: toInt(proofValidity.currentProofEligible === true),
+      current_proof_eligible: toInt(currentProofEligible),
       readiness_checks_json: JSON.stringify(readinessChecks),
       invalidation_count: Array.isArray(proofValidity.invalidations)
         ? proofValidity.invalidations.length
@@ -393,6 +503,16 @@ function insertRuns(db, runArtifacts) {
       recommendation_count: entry.recommendation?.recommendations?.length ?? 0,
       recommendation_issue_ids_json: JSON.stringify(recommendationIssueIds),
       gate_outcomes_json: JSON.stringify(gateOutcomes),
+      dominant_signature_moment: signaturePosture.dominantSignatureMoment,
+      dominant_signature_style: signaturePosture.dominantSignatureStyle,
+      signature_moment_active_rate: signaturePosture.signatureMomentActiveRate,
+      signature_moment_forced_preview_rate:
+        signaturePosture.signatureMomentForcedPreviewRate,
+      compositor_overprocess_risk_mean:
+        signaturePosture.compositorOverprocessRiskMean,
+      perceptual_washout_risk_mean: signaturePosture.perceptualWashoutRiskMean,
+      perceptual_colorfulness_mean:
+        signaturePosture.perceptualColorfulnessMean,
       updated_at: metadata.updatedAt ?? metadata.createdAt ?? null
     });
 
@@ -469,7 +589,10 @@ function insertClips(db, summaries) {
       declared_scenario, derived_scenario, scenario_validated, scenario_confidence,
       build_commit, build_built_at, build_valid, no_touch_window_passed, intervention_count,
       overbright_rate, world_dominance_mean, chamber_presence_mean, ring_authority_mean,
-      hero_coverage_mean, quality_flags_json
+      hero_coverage_mean, dominant_signature_moment, dominant_signature_style,
+      signature_moment_active_rate, signature_moment_forced_preview_rate,
+      compositor_overprocess_risk_mean, perceptual_washout_risk_mean,
+      perceptual_colorfulness_mean, quality_flags_json
     ) VALUES (
       @file_path, @run_id, @label, @capture_mode, @captured_at, @trigger_kind, @proof_scenario_kind,
       @proof_mission_kind, @proof_mission_label, @proof_mission_eligibility_verdict,
@@ -477,7 +600,10 @@ function insertClips(db, summaries) {
       @declared_scenario, @derived_scenario, @scenario_validated, @scenario_confidence,
       @build_commit, @build_built_at, @build_valid, @no_touch_window_passed, @intervention_count,
       @overbright_rate, @world_dominance_mean, @chamber_presence_mean, @ring_authority_mean,
-      @hero_coverage_mean, @quality_flags_json
+      @hero_coverage_mean, @dominant_signature_moment, @dominant_signature_style,
+      @signature_moment_active_rate, @signature_moment_forced_preview_rate,
+      @compositor_overprocess_risk_mean, @perceptual_washout_risk_mean,
+      @perceptual_colorfulness_mean, @quality_flags_json
     )
   `);
 
@@ -521,6 +647,20 @@ function insertClips(db, summaries) {
         summary.visualSummary?.chamberPresenceMean ?? null,
       ring_authority_mean: summary.visualSummary?.ringAuthorityMean ?? null,
       hero_coverage_mean: summary.visualSummary?.heroCoverageMean ?? null,
+      dominant_signature_moment:
+        summary.visualSummary?.dominantSignatureMoment ?? null,
+      dominant_signature_style:
+        summary.visualSummary?.dominantSignatureMomentStyle ?? null,
+      signature_moment_active_rate:
+        summary.visualSummary?.signatureMomentActiveRate ?? null,
+      signature_moment_forced_preview_rate:
+        summary.visualSummary?.signatureMomentForcedPreviewRate ?? null,
+      compositor_overprocess_risk_mean:
+        summary.visualSummary?.compositorOverprocessRiskMean ?? null,
+      perceptual_washout_risk_mean:
+        summary.visualSummary?.perceptualWashoutRiskMean ?? null,
+      perceptual_colorfulness_mean:
+        summary.visualSummary?.perceptualColorfulnessMean ?? null,
       quality_flags_json: JSON.stringify(summary.qualityFlags ?? [])
     });
   }

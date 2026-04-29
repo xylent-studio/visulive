@@ -16,6 +16,11 @@ import type {
   ReplayProofValidity,
   ReplayRunLifecycleState
 } from '../replay/types';
+import type {
+  SignatureMomentKind,
+  SignatureMomentPreviewProfile,
+  SignatureMomentStyle
+} from '../types/visual';
 import {
   PROOF_MISSION_PROFILES,
   getReplayProofMissionProfile
@@ -107,6 +112,20 @@ type RunJournalStatus = {
   lifecycleState: ReplayRunLifecycleState;
 };
 
+type MomentLabKind = Exclude<SignatureMomentKind, 'none'>;
+
+type MomentLabState = {
+  available: boolean;
+  active: boolean;
+  autoCycleActive: boolean;
+  disabledReason: string | null;
+  kind: MomentLabKind;
+  style: SignatureMomentStyle;
+  syntheticProfile: SignatureMomentPreviewProfile;
+  durationSeconds: number;
+  latestReceipt: string | null;
+};
+
 type BackstagePanelProps = {
   open: boolean;
   activeAdvancedTab: 'style' | 'steer' | 'backstage';
@@ -136,6 +155,10 @@ type BackstagePanelProps = {
   proofWaveArmed: boolean;
   proofMissionKind: ReplayProofMissionKind;
   runJournalStatus: RunJournalStatus;
+  momentLab: MomentLabState;
+  momentLabKinds: MomentLabKind[];
+  momentLabStyles: SignatureMomentStyle[];
+  momentLabProfiles: SignatureMomentPreviewProfile[];
   replayError: string | null;
   diagnosticsVisible: boolean;
   savedStances: SavedStance[];
@@ -164,6 +187,12 @@ type BackstagePanelProps = {
   onFinishProofRun: () => void;
   onOverrideProofToExploratory: () => void;
   onProofMissionChange: (kind: ReplayProofMissionKind) => void;
+  onMomentLabKindChange: (kind: MomentLabKind) => void;
+  onMomentLabStyleChange: (style: SignatureMomentStyle) => void;
+  onMomentLabProfileChange: (profile: SignatureMomentPreviewProfile) => void;
+  onMomentLabDurationChange: (durationSeconds: number) => void;
+  onMomentLabPreview: () => void;
+  onMomentLabAutoCycle: () => void;
   onForgetCaptureFolder: () => void;
   onToggleAutoCapture: () => void;
   onToggleAutoDownload: () => void;
@@ -248,6 +277,10 @@ export function BackstagePanel({
   proofWaveArmed,
   proofMissionKind,
   runJournalStatus,
+  momentLab,
+  momentLabKinds,
+  momentLabStyles,
+  momentLabProfiles,
   replayError,
   diagnosticsVisible,
   savedStances,
@@ -276,6 +309,12 @@ export function BackstagePanel({
   onFinishProofRun,
   onOverrideProofToExploratory,
   onProofMissionChange,
+  onMomentLabKindChange,
+  onMomentLabStyleChange,
+  onMomentLabProfileChange,
+  onMomentLabDurationChange,
+  onMomentLabPreview,
+  onMomentLabAutoCycle,
   onForgetCaptureFolder,
   onToggleAutoCapture,
   onToggleAutoDownload,
@@ -944,6 +983,116 @@ export function BackstagePanel({
                   {autoCaptureStatus.latestLabel ? ` | latest: ${autoCaptureStatus.latestLabel}` : ''}
                 </div>
               </section>
+
+              {momentLab.available ? (
+                <section className="backstage-section">
+                  <div className="backstage-section__title">Moment Lab</div>
+                  <div className="backstage-note">
+                    Local exploratory preview only. Moment Lab is disabled for serious
+                    proof and forced previews never count as current proof.
+                  </div>
+                  <div className="backstage-field-grid">
+                    <label className="backstage-field">
+                      <span>Moment</span>
+                      <select
+                        className="backstage-select"
+                        disabled={!momentLab.active}
+                        onChange={(event) => {
+                          onMomentLabKindChange(event.target.value as MomentLabKind);
+                        }}
+                        value={momentLab.kind}
+                      >
+                        {momentLabKinds.map((kind) => (
+                          <option key={kind} value={kind}>
+                            {kind}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="backstage-field">
+                      <span>Style</span>
+                      <select
+                        className="backstage-select"
+                        disabled={!momentLab.active}
+                        onChange={(event) => {
+                          onMomentLabStyleChange(
+                            event.target.value as SignatureMomentStyle
+                          );
+                        }}
+                        value={momentLab.style}
+                      >
+                        {momentLabStyles.map((style) => (
+                          <option key={style} value={style}>
+                            {style}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="backstage-field">
+                      <span>Profile</span>
+                      <select
+                        className="backstage-select"
+                        disabled={!momentLab.active}
+                        onChange={(event) => {
+                          onMomentLabProfileChange(
+                            event.target.value as SignatureMomentPreviewProfile
+                          );
+                        }}
+                        value={momentLab.syntheticProfile}
+                      >
+                        {momentLabProfiles.map((profile) => (
+                          <option key={profile} value={profile}>
+                            {profile}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="backstage-field">
+                      <span>Duration</span>
+                      <input
+                        disabled={!momentLab.active}
+                        max={9}
+                        min={2.2}
+                        onChange={(event) => {
+                          onMomentLabDurationChange(Number(event.target.value));
+                        }}
+                        step={0.2}
+                        type="range"
+                        value={momentLab.durationSeconds}
+                      />
+                      <small>{momentLab.durationSeconds.toFixed(1)} seconds</small>
+                    </label>
+                  </div>
+                  <div className="backstage-actions">
+                    <button
+                      className="backstage-action"
+                      disabled={!momentLab.active}
+                      onClick={onMomentLabPreview}
+                      type="button"
+                    >
+                      Preview + Receipt
+                    </button>
+                    <button
+                      className={`backstage-action ${
+                        momentLab.autoCycleActive ? '' : 'backstage-action--ghost'
+                      }`}
+                      disabled={!momentLab.active}
+                      onClick={onMomentLabAutoCycle}
+                      type="button"
+                    >
+                      {momentLab.autoCycleActive ? 'Stop 4x3 Cycle' : 'Auto-Cycle 4x3'}
+                    </button>
+                  </div>
+                  {momentLab.disabledReason ? (
+                    <div className="backstage-note backstage-note--error">
+                      {momentLab.disabledReason}
+                    </div>
+                  ) : null}
+                  {momentLab.latestReceipt ? (
+                    <div className="backstage-note">{momentLab.latestReceipt}</div>
+                  ) : null}
+                </section>
+              ) : null}
 
               <section className="backstage-section">
                 <div className="backstage-section__title">Manual Capture</div>

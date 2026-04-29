@@ -1493,6 +1493,12 @@ button {
   margin-top: 12px;
 }
 
+.backstage-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px 12px;
+}
+
 .backstage-field span {
   display: block;
   color: var(--text-0);

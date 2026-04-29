@@ -2,7 +2,10 @@ import type { Camera, Scene } from 'three';
 import type { ListeningFrame } from '../types/audio';
 import type { QualityTier } from '../types/rendering';
 import type { RuntimeTuning } from '../types/tuning';
-import type { VisualTelemetryFrame } from '../types/visual';
+import type {
+  SignatureMomentDevOverride,
+  VisualTelemetryFrame
+} from '../types/visual';
 
 export type SceneQualityProfile = {
   tier: QualityTier;
@@ -33,6 +36,7 @@ export interface VisualizerSceneRuntime {
     deltaSeconds: number
   ): void;
   getVisualTelemetry(): VisualTelemetryFrame;
+  setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void;
   setPostTelemetry(input: ScenePostTelemetry): void;
   dispose(): void;
 }

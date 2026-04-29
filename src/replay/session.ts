@@ -44,6 +44,7 @@ import {
   type PhraseConfidence,
   type PostSpendIntent,
   type SectionIntent,
+  type ResolvedSignatureMomentStyle,
   type ShowAct,
   type SignatureMomentKind,
   type StageCueFamily,
@@ -319,12 +320,21 @@ function deriveCaptureWindowJudgement(
     triggerKind === 'drop' ||
     triggerKind === 'section' ||
     triggerKind === 'release' ||
-    triggerKind === 'floor'
+    triggerKind === 'floor' ||
+    triggerKind === 'signature-moment-precharge' ||
+    triggerKind === 'signature-moment-peak' ||
+    triggerKind === 'signature-moment-residue'
       ? triggerKind
       : undefined;
   const thresholds =
     normalizedTriggerKind === 'drop'
       ? { maxDurationMs: 7600, maxExtensions: 1, maxTriggerCount: 3 }
+      : normalizedTriggerKind === 'signature-moment-peak'
+        ? { maxDurationMs: 7200, maxExtensions: 1, maxTriggerCount: 3 }
+        : normalizedTriggerKind === 'signature-moment-precharge'
+          ? { maxDurationMs: 8600, maxExtensions: 1, maxTriggerCount: 3 }
+          : normalizedTriggerKind === 'signature-moment-residue'
+            ? { maxDurationMs: 9800, maxExtensions: 2, maxTriggerCount: 4 }
       : normalizedTriggerKind === 'section' || normalizedTriggerKind === 'release'
         ? { maxDurationMs: 9000, maxExtensions: 2, maxTriggerCount: 4 }
         : normalizedTriggerKind === 'floor'
@@ -376,6 +386,35 @@ function isVisualCommitFrame(
         visual.stageShotClass === 'aftermath' ||
         listening.releaseTail > 0.28
       );
+    case 'signature-moment-precharge':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'armed' ||
+          visual.signatureMomentPhase === 'eligible' ||
+          visual.signatureMomentPhase === 'precharge') &&
+        ((visual.signatureMomentPrechargeProgress ?? 0) > 0.2 ||
+          (visual.signatureMomentTriggerConfidence ?? 0) > 0.4)
+      );
+    case 'signature-moment-peak':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'strike' ||
+          visual.signatureMomentPhase === 'hold') &&
+        ((visual.signatureMomentIntensity ?? 0) > 0.34 ||
+          (visual.postConsequenceIntensity ?? 0) > 0.24)
+      );
+    case 'signature-moment-residue':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'residue' ||
+          visual.signatureMomentPhase === 'clear') &&
+        ((visual.ghostResidueAmount ?? 0) > 0.18 ||
+          (visual.postConsequenceIntensity ?? 0) > 0.18 ||
+          (visual.signatureMomentIntensity ?? 0) > 0.18)
+      );
     default:
       return false;
   }
@@ -400,6 +439,12 @@ function deriveEventTimingSummary(
   const timingWindow =
     triggerKind === 'release'
       ? { preMs: 900, postMs: 2200 }
+      : triggerKind === 'signature-moment-residue'
+        ? { preMs: 900, postMs: 2600 }
+        : triggerKind === 'signature-moment-precharge'
+          ? { preMs: 1300, postMs: 1800 }
+          : triggerKind === 'signature-moment-peak'
+            ? { preMs: 900, postMs: 1700 }
       : triggerKind === 'section'
         ? { preMs: 700, postMs: 1800 }
         : triggerKind === 'drop'
@@ -592,6 +637,11 @@ const SIGNATURE_MOMENT_KIND_KEYS: SignatureMomentKind[] = [
   'cathedral-open',
   'ghost-residue',
   'silence-constellation'
+];
+const SIGNATURE_MOMENT_STYLE_KEYS: ResolvedSignatureMomentStyle[] = [
+  'contrast-mythic',
+  'maximal-neon',
+  'ambient-premium'
 ];
 
 type AxisTracker = {
@@ -1640,6 +1690,7 @@ function summarizeVisualTelemetry(
   const stageTransitionClassCounts = new Map<string, number>();
   const stageTempoCadenceModeCounts = new Map<string, number>();
   const signatureMomentCounts = new Map<SignatureMomentKind, number>();
+  const signatureMomentStyleCounts = new Map<ResolvedSignatureMomentStyle, number>();
   const showFamilyCounts = new Map<string, number>();
   const macroEventCounts = new Map<string, number>();
   const assetLayerTotals = Object.fromEntries(
@@ -1730,6 +1781,9 @@ function summarizeVisualTelemetry(
   let signatureMomentIntensitySum = 0;
   let signatureMomentIntensityPeak = 0;
   let signatureMomentSamples = 0;
+  let signatureMomentTriggerConfidenceSum = 0;
+  let signatureMomentTriggerConfidenceSamples = 0;
+  let signatureMomentForcedPreviewFrames = 0;
   let collapseScarSum = 0;
   let collapseScarPeak = 0;
   let cathedralOpenSum = 0;
@@ -1745,6 +1799,16 @@ function summarizeVisualTelemetry(
   let postOverprocessRiskSum = 0;
   let postOverprocessRiskPeak = 0;
   let postOverprocessRiskSamples = 0;
+  let compositorContrastLiftSum = 0;
+  let compositorSaturationLiftSum = 0;
+  let compositorOverprocessRiskSum = 0;
+  let compositorOverprocessRiskPeak = 0;
+  let compositorSamples = 0;
+  let perceptualContrastSum = 0;
+  let perceptualColorfulnessSum = 0;
+  let perceptualWashoutRiskSum = 0;
+  let perceptualWashoutRiskPeak = 0;
+  let perceptualSamples = 0;
   let qualityTransitionCount = 0;
   let firstQualityDowngradeMs: number | undefined;
   let previousQualityTier: string | null = null;
@@ -2123,6 +2187,17 @@ function summarizeVisualTelemetry(
     if (activeSignatureMoment !== 'none') {
       signatureMomentActiveFrames += 1;
     }
+    if (activeSignatureMoment !== 'none') {
+      const signatureMomentStyle =
+        telemetry.signatureMomentStyle &&
+        SIGNATURE_MOMENT_STYLE_KEYS.includes(telemetry.signatureMomentStyle)
+          ? telemetry.signatureMomentStyle
+          : DEFAULT_VISUAL_TELEMETRY.signatureMomentStyle ?? 'contrast-mythic';
+      signatureMomentStyleCounts.set(
+        signatureMomentStyle,
+        (signatureMomentStyleCounts.get(signatureMomentStyle) ?? 0) + 1
+      );
+    }
     if (typeof telemetry.signatureMomentIntensity === 'number') {
       signatureMomentSamples += 1;
       signatureMomentIntensitySum += telemetry.signatureMomentIntensity;
@@ -2130,6 +2205,14 @@ function summarizeVisualTelemetry(
         signatureMomentIntensityPeak,
         telemetry.signatureMomentIntensity
       );
+    }
+    if (typeof telemetry.signatureMomentTriggerConfidence === 'number') {
+      signatureMomentTriggerConfidenceSamples += 1;
+      signatureMomentTriggerConfidenceSum +=
+        telemetry.signatureMomentTriggerConfidence;
+    }
+    if (telemetry.signatureMomentForcedPreview === true) {
+      signatureMomentForcedPreviewFrames += 1;
     }
     if (typeof telemetry.collapseScarAmount === 'number') {
       collapseScarSum += telemetry.collapseScarAmount;
@@ -2164,6 +2247,34 @@ function summarizeVisualTelemetry(
       postOverprocessRiskPeak = Math.max(
         postOverprocessRiskPeak,
         telemetry.postOverprocessRisk
+      );
+    }
+    if (
+      typeof telemetry.compositorContrastLift === 'number' ||
+      typeof telemetry.compositorSaturationLift === 'number' ||
+      typeof telemetry.compositorOverprocessRisk === 'number'
+    ) {
+      compositorSamples += 1;
+      compositorContrastLiftSum += telemetry.compositorContrastLift ?? 0;
+      compositorSaturationLiftSum += telemetry.compositorSaturationLift ?? 0;
+      compositorOverprocessRiskSum += telemetry.compositorOverprocessRisk ?? 0;
+      compositorOverprocessRiskPeak = Math.max(
+        compositorOverprocessRiskPeak,
+        telemetry.compositorOverprocessRisk ?? 0
+      );
+    }
+    if (
+      typeof telemetry.perceptualContrastScore === 'number' ||
+      typeof telemetry.perceptualColorfulnessScore === 'number' ||
+      typeof telemetry.perceptualWashoutRisk === 'number'
+    ) {
+      perceptualSamples += 1;
+      perceptualContrastSum += telemetry.perceptualContrastScore ?? 0;
+      perceptualColorfulnessSum += telemetry.perceptualColorfulnessScore ?? 0;
+      perceptualWashoutRiskSum += telemetry.perceptualWashoutRisk ?? 0;
+      perceptualWashoutRiskPeak = Math.max(
+        perceptualWashoutRiskPeak,
+        telemetry.perceptualWashoutRisk ?? 0
       );
     }
     updateAxisTracker(heroTranslateXTracker, telemetry.heroTranslateX);
@@ -2305,6 +2416,28 @@ function summarizeVisualTelemetry(
       (signatureMomentCounts.get('ghost-residue') ?? 0) / frames.length,
     'silence-constellation':
       (signatureMomentCounts.get('silence-constellation') ?? 0) / frames.length
+  };
+  const dominantSignatureMomentStyle =
+    [...signatureMomentStyleCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'contrast-mythic';
+  const signatureMomentStyleSampleCount = Math.max(1, signatureMomentActiveFrames);
+  const signatureMomentStyleSpread: VisualTelemetrySummary['signatureMomentStyleSpread'] = {
+    'contrast-mythic':
+      signatureMomentActiveFrames > 0
+        ? (signatureMomentStyleCounts.get('contrast-mythic') ?? 0) /
+          signatureMomentStyleSampleCount
+        : 0,
+    'maximal-neon':
+      signatureMomentActiveFrames > 0
+        ? (signatureMomentStyleCounts.get('maximal-neon') ?? 0) /
+          signatureMomentStyleSampleCount
+        : 0,
+    'ambient-premium':
+      signatureMomentActiveFrames > 0
+        ? (signatureMomentStyleCounts.get('ambient-premium') ?? 0) /
+          signatureMomentStyleSampleCount
+        : 0
   };
   const actSpread: VisualTelemetrySummary['actSpread'] = {
     'void-chamber': (actCounts.get('void-chamber') ?? 0) / frames.length,
@@ -2823,6 +2956,8 @@ function summarizeVisualTelemetry(
     firstQualityDowngradeMs,
     signatureMomentSpread,
     dominantSignatureMoment,
+    signatureMomentStyleSpread,
+    dominantSignatureMomentStyle,
     signatureMomentActiveRate: signatureMomentActiveFrames / frames.length,
     signatureMomentIntensityMean:
       signatureMomentSamples > 0
@@ -2830,6 +2965,12 @@ function summarizeVisualTelemetry(
         : undefined,
     signatureMomentIntensityPeak:
       signatureMomentSamples > 0 ? signatureMomentIntensityPeak : undefined,
+    signatureMomentTriggerConfidenceMean:
+      signatureMomentTriggerConfidenceSamples > 0
+        ? signatureMomentTriggerConfidenceSum / signatureMomentTriggerConfidenceSamples
+        : undefined,
+    signatureMomentForcedPreviewRate:
+      signatureMomentForcedPreviewFrames / frames.length,
     collapseScarMean: collapseScarSum / frames.length,
     collapseScarPeak,
     cathedralOpenMean: cathedralOpenSum / frames.length,
@@ -2852,6 +2993,26 @@ function summarizeVisualTelemetry(
         : undefined,
     postOverprocessRiskPeak:
       postOverprocessRiskSamples > 0 ? postOverprocessRiskPeak : undefined,
+    compositorContrastLiftMean:
+      compositorSamples > 0 ? compositorContrastLiftSum / compositorSamples : undefined,
+    compositorSaturationLiftMean:
+      compositorSamples > 0 ? compositorSaturationLiftSum / compositorSamples : undefined,
+    compositorOverprocessRiskMean:
+      compositorSamples > 0
+        ? compositorOverprocessRiskSum / compositorSamples
+        : undefined,
+    compositorOverprocessRiskPeak:
+      compositorSamples > 0 ? compositorOverprocessRiskPeak : undefined,
+    perceptualContrastMean:
+      perceptualSamples > 0 ? perceptualContrastSum / perceptualSamples : undefined,
+    perceptualColorfulnessMean:
+      perceptualSamples > 0
+        ? perceptualColorfulnessSum / perceptualSamples
+        : undefined,
+    perceptualWashoutRiskMean:
+      perceptualSamples > 0 ? perceptualWashoutRiskSum / perceptualSamples : undefined,
+    perceptualWashoutRiskPeak:
+      perceptualSamples > 0 ? perceptualWashoutRiskPeak : undefined,
     assetLayerSummary: Object.fromEntries(
       VISUAL_ASSET_LAYERS.map((layer) => [
         layer,
@@ -4059,6 +4220,7 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
         : DEFAULT_VISUAL_TELEMETRY.activeSignatureMoment,
     signatureMomentPhase:
       telemetry?.signatureMomentPhase === 'idle' ||
+      telemetry?.signatureMomentPhase === 'armed' ||
       telemetry?.signatureMomentPhase === 'eligible' ||
       telemetry?.signatureMomentPhase === 'precharge' ||
       telemetry?.signatureMomentPhase === 'strike' ||
@@ -4067,6 +4229,11 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.signatureMomentPhase === 'clear'
         ? telemetry.signatureMomentPhase
         : DEFAULT_VISUAL_TELEMETRY.signatureMomentPhase,
+    signatureMomentStyle:
+      telemetry?.signatureMomentStyle &&
+      SIGNATURE_MOMENT_STYLE_KEYS.includes(telemetry.signatureMomentStyle)
+        ? telemetry.signatureMomentStyle
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentStyle,
     signatureMomentIntensity:
       typeof telemetry?.signatureMomentIntensity === 'number'
         ? telemetry.signatureMomentIntensity
@@ -4085,6 +4252,30 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.signatureMomentSuppressionReason === 'memory-empty'
         ? telemetry.signatureMomentSuppressionReason
         : DEFAULT_VISUAL_TELEMETRY.signatureMomentSuppressionReason,
+    signatureMomentTriggerConfidence:
+      typeof telemetry?.signatureMomentTriggerConfidence === 'number'
+        ? telemetry.signatureMomentTriggerConfidence
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentTriggerConfidence,
+    signatureMomentPrechargeProgress:
+      typeof telemetry?.signatureMomentPrechargeProgress === 'number'
+        ? telemetry.signatureMomentPrechargeProgress
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentPrechargeProgress,
+    signatureMomentRarityBudget:
+      typeof telemetry?.signatureMomentRarityBudget === 'number'
+        ? telemetry.signatureMomentRarityBudget
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentRarityBudget,
+    signatureMomentForcedPreview:
+      typeof telemetry?.signatureMomentForcedPreview === 'boolean'
+        ? telemetry.signatureMomentForcedPreview
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentForcedPreview,
+    signatureMomentDistinctnessHint:
+      telemetry?.signatureMomentDistinctnessHint === 'none' ||
+      telemetry?.signatureMomentDistinctnessHint === 'dark-cut' ||
+      telemetry?.signatureMomentDistinctnessHint === 'architectural-open' ||
+      telemetry?.signatureMomentDistinctnessHint === 'memory-afterimage' ||
+      telemetry?.signatureMomentDistinctnessHint === 'quiet-spatial-field'
+        ? telemetry.signatureMomentDistinctnessHint
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentDistinctnessHint,
     collapseScarAmount:
       typeof telemetry?.collapseScarAmount === 'number'
         ? telemetry.collapseScarAmount
@@ -4117,6 +4308,62 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       typeof telemetry?.postOverprocessRisk === 'number'
         ? telemetry.postOverprocessRisk
         : DEFAULT_VISUAL_TELEMETRY.postOverprocessRisk,
+    compositorSignatureMask:
+      typeof telemetry?.compositorSignatureMask === 'number'
+        ? telemetry.compositorSignatureMask
+        : DEFAULT_VISUAL_TELEMETRY.compositorSignatureMask,
+    compositorCutAmount:
+      typeof telemetry?.compositorCutAmount === 'number'
+        ? telemetry.compositorCutAmount
+        : DEFAULT_VISUAL_TELEMETRY.compositorCutAmount,
+    compositorVignetteAmount:
+      typeof telemetry?.compositorVignetteAmount === 'number'
+        ? telemetry.compositorVignetteAmount
+        : DEFAULT_VISUAL_TELEMETRY.compositorVignetteAmount,
+    compositorChromaticAmount:
+      typeof telemetry?.compositorChromaticAmount === 'number'
+        ? telemetry.compositorChromaticAmount
+        : DEFAULT_VISUAL_TELEMETRY.compositorChromaticAmount,
+    compositorEdgeWindowAmount:
+      typeof telemetry?.compositorEdgeWindowAmount === 'number'
+        ? telemetry.compositorEdgeWindowAmount
+        : DEFAULT_VISUAL_TELEMETRY.compositorEdgeWindowAmount,
+    compositorContrastLift:
+      typeof telemetry?.compositorContrastLift === 'number'
+        ? telemetry.compositorContrastLift
+        : DEFAULT_VISUAL_TELEMETRY.compositorContrastLift,
+    compositorSaturationLift:
+      typeof telemetry?.compositorSaturationLift === 'number'
+        ? telemetry.compositorSaturationLift
+        : DEFAULT_VISUAL_TELEMETRY.compositorSaturationLift,
+    compositorExposureBias:
+      typeof telemetry?.compositorExposureBias === 'number'
+        ? telemetry.compositorExposureBias
+        : DEFAULT_VISUAL_TELEMETRY.compositorExposureBias,
+    compositorBloomBias:
+      typeof telemetry?.compositorBloomBias === 'number'
+        ? telemetry.compositorBloomBias
+        : DEFAULT_VISUAL_TELEMETRY.compositorBloomBias,
+    compositorAfterImageBias:
+      typeof telemetry?.compositorAfterImageBias === 'number'
+        ? telemetry.compositorAfterImageBias
+        : DEFAULT_VISUAL_TELEMETRY.compositorAfterImageBias,
+    compositorOverprocessRisk:
+      typeof telemetry?.compositorOverprocessRisk === 'number'
+        ? telemetry.compositorOverprocessRisk
+        : DEFAULT_VISUAL_TELEMETRY.compositorOverprocessRisk,
+    perceptualContrastScore:
+      typeof telemetry?.perceptualContrastScore === 'number'
+        ? telemetry.perceptualContrastScore
+        : DEFAULT_VISUAL_TELEMETRY.perceptualContrastScore,
+    perceptualColorfulnessScore:
+      typeof telemetry?.perceptualColorfulnessScore === 'number'
+        ? telemetry.perceptualColorfulnessScore
+        : DEFAULT_VISUAL_TELEMETRY.perceptualColorfulnessScore,
+    perceptualWashoutRisk:
+      typeof telemetry?.perceptualWashoutRisk === 'number'
+        ? telemetry.perceptualWashoutRisk
+        : DEFAULT_VISUAL_TELEMETRY.perceptualWashoutRisk,
     atmosphereMatterState:
       telemetry?.atmosphereMatterState === 'gas' ||
       telemetry?.atmosphereMatterState === 'liquid' ||
@@ -5114,6 +5361,15 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       SIGNATURE_MOMENT_KIND_KEYS.includes(summary.dominantSignatureMoment)
         ? summary.dominantSignatureMoment
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSignatureMoment,
+    signatureMomentStyleSpread: normalizeFixedNumberRecord(
+      SIGNATURE_MOMENT_STYLE_KEYS,
+      summary.signatureMomentStyleSpread
+    ),
+    dominantSignatureMomentStyle:
+      summary.dominantSignatureMomentStyle &&
+      SIGNATURE_MOMENT_STYLE_KEYS.includes(summary.dominantSignatureMomentStyle)
+        ? summary.dominantSignatureMomentStyle
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSignatureMomentStyle,
     signatureMomentActiveRate:
       typeof summary.signatureMomentActiveRate === 'number'
         ? summary.signatureMomentActiveRate
@@ -5126,6 +5382,14 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       typeof summary.signatureMomentIntensityPeak === 'number'
         ? summary.signatureMomentIntensityPeak
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentIntensityPeak,
+    signatureMomentTriggerConfidenceMean:
+      typeof summary.signatureMomentTriggerConfidenceMean === 'number'
+        ? summary.signatureMomentTriggerConfidenceMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentTriggerConfidenceMean,
+    signatureMomentForcedPreviewRate:
+      typeof summary.signatureMomentForcedPreviewRate === 'number'
+        ? summary.signatureMomentForcedPreviewRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentForcedPreviewRate,
     collapseScarMean:
       typeof summary.collapseScarMean === 'number'
         ? summary.collapseScarMean
@@ -5174,6 +5438,38 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       typeof summary.postOverprocessRiskPeak === 'number'
         ? summary.postOverprocessRiskPeak
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.postOverprocessRiskPeak,
+    compositorContrastLiftMean:
+      typeof summary.compositorContrastLiftMean === 'number'
+        ? summary.compositorContrastLiftMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.compositorContrastLiftMean,
+    compositorSaturationLiftMean:
+      typeof summary.compositorSaturationLiftMean === 'number'
+        ? summary.compositorSaturationLiftMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.compositorSaturationLiftMean,
+    compositorOverprocessRiskMean:
+      typeof summary.compositorOverprocessRiskMean === 'number'
+        ? summary.compositorOverprocessRiskMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.compositorOverprocessRiskMean,
+    compositorOverprocessRiskPeak:
+      typeof summary.compositorOverprocessRiskPeak === 'number'
+        ? summary.compositorOverprocessRiskPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.compositorOverprocessRiskPeak,
+    perceptualContrastMean:
+      typeof summary.perceptualContrastMean === 'number'
+        ? summary.perceptualContrastMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.perceptualContrastMean,
+    perceptualColorfulnessMean:
+      typeof summary.perceptualColorfulnessMean === 'number'
+        ? summary.perceptualColorfulnessMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.perceptualColorfulnessMean,
+    perceptualWashoutRiskMean:
+      typeof summary.perceptualWashoutRiskMean === 'number'
+        ? summary.perceptualWashoutRiskMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.perceptualWashoutRiskMean,
+    perceptualWashoutRiskPeak:
+      typeof summary.perceptualWashoutRiskPeak === 'number'
+        ? summary.perceptualWashoutRiskPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.perceptualWashoutRiskPeak,
     assetLayerSummary: Object.fromEntries(
       VISUAL_ASSET_LAYERS.map((layer) => {
         const entry = summary.assetLayerSummary?.[layer];

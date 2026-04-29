@@ -238,7 +238,7 @@ export const anthologyCatalog = [
     intendedOwnerLane: 'Consequence / Aftermath / Post',
     runtimeOwnershipStatus: 'owned-system',
     runtimeOwner:
-      'C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts plus C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts',
+      'C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts plus C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts plus C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts',
     blockingOwner:
       'Fresh proof has not yet shown that the first signature moments are distinct, rare, and safe-tier viable.',
     cueRole: 'aftermath-memory',
@@ -340,9 +340,9 @@ export const anthologyCatalog = [
         'Promote only when consequence and aftermath stay selective, legible, and proof-backed in untouched runs.'
     },
     proofStatus:
-      'Signature moment telemetry and analyzer coverage exist, but no fresh proof run has validated the four moments yet.',
+      'Signature moment telemetry, style spread, compositor, and perceptual analyzer coverage exist, but no fresh proof run has validated the four 3-style moments yet.',
     lastMeaningfulPass:
-      '2026-04-28 Mythic Signature Moment Engine vertical slice with SignatureMomentGovernor, PostSystem, telemetry, and analyzer coverage',
+      '2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded CompositorSystem, renderer post-profile inputs, and perceptual washout telemetry',
     currentBiggestFailureMode:
       'Moments could still collapse into generic treatment, washout, ring overdraw, or permanent residue until proof-tuned.'
   },
@@ -569,13 +569,13 @@ export const anthologyCatalog = [
     id: 'mixed-media-compositor-content',
     label: 'Mixed Media / Compositor / Content',
     category: 'compositor',
-    status: 'lab',
+    status: 'frontier',
     intendedOwnerLane: 'Mixed Media / Compositor / Content',
-    runtimeOwnershipStatus: 'legacy-monolith',
+    runtimeOwnershipStatus: 'partial-system',
     runtimeOwner:
-      'Target owner is future compositor/content systems; current runtime only names intent metadata.',
+      'C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts owns the bounded signature-moment screen-space/post-profile slice; future content systems remain unbuilt.',
     blockingOwner:
-      'CompositorSystem and content ownership do not exist yet.',
+      'The first compositor owner exists, but mixed-media content packs, legality metadata, and reusable asset-backed families do not exist yet.',
     cueRole: 'aftermath-memory',
     quietBehavior: {
       summary:
@@ -654,11 +654,11 @@ export const anthologyCatalog = [
       }
     ],
     nextTarget:
-      'Add CompositorSystem, define the first disciplined mask/asset families, and keep mixed media sparse and authored.',
+      'Prove the bounded CompositorSystem signature slice before adding any asset-backed mask or mixed-media family.',
     nextDependency:
-      'Complete CompositorSystem and ContentSystem planning before landing any lasting asset-backed family.',
+      'Moment Lab receipts and fresh proof must show compositor masks, cuts, bands, and post-profile changes improve signature moments without collage or washout.',
     blockingDependency:
-      'There is no runtime owner yet for mixed-media layers, masks, or legality metadata.',
+      'There is still no runtime owner for reusable mixed-media content packs, asset legality metadata, or broader compositor language outside signature moments.',
     graduationTarget: {
       from: 'lab',
       to: 'frontier',
@@ -666,11 +666,11 @@ export const anthologyCatalog = [
         'Promote only when the first compositor-backed family proves consequence or memory value without collage failure.'
     },
     proofStatus:
-      'Mixed media currently exists only as intent metadata and doctrine; no runtime-backed family has graduated yet.',
+      'A bounded runtime compositor slice now exists for signature moments, but no asset-backed mixed-media family has graduated.',
     lastMeaningfulPass:
-      '2026-04-22 anthology-engine runtime intent install and mastery operating system seeding',
+      '2026-04-29 bounded CompositorSystem slice for signature moments',
     currentBiggestFailureMode:
-      'The family is at risk of becoming collage novelty instead of disciplined show language if it lands before real ownership and proof.'
+      'The family is at risk of becoming collage novelty if asset-backed work starts before the bounded compositor slice is proven tasteful and useful.'
   },
   {
     id: 'motif-memory',

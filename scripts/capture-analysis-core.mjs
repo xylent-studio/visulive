@@ -20,6 +20,12 @@ const SIGNATURE_MOMENT_KINDS = [
   'silence-constellation'
 ];
 
+const SIGNATURE_MOMENT_STYLES = [
+  'contrast-mythic',
+  'maximal-neon',
+  'ambient-premium'
+];
+
 const VISUAL_ASSET_LAYERS = [
   'worldSphere',
   'worldStain',
@@ -882,6 +888,14 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
       visualSummary.dominantSignatureMoment ??
       metadataVisual.dominantSignatureMoment ??
       'none',
+    signatureMomentStyleSpread:
+      visualSummary.signatureMomentStyleSpread ??
+      metadataVisual.signatureMomentStyleSpread ??
+      Object.fromEntries(SIGNATURE_MOMENT_STYLES.map((value) => [value, 0])),
+    dominantSignatureMomentStyle:
+      visualSummary.dominantSignatureMomentStyle ??
+      metadataVisual.dominantSignatureMomentStyle ??
+      'contrast-mythic',
     signatureMomentActiveRate:
       visualSummary.signatureMomentActiveRate ??
       metadataVisual.signatureMomentActiveRate ??
@@ -893,6 +907,14 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
     signatureMomentIntensityPeak:
       visualSummary.signatureMomentIntensityPeak ??
       metadataVisual.signatureMomentIntensityPeak ??
+      0,
+    signatureMomentTriggerConfidenceMean:
+      visualSummary.signatureMomentTriggerConfidenceMean ??
+      metadataVisual.signatureMomentTriggerConfidenceMean ??
+      0,
+    signatureMomentForcedPreviewRate:
+      visualSummary.signatureMomentForcedPreviewRate ??
+      metadataVisual.signatureMomentForcedPreviewRate ??
       0,
     collapseScarMean:
       visualSummary.collapseScarMean ?? metadataVisual.collapseScarMean ?? 0,
@@ -927,6 +949,38 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
     postOverprocessRiskPeak:
       visualSummary.postOverprocessRiskPeak ??
       metadataVisual.postOverprocessRiskPeak ??
+      0,
+    compositorContrastLiftMean:
+      visualSummary.compositorContrastLiftMean ??
+      metadataVisual.compositorContrastLiftMean ??
+      0,
+    compositorSaturationLiftMean:
+      visualSummary.compositorSaturationLiftMean ??
+      metadataVisual.compositorSaturationLiftMean ??
+      0,
+    compositorOverprocessRiskMean:
+      visualSummary.compositorOverprocessRiskMean ??
+      metadataVisual.compositorOverprocessRiskMean ??
+      0,
+    compositorOverprocessRiskPeak:
+      visualSummary.compositorOverprocessRiskPeak ??
+      metadataVisual.compositorOverprocessRiskPeak ??
+      0,
+    perceptualContrastMean:
+      visualSummary.perceptualContrastMean ??
+      metadataVisual.perceptualContrastMean ??
+      0,
+    perceptualColorfulnessMean:
+      visualSummary.perceptualColorfulnessMean ??
+      metadataVisual.perceptualColorfulnessMean ??
+      0,
+    perceptualWashoutRiskMean:
+      visualSummary.perceptualWashoutRiskMean ??
+      metadataVisual.perceptualWashoutRiskMean ??
+      0,
+    perceptualWashoutRiskPeak:
+      visualSummary.perceptualWashoutRiskPeak ??
+      metadataVisual.perceptualWashoutRiskPeak ??
       0,
     qualityTransitionCount:
       visualSummary.qualityTransitionCount ?? metadataVisual.qualityTransitionCount ?? 0,
@@ -1644,10 +1698,14 @@ export function summarizeCapture(capture, filePath) {
   let worldDominanceDeliveredSamples = 0;
   let worldDominanceDeliveredSum = 0;
   const signatureMomentCounts = new Map();
+  const signatureMomentStyleCounts = new Map();
   let signatureMomentActiveFrames = 0;
   let signatureMomentIntensitySamples = 0;
   let signatureMomentIntensitySum = 0;
   let signatureMomentIntensityPeak = 0;
+  let signatureMomentTriggerConfidenceSamples = 0;
+  let signatureMomentTriggerConfidenceSum = 0;
+  let signatureMomentForcedPreviewFrames = 0;
   let collapseScarSum = 0;
   let collapseScarPeak = 0;
   let cathedralOpenSum = 0;
@@ -1663,6 +1721,16 @@ export function summarizeCapture(capture, filePath) {
   let postOverprocessRiskSamples = 0;
   let postOverprocessRiskSum = 0;
   let postOverprocessRiskPeak = 0;
+  let compositorSamples = 0;
+  let compositorContrastLiftSum = 0;
+  let compositorSaturationLiftSum = 0;
+  let compositorOverprocessRiskSum = 0;
+  let compositorOverprocessRiskPeak = 0;
+  let perceptualSamples = 0;
+  let perceptualContrastSum = 0;
+  let perceptualColorfulnessSum = 0;
+  let perceptualWashoutRiskSum = 0;
+  let perceptualWashoutRiskPeak = 0;
 
   for (const frame of frames) {
     const listening = frame.listeningFrame ?? {};
@@ -1875,6 +1943,14 @@ export function summarizeCapture(capture, filePath) {
     if (activeSignatureMoment !== 'none') {
       signatureMomentActiveFrames += 1;
     }
+    if (activeSignatureMoment !== 'none') {
+      const signatureMomentStyle = SIGNATURE_MOMENT_STYLES.includes(
+        visual.signatureMomentStyle
+      )
+        ? visual.signatureMomentStyle
+        : 'contrast-mythic';
+      incrementCounter(signatureMomentStyleCounts, signatureMomentStyle);
+    }
     if (typeof visual.signatureMomentIntensity === 'number') {
       signatureMomentIntensitySamples += 1;
       signatureMomentIntensitySum += visual.signatureMomentIntensity;
@@ -1882,6 +1958,14 @@ export function summarizeCapture(capture, filePath) {
         signatureMomentIntensityPeak,
         visual.signatureMomentIntensity
       );
+    }
+    if (typeof visual.signatureMomentTriggerConfidence === 'number') {
+      signatureMomentTriggerConfidenceSamples += 1;
+      signatureMomentTriggerConfidenceSum +=
+        visual.signatureMomentTriggerConfidence;
+    }
+    if (visual.signatureMomentForcedPreview === true) {
+      signatureMomentForcedPreviewFrames += 1;
     }
     if (typeof visual.collapseScarAmount === 'number') {
       collapseScarSum += visual.collapseScarAmount;
@@ -1916,6 +2000,34 @@ export function summarizeCapture(capture, filePath) {
       postOverprocessRiskPeak = Math.max(
         postOverprocessRiskPeak,
         visual.postOverprocessRisk
+      );
+    }
+    if (
+      typeof visual.compositorContrastLift === 'number' ||
+      typeof visual.compositorSaturationLift === 'number' ||
+      typeof visual.compositorOverprocessRisk === 'number'
+    ) {
+      compositorSamples += 1;
+      compositorContrastLiftSum += visual.compositorContrastLift ?? 0;
+      compositorSaturationLiftSum += visual.compositorSaturationLift ?? 0;
+      compositorOverprocessRiskSum += visual.compositorOverprocessRisk ?? 0;
+      compositorOverprocessRiskPeak = Math.max(
+        compositorOverprocessRiskPeak,
+        visual.compositorOverprocessRisk ?? 0
+      );
+    }
+    if (
+      typeof visual.perceptualContrastScore === 'number' ||
+      typeof visual.perceptualColorfulnessScore === 'number' ||
+      typeof visual.perceptualWashoutRisk === 'number'
+    ) {
+      perceptualSamples += 1;
+      perceptualContrastSum += visual.perceptualContrastScore ?? 0;
+      perceptualColorfulnessSum += visual.perceptualColorfulnessScore ?? 0;
+      perceptualWashoutRiskSum += visual.perceptualWashoutRisk ?? 0;
+      perceptualWashoutRiskPeak = Math.max(
+        perceptualWashoutRiskPeak,
+        visual.perceptualWashoutRisk ?? 0
       );
     }
 
@@ -2093,6 +2205,18 @@ export function summarizeCapture(capture, filePath) {
       ])
     ),
     dominantSignatureMoment,
+    signatureMomentStyleSpread: Object.fromEntries(
+      SIGNATURE_MOMENT_STYLES.map((style) => [
+        style,
+        signatureMomentActiveFrames > 0
+          ? (signatureMomentStyleCounts.get(style) ?? 0) /
+            Math.max(1, signatureMomentActiveFrames)
+          : 0
+      ])
+    ),
+    dominantSignatureMomentStyle:
+      [...signatureMomentStyleCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'contrast-mythic',
     signatureMomentActiveRate: signatureMomentActiveFrames / frames.length,
     signatureMomentIntensityMean:
       signatureMomentIntensitySamples > 0
@@ -2100,6 +2224,13 @@ export function summarizeCapture(capture, filePath) {
         : undefined,
     signatureMomentIntensityPeak:
       signatureMomentIntensitySamples > 0 ? signatureMomentIntensityPeak : undefined,
+    signatureMomentTriggerConfidenceMean:
+      signatureMomentTriggerConfidenceSamples > 0
+        ? signatureMomentTriggerConfidenceSum /
+          signatureMomentTriggerConfidenceSamples
+        : undefined,
+    signatureMomentForcedPreviewRate:
+      signatureMomentForcedPreviewFrames / frames.length,
     collapseScarMean: collapseScarSum / frames.length,
     collapseScarPeak,
     cathedralOpenMean: cathedralOpenSum / frames.length,
@@ -2120,6 +2251,26 @@ export function summarizeCapture(capture, filePath) {
         : undefined,
     postOverprocessRiskPeak:
       postOverprocessRiskSamples > 0 ? postOverprocessRiskPeak : undefined,
+    compositorContrastLiftMean:
+      compositorSamples > 0 ? compositorContrastLiftSum / compositorSamples : undefined,
+    compositorSaturationLiftMean:
+      compositorSamples > 0 ? compositorSaturationLiftSum / compositorSamples : undefined,
+    compositorOverprocessRiskMean:
+      compositorSamples > 0
+        ? compositorOverprocessRiskSum / compositorSamples
+        : undefined,
+    compositorOverprocessRiskPeak:
+      compositorSamples > 0 ? compositorOverprocessRiskPeak : undefined,
+    perceptualContrastMean:
+      perceptualSamples > 0 ? perceptualContrastSum / perceptualSamples : undefined,
+    perceptualColorfulnessMean:
+      perceptualSamples > 0
+        ? perceptualColorfulnessSum / perceptualSamples
+        : undefined,
+    perceptualWashoutRiskMean:
+      perceptualSamples > 0 ? perceptualWashoutRiskSum / perceptualSamples : undefined,
+    perceptualWashoutRiskPeak:
+      perceptualSamples > 0 ? perceptualWashoutRiskPeak : undefined,
     dominantSpendProfile:
       [...spendProfileCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
       undefined,
@@ -2615,6 +2766,12 @@ function resolveCaptureWindowThresholds(triggerKind) {
   switch (triggerKind) {
     case 'drop':
       return { maxDurationMs: 7600, maxExtensions: 1, maxTriggerCount: 3 };
+    case 'signature-moment-peak':
+      return { maxDurationMs: 7200, maxExtensions: 1, maxTriggerCount: 3 };
+    case 'signature-moment-precharge':
+      return { maxDurationMs: 8600, maxExtensions: 1, maxTriggerCount: 3 };
+    case 'signature-moment-residue':
+      return { maxDurationMs: 9800, maxExtensions: 2, maxTriggerCount: 4 };
     case 'section':
     case 'release':
       return { maxDurationMs: 9000, maxExtensions: 2, maxTriggerCount: 4 };
@@ -2676,6 +2833,35 @@ function isVisualCommitFrame(frame, triggerKind) {
         visual.stageShotClass === 'aftermath' ||
         (listening.releaseTail ?? 0) > 0.28
       );
+    case 'signature-moment-precharge':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'armed' ||
+          visual.signatureMomentPhase === 'eligible' ||
+          visual.signatureMomentPhase === 'precharge') &&
+        ((visual.signatureMomentPrechargeProgress ?? 0) > 0.2 ||
+          (visual.signatureMomentTriggerConfidence ?? 0) > 0.4)
+      );
+    case 'signature-moment-peak':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'strike' ||
+          visual.signatureMomentPhase === 'hold') &&
+        ((visual.signatureMomentIntensity ?? 0) > 0.34 ||
+          (visual.postConsequenceIntensity ?? 0) > 0.24)
+      );
+    case 'signature-moment-residue':
+      return (
+        Boolean(visual.activeSignatureMoment) &&
+        visual.activeSignatureMoment !== 'none' &&
+        (visual.signatureMomentPhase === 'residue' ||
+          visual.signatureMomentPhase === 'clear') &&
+        ((visual.ghostResidueAmount ?? 0) > 0.18 ||
+          (visual.postConsequenceIntensity ?? 0) > 0.18 ||
+          (visual.signatureMomentIntensity ?? 0) > 0.18)
+      );
     default:
       return false;
   }
@@ -2701,7 +2887,10 @@ function deriveEventTimingSummary({ metadata = {}, frames = [] }) {
     metadata.triggerKind === 'drop' ||
     metadata.triggerKind === 'section' ||
     metadata.triggerKind === 'release' ||
-    metadata.triggerKind === 'floor'
+    metadata.triggerKind === 'floor' ||
+    metadata.triggerKind === 'signature-moment-precharge' ||
+    metadata.triggerKind === 'signature-moment-peak' ||
+    metadata.triggerKind === 'signature-moment-residue'
       ? metadata.triggerKind
       : undefined;
 
@@ -2715,6 +2904,12 @@ function deriveEventTimingSummary({ metadata = {}, frames = [] }) {
   const timingWindow =
     triggerKind === 'release'
       ? { preMs: 900, postMs: 2200 }
+      : triggerKind === 'signature-moment-residue'
+        ? { preMs: 900, postMs: 2600 }
+        : triggerKind === 'signature-moment-precharge'
+          ? { preMs: 1300, postMs: 1800 }
+          : triggerKind === 'signature-moment-peak'
+            ? { preMs: 900, postMs: 1700 }
       : triggerKind === 'section'
         ? { preMs: 700, postMs: 1800 }
         : triggerKind === 'drop'
@@ -3646,6 +3841,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
   const stageTransitionClassSpread = visual.stageTransitionClassSpread ?? {};
   const stageTempoCadenceModeSpread = visual.stageTempoCadenceModeSpread ?? {};
   const signatureMomentSpread = visual.signatureMomentSpread ?? {};
+  const signatureMomentStyleSpread = visual.signatureMomentStyleSpread ?? {};
   const paletteStateSpreadByAct = visual.paletteStateSpreadByAct ?? {};
   const paletteStateSpreadByFamily = visual.paletteStateSpreadByFamily ?? {};
   const stageShotClassSpreadByFamily = visual.stageShotClassSpreadByFamily ?? {};
@@ -3766,7 +3962,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant spend profile: ${visual.dominantSpendProfile ?? 'unknown'}`,
     `- Dominant world mode: ${visual.dominantStageWorldMode ?? 'unknown'}`,
     `- Dominant atmosphere matter state: ${visual.dominantAtmosphereMatterState ?? 'gas'}`,
-    `- Dominant signature moment: ${visual.dominantSignatureMoment ?? 'none'}`,
+    `- Dominant signature moment/style: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}`,
     '',
     '### Compositor summary',
     `- Exposure mean / peak: ${formatNumber(visual.exposureMean)} / ${formatNumber(visual.exposurePeak)}`,
@@ -3780,12 +3976,16 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     '',
     '### Signature moments',
     `- Signature moment spread: ${Object.keys(signatureMomentSpread).length > 0 ? Object.entries(signatureMomentSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Signature style spread: ${Object.keys(signatureMomentStyleSpread).length > 0 ? Object.entries(signatureMomentStyleSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Active rate / intensity mean / peak: ${formatPercent(visual.signatureMomentActiveRate)} / ${formatNumber(visual.signatureMomentIntensityMean)} / ${formatNumber(visual.signatureMomentIntensityPeak)}`,
+    `- Trigger confidence / forced preview rate: ${formatNumber(visual.signatureMomentTriggerConfidenceMean)} / ${formatPercent(visual.signatureMomentForcedPreviewRate)}`,
     `- Collapse scar mean / peak: ${formatNumber(visual.collapseScarMean)} / ${formatNumber(visual.collapseScarPeak)}`,
     `- Cathedral open mean / peak: ${formatNumber(visual.cathedralOpenMean)} / ${formatNumber(visual.cathedralOpenPeak)}`,
     `- Ghost residue mean / peak: ${formatNumber(visual.ghostResidueMean)} / ${formatNumber(visual.ghostResiduePeak)}`,
     `- Silence constellation mean / peak: ${formatNumber(visual.silenceConstellationMean)} / ${formatNumber(visual.silenceConstellationPeak)}`,
     `- Aftermath clearance / post consequence / post risk: ${formatNumber(visual.aftermathClearanceMean)} / ${formatNumber(visual.postConsequenceMean)} / ${formatNumber(visual.postOverprocessRiskMean)} peak ${formatNumber(visual.postOverprocessRiskPeak)}`,
+    `- Compositor contrast/saturation/risk: ${formatNumber(visual.compositorContrastLiftMean)} / ${formatNumber(visual.compositorSaturationLiftMean)} / ${formatNumber(visual.compositorOverprocessRiskMean)} peak ${formatNumber(visual.compositorOverprocessRiskPeak)}`,
+    `- Perceptual contrast/colorfulness/washout: ${formatNumber(visual.perceptualContrastMean)} / ${formatNumber(visual.perceptualColorfulnessMean)} / ${formatNumber(visual.perceptualWashoutRiskMean)} peak ${formatNumber(visual.perceptualWashoutRiskPeak)}`,
     '',
     '### Atmosphere summary',
     `- Matter-state spread: ${Object.keys(visual.atmosphereMatterStateSpread ?? {}).length > 0 ? Object.entries(visual.atmosphereMatterStateSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,

@@ -14,7 +14,10 @@ const MISSABLE_MARKER_KINDS = new Set([
   'governance-risk',
   'quiet-beauty',
   'operator-trust-clear',
-  'quality-downgrade'
+  'quality-downgrade',
+  'signature-moment-precharge',
+  'signature-moment-peak',
+  'signature-moment-residue'
 ]);
 const MATCH_WINDOW_MS = 2_500;
 const CLUSTER_GAP_MS = 5_000;

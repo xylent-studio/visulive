@@ -377,9 +377,11 @@ function buildRunProofEligibilityMap(runArtifacts = []) {
       continue;
     }
 
-    const currentProofEligible =
-      metadata.proofMissionEligibility?.currentProofEligible === true ||
-      metadata.proofValidity?.currentProofEligible === true;
+    const hasMission =
+      metadata.proofMission && typeof metadata.proofMission === 'object';
+    const currentProofEligible = hasMission
+      ? metadata.proofMissionEligibility?.currentProofEligible === true
+      : metadata.proofValidity?.currentProofEligible === true;
 
     eligibilityByRunId.set(runId, currentProofEligible);
   }
@@ -395,6 +397,11 @@ function isCurrentProofEligible(summary, runEligibilityById = new Map()) {
   }
 
   const proofValidity = summary?.metadata?.proofValidity;
+  const proofMission = summary?.metadata?.proofMission;
+
+  if (proofMission && typeof proofMission === 'object') {
+    return summary?.metadata?.proofMissionEligibility?.currentProofEligible === true;
+  }
 
   if (proofValidity && typeof proofValidity === 'object') {
     return proofValidity.currentProofEligible === true;
@@ -501,6 +508,7 @@ function summarizeCoverage(summaries) {
   const chamberCounts = new Map();
   const compositorCounts = new Map();
   const signatureMomentCounts = new Map();
+  const signatureMomentStyleCounts = new Map();
   const spendProfileCounts = new Map();
   const worldAuthorityStateCounts = new Map();
   let safeCount = 0;
@@ -535,6 +543,12 @@ function summarizeCoverage(summaries) {
   let postConsequenceSamples = 0;
   let postOverprocessRiskSum = 0;
   let postOverprocessRiskSamples = 0;
+  let perceptualWashoutRiskSum = 0;
+  let perceptualWashoutRiskSamples = 0;
+  let perceptualColorfulnessSum = 0;
+  let perceptualColorfulnessSamples = 0;
+  let compositorOverprocessRiskSum = 0;
+  let compositorOverprocessRiskSamples = 0;
 
   for (const summary of summaries) {
     const visual = summary.visualSummary ?? {};
@@ -561,6 +575,12 @@ function summarizeCoverage(summaries) {
       signatureMomentCounts.set(
         kind,
         (signatureMomentCounts.get(kind) ?? 0) + ratio
+      );
+    }
+    for (const [style, ratio] of Object.entries(visual.signatureMomentStyleSpread ?? {})) {
+      signatureMomentStyleCounts.set(
+        style,
+        (signatureMomentStyleCounts.get(style) ?? 0) + ratio
       );
     }
     if ((visual.signatureMomentActiveRate ?? 0) > 0.02) {
@@ -591,6 +611,18 @@ function summarizeCoverage(summaries) {
     if (isNumber(visual.postOverprocessRiskMean)) {
       postOverprocessRiskSum += visual.postOverprocessRiskMean;
       postOverprocessRiskSamples += 1;
+    }
+    if (isNumber(visual.perceptualWashoutRiskMean)) {
+      perceptualWashoutRiskSum += visual.perceptualWashoutRiskMean;
+      perceptualWashoutRiskSamples += 1;
+    }
+    if (isNumber(visual.perceptualColorfulnessMean)) {
+      perceptualColorfulnessSum += visual.perceptualColorfulnessMean;
+      perceptualColorfulnessSamples += 1;
+    }
+    if (isNumber(visual.compositorOverprocessRiskMean)) {
+      compositorOverprocessRiskSum += visual.compositorOverprocessRiskMean;
+      compositorOverprocessRiskSamples += 1;
     }
     if (isNumber(visual.chamberPresenceMean)) {
       chamberPresenceSum += visual.chamberPresenceMean;
@@ -657,6 +689,7 @@ function summarizeCoverage(summaries) {
     chamberCounts,
     compositorCounts,
     signatureMomentCounts,
+    signatureMomentStyleCounts,
     spendProfileCounts,
     worldAuthorityStateCounts,
     safeCount,
@@ -686,6 +719,18 @@ function summarizeCoverage(summaries) {
     averagePostOverprocessRisk:
       postOverprocessRiskSamples > 0
         ? postOverprocessRiskSum / postOverprocessRiskSamples
+        : null,
+    averagePerceptualWashoutRisk:
+      perceptualWashoutRiskSamples > 0
+        ? perceptualWashoutRiskSum / perceptualWashoutRiskSamples
+        : null,
+    averagePerceptualColorfulness:
+      perceptualColorfulnessSamples > 0
+        ? perceptualColorfulnessSum / perceptualColorfulnessSamples
+        : null,
+    averageCompositorOverprocessRisk:
+      compositorOverprocessRiskSamples > 0
+        ? compositorOverprocessRiskSum / compositorOverprocessRiskSamples
         : null,
     averageChamberPresence:
       chamberPresenceSamples > 0 ? chamberPresenceSum / chamberPresenceSamples : null,
@@ -878,6 +923,9 @@ function buildMarkdown({
   const signatureMomentLines = [...aggregate.signatureMomentCounts.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(([value, weight]) => `- \`${value}\`: weighted presence ${formatNumber(weight, 2)}`);
+  const signatureMomentStyleLines = [...aggregate.signatureMomentStyleCounts.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([value, weight]) => `- \`${value}\`: weighted presence ${formatNumber(weight, 2)}`);
   const spendLines = [...aggregate.spendProfileCounts.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(
@@ -919,6 +967,7 @@ function buildMarkdown({
           visual.frameHierarchyMean
         )}; hero coverage ${formatNumber(visual.heroCoverageMean)}`,
         `  - compositor: event glow ${formatNumber(visual.eventGlowMean ?? 0)} mean / ${formatNumber(visual.eventGlowPeak ?? 0)} peak; bloom ${formatNumber(visual.bloomStrengthMean ?? 0)} mean / ${formatNumber(visual.bloomStrengthPeak ?? 0)} peak`,
+        `  - signature: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}; washout ${formatNumber(visual.perceptualWashoutRiskMean)}`,
         `  - spend: ${visual.dominantSpendProfile ?? 'unavailable'}; overbright ${visual.overbrightRate == null ? 'n/a' : formatPercent(visual.overbrightRate)}; hero scale peak ${visual.heroScalePeak == null ? 'n/a' : formatNumber(visual.heroScalePeak)}`,
         `  - interventions: ${summary.metadata?.interventionCount ?? 'unknown'}; no-touch window ${summary.metadata?.noTouchWindowPassed === true ? 'passed' : 'not proven'}`,
         `  - safe tier: ${visual.dominantQualityTier === 'safe' ? 'yes' : 'no'}`,
@@ -1045,6 +1094,9 @@ function buildMarkdown({
     ...(signatureMomentLines.length > 0
       ? signatureMomentLines
       : ['- No signature moment spread available.']),
+    ...(signatureMomentStyleLines.length > 0
+      ? ['### Style Spread', ...signatureMomentStyleLines]
+      : ['### Style Spread', '- No signature moment style spread available.']),
     `- Signature moment evidence: ${aggregate.signatureMomentEvidenceCount}/${proofEligibleCount || 0} capture(s)`,
     `- Active rate / intensity mean / peak: ${
       aggregate.averageSignatureMomentActiveRate == null
@@ -1057,6 +1109,11 @@ function buildMarkdown({
       aggregate.averageAftermathClearance
     )} / ${formatNumber(aggregate.averagePostConsequence)} / ${formatNumber(
       aggregate.averagePostOverprocessRisk
+    )}`,
+    `- Perceptual colorfulness / washout risk / compositor risk: ${formatNumber(
+      aggregate.averagePerceptualColorfulness
+    )} / ${formatNumber(aggregate.averagePerceptualWashoutRisk)} / ${formatNumber(
+      aggregate.averageCompositorOverprocessRisk
     )}`,
     '',
     '## Spend Governance',

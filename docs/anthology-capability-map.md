@@ -45,14 +45,14 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `Signature Moments / Consequence Memory` proof on top of the newly extracted authority split and new `PostSystem`
+  - `Signature Moments / Consequence Memory` proof on top of the newly extracted authority split, style-aware `PostSystem`, and bounded `CompositorSystem`
 - single highest-leverage next move:
-  - run a fresh live and no-touch proof wave that shows collapse scar, cathedral open, ghost residue, and silence constellation as distinct whole-frame image classes
+  - use local Moment Lab to preview all 4x3 moment/style variants, then run a fresh live and no-touch proof wave that shows collapse scar, cathedral open, ghost residue, and silence constellation as distinct whole-frame image classes
 - single blocking extraction:
-  - chamber/world authority handoff and the first `PostSystem` vertical slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then compositor and full memory ownership
+  - chamber/world authority handoff, the first `PostSystem` vertical slice, and the bounded signature `CompositorSystem` slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then full memory and broader compositor/content ownership
 - proof scenario required next:
   - one fresh `Primary benchmark` canary, then a full no-touch `PC Audio` benchmark if the canary is valid
-  - the analyzer must report signature moment coverage, overbright/ring impact, aftermath clearance, and whether the four moments are distinct enough to tune instead of merely present
+  - the analyzer must report signature moment coverage, style spread, overbright/ring impact, perceptual washout/colorfulness, aftermath clearance, and whether the four moments are distinct enough to tune instead of merely present
 
 ## Do Not Drift Into
 
@@ -118,8 +118,8 @@ Short version:
 - current owner lane: `Consequence / Aftermath / Post`
 - runtime ownership status: `owned-system` for the first signature-moment vertical slice
 - next target:
-  - proof-tune the Mythic Signature Moment Engine
-  - keep the first wave focused on collapse scar, cathedral open, ghost residue, and silence constellation before adding more post families
+  - preview and proof-tune the Mythic Signature Moment Engine
+  - keep the first wave focused on collapse scar, cathedral open, ghost residue, and silence constellation across contrast-mythic, maximal-neon, and ambient-premium postures before adding more post families
 - proof target:
   - major cues alter the image itself
   - aftermath remains visible and distinct without becoming permanent treatment
@@ -128,11 +128,11 @@ Short version:
 - graduation target:
   - `frontier -> flagship`
 - blocking dependency:
-  - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility and [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the first render lifecycle; the remaining blocker is fresh proof that the moments are distinct, rare, safe-tier viable, and not overbright
+  - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility/style/candidate state, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the style-matrix consequence lifecycle, and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice; the remaining blocker is fresh preview and proof that the moments are distinct, rare, safe-tier viable, and not washed out or overbright
 - last meaningful pass:
-  - 2026-04-28 Mythic Signature Moment Engine vertical slice with `SignatureMomentGovernor`, `PostSystem`, runtime sequencing, system consumers, telemetry, and analyzer coverage
+  - 2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded `CompositorSystem`, renderer post-profile inputs, and perceptual washout telemetry
 - current biggest failure mode:
-  - the four moments could still read as generic treatment, washout, or ring overdraw until fresh proof shows recognizable image classes and clean aftermath clearance
+  - the four moments could still read as generic treatment, washed-out post, or ring overdraw until Moment Lab receipts and fresh proof show recognizable image classes and clean aftermath clearance
 
 ### Lighting / Cinematography
 
@@ -174,21 +174,20 @@ Short version:
 
 ### Mixed Media / Compositor / Content
 
-- current maturity: `lab`
+- current maturity: `frontier`
 - current owner lane: `Mixed Media / Compositor / Content`
-- runtime ownership status: `legacy-monolith`
+- runtime ownership status: `partial-system`
 - next target:
-  - add `CompositorSystem`
-  - define the first disciplined asset and mask families
-  - keep mixed media authored and sparse
+  - prove the bounded `CompositorSystem` signature slice before adding asset-backed masks
+  - define disciplined asset and mask families only after proof says the post/compositor language is worth broadening
 - proof target:
   - mixed media strengthens consequence or memory instead of reading as collage
 - graduation target:
-  - `lab -> frontier`
+  - `frontier -> flagship`
 - blocking dependency:
-  - there is no real runtime owner yet for masks, mixed-media layers, or legality metadata
+  - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns screen-space masks/cuts/vignettes/bands for signature moments, but mixed-media layers, content packs, and legality metadata are still future work
 - last meaningful pass:
-  - 2026-04-22 anthology runtime intent install plus mastery operating system seeding
+  - 2026-04-29 bounded `CompositorSystem` slice for signature moments
 - current biggest failure mode:
   - mixed media could arrive as collage novelty instead of authored show language
 

@@ -37,8 +37,8 @@ Read first:
 - invalid April 28 runs are debugging evidence only; active `captures/inbox/runs` should be empty before the next proof pass
 - `Primary benchmark` canary `run_20260428_192855_gnmlg1` and full run `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, not current-canonical release proof
 - the full primary run confirms strong chamber/world authority and no hero monopoly, but strict proof is blocked by overbright/ring taste failures and one missed `operator-trust-clear` evidence opportunity
-- the first Mythic Signature Moment Engine vertical slice is implemented: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns consequence rendering and telemetry, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment` and `updatePostSystem`
-- the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; they are implemented but unproven until fresh capture review
+- the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, and `updateCompositorSystem`
+- the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures, but they are unproven until Moment Lab preview plus fresh capture review
 
 This means the next agent should return to proof validation and signature-moment tuning, not release cleanup or another capability expansion.
 
@@ -52,7 +52,7 @@ The highest-leverage move is:
 
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
-- prove the authority split plus the first signature moments with live and no-touch evidence before starting another major extraction or new visual family
+- prove the authority split plus the first 4x3 signature moment matrix with Moment Lab preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
 
@@ -60,11 +60,13 @@ The highest-leverage move is:
    - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts)
    - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts)
    - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
+   - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts)
    - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts)
    - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts)
    - [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts)
 2. run the live sanity pass:
-   - confirm start/stop, chamber presence, world takeover, signature moments, aftermath clearance, disposal, and authority-driven lighting still read correctly
+   - use `Backstage -> Capture -> Moment Lab` on localhost/dev proof builds to preview all 4 moments across contrast/neon/ambient styles and save exploratory receipts
+   - confirm start/stop, chamber presence, world takeover, signature moments, compositor masks, aftermath clearance, disposal, and authority-driven lighting still read correctly
 3. run the proof wave:
    - launch with `npm run dev:proof`
    - select the mission under `Backstage -> Capture -> Proof Mission`
@@ -73,7 +75,7 @@ The highest-leverage move is:
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
    - analyzer review
    - proof-pack review
-   - require the analyzer to report signature moment coverage, overbright/ring impact, aftermath clearance, and distinctness before tuning from the run
+   - require the analyzer to report signature moment coverage, style spread, overbright/ring impact, perceptual washout/colorfulness, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
@@ -96,14 +98,14 @@ The highest-leverage move is:
 - do not treat `systems/**` or `governors/**` folder names as proof that extraction is done
 - do not spend time on legacy V1 work unless explicitly asked
 - do not promote a run to `current-canonical` until it has a review note, zero invalidations, no missed capture opportunities, validated scenario assessment, screenshot/still refs, and relevant strict gates passing
-- do not add a fifth signature moment before the first four are proof-tuned and distinct
+- do not add a fifth signature moment before the first four and their three postures are previewed, proof-tuned, and distinct
 
 ## Success Criteria
 
 The pass is successful only if at least one of these becomes more true in code, not just in docs:
 
 - the signature moments survive live start/stop and no-touch capture review
-- collapse scar, cathedral open, ghost residue, and silence constellation read as distinct image classes
+- collapse scar, cathedral open, ghost residue, and silence constellation read as distinct image classes across contrast-mythic, maximal-neon, and ambient-premium variants
 - at least one proof moment is world/post-led with hero visibly demoted
 - aftermath clears instead of becoming permanent treatment
 
@@ -132,4 +134,4 @@ If the pass touches release/evidence plumbing, also run:
 
 ## If You Need One Sentence
 
-Start from the now-owned signature moment vertical slice: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `SignatureMomentGovernor -> World/Chamber/Hero -> AuthorityGovernor -> Stage -> PostSystem` boundaries, and prove the four moments before adding more spectacle.
+Start from the now-owned signature moment capability slice: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `SignatureMomentGovernor -> World/Chamber/Hero -> AuthorityGovernor -> Stage -> PostSystem -> CompositorSystem` boundaries, and prove the four 3-style moments before adding more spectacle.

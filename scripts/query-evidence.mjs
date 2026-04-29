@@ -15,6 +15,12 @@ function parseArgs(argv) {
     maxOverbright: null,
     minWorldDominance: null,
     minChamberPresence: null,
+    signatureMoment: null,
+    signatureStyle: null,
+    maxWashout: null,
+    maxCompositorRisk: null,
+    minColorfulness: null,
+    forcedPreview: false,
     qualityFlag: null,
     lifecycle: null,
     currentProof: false,
@@ -60,6 +66,24 @@ function parseArgs(argv) {
         break;
       case '--min-chamber-presence':
         args.minChamberPresence = Number.parseFloat(argv[++index] ?? '');
+        break;
+      case '--signature-moment':
+        args.signatureMoment = argv[++index] ?? null;
+        break;
+      case '--signature-style':
+        args.signatureStyle = argv[++index] ?? null;
+        break;
+      case '--max-washout':
+        args.maxWashout = Number.parseFloat(argv[++index] ?? '');
+        break;
+      case '--max-compositor-risk':
+        args.maxCompositorRisk = Number.parseFloat(argv[++index] ?? '');
+        break;
+      case '--min-colorfulness':
+        args.minColorfulness = Number.parseFloat(argv[++index] ?? '');
+        break;
+      case '--forced-preview':
+        args.forcedPreview = true;
         break;
       case '--quality-flag':
         args.qualityFlag = argv[++index] ?? null;
@@ -156,6 +180,35 @@ function buildClipsQuery(args, resolved) {
     parameters.minChamberPresence = args.minChamberPresence;
   }
 
+  if (args.signatureMoment) {
+    clauses.push('clips.dominant_signature_moment = @signatureMoment');
+    parameters.signatureMoment = args.signatureMoment;
+  }
+
+  if (args.signatureStyle) {
+    clauses.push('clips.dominant_signature_style = @signatureStyle');
+    parameters.signatureStyle = args.signatureStyle;
+  }
+
+  if (Number.isFinite(args.maxWashout)) {
+    clauses.push('clips.perceptual_washout_risk_mean <= @maxWashout');
+    parameters.maxWashout = args.maxWashout;
+  }
+
+  if (Number.isFinite(args.maxCompositorRisk)) {
+    clauses.push('clips.compositor_overprocess_risk_mean <= @maxCompositorRisk');
+    parameters.maxCompositorRisk = args.maxCompositorRisk;
+  }
+
+  if (Number.isFinite(args.minColorfulness)) {
+    clauses.push('clips.perceptual_colorfulness_mean >= @minColorfulness');
+    parameters.minColorfulness = args.minColorfulness;
+  }
+
+  if (args.forcedPreview) {
+    clauses.push('clips.signature_moment_forced_preview_rate > 0');
+  }
+
   if (args.qualityFlag) {
     clauses.push('clips.quality_flags_json LIKE @qualityFlag');
     parameters.qualityFlag = `%${args.qualityFlag}%`;
@@ -197,6 +250,13 @@ function buildClipsQuery(args, resolved) {
         clips.chamber_presence_mean,
         clips.ring_authority_mean,
         clips.hero_coverage_mean,
+        clips.dominant_signature_moment,
+        clips.dominant_signature_style,
+        clips.signature_moment_active_rate,
+        clips.signature_moment_forced_preview_rate,
+        clips.compositor_overprocess_risk_mean,
+        clips.perceptual_washout_risk_mean,
+        clips.perceptual_colorfulness_mean,
         clips.quality_flags_json,
         runs.lifecycle_state,
         runs.current_proof_eligible,
@@ -272,6 +332,35 @@ function buildRunsQuery(args, resolved) {
     parameters.minChamberPresence = args.minChamberPresence;
   }
 
+  if (args.signatureMoment) {
+    clauses.push('runs.dominant_signature_moment = @signatureMoment');
+    parameters.signatureMoment = args.signatureMoment;
+  }
+
+  if (args.signatureStyle) {
+    clauses.push('runs.dominant_signature_style = @signatureStyle');
+    parameters.signatureStyle = args.signatureStyle;
+  }
+
+  if (Number.isFinite(args.maxWashout)) {
+    clauses.push('runs.perceptual_washout_risk_mean <= @maxWashout');
+    parameters.maxWashout = args.maxWashout;
+  }
+
+  if (Number.isFinite(args.maxCompositorRisk)) {
+    clauses.push('runs.compositor_overprocess_risk_mean <= @maxCompositorRisk');
+    parameters.maxCompositorRisk = args.maxCompositorRisk;
+  }
+
+  if (Number.isFinite(args.minColorfulness)) {
+    clauses.push('runs.perceptual_colorfulness_mean >= @minColorfulness');
+    parameters.minColorfulness = args.minColorfulness;
+  }
+
+  if (args.forcedPreview) {
+    clauses.push('runs.signature_moment_forced_preview_rate > 0');
+  }
+
   const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
 
   return {
@@ -306,6 +395,13 @@ function buildRunsQuery(args, resolved) {
         runs.recommendation_count,
         runs.recommendation_issue_ids_json,
         runs.gate_outcomes_json,
+        runs.dominant_signature_moment,
+        runs.dominant_signature_style,
+        runs.signature_moment_active_rate,
+        runs.signature_moment_forced_preview_rate,
+        runs.compositor_overprocess_risk_mean,
+        runs.perceptual_washout_risk_mean,
+        runs.perceptual_colorfulness_mean,
         runs.updated_at
       FROM runs
       ${where}
@@ -419,6 +515,7 @@ function formatClipRow(row) {
     `  - eligibility/integrity: ${row.proof_mission_eligibility_verdict ?? 'pending'} / ${row.artifact_integrity_verdict ?? 'pending'}`,
     `  - no-touch: ${row.no_touch_window_passed ? 'yes' : 'no'} | proof wave: ${row.proof_wave_armed ? 'armed' : 'off'} | current-proof: ${row.current_proof_eligible ? 'yes' : 'no'}`,
     `  - world/chamber/overbright/hero/ring: ${row.world_dominance_mean ?? 'n/a'} / ${row.chamber_presence_mean ?? 'n/a'} / ${row.overbright_rate ?? 'n/a'} / ${row.hero_coverage_mean ?? 'n/a'} / ${row.ring_authority_mean ?? 'n/a'}`,
+    `  - signature: ${row.dominant_signature_moment ?? 'none'} / ${row.dominant_signature_style ?? 'n/a'} | active=${row.signature_moment_active_rate ?? 'n/a'} forced=${row.signature_moment_forced_preview_rate ?? 'n/a'} | washout/color/risk=${row.perceptual_washout_risk_mean ?? 'n/a'} / ${row.perceptual_colorfulness_mean ?? 'n/a'} / ${row.compositor_overprocess_risk_mean ?? 'n/a'}`,
     `  - flags: ${row.quality_flags_json ?? '[]'}`
   ].join('\n');
 }
@@ -431,6 +528,7 @@ function formatRunRow(row) {
     `  - proof: ready=${row.proof_ready ? 'yes' : 'no'} valid=${row.proof_valid ? 'yes' : 'no'} current=${row.current_proof_eligible ? 'yes' : 'no'}`,
     `  - no-touch/interventions: ${row.no_touch_window_passed ? 'pass' : 'no'} / ${row.intervention_count ?? 0}`,
     `  - samples/markers/clips/stills: ${row.sample_count ?? 0} / ${row.marker_count ?? 0} / ${row.clip_count ?? 0} / ${row.checkpoint_still_count ?? 0}`,
+    `  - signature: ${row.dominant_signature_moment ?? 'none'} / ${row.dominant_signature_style ?? 'n/a'} | active=${row.signature_moment_active_rate ?? 'n/a'} forced=${row.signature_moment_forced_preview_rate ?? 'n/a'} | washout/color/risk=${row.perceptual_washout_risk_mean ?? 'n/a'} / ${row.perceptual_colorfulness_mean ?? 'n/a'} / ${row.compositor_overprocess_risk_mean ?? 'n/a'}`,
     `  - recommendations: ${row.recommendation_count ?? 0} | invalidations: ${row.invalidation_count ?? 0}`,
     `  - recovery: ${row.recovery_guidance ?? 'none'}`,
     `  - issues: ${row.recommendation_issue_ids_json ?? '[]'}`

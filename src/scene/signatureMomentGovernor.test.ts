@@ -8,7 +8,10 @@ import {
   type StageCuePlan
 } from '../types/visual';
 import { DEFAULT_LISTENING_FRAME, type ListeningFrame } from '../types/audio';
-import { SignatureMomentGovernor } from './governors/SignatureMomentGovernor';
+import {
+  deriveSignatureMomentStyle,
+  SignatureMomentGovernor
+} from './governors/SignatureMomentGovernor';
 
 function buildInput(input: {
   frame?: Partial<ListeningFrame>;
@@ -16,6 +19,7 @@ function buildInput(input: {
   composition?: Partial<StageCompositionPlan>;
   authority?: Partial<AuthorityFrameSnapshot>;
   elapsedSeconds?: number;
+  devOverride?: Parameters<SignatureMomentGovernor['resolveFrame']>[0]['devOverride'];
 }) {
   return {
     frame: { ...DEFAULT_LISTENING_FRAME, ...input.frame },
@@ -39,11 +43,59 @@ function buildInput(input: {
       }
     },
     authority: { ...DEFAULT_AUTHORITY_FRAME_SNAPSHOT, ...input.authority },
-    qualityTier: 'premium' as const
+    qualityTier: 'premium' as const,
+    devOverride: input.devOverride
   };
 }
 
 describe('SignatureMomentGovernor', () => {
+  it('derives contrast, neon, and ambient styles from music character', () => {
+    expect(
+      deriveSignatureMomentStyle(
+        buildInput({
+          frame: {
+            dropImpact: 0.85,
+            musicConfidence: 0.9,
+            shimmer: 0.1,
+            ambienceConfidence: 0.02
+          },
+          stage: { family: 'rupture', worldMode: 'collapse-well' }
+        })
+      )
+    ).toBe('contrast-mythic');
+
+    expect(
+      deriveSignatureMomentStyle(
+        buildInput({
+          frame: {
+            musicConfidence: 0.9,
+            shimmer: 0.9,
+            beatConfidence: 0.8,
+            sectionChange: 0.6,
+            preDropTension: 0.6
+          },
+          stage: { family: 'reveal', worldMode: 'fan-sweep' },
+          authority: { compositionSafetyScore: 0.92, overbright: 0.02 }
+        })
+      )
+    ).toBe('maximal-neon');
+
+    expect(
+      deriveSignatureMomentStyle(
+        buildInput({
+          frame: {
+            musicConfidence: 0.04,
+            ambienceConfidence: 0.9,
+            air: 0.8,
+            releaseTail: 0.2,
+            dropImpact: 0
+          },
+          stage: { family: 'haunt' }
+        })
+      )
+    ).toBe('ambient-premium');
+  });
+
   it('selects collapse scar for earned rupture/drop passages', () => {
     const governor = new SignatureMomentGovernor();
     const snapshot = governor.resolveFrame(
@@ -81,8 +133,8 @@ describe('SignatureMomentGovernor', () => {
           musicConfidence: 0.85
         },
         stage: {
-          family: 'reveal',
-          worldMode: 'cathedral-rise',
+          family: 'gather',
+          worldMode: 'fan-sweep',
           transformIntent: 'open'
         },
         composition: { transitionClass: 'iris' },
@@ -109,8 +161,8 @@ describe('SignatureMomentGovernor', () => {
           musicConfidence: 0.85
         },
         stage: {
-          family: 'reveal',
-          worldMode: 'cathedral-rise',
+          family: 'gather',
+          worldMode: 'fan-sweep',
           transformIntent: 'open'
         },
         authority: {
@@ -181,6 +233,116 @@ describe('SignatureMomentGovernor', () => {
     );
 
     expect(snapshot.kind).toBe('silence-constellation');
+  });
+
+  it('precharges a weak candidate before striking on phrase-scale proof', () => {
+    const governor = new SignatureMomentGovernor();
+    const precharge = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 20,
+        frame: {
+          preDropTension: 0.55,
+          sectionChange: 0.18,
+          tonalStability: 0.8,
+          musicConfidence: 0.7
+        },
+        stage: {
+          family: 'gather',
+          worldMode: 'fan-sweep',
+          transformIntent: 'open'
+        },
+        authority: { chamberPresenceScore: 0.45, compositionSafetyScore: 0.92 }
+      })
+    );
+
+    expect(precharge.kind).toBe('cathedral-open');
+    expect(precharge.phase === 'armed' || precharge.phase === 'precharge').toBe(true);
+    expect(precharge.prechargeProgress).toBeGreaterThanOrEqual(0);
+
+    const strike = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 21.5,
+        frame: {
+          preDropTension: 0.55,
+          sectionChange: 0.36,
+          tonalStability: 0.8,
+          musicConfidence: 0.7
+        },
+        stage: {
+          family: 'gather',
+          worldMode: 'fan-sweep',
+          transformIntent: 'open'
+        },
+        authority: { chamberPresenceScore: 0.45, compositionSafetyScore: 0.92 }
+      })
+    );
+
+    expect(strike.kind).toBe('cathedral-open');
+    expect(strike.startedAtSeconds).toBe(21.5);
+    expect(strike.triggerConfidence).toBeGreaterThan(0);
+  });
+
+  it('supports forced preview overrides without natural cue eligibility', () => {
+    const governor = new SignatureMomentGovernor();
+    const snapshot = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 30,
+        frame: {
+          musicConfidence: 0,
+          dropImpact: 0,
+          sectionChange: 0,
+          ambienceConfidence: 0
+        },
+        devOverride: {
+          kind: 'ghost-residue',
+          style: 'ambient-premium',
+          syntheticProfile: 'release',
+          startedAtSeconds: 29.5,
+          durationSeconds: 4,
+          intensity: 1,
+          receiptRequested: true
+        }
+      })
+    );
+
+    expect(snapshot.kind).toBe('ghost-residue');
+    expect(snapshot.style).toBe('ambient-premium');
+    expect(snapshot.forcedPreview).toBe(true);
+  });
+
+  it('does not spend natural rarity budget for forced preview overrides', () => {
+    const governor = new SignatureMomentGovernor();
+
+    governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 30,
+        devOverride: {
+          kind: 'collapse-scar',
+          style: 'auto',
+          syntheticProfile: 'drop',
+          startedAtSeconds: 29.5,
+          durationSeconds: 4,
+          intensity: 1,
+          receiptRequested: true
+        }
+      })
+    );
+
+    const natural = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 31,
+        frame: { dropImpact: 0.95, sectionChange: 0.4, musicConfidence: 0.9 },
+        stage: {
+          family: 'rupture',
+          worldMode: 'collapse-well',
+          compositorMode: 'scar',
+          transformIntent: 'collapse'
+        }
+      })
+    );
+
+    expect(natural.kind).toBe('collapse-scar');
+    expect(natural.forcedPreview).toBe(false);
   });
 
   it('uses cooldowns to prevent repeated phrase spam', () => {

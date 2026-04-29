@@ -94,6 +94,11 @@ import {
   type PostSystemUpdateContext
 } from './systems/post/PostSystem';
 import {
+  CompositorSystem,
+  type CompositorSystemTelemetry,
+  type CompositorSystemUpdateContext
+} from './systems/compositor/CompositorSystem';
+import {
   MacroEventDirector,
   type MacroEventKind
 } from './governors/MacroEventDirector';
@@ -120,6 +125,7 @@ import {
   DEFAULT_VISUAL_TELEMETRY,
   type AuthorityFrameSnapshot,
   type AtmosphereMatterState,
+  type SignatureMomentDevOverride,
   type CueClass,
   type PaletteState,
   type PerformanceRegime,
@@ -159,6 +165,7 @@ type CollectedFrameTelemetry = {
   lightingIntensities: LightingSystemIntensities;
   particleOpacity: number;
   postTelemetry: PostSystemTelemetry;
+  compositorTelemetry: CompositorSystemTelemetry;
   satelliteActivity: number;
   pressureWaveAverage: number;
 };
@@ -379,10 +386,12 @@ export class ObsidianBloomScene {
   private readonly authorityGovernor = new AuthorityGovernor();
   private readonly signatureMomentGovernor = new SignatureMomentGovernor();
   private readonly postSystem = new PostSystem();
+  private readonly compositorSystem = new CompositorSystem();
   private lastAuthorityFrameContext: AuthorityGovernorFrameContext | null = null;
   private signatureMomentSnapshot: SignatureMomentSnapshot = {
     ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT
   };
+  private signatureMomentDevOverride: SignatureMomentDevOverride | null = null;
 
   private get directorEnergy(): number { return this.directorStateRig.energy; }
   private set directorEnergy(value: number) { this.directorStateRig.energy = value; }
@@ -445,6 +454,7 @@ export class ObsidianBloomScene {
     this.stageFrameSystem.group.position.z = -6.4;
     this.camera.add(this.stageFrameSystem.group);
     this.camera.add(this.postSystem.group);
+    this.camera.add(this.compositorSystem.group);
     this.chamberRig = new ChamberRig({
       system: this.chamberSystem,
       updateLights: (context) => {
@@ -530,6 +540,7 @@ export class ObsidianBloomScene {
     this.eventRig.build();
     this.stageFrameSystem.build();
     this.postSystem.build();
+    this.compositorSystem.build();
     this.framingRig.build();
     this.particleSystem.build();
     this.scene.add(this.camera);
@@ -554,6 +565,9 @@ export class ObsidianBloomScene {
   }
   setPointerInfluence(x: number, y: number): void { this.pointerTarget.set(THREE.MathUtils.clamp(x, -1, 1), THREE.MathUtils.clamp(y, -1, 1)); }
   getVisualTelemetry(): VisualTelemetryFrame { return { ...this.visualTelemetry, macroEventsActive: [...this.visualTelemetry.macroEventsActive], temporalWindows: { ...this.visualTelemetry.temporalWindows } }; }
+  setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void {
+    this.signatureMomentDevOverride = override;
+  }
 
   prepareFrame(
     frame: ListeningFrame,
@@ -880,6 +894,12 @@ export class ObsidianBloomScene {
     );
   }
 
+  updateCompositorSystem(elapsedSeconds: number, deltaSeconds: number): void {
+    this.compositorSystem.update(
+      this.createCompositorSystemUpdateContext(elapsedSeconds, deltaSeconds)
+    );
+  }
+
   dispose(): void {
     this.framingRig.dispose();
     this.eventRig.dispose();
@@ -891,6 +911,7 @@ export class ObsidianBloomScene {
     this.worldSystem.dispose();
     this.stageFrameSystem.dispose();
     this.postSystem.dispose();
+    this.compositorSystem.dispose();
     this.accentOrbitSystem.dispose();
     this.pressureWaveSystem.dispose();
   }
@@ -902,6 +923,7 @@ export class ObsidianBloomScene {
     this.chamberRig.applyQualityProfile(profile);
     this.heroSystem.applyQualityProfile(profile);
     this.postSystem.applyQualityProfile(profile);
+    this.compositorSystem.applyQualityProfile(profile);
   }
 
   private createWorldSystemUpdateContext(
@@ -1399,7 +1421,8 @@ export class ObsidianBloomScene {
       stageCuePlan: this.stageCuePlan,
       stageCompositionPlan: this.stageCompositionPlan,
       authority: this.authorityFrameSnapshot,
-      qualityTier: this.qualityProfile.tier
+      qualityTier: this.qualityProfile.tier,
+      devOverride: this.signatureMomentDevOverride
     };
   }
 
@@ -1424,6 +1447,21 @@ export class ObsidianBloomScene {
         air: this.air,
         musicConfidence: this.musicConfidence
       }
+    };
+  }
+
+  private createCompositorSystemUpdateContext(
+    elapsedSeconds: number,
+    deltaSeconds: number
+  ): CompositorSystemUpdateContext {
+    return {
+      elapsedSeconds,
+      deltaSeconds,
+      qualityProfile: this.qualityProfile,
+      signatureMoment: this.signatureMomentSnapshot,
+      postTelemetry: this.postSystem.collectTelemetryInputs(),
+      authority: this.authorityFrameSnapshot,
+      paletteState: this.paletteState
     };
   }
 
@@ -2532,6 +2570,7 @@ export class ObsidianBloomScene {
       lightingIntensities,
       particleOpacity,
       postTelemetry,
+      compositorTelemetry,
       satelliteActivity,
       pressureWaveAverage
     } = frameTelemetry;
@@ -2737,10 +2776,19 @@ export class ObsidianBloomScene {
       afterImageDamp: this.visualTelemetry.afterImageDamp,
       activeSignatureMoment: postTelemetry.activeSignatureMoment,
       signatureMomentPhase: postTelemetry.signatureMomentPhase,
+      signatureMomentStyle: postTelemetry.signatureMomentStyle,
       signatureMomentIntensity: postTelemetry.signatureMomentIntensity,
       signatureMomentAgeSeconds: postTelemetry.signatureMomentAgeSeconds,
       signatureMomentSuppressionReason:
         postTelemetry.signatureMomentSuppressionReason,
+      signatureMomentTriggerConfidence:
+        postTelemetry.signatureMomentTriggerConfidence,
+      signatureMomentPrechargeProgress:
+        postTelemetry.signatureMomentPrechargeProgress,
+      signatureMomentRarityBudget: postTelemetry.signatureMomentRarityBudget,
+      signatureMomentForcedPreview: postTelemetry.signatureMomentForcedPreview,
+      signatureMomentDistinctnessHint:
+        postTelemetry.signatureMomentDistinctnessHint,
       collapseScarAmount: postTelemetry.collapseScarAmount,
       cathedralOpenAmount: postTelemetry.cathedralOpenAmount,
       ghostResidueAmount: postTelemetry.ghostResidueAmount,
@@ -2749,6 +2797,20 @@ export class ObsidianBloomScene {
       aftermathClearance: postTelemetry.aftermathClearance,
       postConsequenceIntensity: postTelemetry.postConsequenceIntensity,
       postOverprocessRisk: postTelemetry.postOverprocessRisk,
+      compositorSignatureMask: compositorTelemetry.compositorSignatureMask,
+      compositorCutAmount: compositorTelemetry.compositorCutAmount,
+      compositorVignetteAmount: compositorTelemetry.compositorVignetteAmount,
+      compositorChromaticAmount: compositorTelemetry.compositorChromaticAmount,
+      compositorEdgeWindowAmount: compositorTelemetry.compositorEdgeWindowAmount,
+      compositorContrastLift: compositorTelemetry.compositorContrastLift,
+      compositorSaturationLift: compositorTelemetry.compositorSaturationLift,
+      compositorExposureBias: compositorTelemetry.compositorExposureBias,
+      compositorBloomBias: compositorTelemetry.compositorBloomBias,
+      compositorAfterImageBias: compositorTelemetry.compositorAfterImageBias,
+      compositorOverprocessRisk: compositorTelemetry.compositorOverprocessRisk,
+      perceptualContrastScore: compositorTelemetry.perceptualContrastScore,
+      perceptualColorfulnessScore: compositorTelemetry.perceptualColorfulnessScore,
+      perceptualWashoutRisk: compositorTelemetry.perceptualWashoutRisk,
       atmosphereMatterState: this.activeMatterState,
       atmosphereGas: this.atmosphereGas,
       atmosphereLiquid: this.atmosphereLiquid,
@@ -2817,6 +2879,7 @@ export class ObsidianBloomScene {
       lightingIntensities: this.lightingSystem.getIntensities(),
       particleOpacity: this.particleSystem.getOpacity(),
       postTelemetry: this.postSystem.collectTelemetryInputs(),
+      compositorTelemetry: this.compositorSystem.collectTelemetryInputs(),
       satelliteActivity: this.accentOrbitSystem.getSatelliteActivity(),
       pressureWaveAverage: this.pressureWaveSystem.getAverageOpacity()
     };

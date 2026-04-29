@@ -10,7 +10,10 @@ export type AutoCaptureTriggerKind =
   | 'governance-risk'
   | 'quiet-beauty'
   | 'operator-trust-clear'
-  | 'quality-downgrade';
+  | 'quality-downgrade'
+  | 'signature-moment-precharge'
+  | 'signature-moment-peak'
+  | 'signature-moment-residue';
 
 export type AutoCaptureTrigger = {
   kind: AutoCaptureTriggerKind;
@@ -134,6 +137,36 @@ export const AUTO_CAPTURE_TIMING_PROFILES: Record<
     cooldownMs: 8000,
     maxExtensions: 0,
     maxTriggerCount: 1
+  },
+  'signature-moment-precharge': {
+    preRollMs: 2200,
+    postRollMs: 2600,
+    maxDurationMs: 7400,
+    extensionWindowMs: 700,
+    retriggerGapMs: 700,
+    cooldownMs: 9000,
+    maxExtensions: 1,
+    maxTriggerCount: 3
+  },
+  'signature-moment-peak': {
+    preRollMs: 2600,
+    postRollMs: 3600,
+    maxDurationMs: 9600,
+    extensionWindowMs: 800,
+    retriggerGapMs: 800,
+    cooldownMs: 10000,
+    maxExtensions: 1,
+    maxTriggerCount: 4
+  },
+  'signature-moment-residue': {
+    preRollMs: 2200,
+    postRollMs: 4200,
+    maxDurationMs: 9800,
+    extensionWindowMs: 900,
+    retriggerGapMs: 850,
+    cooldownMs: 9000,
+    maxExtensions: 1,
+    maxTriggerCount: 3
   }
 };
 
@@ -166,6 +199,12 @@ export function getAutoCaptureTriggerPriority(
       return 5;
     case 'operator-trust-clear':
       return 6;
+    case 'signature-moment-peak':
+      return 6;
+    case 'signature-moment-precharge':
+      return 4;
+    case 'signature-moment-residue':
+      return 3;
     case 'quiet-beauty':
       return 1;
     default:
@@ -359,6 +398,61 @@ function detectQualityDowngradeTrigger(
   };
 }
 
+function detectSignatureMomentTrigger(
+  frame: ListeningFrame,
+  visual: VisualTelemetryFrame | null | undefined
+): AutoCaptureTrigger | null {
+  if (
+    !visual ||
+    !visual.activeSignatureMoment ||
+    visual.activeSignatureMoment === 'none' ||
+    visual.signatureMomentForcedPreview === true
+  ) {
+    return null;
+  }
+
+  const phase = visual.signatureMomentPhase;
+  const intensity = visual.signatureMomentIntensity ?? 0;
+  const style = visual.signatureMomentStyle ?? 'contrast-mythic';
+
+  if (
+    (phase === 'armed' || phase === 'precharge') &&
+    (visual.signatureMomentPrechargeProgress ?? 0) >= 0.42 &&
+    intensity >= 0.18
+  ) {
+    return {
+      kind: 'signature-moment-precharge',
+      label: 'Signature Precharge',
+      reason: `moment=${visual.activeSignatureMoment} style=${style} precharge=${(visual.signatureMomentPrechargeProgress ?? 0).toFixed(3)}`,
+      timestampMs: frame.timestampMs
+    };
+  }
+
+  if ((phase === 'strike' || phase === 'hold') && intensity >= 0.42) {
+    return {
+      kind: 'signature-moment-peak',
+      label: 'Signature Peak',
+      reason: `moment=${visual.activeSignatureMoment} style=${style} intensity=${intensity.toFixed(3)} washout=${(visual.perceptualWashoutRisk ?? 0).toFixed(3)}`,
+      timestampMs: frame.timestampMs
+    };
+  }
+
+  if (
+    (phase === 'residue' || phase === 'clear') &&
+    ((visual.postConsequenceIntensity ?? 0) >= 0.22 ||
+      (visual.ghostResidueAmount ?? 0) >= 0.18)
+  ) {
+    return {
+      kind: 'signature-moment-residue',
+      label: 'Signature Residue',
+      reason: `moment=${visual.activeSignatureMoment} style=${style} aftermath=${(visual.aftermathClearance ?? 0).toFixed(3)}`,
+      timestampMs: frame.timestampMs
+    };
+  }
+
+  return null;
+}
+
 export function detectAutoCaptureTrigger(
   frame: ListeningFrame,
   diagnostics: Pick<
@@ -386,6 +480,11 @@ export function detectAutoCaptureTrigger(
   );
   if (operatorTrustTrigger) {
     return operatorTrustTrigger;
+  }
+
+  const signatureMomentTrigger = detectSignatureMomentTrigger(frame, visual);
+  if (signatureMomentTrigger) {
+    return signatureMomentTrigger;
   }
 
   const authorityTurnTrigger = detectAuthorityTurnTrigger(

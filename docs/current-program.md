@@ -61,7 +61,7 @@ April 28 proof-first override:
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
 - primary-benchmark proof now has reviewed-candidate evidence, but strict proof remains blocked by missing operator-trust coverage and repeated overbright/ring taste failures
-- the user-approved Mythic Signature Moment Engine vertical slice is now the active exception to the earlier proof-first hold; no further capability wave, staging host, public UX expansion, or major new extraction starts until this vertical slice is proof-tuned and operator-trust proof is restored
+- the user-approved Mythic Signature Moment Engine full-capability slice is now the active exception to the earlier proof-first hold; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab, proof-tuned, and operator-trust proof is restored
 
 ## Immediate Start-Right Gate
 
@@ -119,7 +119,7 @@ This is the canonical phase ordering for the current program:
 3. proof, capture, and analyzer hardening on the extracted backbone
 4. fresh authority/no-touch proof on the current branch
 5. proof-led governance correction, if the evidence shows authority, overbright, or ring failures
-6. Mythic Signature Moment Engine / `PostSystem` vertical slice
+6. Mythic Signature Moment Engine / `PostSystem` plus bounded `CompositorSystem` slice
 7. proof-tune signature moments, then run operator-trust proof
 8. cue grammar, regime hierarchy, audio intelligence, and silence dignity
 9. first owned anthology repertoire and capability wave
@@ -154,7 +154,7 @@ The next sequence is:
    - readiness or persistence failure: evidence/operator tooling only
    - start/stop failure: narrow runtime regression only
    - authority or overbright failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, or stage cue policy only
-   - generic signature treatment, weak moment distinctness, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, signature-fed system consumers, or cue policy only
+   - generic signature treatment, weak moment distinctness, washed-out post, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, `CompositorSystem`, signature-fed system consumers, or cue policy only
    - cue/silence/diversity failure: audio/show-direction governance only
 6. if signature proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence
 7. widen repertoire through owned systems only after proof and ownership are both real

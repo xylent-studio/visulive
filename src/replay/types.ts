@@ -444,7 +444,8 @@ export type ReplayRunStillKind =
   | 'checkpoint'
   | 'authority'
   | 'quiet'
-  | 'trust';
+  | 'trust'
+  | 'signature-preview';
 
 export type ReplayRunStillDescriptor = {
   kind: ReplayRunStillKind;
@@ -507,13 +508,23 @@ export type ReplayRunJournalSample = {
   signatureMoment: {
     activeSignatureMoment?: VisualTelemetryFrame['activeSignatureMoment'];
     signatureMomentPhase?: VisualTelemetryFrame['signatureMomentPhase'];
+    signatureMomentStyle?: VisualTelemetryFrame['signatureMomentStyle'];
     signatureMomentIntensity?: number;
+    signatureMomentTriggerConfidence?: number;
+    signatureMomentPrechargeProgress?: number;
+    signatureMomentForcedPreview?: boolean;
+    signatureMomentDistinctnessHint?: VisualTelemetryFrame['signatureMomentDistinctnessHint'];
     collapseScarAmount?: number;
     cathedralOpenAmount?: number;
     ghostResidueAmount?: number;
     silenceConstellationAmount?: number;
     postConsequenceIntensity?: number;
     postOverprocessRisk?: number;
+    compositorContrastLift?: number;
+    compositorSaturationLift?: number;
+    perceptualContrastScore?: number;
+    perceptualColorfulnessScore?: number;
+    perceptualWashoutRisk?: number;
   };
   authority: {
     heroCoverageEstimate?: number;
@@ -546,6 +557,10 @@ export type ReplayRunEventMarkerKind =
   | 'quiet-beauty'
   | 'operator-trust-clear'
   | 'quality-downgrade'
+  | 'signature-moment-precharge'
+  | 'signature-moment-peak'
+  | 'signature-moment-residue'
+  | 'signature-preview'
   | 'proof-invalidated'
   | 'intervention'
   | 'suppressed-intervention'

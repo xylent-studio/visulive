@@ -7,7 +7,10 @@ import type {
 import { StageRuntimeRig } from '../rigs/StageRuntimeRig';
 import type { ListeningFrame } from '../../types/audio';
 import type { RuntimeTuning } from '../../types/tuning';
-import type { VisualTelemetryFrame } from '../../types/visual';
+import type {
+  SignatureMomentDevOverride,
+  VisualTelemetryFrame
+} from '../../types/visual';
 
 export class FlagshipShowRuntime implements VisualizerSceneRuntime {
   private readonly sceneRuntime: ObsidianBloomScene;
@@ -86,6 +89,7 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
     this.sceneRuntime.resolveAuthorityFrame();
     this.stageRuntimeRig.runStageFrame(stageIdleContext, preparedFrame.beatDrive);
     this.sceneRuntime.updatePostSystem(elapsedSeconds, deltaSeconds);
+    this.sceneRuntime.updateCompositorSystem(elapsedSeconds, deltaSeconds);
     this.sceneRuntime.finalizeFrame();
   }
 
@@ -95,6 +99,10 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
 
   setPostTelemetry(input: ScenePostTelemetry): void {
     this.sceneRuntime.setPostTelemetry(input);
+  }
+
+  setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void {
+    this.sceneRuntime.setSignatureMomentDevOverride(override);
   }
 
   dispose(): void {

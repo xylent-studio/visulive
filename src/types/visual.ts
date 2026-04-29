@@ -226,12 +226,53 @@ export type SignatureMomentKind =
 
 export type SignatureMomentPhase =
   | 'idle'
+  | 'armed'
   | 'eligible'
   | 'precharge'
   | 'strike'
   | 'hold'
   | 'residue'
   | 'clear';
+
+export type SignatureMomentStyle =
+  | 'auto'
+  | 'contrast-mythic'
+  | 'maximal-neon'
+  | 'ambient-premium';
+
+export type ResolvedSignatureMomentStyle = Exclude<
+  SignatureMomentStyle,
+  'auto'
+>;
+
+export type SignatureMomentCandidateScores = Record<
+  Exclude<SignatureMomentKind, 'none'>,
+  number
+>;
+
+export type SignatureMomentDistinctnessHint =
+  | 'none'
+  | 'dark-cut'
+  | 'architectural-open'
+  | 'memory-afterimage'
+  | 'quiet-spatial-field';
+
+export type SignatureMomentPreviewProfile =
+  | 'natural'
+  | 'drop'
+  | 'reveal'
+  | 'release'
+  | 'quiet';
+
+export type SignatureMomentDevOverride = {
+  kind: Exclude<SignatureMomentKind, 'none'>;
+  style: SignatureMomentStyle;
+  syntheticProfile: SignatureMomentPreviewProfile;
+  startedAtSeconds: number;
+  durationSeconds: number;
+  intensity: number;
+  receiptRequested?: boolean;
+};
 
 export type SignatureMomentSuppressionReason =
   | 'none'
@@ -245,11 +286,18 @@ export type SignatureMomentSuppressionReason =
 export type SignatureMomentSnapshot = {
   kind: SignatureMomentKind;
   phase: SignatureMomentPhase;
+  style: ResolvedSignatureMomentStyle;
   intensity: number;
   ageSeconds: number;
   seed: number;
   startedAtSeconds: number | null;
   suppressionReason: SignatureMomentSuppressionReason;
+  candidateScores: SignatureMomentCandidateScores;
+  triggerConfidence: number;
+  rarityBudget: number;
+  prechargeProgress: number;
+  distinctnessHint: SignatureMomentDistinctnessHint;
+  forcedPreview: boolean;
   worldLead: number;
   heroSuppression: number;
   chamberArchitecture: number;
@@ -259,6 +307,7 @@ export type SignatureMomentSnapshot = {
 };
 
 export type SignatureMomentSpread = Record<SignatureMomentKind, number>;
+export type SignatureMomentStyleSpread = Record<ResolvedSignatureMomentStyle, number>;
 
 export type StagePaletteTargets = Record<PaletteState, number>;
 
@@ -537,9 +586,15 @@ export type VisualTelemetryFrame = {
   afterImageDamp?: number;
   activeSignatureMoment?: SignatureMomentKind;
   signatureMomentPhase?: SignatureMomentPhase;
+  signatureMomentStyle?: ResolvedSignatureMomentStyle;
   signatureMomentIntensity?: number;
   signatureMomentAgeSeconds?: number;
   signatureMomentSuppressionReason?: SignatureMomentSuppressionReason;
+  signatureMomentTriggerConfidence?: number;
+  signatureMomentPrechargeProgress?: number;
+  signatureMomentRarityBudget?: number;
+  signatureMomentForcedPreview?: boolean;
+  signatureMomentDistinctnessHint?: SignatureMomentDistinctnessHint;
   collapseScarAmount?: number;
   cathedralOpenAmount?: number;
   ghostResidueAmount?: number;
@@ -548,6 +603,20 @@ export type VisualTelemetryFrame = {
   aftermathClearance?: number;
   postConsequenceIntensity?: number;
   postOverprocessRisk?: number;
+  compositorSignatureMask?: number;
+  compositorCutAmount?: number;
+  compositorVignetteAmount?: number;
+  compositorChromaticAmount?: number;
+  compositorEdgeWindowAmount?: number;
+  compositorContrastLift?: number;
+  compositorSaturationLift?: number;
+  compositorExposureBias?: number;
+  compositorBloomBias?: number;
+  compositorAfterImageBias?: number;
+  compositorOverprocessRisk?: number;
+  perceptualContrastScore?: number;
+  perceptualColorfulnessScore?: number;
+  perceptualWashoutRisk?: number;
   atmosphereMatterState: AtmosphereMatterState;
   atmosphereGas: number;
   atmosphereLiquid: number;
@@ -715,9 +784,13 @@ export type VisualTelemetrySummary = {
   firstQualityDowngradeMs?: number;
   signatureMomentSpread?: SignatureMomentSpread;
   dominantSignatureMoment?: SignatureMomentKind;
+  signatureMomentStyleSpread?: SignatureMomentStyleSpread;
+  dominantSignatureMomentStyle?: ResolvedSignatureMomentStyle;
   signatureMomentActiveRate?: number;
   signatureMomentIntensityMean?: number;
   signatureMomentIntensityPeak?: number;
+  signatureMomentTriggerConfidenceMean?: number;
+  signatureMomentForcedPreviewRate?: number;
   collapseScarMean?: number;
   collapseScarPeak?: number;
   cathedralOpenMean?: number;
@@ -730,6 +803,14 @@ export type VisualTelemetrySummary = {
   postConsequenceMean?: number;
   postOverprocessRiskMean?: number;
   postOverprocessRiskPeak?: number;
+  compositorContrastLiftMean?: number;
+  compositorSaturationLiftMean?: number;
+  compositorOverprocessRiskMean?: number;
+  compositorOverprocessRiskPeak?: number;
+  perceptualContrastMean?: number;
+  perceptualColorfulnessMean?: number;
+  perceptualWashoutRiskMean?: number;
+  perceptualWashoutRiskPeak?: number;
   assetLayerSummary: VisualAssetLayerSummary;
 };
 
@@ -880,11 +961,23 @@ export const DEFAULT_AUTHORITY_FRAME_SNAPSHOT: AuthorityFrameSnapshot = {
 export const DEFAULT_SIGNATURE_MOMENT_SNAPSHOT: SignatureMomentSnapshot = {
   kind: 'none',
   phase: 'idle',
+  style: 'contrast-mythic',
   intensity: 0,
   ageSeconds: 0,
   seed: 0,
   startedAtSeconds: null,
   suppressionReason: 'none',
+  candidateScores: {
+    'collapse-scar': 0,
+    'cathedral-open': 0,
+    'ghost-residue': 0,
+    'silence-constellation': 0
+  },
+  triggerConfidence: 0,
+  rarityBudget: 1,
+  prechargeProgress: 0,
+  distinctnessHint: 'none',
+  forcedPreview: false,
   worldLead: 0,
   heroSuppression: 0,
   chamberArchitecture: 0,
@@ -1012,10 +1105,19 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   afterImageDamp: 0.78,
   activeSignatureMoment: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.kind,
   signatureMomentPhase: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.phase,
+  signatureMomentStyle: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.style,
   signatureMomentIntensity: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.intensity,
   signatureMomentAgeSeconds: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.ageSeconds,
   signatureMomentSuppressionReason:
     DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.suppressionReason,
+  signatureMomentTriggerConfidence:
+    DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.triggerConfidence,
+  signatureMomentPrechargeProgress:
+    DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.prechargeProgress,
+  signatureMomentRarityBudget: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.rarityBudget,
+  signatureMomentForcedPreview: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.forcedPreview,
+  signatureMomentDistinctnessHint:
+    DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.distinctnessHint,
   collapseScarAmount: 0,
   cathedralOpenAmount: 0,
   ghostResidueAmount: 0,
@@ -1024,6 +1126,20 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   aftermathClearance: 1,
   postConsequenceIntensity: 0,
   postOverprocessRisk: 0,
+  compositorSignatureMask: 0,
+  compositorCutAmount: 0,
+  compositorVignetteAmount: 0,
+  compositorChromaticAmount: 0,
+  compositorEdgeWindowAmount: 0,
+  compositorContrastLift: 0,
+  compositorSaturationLift: 0,
+  compositorExposureBias: 0,
+  compositorBloomBias: 0,
+  compositorAfterImageBias: 0,
+  compositorOverprocessRisk: 0,
+  perceptualContrastScore: 0.62,
+  perceptualColorfulnessScore: 0.52,
+  perceptualWashoutRisk: 0,
   atmosphereMatterState: 'gas',
   atmosphereGas: 1,
   atmosphereLiquid: 0,
@@ -1490,9 +1606,17 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     'silence-constellation': 0
   },
   dominantSignatureMoment: 'none',
+  signatureMomentStyleSpread: {
+    'contrast-mythic': 1,
+    'maximal-neon': 0,
+    'ambient-premium': 0
+  },
+  dominantSignatureMomentStyle: 'contrast-mythic',
   signatureMomentActiveRate: 0,
   signatureMomentIntensityMean: 0,
   signatureMomentIntensityPeak: 0,
+  signatureMomentTriggerConfidenceMean: 0,
+  signatureMomentForcedPreviewRate: 0,
   collapseScarMean: 0,
   collapseScarPeak: 0,
   cathedralOpenMean: 0,
@@ -1505,6 +1629,14 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
   postConsequenceMean: 0,
   postOverprocessRiskMean: 0,
   postOverprocessRiskPeak: 0,
+  compositorContrastLiftMean: 0,
+  compositorSaturationLiftMean: 0,
+  compositorOverprocessRiskMean: 0,
+  compositorOverprocessRiskPeak: 0,
+  perceptualContrastMean: 0.62,
+  perceptualColorfulnessMean: 0.52,
+  perceptualWashoutRiskMean: 0,
+  perceptualWashoutRiskPeak: 0,
   assetLayerSummary: Object.fromEntries(
     VISUAL_ASSET_LAYERS.map((layer) => [
       layer,

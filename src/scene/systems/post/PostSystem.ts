@@ -3,6 +3,7 @@ import type { SceneQualityProfile } from '../../runtime';
 import type {
   AuthorityFrameSnapshot,
   PaletteState,
+  ResolvedSignatureMomentStyle,
   SignatureMomentKind,
   SignatureMomentPhase,
   SignatureMomentSnapshot,
@@ -31,9 +32,15 @@ export type PostSystemUpdateContext = {
 export type PostSystemTelemetry = {
   activeSignatureMoment: SignatureMomentKind;
   signatureMomentPhase: SignatureMomentPhase;
+  signatureMomentStyle: ResolvedSignatureMomentStyle;
   signatureMomentIntensity: number;
   signatureMomentAgeSeconds: number;
   signatureMomentSuppressionReason: SignatureMomentSnapshot['suppressionReason'];
+  signatureMomentTriggerConfidence: number;
+  signatureMomentPrechargeProgress: number;
+  signatureMomentRarityBudget: number;
+  signatureMomentForcedPreview: boolean;
+  signatureMomentDistinctnessHint: SignatureMomentSnapshot['distinctnessHint'];
   collapseScarAmount: number;
   cathedralOpenAmount: number;
   ghostResidueAmount: number;
@@ -63,12 +70,58 @@ const TOXIC_PINK = new THREE.Color('#ff5cff');
 const SOLAR_ORANGE = new THREE.Color('#ff9f2d');
 const GHOST_PALE = new THREE.Color('#f1e8d8');
 
+type StylePosture = {
+  veil: number;
+  scar: number;
+  architecture: number;
+  ghost: number;
+  constellation: number;
+  saturation: number;
+  darkness: number;
+  neon: number;
+};
+
+const STYLE_POSTURES: Record<ResolvedSignatureMomentStyle, StylePosture> = {
+  'contrast-mythic': {
+    veil: 1.18,
+    scar: 1.22,
+    architecture: 0.84,
+    ghost: 0.9,
+    constellation: 0.82,
+    saturation: 0.88,
+    darkness: 1,
+    neon: 0.28
+  },
+  'maximal-neon': {
+    veil: 0.64,
+    scar: 1.05,
+    architecture: 1.24,
+    ghost: 1.02,
+    constellation: 1.15,
+    saturation: 1.22,
+    darkness: 0.32,
+    neon: 1
+  },
+  'ambient-premium': {
+    veil: 0.78,
+    scar: 0.68,
+    architecture: 0.92,
+    ghost: 1.2,
+    constellation: 1.34,
+    saturation: 0.78,
+    darkness: 0.48,
+    neon: 0.18
+  }
+};
+
 function clamp01(value: number): number {
   return THREE.MathUtils.clamp(value, 0, 1);
 }
 
 function phaseEnvelope(phase: SignatureMomentPhase): number {
   switch (phase) {
+    case 'armed':
+      return 0.2;
     case 'eligible':
       return 0.22;
     case 'precharge':
@@ -151,12 +204,19 @@ export class PostSystem {
   private qualityOpacityScalar = 1;
   private qualityPointCount = 180;
   private built = false;
+  private disposed = false;
   private telemetry: PostSystemTelemetry = {
     activeSignatureMoment: 'none',
     signatureMomentPhase: 'idle',
+    signatureMomentStyle: 'contrast-mythic',
     signatureMomentIntensity: 0,
     signatureMomentAgeSeconds: 0,
     signatureMomentSuppressionReason: 'none',
+    signatureMomentTriggerConfidence: 0,
+    signatureMomentPrechargeProgress: 0,
+    signatureMomentRarityBudget: 1,
+    signatureMomentForcedPreview: false,
+    signatureMomentDistinctnessHint: 'none',
     collapseScarAmount: 0,
     cathedralOpenAmount: 0,
     ghostResidueAmount: 0,
@@ -168,7 +228,7 @@ export class PostSystem {
   };
 
   build(): void {
-    if (this.built) {
+    if (this.built || this.disposed) {
       return;
     }
 
@@ -264,6 +324,7 @@ export class PostSystem {
     const moment = context.signatureMoment;
     const envelope = phaseEnvelope(moment.phase);
     const momentIntensity = clamp01(moment.intensity * envelope);
+    const stylePosture = STYLE_POSTURES[moment.style];
     const collapseScarAmount =
       moment.kind === 'collapse-scar' ? momentIntensity : 0;
     const cathedralOpenAmount =
@@ -289,18 +350,38 @@ export class PostSystem {
       collapseScarAmount,
       ghostResidueAmount,
       silenceConstellationAmount,
-      qualityScalar
+      qualityScalar,
+      stylePosture
     });
-    this.updateScarPlanes(context, collapseScarAmount, memoryTraceStrength, qualityScalar);
-    this.updateCathedralPlanes(context, cathedralOpenAmount, phasePulse, qualityScalar);
-    this.updateGhostRings(context, ghostResidueAmount, memoryTraceStrength, qualityScalar);
+    this.updateScarPlanes(
+      context,
+      collapseScarAmount,
+      memoryTraceStrength,
+      qualityScalar,
+      stylePosture
+    );
+    this.updateCathedralPlanes(
+      context,
+      cathedralOpenAmount,
+      phasePulse,
+      qualityScalar,
+      stylePosture
+    );
+    this.updateGhostRings(
+      context,
+      ghostResidueAmount,
+      memoryTraceStrength,
+      qualityScalar,
+      stylePosture
+    );
     this.updateConstellation(
       context,
       silenceConstellationAmount,
       ghostResidueAmount,
       beatPulse,
       phasePulse,
-      qualityScalar
+      qualityScalar,
+      stylePosture
     );
 
     const postConsequenceIntensity = clamp01(
@@ -323,9 +404,15 @@ export class PostSystem {
     this.telemetry = {
       activeSignatureMoment: moment.kind,
       signatureMomentPhase: moment.phase,
+      signatureMomentStyle: moment.style,
       signatureMomentIntensity: moment.intensity,
       signatureMomentAgeSeconds: moment.ageSeconds,
       signatureMomentSuppressionReason: moment.suppressionReason,
+      signatureMomentTriggerConfidence: moment.triggerConfidence,
+      signatureMomentPrechargeProgress: moment.prechargeProgress,
+      signatureMomentRarityBudget: moment.rarityBudget,
+      signatureMomentForcedPreview: moment.forcedPreview,
+      signatureMomentDistinctnessHint: moment.distinctnessHint,
       collapseScarAmount,
       cathedralOpenAmount,
       ghostResidueAmount,
@@ -342,6 +429,10 @@ export class PostSystem {
   }
 
   dispose(): void {
+    if (this.disposed) {
+      return;
+    }
+
     this.veilMesh.removeFromParent();
     this.veilMesh.geometry.dispose();
     this.veilMaterial.dispose();
@@ -368,6 +459,9 @@ export class PostSystem {
     this.constellationGeometry.dispose();
     this.constellationMaterial.dispose();
     this.memoryTraces.length = 0;
+    this.group.clear();
+    this.disposed = true;
+    this.built = false;
   }
 
   private buildConstellationGeometry(): void {
@@ -422,6 +516,7 @@ export class PostSystem {
     const moment = context.signatureMoment;
     if (
       moment.kind === 'none' ||
+      moment.forcedPreview ||
       moment.startedAtSeconds === null ||
       moment.startedAtSeconds === this.lastTraceStartedAtSeconds ||
       moment.intensity < 0.24
@@ -458,18 +553,21 @@ export class PostSystem {
     ghostResidueAmount: number;
     silenceConstellationAmount: number;
     qualityScalar: number;
+    stylePosture: StylePosture;
   }): void {
     this.veilMaterial.color
       .copy(VOID_BLACK)
-      .lerp(SCAR_VIOLET, input.collapseScarAmount * 0.12)
-      .lerp(TRON_BLUE, input.silenceConstellationAmount * 0.08);
+      .lerp(SCAR_VIOLET, input.collapseScarAmount * 0.14 * input.stylePosture.darkness)
+      .lerp(TRON_BLUE, input.silenceConstellationAmount * 0.08)
+      .lerp(GHOST_PALE, input.silenceConstellationAmount * 0.04 * input.stylePosture.constellation);
     this.veilMaterial.opacity = THREE.MathUtils.clamp(
       (input.collapseScarAmount * 0.22 +
         input.ghostResidueAmount * 0.07 +
         input.silenceConstellationAmount * 0.08) *
+        input.stylePosture.veil *
         input.qualityScalar,
       0,
-      0.26
+      0.32
     );
     this.veilMesh.scale.setScalar(
       1 + input.collapseScarAmount * 0.08 + input.ghostResidueAmount * 0.04
@@ -480,7 +578,8 @@ export class PostSystem {
     context: PostSystemUpdateContext,
     collapseScarAmount: number,
     memoryTraceStrength: number,
-    qualityScalar: number
+    qualityScalar: number,
+    stylePosture: StylePosture
   ): void {
     this.scarMeshes.forEach((mesh, index) => {
       const side = index % 2 === 0 ? -1 : 1;
@@ -492,12 +591,13 @@ export class PostSystem {
 
       mesh.material.color
         .copy(SCAR_VIOLET)
-        .lerp(HOT_MAGENTA, index * 0.08 + collapseScarAmount * 0.16)
-        .lerp(LASER_CYAN, index % 2 === 0 ? 0.18 : 0.06);
+        .lerp(HOT_MAGENTA, (index * 0.08 + collapseScarAmount * 0.16) * stylePosture.neon)
+        .lerp(LASER_CYAN, (index % 2 === 0 ? 0.18 : 0.06) * stylePosture.saturation)
+        .lerp(VOID_BLACK, stylePosture.darkness * collapseScarAmount * 0.24);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (0.08 + index * 0.012) * qualityScalar,
+        amount * (0.08 + index * 0.012) * qualityScalar * stylePosture.scar,
         0,
-        0.16
+        0.2
       );
       mesh.position.set(side * (0.4 + seed * 1.8) + sway, 0, index * 0.012);
       mesh.rotation.z =
@@ -515,7 +615,8 @@ export class PostSystem {
     context: PostSystemUpdateContext,
     cathedralOpenAmount: number,
     phasePulse: number,
-    qualityScalar: number
+    qualityScalar: number,
+    stylePosture: StylePosture
   ): void {
     this.cathedralPlanes.forEach((mesh, index) => {
       const side = index < 3 ? -1 : 1;
@@ -525,12 +626,16 @@ export class PostSystem {
 
       mesh.material.color
         .copy(side < 0 ? LASER_CYAN : HOT_MAGENTA)
-        .lerp(ACID_LIME, lane === 1 ? 0.16 + open * 0.1 : 0.04)
-        .lerp(GHOST_PALE, open * 0.12);
+        .lerp(ACID_LIME, (lane === 1 ? 0.16 + open * 0.1 : 0.04) * stylePosture.neon)
+        .lerp(GHOST_PALE, open * 0.12 * (1.2 - stylePosture.neon))
+        .lerp(SOLAR_ORANGE, open * 0.08 * stylePosture.saturation);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        open * (0.035 + lane * 0.012) * qualityScalar,
+        open *
+          (0.035 + lane * 0.012) *
+          qualityScalar *
+          stylePosture.architecture,
         0,
-        0.12
+        0.16
       );
       mesh.position.x =
         side * (4.7 - sweep - lane * 0.38) +
@@ -553,7 +658,8 @@ export class PostSystem {
     context: PostSystemUpdateContext,
     ghostResidueAmount: number,
     memoryTraceStrength: number,
-    qualityScalar: number
+    qualityScalar: number,
+    stylePosture: StylePosture
   ): void {
     this.ghostRings.forEach((mesh, index) => {
       const trace = this.memoryTraces[this.memoryTraces.length - 1 - index];
@@ -564,12 +670,13 @@ export class PostSystem {
 
       mesh.material.color
         .copy(trace?.color ?? GHOST_PALE)
-        .lerp(GHOST_PALE, 0.36)
-        .lerp(LASER_CYAN, index * 0.08);
+        .lerp(GHOST_PALE, 0.36 + stylePosture.ghost * 0.08)
+        .lerp(LASER_CYAN, index * 0.08 * stylePosture.saturation)
+        .lerp(TOXIC_PINK, stylePosture.neon * ghostResidueAmount * 0.08);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (0.05 + index * 0.012) * qualityScalar,
+        amount * (0.05 + index * 0.012) * qualityScalar * stylePosture.ghost,
         0,
-        0.13
+        0.16
       );
       mesh.position.x =
         Math.cos((trace?.direction ?? 0) + context.elapsedSeconds * 0.08) *
@@ -595,7 +702,8 @@ export class PostSystem {
     ghostResidueAmount: number,
     beatPulse: number,
     phasePulse: number,
-    qualityScalar: number
+    qualityScalar: number,
+    stylePosture: StylePosture
   ): void {
     const amount = THREE.MathUtils.clamp(
       silenceConstellationAmount +
@@ -612,13 +720,14 @@ export class PostSystem {
         (0.12 +
           context.authority.chamberPresenceScore * 0.05 +
           phasePulse * 0.02) *
+        stylePosture.constellation *
         qualityScalar,
       0,
-      0.18
+      0.24
     );
     this.constellationMaterial.size =
       0.026 +
-      amount * 0.03 +
+      amount * 0.03 * stylePosture.constellation +
       beatPulse * 0.004 +
       context.audio.shimmer * 0.008;
     this.constellationPoints.rotation.z =
@@ -641,8 +750,9 @@ export class PostSystem {
         .copy(LASER_CYAN)
         .lerp(TRON_BLUE, coolMix)
         .lerp(this.colorScratch, 0.18 + amount * 0.22)
-        .lerp(GHOST_PALE, index % 13 === 0 ? 0.22 + amount * 0.08 : 0)
-        .lerp(ACID_LIME, index % 19 === 0 ? 0.16 : 0);
+        .lerp(GHOST_PALE, index % 13 === 0 ? (0.22 + amount * 0.08) * stylePosture.constellation : 0)
+        .lerp(ACID_LIME, index % 19 === 0 ? 0.16 * stylePosture.neon : 0)
+        .lerp(TOXIC_PINK, index % 23 === 0 ? 0.1 * stylePosture.neon : 0);
       colorArray[baseIndex] = this.colorScratchB.r;
       colorArray[baseIndex + 1] = this.colorScratchB.g;
       colorArray[baseIndex + 2] = this.colorScratchB.b;

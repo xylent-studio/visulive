@@ -126,7 +126,13 @@ import {
   type SavedStance,
   type ShowStartRoute
 } from '../types/director';
-import { DEFAULT_VISUAL_TELEMETRY } from '../types/visual';
+import {
+  DEFAULT_VISUAL_TELEMETRY,
+  type SignatureMomentDevOverride,
+  type SignatureMomentKind,
+  type SignatureMomentPreviewProfile,
+  type SignatureMomentStyle
+} from '../types/visual';
 import { BackstagePanel } from '../ui/BackstagePanel';
 import { ShowHud } from '../ui/ShowHud';
 import { ShowLaunchSurface } from '../ui/ShowLaunchSurface';
@@ -161,6 +167,21 @@ type RendererHandle = {
   dispose(): void;
   getDiagnostics(): RendererDiagnostics;
   setTuning(tuning: RuntimeTuning): void;
+  setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void;
+};
+
+type MomentLabKind = Exclude<SignatureMomentKind, 'none'>;
+
+type MomentLabState = {
+  available: boolean;
+  active: boolean;
+  autoCycleActive: boolean;
+  disabledReason: string | null;
+  kind: MomentLabKind;
+  style: SignatureMomentStyle;
+  syntheticProfile: SignatureMomentPreviewProfile;
+  durationSeconds: number;
+  latestReceipt: string | null;
 };
 
 type PendingRunCheckpointStill = {
@@ -168,13 +189,15 @@ type PendingRunCheckpointStill = {
   timestampMs: number;
   frame: ReplayCaptureFrame;
   kind: ReplayRunStillKind;
+  exploratory: boolean;
 };
 
 const RUN_CHECKPOINT_STILL_PRIORITY: Record<ReplayRunStillKind, number> = {
   checkpoint: 1,
   quiet: 2,
   authority: 3,
-  trust: 4
+  trust: 4,
+  'signature-preview': 5
 };
 
 const cloneReplayCaptureFrameSnapshot = (
@@ -210,6 +233,25 @@ const PROOF_STILLS_STORAGE_KEY = 'visulive-proof-stills';
 const PROOF_SCENARIO_STORAGE_KEY = 'visulive-proof-scenario-v1';
 const PROOF_MISSION_STORAGE_KEY = 'visulive-proof-mission-v1';
 const PROOF_WAVE_STORAGE_KEY = 'visulive-proof-wave-v1';
+const MOMENT_LAB_KINDS: MomentLabKind[] = [
+  'collapse-scar',
+  'cathedral-open',
+  'ghost-residue',
+  'silence-constellation'
+];
+const MOMENT_LAB_STYLES: SignatureMomentStyle[] = [
+  'auto',
+  'contrast-mythic',
+  'maximal-neon',
+  'ambient-premium'
+];
+const MOMENT_LAB_PROFILES: SignatureMomentPreviewProfile[] = [
+  'natural',
+  'drop',
+  'reveal',
+  'release',
+  'quiet'
+];
 const MAX_CAPTURE_FRAMES = 36000;
 const MAX_AUTO_CAPTURE_HISTORY = 32;
 const RECENT_AUTO_CAPTURE_DISPLAY_LIMIT = 8;
@@ -475,6 +517,7 @@ export function App() {
   const replayRef = useRef(new ReplayController());
   const captureDirectoryRef = useRef<FileSystemDirectoryHandle | null>(null);
   const controlsRef = useRef<UserControlState>(DEFAULT_USER_CONTROL_STATE);
+  const momentLabCycleIndexRef = useRef(0);
   const sessionInterventionRef = useRef<SessionInterventionSummary>(
     INITIAL_SESSION_INTERVENTION_SUMMARY
   );
@@ -491,6 +534,7 @@ export function App() {
     lastQualityTier: string | null;
     lastShowState: string | null;
     lastCueFamily: string | null;
+    lastSignatureMomentKey: string | null;
     lastStageIntent: string | null;
     lastRouteId: string | null;
     lastNoTouchWindowPassed: boolean;
@@ -510,6 +554,7 @@ export function App() {
     lastQualityTier: null,
     lastShowState: null,
     lastCueFamily: null,
+    lastSignatureMomentKey: null,
     lastStageIntent: null,
     lastRouteId: null,
     lastNoTouchWindowPassed: false,
@@ -622,6 +667,22 @@ export function App() {
       const mission = getReplayProofMissionProfile(readStoredProofMissionKind());
       return mission.scenarioKind;
     });
+  const isMomentLabAvailable =
+    typeof window !== 'undefined' &&
+    (import.meta.env.DEV ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1');
+  const [momentLabKind, setMomentLabKind] =
+    useState<MomentLabKind>('collapse-scar');
+  const [momentLabStyle, setMomentLabStyle] =
+    useState<SignatureMomentStyle>('contrast-mythic');
+  const [momentLabSyntheticProfile, setMomentLabSyntheticProfile] =
+    useState<SignatureMomentPreviewProfile>('drop');
+  const [momentLabDurationSeconds, setMomentLabDurationSeconds] = useState(4.8);
+  const [momentLabAutoCycleActive, setMomentLabAutoCycleActive] = useState(false);
+  const [momentLabLatestReceipt, setMomentLabLatestReceipt] = useState<string | null>(
+    null
+  );
   const [advancedCuration, setAdvancedCuration] = useState<AdvancedCurationState>(() => {
     if (typeof window === 'undefined') {
       return DEFAULT_ADVANCED_CURATION_STATE;
@@ -1240,13 +1301,15 @@ export function App() {
     journal: ReplayRunJournal,
     timestampMs: number,
     frameForStill: ReplayCaptureFrame,
-    kind: ReplayRunStillKind
+    kind: ReplayRunStillKind,
+    exploratory: boolean
   ) => {
     const nextQueuedStill: PendingRunCheckpointStill = {
       runId: journal.metadata.runId,
       timestampMs,
       frame: cloneReplayCaptureFrameSnapshot(frameForStill),
-      kind
+      kind,
+      exploratory
     };
     const currentQueuedStill = runJournalRef.current.queuedCheckpointStill;
 
@@ -1275,7 +1338,7 @@ export function App() {
     if (
       !activeJournal ||
       activeJournal.metadata.runId !== queuedStill.runId ||
-      !proofWaveArmedRef.current
+      (!proofWaveArmedRef.current && !queuedStill.exploratory)
     ) {
       return;
     }
@@ -1284,7 +1347,8 @@ export function App() {
       captureRunCheckpointStill(
         queuedStill.timestampMs,
         queuedStill.frame,
-        queuedStill.kind
+        queuedStill.kind,
+        { exploratory: queuedStill.exploratory }
       );
     }, 0);
   };
@@ -1297,21 +1361,32 @@ export function App() {
   const captureRunCheckpointStill = (
     timestampMs: number,
     frameForStill: ReplayCaptureFrame,
-    kind: ReplayRunStillKind
+    kind: ReplayRunStillKind,
+    options?: { exploratory?: boolean }
   ) => {
     const journal = runJournalRef.current.journal;
     const canvas = canvasRef.current;
+    const exploratoryReceipt =
+      options?.exploratory === true && kind === 'signature-preview';
+    const seriousProofStill =
+      journal?.metadata.proofWaveArmed === true || proofWaveArmedRef.current;
 
     if (
       !journal ||
-      !proofWaveArmedRef.current ||
+      (!seriousProofStill && !exploratoryReceipt) ||
       !canvas
     ) {
       return;
     }
 
     if (runJournalRef.current.checkpointStillCaptureInFlight) {
-      queueRunCheckpointStill(journal, timestampMs, frameForStill, kind);
+      queueRunCheckpointStill(
+        journal,
+        timestampMs,
+        frameForStill,
+        kind,
+        exploratoryReceipt
+      );
       return;
     }
 
@@ -1319,15 +1394,19 @@ export function App() {
 
     canvas.toBlob((blob) => {
       if (!blob) {
-        invalidateActiveProofRun(
-          'capture-save-failed',
-          timestampMs,
-          `Checkpoint still capture returned no image data for ${kind}.`,
-          'restart-run'
-        );
-        void persistRunJournalArtifacts(true).finally(
-          finishRunCheckpointStillCapture
-        );
+        if (seriousProofStill) {
+          invalidateActiveProofRun(
+            'capture-save-failed',
+            timestampMs,
+            `Checkpoint still capture returned no image data for ${kind}.`,
+            'restart-run'
+          );
+        } else {
+          setMomentLabLatestReceipt(
+            `Exploratory receipt failed: no image data for ${kind}.`
+          );
+        }
+        void persistRunJournalArtifacts(true).finally(finishRunCheckpointStillCapture);
         return;
       }
 
@@ -1351,12 +1430,18 @@ export function App() {
             (await ensureCaptureDirectoryPermission(handle, false));
 
           if (!handle || !folderReady) {
-            invalidateActiveProofRun(
-              'capture-save-failed',
-              timestampMs,
-              `Checkpoint still ${stillFileName} could not save because the proof capture folder is not writable.`,
-              'restart-run'
-            );
+            if (seriousProofStill) {
+              invalidateActiveProofRun(
+                'capture-save-failed',
+                timestampMs,
+                `Checkpoint still ${stillFileName} could not save because the proof capture folder is not writable.`,
+                'restart-run'
+              );
+            } else {
+              setMomentLabLatestReceipt(
+                `Exploratory receipt failed: capture folder is not writable.`
+              );
+            }
             await persistRunJournalArtifacts(true);
             return;
           }
@@ -1370,13 +1455,20 @@ export function App() {
           );
 
           if (!stillSaveResult.savedFileNames.includes(stillFileName)) {
-            invalidateActiveProofRun(
-              'capture-save-failed',
-              timestampMs,
-              stillSaveResult.warning ??
-                `Checkpoint still ${stillFileName} failed to save into the run package.`,
-              'restart-run'
-            );
+            if (seriousProofStill) {
+              invalidateActiveProofRun(
+                'capture-save-failed',
+                timestampMs,
+                stillSaveResult.warning ??
+                  `Checkpoint still ${stillFileName} failed to save into the run package.`,
+                'restart-run'
+              );
+            } else {
+              setMomentLabLatestReceipt(
+                stillSaveResult.warning ??
+                  `Exploratory receipt ${stillFileName} failed to save.`
+              );
+            }
             await persistRunJournalArtifacts(true);
             return;
           }
@@ -1388,6 +1480,11 @@ export function App() {
           });
           updateRunJournalStatusFromJournal(activeJournal);
           await persistRunJournalArtifacts(true);
+          if (exploratoryReceipt) {
+            setMomentLabLatestReceipt(
+              `Exploratory receipt saved in ${activeJournal.metadata.runId}: ${stillFileName}.`
+            );
+          }
         } finally {
           finishRunCheckpointStillCapture();
         }
@@ -1482,6 +1579,7 @@ export function App() {
       lastQualityTier: null,
       lastShowState: null,
       lastCueFamily: null,
+      lastSignatureMomentKey: null,
       lastStageIntent: null,
       lastRouteId: resolveRouteIdFromListeningMode(nextSourceMode),
       lastNoTouchWindowPassed: false,
@@ -1575,9 +1673,152 @@ export function App() {
     }
   };
 
+  const applyMomentLabPreview = (
+    kind: MomentLabKind,
+    style: SignatureMomentStyle,
+    syntheticProfile: SignatureMomentPreviewProfile,
+    receiptRequested: boolean
+  ) => {
+    if (!isMomentLabAvailable) {
+      setStartError('Moment Lab is only available on localhost/dev proof builds.');
+      return;
+    }
+
+    if (proofWaveArmedRef.current || proofRunLocksControls()) {
+      recordSuppressedProofIntervention(`signature-preview:${kind}`, 'ui');
+      setStartError(
+        'Moment Lab is disabled while Proof Wave is armed or a serious proof run is live.'
+      );
+      return;
+    }
+
+    const startedAtSeconds = performance.now() * 0.001;
+    const durationSeconds = Math.min(9, Math.max(2.2, momentLabDurationSeconds));
+    const override: SignatureMomentDevOverride = {
+      kind,
+      style,
+      syntheticProfile,
+      startedAtSeconds,
+      durationSeconds,
+      intensity: 1,
+      receiptRequested
+    };
+
+    rendererRef.current?.setSignatureMomentDevOverride(override);
+    setMomentLabKind(kind);
+    setMomentLabStyle(style);
+    setMomentLabSyntheticProfile(syntheticProfile);
+    setMomentLabDurationSeconds(durationSeconds);
+    markSessionIntervention(`signature-preview:${kind}:${style}:${syntheticProfile}`);
+
+    const journal = runJournalRef.current.journal;
+    const elapsedMs =
+      sessionInterventionRef.current.sessionStartedAtMs === null
+        ? 0
+        : Math.max(0, Date.now() - sessionInterventionRef.current.sessionStartedAtMs);
+
+    if (journal) {
+      appendRunJournalMarker('signature-preview', elapsedMs, 'Moment Lab preview forced.', {
+        kind,
+        style,
+        syntheticProfile,
+        durationSeconds,
+        receiptRequested
+      });
+    }
+
+    if (receiptRequested) {
+      const latestFrame =
+        autoCaptureRef.current.ring[autoCaptureRef.current.ring.length - 1];
+      if (latestFrame) {
+        captureRunCheckpointStill(
+          latestFrame.timestampMs,
+          latestFrame,
+          'signature-preview',
+          { exploratory: true }
+        );
+      }
+      setMomentLabLatestReceipt(
+        journal
+          ? `Exploratory receipt requested in ${journal.metadata.runId}.`
+          : 'Preview applied. Start an exploratory run to save journal/still receipts.'
+      );
+    } else {
+      setMomentLabLatestReceipt(`Previewing ${kind} as ${style}.`);
+    }
+
+    window.setTimeout(() => {
+      rendererRef.current?.setSignatureMomentDevOverride(null);
+    }, durationSeconds * 1000);
+  };
+
+  const handleMomentLabPreview = () => {
+    applyMomentLabPreview(
+      momentLabKind,
+      momentLabStyle,
+      momentLabSyntheticProfile,
+      true
+    );
+  };
+
+  const handleMomentLabAutoCycle = () => {
+    if (proofWaveArmedRef.current || proofRunLocksControls()) {
+      recordSuppressedProofIntervention('signature-preview:auto-cycle', 'ui');
+      return;
+    }
+
+    momentLabCycleIndexRef.current = 0;
+    setMomentLabAutoCycleActive((current) => !current);
+  };
+
   useEffect(() => {
     controlsRef.current = controls;
   }, [controls]);
+
+  useEffect(() => {
+    if (!momentLabAutoCycleActive || !isMomentLabAvailable || proofWaveArmed) {
+      rendererRef.current?.setSignatureMomentDevOverride(null);
+      return undefined;
+    }
+
+    const cycle = () => {
+      const variantIndex = momentLabCycleIndexRef.current;
+      const kind = MOMENT_LAB_KINDS[variantIndex % MOMENT_LAB_KINDS.length];
+      const style =
+        MOMENT_LAB_STYLES[
+          1 + Math.floor(variantIndex / MOMENT_LAB_KINDS.length) %
+            (MOMENT_LAB_STYLES.length - 1)
+        ] ?? 'contrast-mythic';
+      const profile =
+        kind === 'collapse-scar'
+          ? 'drop'
+          : kind === 'cathedral-open'
+            ? 'reveal'
+            : kind === 'ghost-residue'
+              ? 'release'
+              : 'quiet';
+
+      momentLabCycleIndexRef.current =
+        (variantIndex + 1) % (MOMENT_LAB_KINDS.length * 3);
+      applyMomentLabPreview(kind, style, profile, true);
+    };
+
+    cycle();
+    const intervalId = window.setInterval(
+      cycle,
+      Math.max(2600, momentLabDurationSeconds * 1000 + 600)
+    );
+
+    return () => {
+      window.clearInterval(intervalId);
+      rendererRef.current?.setSignatureMomentDevOverride(null);
+    };
+  }, [
+    isMomentLabAvailable,
+    momentLabAutoCycleActive,
+    momentLabDurationSeconds,
+    proofWaveArmed
+  ]);
 
   useEffect(() => {
     if (!launchQuickStartId && activeQuickStart) {
@@ -1593,8 +1834,21 @@ export function App() {
     autoCaptureStatusRef.current = autoCaptureStatus;
   }, [autoCaptureStatus]);
 
+  const clearMomentLabPreview = (message?: string) => {
+    momentLabCycleIndexRef.current = 0;
+    rendererRef.current?.setSignatureMomentDevOverride(null);
+    setMomentLabAutoCycleActive(false);
+    if (message) {
+      setMomentLabLatestReceipt(message);
+    }
+  };
+
   useEffect(() => {
     proofWaveArmedRef.current = proofWaveArmed;
+
+    if (proofWaveArmed) {
+      clearMomentLabPreview('Moment Lab stopped because Proof Wave is armed.');
+    }
 
     if (runJournalRef.current.journal) {
       const journal = runJournalRef.current.journal;
@@ -2140,6 +2394,43 @@ export function App() {
             }
           );
           runJournalState.lastCueFamily = nextFrame.visualTelemetry.stageCueFamily;
+        }
+
+        const signatureMomentKey =
+          nextFrame.visualTelemetry.activeSignatureMoment &&
+          nextFrame.visualTelemetry.activeSignatureMoment !== 'none'
+            ? `${nextFrame.visualTelemetry.activeSignatureMoment}:${nextFrame.visualTelemetry.signatureMomentPhase}:${nextFrame.visualTelemetry.signatureMomentStyle ?? 'contrast-mythic'}`
+            : null;
+        if (
+          signatureMomentKey &&
+          signatureMomentKey !== runJournalState.lastSignatureMomentKey
+        ) {
+          const phase = nextFrame.visualTelemetry.signatureMomentPhase;
+          const markerKind =
+            phase === 'armed' || phase === 'eligible' || phase === 'precharge'
+              ? 'signature-moment-precharge'
+              : phase === 'strike' || phase === 'hold'
+                ? 'signature-moment-peak'
+                : 'signature-moment-residue';
+
+          appendRunJournalMarker(
+            markerKind,
+            nextTimestampMs,
+            `signature=${nextFrame.visualTelemetry.activeSignatureMoment} style=${nextFrame.visualTelemetry.signatureMomentStyle ?? 'contrast-mythic'} phase=${phase}`,
+            {
+              kind: nextFrame.visualTelemetry.activeSignatureMoment,
+              style: nextFrame.visualTelemetry.signatureMomentStyle ?? 'contrast-mythic',
+              phase: phase ?? null,
+              intensity: nextFrame.visualTelemetry.signatureMomentIntensity ?? 0,
+              washout: nextFrame.visualTelemetry.perceptualWashoutRisk ?? 0
+            }
+          );
+          if (markerKind === 'signature-moment-peak') {
+            captureRunCheckpointStill(nextTimestampMs, nextFrame, 'authority');
+          }
+          runJournalState.lastSignatureMomentKey = signatureMomentKey;
+        } else if (!signatureMomentKey) {
+          runJournalState.lastSignatureMomentKey = null;
         }
 
         if (
@@ -3686,6 +3977,7 @@ export function App() {
 
   const handleArmProofWave = async () => {
     try {
+      clearMomentLabPreview('Moment Lab stopped before arming Proof Wave.');
       const mission = getReplayProofMissionProfile(proofMissionKind);
       const corrections: string[] = [];
 
@@ -4230,6 +4522,22 @@ export function App() {
           runJournalStatus.proofRunState
       }
     : undefined;
+  const momentLabDisabledReason = !isMomentLabAvailable
+    ? 'Localhost/dev only'
+    : proofWaveArmed || proofRunLocksControls()
+      ? 'Disabled during armed or live serious proof'
+      : null;
+  const momentLabState: MomentLabState = {
+    available: isMomentLabAvailable,
+    active: momentLabDisabledReason === null,
+    autoCycleActive: momentLabAutoCycleActive,
+    disabledReason: momentLabDisabledReason,
+    kind: momentLabKind,
+    style: momentLabStyle,
+    syntheticProfile: momentLabSyntheticProfile,
+    durationSeconds: momentLabDurationSeconds,
+    latestReceipt: momentLabLatestReceipt
+  };
 
   return (
     <main
@@ -4333,7 +4641,17 @@ export function App() {
         onLoadReplay={handleOpenReplayFile}
         onLookChange={handleLookChange}
         onLookPoolChange={handleLookPoolChange}
+        momentLab={momentLabState}
+        momentLabKinds={MOMENT_LAB_KINDS}
+        momentLabProfiles={MOMENT_LAB_PROFILES}
+        momentLabStyles={MOMENT_LAB_STYLES}
         onProofMissionChange={handleProofMissionChange}
+        onMomentLabAutoCycle={handleMomentLabAutoCycle}
+        onMomentLabDurationChange={setMomentLabDurationSeconds}
+        onMomentLabKindChange={setMomentLabKind}
+        onMomentLabPreview={handleMomentLabPreview}
+        onMomentLabProfileChange={setMomentLabSyntheticProfile}
+        onMomentLabStyleChange={setMomentLabStyle}
         onRecalibrate={() => {
           void handleRecalibrate();
         }}

@@ -15,6 +15,7 @@ import type { QualityTier, RendererBackend } from '../types/rendering';
 import type { RuntimeTuning } from '../types/tuning';
 import {
   DEFAULT_VISUAL_TELEMETRY,
+  type SignatureMomentDevOverride,
   type AtmosphereMatterState,
   type VisualTelemetryFrame
 } from '../types/visual';
@@ -109,6 +110,7 @@ export class VisualizerEngine {
   private warnings: string[] = [];
   private overBudgetFrames = 0;
   private tuning: RuntimeTuning | null = null;
+  private signatureMomentDevOverride: SignatureMomentDevOverride | null = null;
   private toneMappingExposure = 0.72;
   private latestVisualTelemetry: VisualTelemetryFrame = {
     ...DEFAULT_VISUAL_TELEMETRY
@@ -171,6 +173,9 @@ export class VisualizerEngine {
     if (this.tuning) {
       this.sceneRuntime.setTuning(this.tuning);
     }
+    if (this.signatureMomentDevOverride) {
+      this.sceneRuntime.setSignatureMomentDevOverride(this.signatureMomentDevOverride);
+    }
     this.scenePass = pass(this.sceneRuntime.scene, this.sceneRuntime.camera);
     const scenePassColor = this.scenePass.getTextureNode('output');
     this.bloomPass = bloom(scenePassColor, 1.12, 0.3, 0.08);
@@ -230,6 +235,11 @@ export class VisualizerEngine {
   setTuning(tuning: RuntimeTuning): void {
     this.tuning = tuning;
     this.sceneRuntime?.setTuning(tuning);
+  }
+
+  setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void {
+    this.signatureMomentDevOverride = override;
+    this.sceneRuntime?.setSignatureMomentDevOverride(override);
   }
 
   dispose(): void {
@@ -535,6 +545,10 @@ export class VisualizerEngine {
     const directionalBias = sceneTelemetry.stageScreenEffectDirectionalBias ?? 0;
     const memoryBias = sceneTelemetry.stageScreenEffectMemoryBias ?? 0;
     const carveBias = sceneTelemetry.stageScreenEffectCarveBias ?? 0;
+    const compositorExposureBias = sceneTelemetry.compositorExposureBias ?? 0;
+    const perceptualWashoutRisk = sceneTelemetry.perceptualWashoutRisk ?? 0;
+    const compositorContrastLift = sceneTelemetry.compositorContrastLift ?? 0;
+    const compositorSaturationLift = sceneTelemetry.compositorSaturationLift ?? 0;
     const cueFamily = sceneTelemetry.stageCueFamily ?? 'brood';
     const worldMode = sceneTelemetry.stageWorldMode ?? 'hold';
     const shotClass = sceneTelemetry.stageShotClass ?? 'anchor';
@@ -616,7 +630,11 @@ export class VisualizerEngine {
         prismaticLift * 0.03 -
         structuralContrast * 0.06 +
         screenExposureBias +
-        atmospherePostProfile.exposureBias,
+        atmospherePostProfile.exposureBias +
+        compositorExposureBias -
+        perceptualWashoutRisk * 0.05 -
+        compositorContrastLift * 0.018 +
+        compositorSaturationLift * 0.01,
       exposureFloor,
       dynamicExposureCeiling
     );
@@ -661,6 +679,9 @@ export class VisualizerEngine {
     const directionalBias = sceneTelemetry.stageScreenEffectDirectionalBias ?? 0;
     const memoryBias = sceneTelemetry.stageScreenEffectMemoryBias ?? 0;
     const carveBias = sceneTelemetry.stageScreenEffectCarveBias ?? 0;
+    const compositorBloomBias = sceneTelemetry.compositorBloomBias ?? 0;
+    const compositorOverprocessRisk = sceneTelemetry.compositorOverprocessRisk ?? 0;
+    const perceptualWashoutRisk = sceneTelemetry.perceptualWashoutRisk ?? 0;
     const cueFamily = sceneTelemetry.stageCueFamily ?? 'brood';
     const worldMode = sceneTelemetry.stageWorldMode ?? 'hold';
     const shotClass = sceneTelemetry.stageShotClass ?? 'anchor';
@@ -699,14 +720,17 @@ export class VisualizerEngine {
       bloomCeiling -
         authorityOverbrightFeedback * 0.22 -
         ringOverdrawPressure * 0.14 -
-        washoutSuppression * 0.08,
+        washoutSuppression * 0.08 -
+        perceptualWashoutRisk * 0.14,
       0.18,
       bloomCeiling
     );
     const suppression =
       washoutSuppression * (0.24 + additivePressure * 0.32 + peakSpend * 0.08) +
       authorityOverbrightFeedback * 0.48 +
-      ringOverdrawPressure * 0.22;
+      ringOverdrawPressure * 0.22 +
+      compositorOverprocessRisk * 0.32 +
+      perceptualWashoutRisk * 0.24;
     const bloomFamilyLift =
       (screenEffectFamily === 'residue' ? 0.12 : 0) +
       (screenEffectFamily === 'stain' ? 0.16 : 0) +
@@ -730,7 +754,8 @@ export class VisualizerEngine {
         prismaticLift * 0.12 -
         structuralContrast * 0.18 +
         bloomFamilyLift * (0.28 + screenEffectIntensity * 0.42) +
-        atmospherePostProfile.bloomStrengthBias,
+        atmospherePostProfile.bloomStrengthBias +
+        compositorBloomBias,
       0.01,
       dynamicBloomCeiling
     );
@@ -747,7 +772,9 @@ export class VisualizerEngine {
         screenEffectIntensity * 0.04 -
         suppression * 0.09 -
         ringOverdrawPressure * 0.065 +
-        atmospherePostProfile.bloomRadiusBias,
+        atmospherePostProfile.bloomRadiusBias +
+        compositorBloomBias * 0.08 -
+        perceptualWashoutRisk * 0.03,
       0.1,
       0.3
     );
@@ -767,7 +794,9 @@ export class VisualizerEngine {
         (screenEffectFamily === 'carve' ? 0.05 : 0) -
         screenEffectIntensity * 0.04 -
         memoryBias * 0.02 +
-        atmospherePostProfile.bloomThresholdBias,
+        atmospherePostProfile.bloomThresholdBias +
+        compositorOverprocessRisk * 0.08 +
+        perceptualWashoutRisk * 0.05,
       0.26,
       0.54
     );
@@ -802,6 +831,8 @@ export class VisualizerEngine {
     const directionalBias = sceneTelemetry.stageScreenEffectDirectionalBias ?? 0;
     const memoryBias = sceneTelemetry.stageScreenEffectMemoryBias ?? 0;
     const carveBias = sceneTelemetry.stageScreenEffectCarveBias ?? 0;
+    const compositorAfterImageBias = sceneTelemetry.compositorAfterImageBias ?? 0;
+    const perceptualWashoutRisk = sceneTelemetry.perceptualWashoutRisk ?? 0;
     const cueFamily = sceneTelemetry.stageCueFamily ?? 'brood';
     const worldMode = sceneTelemetry.stageWorldMode ?? 'hold';
     const structuralContrast =
@@ -840,7 +871,9 @@ export class VisualizerEngine {
         prismaticLift * 0.01 +
         structuralContrast * 0.02 +
         screenPersistenceLift * (0.26 + screenEffectIntensity * 0.34) +
-        atmospherePostProfile.afterImageBias,
+        atmospherePostProfile.afterImageBias +
+        compositorAfterImageBias -
+        perceptualWashoutRisk * 0.025,
       0.64,
       0.9
     );
