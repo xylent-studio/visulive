@@ -135,6 +135,7 @@ The app currently ships with:
 - one required route choice: `PC Audio`, `Microphone`, or `Combo`
 - one unified `Advanced` drawer for style curation, steering, route repair, capture, replay, system, and diagnostics
 - world / look / stance / pool curation moved behind advanced interaction instead of the public startup path
+- `Advanced -> Style` now audits Director Autonomy and labels world/look choices with their intended playable scene, motif, and palette posture so curation is explainable instead of arbitrary
 - route recommendations surfaced without silent route switching
 
 ### Show system
@@ -145,6 +146,7 @@ Current public show count is unchanged, but the branch materially changes the in
 
 - untouched runs default to full-spectrum world and look pools instead of a narrowed starter set
 - runtime resolution now separates autonomous truth, advanced curation, and advanced steering
+- advanced steering now exposes depth, contrast, and saturation directly in addition to world takeover, motion, heat, impact, and aftermath; serious proof still resets these remembered preferences at run start
 - anthology director intent is now explicit in runtime contracts and capture metadata
 - current anthology intent names world family, mutation verb, hero species intent, consequence mode, aftermath state, lighting rig, camera phrase, motif, and memory state
 

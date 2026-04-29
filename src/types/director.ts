@@ -13,6 +13,14 @@ import {
   type RuntimeTuning,
   type UserControlState
 } from './tuning';
+import type {
+  HeroSemanticRole,
+  PaletteState,
+  PlayableMotifSceneKind,
+  RingPosture,
+  StageHeroForm,
+  VisualMotifKind
+} from './visual';
 
 export type InputRoutePolicy =
   | 'auto'
@@ -139,8 +147,11 @@ export type DirectorBiasState = Record<DirectorBiasKey, number>;
 
 export type AdvancedSteeringKey =
   | 'worldTakeover'
+  | 'depth'
   | 'motionAppetite'
   | 'paletteHeat'
+  | 'contrast'
+  | 'saturation'
   | 'impactAppetite'
   | 'aftermath';
 
@@ -163,6 +174,26 @@ export type ShowConstraintState = {
   hasLookAnchor: boolean;
   hasStanceOverride: boolean;
   hasSteeringOverride: boolean;
+};
+
+export type DirectorSceneIntent = Exclude<PlayableMotifSceneKind, 'none'>;
+
+export type DirectorOptionAuditTone = 'ok' | 'info' | 'warn';
+
+export type DirectorOptionAuditItem = {
+  tone: DirectorOptionAuditTone;
+  title: string;
+  body: string;
+};
+
+export type DirectorOptionAudit = {
+  tone: DirectorOptionAuditTone;
+  headline: string;
+  detail: string;
+  autonomyScore: number;
+  expectedSceneCount: number;
+  expectedSceneIntents: DirectorSceneIntent[];
+  notes: DirectorOptionAuditItem[];
 };
 
 export type AnthologyGraduationStatus =
@@ -401,6 +432,12 @@ export type ShowWorldDefinition = {
   label: string;
   eyebrow: string;
   description: string;
+  sceneIntent: DirectorSceneIntent;
+  motifIntent: VisualMotifKind;
+  paletteIntent: PaletteState;
+  ringPostureIntent: RingPosture;
+  heroRoleIntent: HeroSemanticRole;
+  heroFormIntent: StageHeroForm;
   baseControls: Partial<UserControlState>;
   phaseTargets: Partial<Record<DirectorMusicPhase, ShowWorldId>>;
 };
@@ -410,6 +447,12 @@ export type LookDefinition = {
   label: string;
   eyebrow: string;
   description: string;
+  sceneIntent: DirectorSceneIntent;
+  motifIntent: VisualMotifKind;
+  paletteIntent: PaletteState;
+  ringPostureIntent: RingPosture;
+  heroRoleIntent: HeroSemanticRole;
+  heroFormIntent: StageHeroForm;
   baseControls: Partial<UserControlState>;
   phaseTargets: Partial<Record<DirectorMusicPhase, LookId>>;
 };
@@ -578,6 +621,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Pressure Chamber',
     eyebrow: 'World',
     description: 'Dense, forceful, chamber-led staging with heavy consequence and compressed scale.',
+    sceneIntent: 'void-pressure',
+    motifIntent: 'world-takeover',
+    paletteIntent: 'tron-blue',
+    ringPostureIntent: 'event-strike',
+    heroRoleIntent: 'supporting',
+    heroFormIntent: 'orb',
     baseControls: {
       preset: 'pulse',
       worldActivity: 0.92,
@@ -599,6 +648,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Portal Chamber',
     eyebrow: 'World',
     description: 'Apertures, stage openings, and deep spatial transitions that reframe the image.',
+    sceneIntent: 'neon-cathedral',
+    motifIntent: 'neon-portal',
+    paletteIntent: 'tron-blue',
+    ringPostureIntent: 'cathedral-architecture',
+    heroRoleIntent: 'supporting',
+    heroFormIntent: 'prism',
     baseControls: {
       preset: 'lift',
       worldActivity: 0.82,
@@ -620,6 +675,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Cathedral Lattice',
     eyebrow: 'World',
     description: 'Architectural line worlds, volumetric vaulting, and formal stage authority.',
+    sceneIntent: 'neon-cathedral',
+    motifIntent: 'neon-portal',
+    paletteIntent: 'acid-lime',
+    ringPostureIntent: 'cathedral-architecture',
+    heroRoleIntent: 'supporting',
+    heroFormIntent: 'pyramid',
     baseControls: {
       preset: 'lift',
       framing: 0.88,
@@ -641,6 +702,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Storm Crown',
     eyebrow: 'World',
     description: 'High-risk aerial world with dramatic arcs, exposed force, and event-scale ignition.',
+    sceneIntent: 'machine-tunnel',
+    motifIntent: 'machine-grid',
+    paletteIntent: 'acid-lime',
+    ringPostureIntent: 'event-strike',
+    heroRoleIntent: 'twin',
+    heroFormIntent: 'cube',
     baseControls: {
       preset: 'pulse',
       worldActivity: 0.96,
@@ -662,6 +729,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Eclipse Chamber',
     eyebrow: 'World',
     description: 'Dark recovery chamber with strong shadow authority, negative space, and post-memory.',
+    sceneIntent: 'void-pressure',
+    motifIntent: 'void-anchor',
+    paletteIntent: 'void-cyan',
+    ringPostureIntent: 'suppressed',
+    heroRoleIntent: 'world-as-hero',
+    heroFormIntent: 'orb',
     baseControls: {
       preset: 'room',
       worldActivity: 0.78,
@@ -683,6 +756,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Spectral Plume',
     eyebrow: 'World',
     description: 'Ghosted field behavior, airy spread, and low-energy life without dead air.',
+    sceneIntent: 'ghost-constellation',
+    motifIntent: 'silence-constellation',
+    paletteIntent: 'ghost-white',
+    ringPostureIntent: 'residue-trace',
+    heroRoleIntent: 'ghost',
+    heroFormIntent: 'mushroom',
     baseControls: {
       preset: 'room',
       framing: 0.8,
@@ -704,6 +783,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Liquid Pressure',
     eyebrow: 'World',
     description: 'Fluid, pressurized, drifting world with a heavy body and slower reconfiguration.',
+    sceneIntent: 'void-pressure',
+    motifIntent: 'void-anchor',
+    paletteIntent: 'void-cyan',
+    ringPostureIntent: 'suppressed',
+    heroRoleIntent: 'membrane',
+    heroFormIntent: 'orb',
     baseControls: {
       preset: 'lift',
       framing: 0.74,
@@ -725,6 +810,12 @@ export const SHOW_WORLD_DEFINITIONS: Record<ShowWorldId, ShowWorldDefinition> = 
     label: 'Haunted Residue',
     eyebrow: 'World',
     description: 'Residual ghosts, frame scars, and aftermath-led image memory with slow breathing.',
+    sceneIntent: 'ghost-constellation',
+    motifIntent: 'ghost-residue',
+    paletteIntent: 'ghost-white',
+    ringPostureIntent: 'residue-trace',
+    heroRoleIntent: 'ghost',
+    heroFormIntent: 'diamond',
     baseControls: {
       preset: 'room',
       framing: 0.86,
@@ -749,6 +840,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Void Silk',
     eyebrow: 'Look',
     description: 'Dark-body restraint, soft void spread, and elegant quiet-stage contrast.',
+    sceneIntent: 'void-pressure',
+    motifIntent: 'void-anchor',
+    paletteIntent: 'void-cyan',
+    ringPostureIntent: 'suppressed',
+    heroRoleIntent: 'world-as-hero',
+    heroFormIntent: 'orb',
     baseControls: {
       preset: 'room',
       radiance: 0.36,
@@ -766,6 +863,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Machine Halo',
     eyebrow: 'Look',
     description: 'Cold-voltage machine read with strong seams, wire, and emitted edge authority.',
+    sceneIntent: 'machine-tunnel',
+    motifIntent: 'machine-grid',
+    paletteIntent: 'tron-blue',
+    ringPostureIntent: 'event-strike',
+    heroRoleIntent: 'supporting',
+    heroFormIntent: 'cube',
     baseControls: {
       preset: 'pulse',
       geometry: 0.74,
@@ -784,6 +887,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Neon Cathedral',
     eyebrow: 'Look',
     description: 'High-emission sacred-tech read with bright edges, disciplined void, and premium color worlds.',
+    sceneIntent: 'neon-cathedral',
+    motifIntent: 'neon-portal',
+    paletteIntent: 'solar-magenta',
+    ringPostureIntent: 'cathedral-architecture',
+    heroRoleIntent: 'supporting',
+    heroFormIntent: 'prism',
     baseControls: {
       preset: 'pulse',
       geometry: 0.8,
@@ -802,6 +911,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Acid Flare',
     eyebrow: 'Look',
     description: 'Dangerous neon burn with harder impact windows and hotter frame spends.',
+    sceneIntent: 'collapse-scar',
+    motifIntent: 'rupture-scar',
+    paletteIntent: 'acid-lime',
+    ringPostureIntent: 'event-strike',
+    heroRoleIntent: 'fractured',
+    heroFormIntent: 'shard',
     baseControls: {
       preset: 'pulse',
       energy: 0.94,
@@ -820,6 +935,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Ghost Signal',
     eyebrow: 'Look',
     description: 'Cool spectral drift, ghosted residue, and soft but alive low-energy presence.',
+    sceneIntent: 'ghost-constellation',
+    motifIntent: 'silence-constellation',
+    paletteIntent: 'ghost-white',
+    ringPostureIntent: 'residue-trace',
+    heroRoleIntent: 'ghost',
+    heroFormIntent: 'diamond',
     baseControls: {
       preset: 'room',
       radiance: 0.52,
@@ -837,6 +958,12 @@ export const LOOK_DEFINITIONS: Record<LookId, LookDefinition> = {
     label: 'Ember Veil',
     eyebrow: 'Look',
     description: 'Warm memory, burnished residue, and aftermath-biased screen consequence.',
+    sceneIntent: 'ghost-constellation',
+    motifIntent: 'ghost-residue',
+    paletteIntent: 'solar-magenta',
+    ringPostureIntent: 'residue-trace',
+    heroRoleIntent: 'ghost',
+    heroFormIntent: 'diamond',
     baseControls: {
       preset: 'lift',
       radiance: 0.58,
@@ -1091,7 +1218,7 @@ export const DIRECTOR_STANCE_DEFINITIONS: Record<
     permissions: {
       allowWorldMigration: true,
       allowLookMigration: true,
-      allowHeroSuppression: false,
+      allowHeroSuppression: true,
       allowAggressiveConsequence: false,
       allowQuietResidue: true,
       maxRisk: 0.46
@@ -1297,8 +1424,11 @@ export const DIRECTOR_BIAS_GROUP_ORDER: DirectorBiasGroup[] = [
 
 export const ADVANCED_STEERING_KEYS: AdvancedSteeringKey[] = [
   'worldTakeover',
+  'depth',
   'motionAppetite',
   'paletteHeat',
+  'contrast',
+  'saturation',
   'impactAppetite',
   'aftermath'
 ];
@@ -1346,8 +1476,11 @@ export const DEFAULT_ADVANCED_CURATION_STATE: AdvancedCurationState = {
 
 export const DEFAULT_ADVANCED_STEERING_STATE: AdvancedSteeringState = {
   worldTakeover: DEFAULT_DIRECTOR_BIAS_STATE.worldTakeover,
+  depth: DEFAULT_DIRECTOR_BIAS_STATE.depth,
   motionAppetite: DEFAULT_DIRECTOR_BIAS_STATE.motionAppetite,
   paletteHeat: DEFAULT_DIRECTOR_BIAS_STATE.paletteHeat,
+  contrast: DEFAULT_DIRECTOR_BIAS_STATE.contrast,
+  saturation: DEFAULT_DIRECTOR_BIAS_STATE.saturation,
   impactAppetite: DEFAULT_DIRECTOR_BIAS_STATE.impactAppetite,
   aftermath: DEFAULT_DIRECTOR_BIAS_STATE.aftermath
 };
@@ -1406,11 +1539,16 @@ export function sanitizeAdvancedSteeringState(
     worldTakeover: clamp01(
       input?.worldTakeover ?? DEFAULT_ADVANCED_STEERING_STATE.worldTakeover
     ),
+    depth: clamp01(input?.depth ?? DEFAULT_ADVANCED_STEERING_STATE.depth),
     motionAppetite: clamp01(
       input?.motionAppetite ?? DEFAULT_ADVANCED_STEERING_STATE.motionAppetite
     ),
     paletteHeat: clamp01(
       input?.paletteHeat ?? DEFAULT_ADVANCED_STEERING_STATE.paletteHeat
+    ),
+    contrast: clamp01(input?.contrast ?? DEFAULT_ADVANCED_STEERING_STATE.contrast),
+    saturation: clamp01(
+      input?.saturation ?? DEFAULT_ADVANCED_STEERING_STATE.saturation
     ),
     impactAppetite: clamp01(
       input?.impactAppetite ?? DEFAULT_ADVANCED_STEERING_STATE.impactAppetite
@@ -1551,8 +1689,11 @@ export function extractAdvancedSteeringFromBiasState(
 ): AdvancedSteeringState {
   return sanitizeAdvancedSteeringState({
     worldTakeover: biases.worldTakeover,
+    depth: biases.depth,
     motionAppetite: biases.motionAppetite,
     paletteHeat: biases.paletteHeat,
+    contrast: biases.contrast,
+    saturation: biases.saturation,
     impactAppetite: biases.impactAppetite,
     aftermath: biases.aftermath
   });
@@ -1565,8 +1706,11 @@ export function applyAdvancedSteeringToBiasState(
   return sanitizeDirectorBiasState({
     ...biases,
     worldTakeover: steering.worldTakeover,
+    depth: steering.depth,
     motionAppetite: steering.motionAppetite,
     paletteHeat: steering.paletteHeat,
+    contrast: steering.contrast,
+    saturation: steering.saturation,
     impactAppetite: steering.impactAppetite,
     aftermath: steering.aftermath
   });
@@ -2100,6 +2244,157 @@ export function resolveShowConstraintState(
   };
 }
 
+function collectExpectedSceneIntents(curation: AdvancedCurationState): DirectorSceneIntent[] {
+  const scenes = new Set<DirectorSceneIntent>();
+  const worldIds = curation.showWorldId
+    ? [curation.showWorldId]
+    : WORLD_POOL_DEFINITIONS[curation.worldPoolId].worldIds;
+  const lookIds = curation.lookId
+    ? [curation.lookId]
+    : LOOK_POOL_DEFINITIONS[curation.lookPoolId].lookIds;
+
+  for (const worldId of worldIds) {
+    scenes.add(SHOW_WORLD_DEFINITIONS[worldId].sceneIntent);
+  }
+
+  for (const lookId of lookIds) {
+    scenes.add(LOOK_DEFINITIONS[lookId].sceneIntent);
+  }
+
+  return [...scenes];
+}
+
+export function resolveDirectorOptionAudit(
+  curationInput?: Partial<AdvancedCurationState> | null,
+  steeringInput?: Partial<AdvancedSteeringState> | null
+): DirectorOptionAudit {
+  const curation = sanitizeAdvancedCurationState(curationInput);
+  const steering = sanitizeAdvancedSteeringState(steeringInput);
+  const constraints = resolveShowConstraintState(curation, steering);
+  const notes: DirectorOptionAuditItem[] = [];
+  const steeringOverrideCount = ADVANCED_STEERING_KEYS.filter(
+    (key) =>
+      Math.abs(steering[key] - DEFAULT_ADVANCED_STEERING_STATE[key]) > 0.0001
+  ).length;
+  const expectedSceneIntents = collectExpectedSceneIntents(curation);
+  const selectedWorld = curation.showWorldId
+    ? SHOW_WORLD_DEFINITIONS[curation.showWorldId]
+    : null;
+  const selectedLook = curation.lookId ? LOOK_DEFINITIONS[curation.lookId] : null;
+  const selectedStance = curation.stanceId
+    ? DIRECTOR_STANCE_DEFINITIONS[curation.stanceId]
+    : null;
+
+  let autonomyScore = 1;
+  if (constraints.hasWorldPoolConstraint) {
+    autonomyScore -= 0.1;
+  }
+  if (constraints.hasLookPoolConstraint) {
+    autonomyScore -= 0.1;
+  }
+  if (constraints.hasWorldAnchor) {
+    autonomyScore -= 0.2;
+  }
+  if (constraints.hasLookAnchor) {
+    autonomyScore -= 0.2;
+  }
+  if (constraints.hasStanceOverride) {
+    autonomyScore -= 0.1;
+  }
+  autonomyScore -= Math.min(0.16, steeringOverrideCount * 0.035);
+
+  if (expectedSceneIntents.length < 3 && !(selectedWorld && selectedLook)) {
+    notes.push({
+      tone: 'warn',
+      title: 'Narrow scene spread',
+      body:
+        'This setup leaves fewer than three playable scene families available. It is fine for a focused look, but it can make the show feel samey over a full song.'
+    });
+    autonomyScore -= 0.1;
+  }
+
+  if (selectedWorld && selectedLook && selectedWorld.sceneIntent !== selectedLook.sceneIntent) {
+    notes.push({
+      tone: 'info',
+      title: 'Cross-scene blend',
+      body: `${selectedWorld.label} points at ${selectedWorld.sceneIntent}, while ${selectedLook.label} points at ${selectedLook.sceneIntent}. Auto Show will blend them, but a single-scene anchor will read cleaner.`
+    });
+    autonomyScore -= 0.06;
+  }
+
+  if (selectedStance && !selectedStance.permissions.allowQuietResidue) {
+    notes.push({
+      tone: 'warn',
+      title: 'Quiet/ghost reach reduced',
+      body:
+        'This stance favors impact over recovery. Use it for high-energy exploration, not for proving silence, ghost residue, or premium low-energy states.'
+    });
+    autonomyScore -= 0.08;
+  }
+
+  if (
+    steering.contrast < DEFAULT_ADVANCED_STEERING_STATE.contrast - 0.18 ||
+    steering.saturation < DEFAULT_ADVANCED_STEERING_STATE.saturation - 0.18
+  ) {
+    notes.push({
+      tone: 'warn',
+      title: 'Premium color risk',
+      body:
+        'Low contrast or saturation steering can make the current neon-portals build read washed out. Use this deliberately, not as a default.'
+    });
+    autonomyScore -= 0.08;
+  }
+
+  if (!constraints.hasWorldAnchor && !constraints.hasLookAnchor) {
+    notes.push({
+      tone: 'ok',
+      title: 'Autonomous migration active',
+      body:
+        'World and look anchors are open, so the director can still change scenes on phrase, release, rupture, and signature-moment causes.'
+    });
+  }
+
+  if (
+    constraints.hasWorldPoolConstraint ||
+    constraints.hasLookPoolConstraint ||
+    constraints.hasStanceOverride ||
+    constraints.hasSteeringOverride
+  ) {
+    notes.push({
+      tone: 'info',
+      title: 'Curated, not proof default',
+      body:
+        'These choices are remembered for exploration. Serious Proof Wave starts reset them so stale preferences cannot count as proof truth.'
+    });
+  }
+
+  const score = clamp01(autonomyScore);
+  const tone: DirectorOptionAuditTone =
+    notes.some((note) => note.tone === 'warn') || score < 0.62
+      ? 'warn'
+      : score < 0.9
+        ? 'info'
+        : 'ok';
+  const headline =
+    tone === 'ok'
+      ? 'Director autonomy is open'
+      : tone === 'info'
+        ? 'Director autonomy is guided'
+        : 'Director autonomy is constrained';
+
+  return {
+    tone,
+    headline,
+    detail: `${expectedSceneIntents.length} playable scene family${
+      expectedSceneIntents.length === 1 ? '' : 'ies'
+    } available from the current world/look setup.`,
+    autonomyScore: score,
+    expectedSceneCount: expectedSceneIntents.length,
+    expectedSceneIntents,
+    notes
+  };
+}
+
 function buildBiasAdjustedControls(
   input: UserControlState,
   biases: DirectorBiasState
@@ -2136,13 +2431,14 @@ function buildBiasAdjustedControls(
       input.geometry,
       (biases.depth - 0.5) * 0.18 +
         (biases.machine - 0.5) * 0.22 +
-        (biases.ritual - 0.5) * 0.08
+        (biases.ritual - 0.5) * 0.08 +
+        (biases.contrast - 0.5) * 0.12
     ),
     radiance: adjust(
       input.radiance,
-      (biases.emission - 0.5) * 0.26 +
-        (biases.contrast - 0.5) * 0.12 +
-        (biases.saturation - 0.5) * 0.1
+      (biases.emission - 0.5) * 0.2 +
+        (biases.saturation - 0.5) * 0.18 -
+        (biases.contrast - 0.5) * 0.04
     ),
     beatDrive: adjust(
       input.beatDrive,
@@ -2161,7 +2457,8 @@ function buildBiasAdjustedControls(
       (biases.aftermath - 0.5) * 0.2 +
         (biases.residueAppetite - 0.5) * 0.14 +
         (biases.drift - 0.5) * 0.18 +
-        (biases.ritual - 0.5) * 0.12
+        (biases.ritual - 0.5) * 0.12 -
+        (biases.contrast - 0.5) * 0.12
     ),
     colorBias: adjust(
       input.colorBias,
@@ -2254,6 +2551,7 @@ function buildDynamicRuntimeTuning(
     (world.id === 'spectral-plume' || world.id === 'haunted-residue' ? 0.04 : 0);
   const lookEmissionBias =
     biases.emission * 0.18 +
+    biases.saturation * 0.08 +
     (look.id === 'acid-flare' || look.id === 'neon-cathedral' ? 0.08 : 0) -
     (look.id === 'void-silk' ? 0.06 : 0);
   const riskBias =
@@ -2298,20 +2596,23 @@ function buildDynamicRuntimeTuning(
         (1 +
           (biases.heroPresence - 0.5) * 0.34 -
           worldWeightBias * 0.22 -
-          aftermathBias * 0.1)
+          aftermathBias * 0.1 +
+          (biases.contrast - 0.5) * 0.08)
     ),
     neonStageFloor: clamp01(
       tuning.neonStageFloor *
         (1 +
           lookEmissionBias +
           frame.musicConfidence * 0.08 +
-          surgeBias * 0.12 -
+          surgeBias * 0.12 +
+          (biases.saturation - 0.5) * 0.1 -
           quietBias * 0.08)
     ),
     worldBootFloor: clamp01(
       tuning.worldBootFloor *
         (1 +
           worldWeightBias +
+          (biases.contrast - 0.5) * 0.08 +
           gatherBias * 0.1 +
           surgeBias * 0.18 +
           aftermathBias * 0.08)

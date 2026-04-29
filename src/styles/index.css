@@ -1524,6 +1524,53 @@ button {
   line-height: 1.55;
 }
 
+.backstage-director-audit {
+  border-color: rgba(89, 208, 198, 0.16);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(89, 208, 198, 0.1), transparent 34%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.backstage-director-audit--warn {
+  border-color: rgba(255, 179, 112, 0.24);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255, 179, 112, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.backstage-audit-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.backstage-audit-list__item {
+  padding: 10px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.backstage-audit-list__item strong {
+  display: block;
+  color: var(--text-0);
+  font-size: 12px;
+}
+
+.backstage-audit-list__item span {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-1);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.backstage-audit-list__item--warn {
+  border-color: rgba(255, 179, 112, 0.2);
+}
+
 .backstage-meta-grid {
   margin-top: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));

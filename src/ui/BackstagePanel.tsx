@@ -35,6 +35,7 @@ import {
   SHOW_START_ROUTE_DEFINITIONS,
   SHOW_WORLD_DEFINITIONS,
   WORLD_POOL_DEFINITIONS,
+  resolveDirectorOptionAudit,
   type AdvancedCurationState,
   type AdvancedSteeringKey,
   type AdvancedSteeringState,
@@ -337,6 +338,7 @@ export function BackstagePanel({
 
   const selectedWorldPool = WORLD_POOL_DEFINITIONS[curation.worldPoolId];
   const selectedLookPool = LOOK_POOL_DEFINITIONS[curation.lookPoolId];
+  const directorOptionAudit = resolveDirectorOptionAudit(curation, steering);
   const selectedProofMission = getReplayProofMissionProfile(proofMissionKind);
   const activeProofMission =
     runJournalStatus.proofMission ?? selectedProofMission;
@@ -428,6 +430,37 @@ export function BackstagePanel({
             </div>
           </section>
 
+          <section
+            className={`backstage-section backstage-director-audit backstage-director-audit--${directorOptionAudit.tone}`}
+          >
+            <div className="backstage-section__title">Director Autonomy</div>
+            <div className="backstage-note">
+              <strong>{directorOptionAudit.headline}</strong> |{' '}
+              {directorOptionAudit.detail}
+            </div>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>autonomy</span>
+                <strong>{Math.round(directorOptionAudit.autonomyScore * 100)}%</strong>
+              </div>
+              <div>
+                <span>scene families</span>
+                <strong>{directorOptionAudit.expectedSceneCount}</strong>
+              </div>
+            </div>
+            <ul className="backstage-audit-list">
+              {directorOptionAudit.notes.slice(0, 4).map((note) => (
+                <li
+                  className={`backstage-audit-list__item backstage-audit-list__item--${note.tone}`}
+                  key={`${note.title}:${note.body}`}
+                >
+                  <strong>{note.title}</strong>
+                  <span>{note.body}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
           <section className="backstage-section">
             <div className="backstage-section__title">World Pool</div>
             <div className="director-chip-grid">
@@ -473,7 +506,9 @@ export function BackstagePanel({
                     type="button"
                   >
                     <span>{world.label}</span>
-                    <small>{world.eyebrow}</small>
+                    <small>
+                      {world.sceneIntent} / {world.motifIntent}
+                    </small>
                   </button>
                 );
               })}
@@ -525,7 +560,9 @@ export function BackstagePanel({
                     type="button"
                   >
                     <span>{look.label}</span>
-                    <small>{look.eyebrow}</small>
+                    <small>
+                      {look.paletteIntent} / {look.sceneIntent}
+                    </small>
                   </button>
                 );
               })}

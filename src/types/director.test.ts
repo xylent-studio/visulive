@@ -12,6 +12,7 @@ import {
   resolveAutoRoutePlan,
   resolveAutoRouteRecommendation,
   resolveDirectorBaseState,
+  resolveDirectorOptionAudit,
   resolveDirectorState,
   resolveListeningModeFromRoutePolicy
 } from './director';
@@ -235,6 +236,84 @@ describe('director intent layer', () => {
     expect(applied.anthologyDirectorState.poolState.lookAnchorId).toBe('ghost-signal');
     expect(applied.anthologyDirectorState.music.regime).toBe('listening');
     expect(applied.anthologyDirectorState.mixedMediaAssetId).toBe('ghost-echo');
+  });
+
+  it('audits whether advanced options keep the autonomous scene spread healthy', () => {
+    const fullAuto = resolveDirectorOptionAudit(
+      DEFAULT_ADVANCED_CURATION_STATE,
+      DEFAULT_ADVANCED_STEERING_STATE
+    );
+    const constrained = resolveDirectorOptionAudit(
+      {
+        worldPoolId: 'spectral-worlds',
+        lookPoolId: 'ghost-looks',
+        showWorldId: 'spectral-plume',
+        lookId: 'void-silk',
+        stanceId: 'volatile'
+      },
+      {
+        ...DEFAULT_ADVANCED_STEERING_STATE,
+        contrast: 0.42,
+        saturation: 0.44
+      }
+    );
+
+    expect(fullAuto.tone).toBe('ok');
+    expect(fullAuto.expectedSceneCount).toBeGreaterThanOrEqual(4);
+    expect(fullAuto.notes.some((note) => note.title === 'Autonomous migration active')).toBe(
+      true
+    );
+    expect(constrained.tone).toBe('warn');
+    expect(constrained.autonomyScore).toBeLessThan(fullAuto.autonomyScore);
+    expect(constrained.notes.some((note) => note.title === 'Premium color risk')).toBe(
+      true
+    );
+    expect(constrained.notes.some((note) => note.title === 'Quiet/ghost reach reduced')).toBe(
+      true
+    );
+  });
+
+  it('lets advanced steering directly bias depth, contrast, and saturation', () => {
+    const applied = resolveAppliedShowIntent(
+      'pc-audio',
+      DEFAULT_ADVANCED_CURATION_STATE,
+      {
+        ...DEFAULT_ADVANCED_STEERING_STATE,
+        depth: 0.95,
+        contrast: 0.92,
+        saturation: 0.94
+      },
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        calibrated: true,
+        showState: 'generative',
+        performanceIntent: 'ignite',
+        musicConfidence: 0.7,
+        beatConfidence: 0.72
+      },
+      'system-audio'
+    );
+
+    expect(applied.showCapabilityMode).toBe('curated');
+    expect(applied.compatibilityIntent.biases.depth).toBeCloseTo(0.95);
+    expect(applied.compatibilityIntent.biases.contrast).toBeCloseTo(0.92);
+    expect(applied.compatibilityIntent.biases.saturation).toBeCloseTo(0.94);
+    expect(applied.base.baseControls.geometry).toBeGreaterThan(
+      resolveAppliedShowIntent(
+        'pc-audio',
+        DEFAULT_ADVANCED_CURATION_STATE,
+        DEFAULT_ADVANCED_STEERING_STATE,
+        {
+          ...DEFAULT_LISTENING_FRAME,
+          calibrated: true,
+          showState: 'generative',
+          performanceIntent: 'ignite',
+          musicConfidence: 0.7,
+          beatConfidence: 0.72
+        },
+        'system-audio'
+      ).base.baseControls.geometry
+    );
   });
 
   it('derives route-specific autonomous seeds before advanced curation is applied', () => {

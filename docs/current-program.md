@@ -288,11 +288,14 @@ The public surface should now be:
 - `PC Audio`, `Microphone`, or `Combo` as the only required pre-show choice
 - `Advanced` optional for style curation, semantic steering, route repair, capture, replay, system, and diagnostics
 
-Public controls should bias authority, motion, color, consequence, and character over time.
+Public controls should bias authority, depth, motion, color temperature, contrast,
+saturation, consequence, and character over time.
 
 They should not be the main way the show becomes compelling.
 
-Worlds, looks, stances, and pools remain real internal content architecture, but they are advanced curation now, not front-door startup concepts.
+Worlds, looks, stances, and pools remain real internal content architecture, but they are advanced curation now, not front-door startup concepts. Each world/look option should expose its intended playable scene, motif, palette, ring posture, hero role, and hero form so Advanced reads as authored direction rather than arbitrary styling.
+
+The `Advanced -> Style` surface now includes a Director Autonomy audit. Green means the show is still free to migrate; guided/constrained states are acceptable for exploration but should not be mistaken for serious proof defaults.
 
 The long-term public identity is:
 
