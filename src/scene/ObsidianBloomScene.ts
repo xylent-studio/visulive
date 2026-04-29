@@ -40,8 +40,11 @@ import {
   buildPaletteStateScores,
   chooseShowAct,
   choosePaletteState,
+  derivePaletteTransitionReason,
   deriveStageCuePlan,
   deriveVisualCue,
+  deriveVisualMotifKind,
+  deriveVisualMotifSnapshot,
   deriveTemporalWindows
 } from './direction/showDirection';
 import {
@@ -118,16 +121,20 @@ import { TelemetryRig } from './governors/TelemetryRig';
 import type { StageIdleContext } from './rigs/types';
 import {
   DEFAULT_AUTHORITY_FRAME_SNAPSHOT,
+  DEFAULT_PALETTE_FRAME,
   DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
   DEFAULT_STAGE_COMPOSITION_PLAN,
   DEFAULT_STAGE_CUE_PLAN,
   DEFAULT_VISUAL_CUE_STATE,
+  DEFAULT_VISUAL_MOTIF_SNAPSHOT,
   DEFAULT_VISUAL_TELEMETRY,
   type AuthorityFrameSnapshot,
   type AtmosphereMatterState,
   type SignatureMomentDevOverride,
   type CueClass,
+  type PaletteFrame,
   type PaletteState,
+  type PaletteTransitionReason,
   type PerformanceRegime,
   type PhraseConfidence,
   type PostSpendIntent,
@@ -140,6 +147,7 @@ import {
   type StageHeroForm,
   type StageIntent,
   type VisualCueState,
+  type VisualMotifSnapshot,
   type VisualTelemetryFrame,
   type WorldAuthorityState,
   type HeroAuthorityState
@@ -353,6 +361,15 @@ export class ObsidianBloomScene {
   };
   private paletteState: PaletteState = 'void-cyan';
   private lastPaletteChangeSeconds = 0;
+  private paletteTransitionReason: PaletteTransitionReason = 'hold';
+  private paletteFrame: PaletteFrame = { ...DEFAULT_PALETTE_FRAME };
+  private visualMotifSnapshot: VisualMotifSnapshot = {
+    ...DEFAULT_VISUAL_MOTIF_SNAPSHOT,
+    paletteFrame: { ...DEFAULT_PALETTE_FRAME }
+  };
+  private heroFormSwitchCount = 0;
+  private lastActiveHeroForm: StageHeroForm = DEFAULT_STAGE_CUE_PLAN.heroForm;
+  private lastPreparedElapsedSeconds = 0;
   private cueState: VisualCueState = { ...DEFAULT_VISUAL_CUE_STATE };
   private stageCuePlan: StageCuePlan = { ...DEFAULT_STAGE_CUE_PLAN };
   private stageCompositionPlan: StageCompositionPlan = {
@@ -486,7 +503,7 @@ export class ObsidianBloomScene {
           barPhase: this.barPhase,
           activeAct: this.activeAct,
           activeFamily: this.activeFamily,
-          paletteState: this.paletteState,
+          paletteState: this.paletteFrame.roles.accentTransient,
           triggerPressureWave: (input) => {
             this.pressureWaveSystem.trigger(input);
           }
@@ -575,6 +592,7 @@ export class ObsidianBloomScene {
     deltaSeconds: number
   ): PreparedFlagshipFrameState {
     this.lastListeningFrame = frame;
+    this.lastPreparedElapsedSeconds = elapsedSeconds;
     const smooth = (current: number, target: number, rate: number) =>
       this.smoothValue(current, target, rate, deltaSeconds);
 
@@ -831,6 +849,10 @@ export class ObsidianBloomScene {
     );
     this.heroCoverageEstimateCurrent = heroUpdate.heroCoverageEstimate;
     this.heroScaleCurrentMetric = heroUpdate.heroScaleCurrent;
+    if (heroUpdate.activeHeroForm !== this.lastActiveHeroForm) {
+      this.heroFormSwitchCount += 1;
+      this.lastActiveHeroForm = heroUpdate.activeHeroForm;
+    }
   }
 
   resolveAuthorityFrame(): void {
@@ -1171,7 +1193,9 @@ export class ObsidianBloomScene {
         }
       },
       palette: {
-        state: this.paletteState
+        state: this.paletteState,
+        frame: this.paletteFrame,
+        motif: this.visualMotifSnapshot
       },
       sceneVariation: this.resolveSceneVariationProfile(),
       weights: {
@@ -2018,10 +2042,12 @@ export class ObsidianBloomScene {
   ): void {
     const paletteTargetPeak = Math.max(...Object.values(cuePlan.paletteTargets));
     const paletteSpread = 1 - paletteTargetPeak;
+    const motifKind = deriveVisualMotifKind({
+      frame,
+      cuePlan
+    });
     const paletteVarietyPressure = THREE.MathUtils.clamp(
-      paletteSpread * 1.32 +
-        cuePlan.heroMorphBias * 0.32 +
-        cuePlan.heroMotionBias * 0.18 +
+      paletteSpread * 0.48 +
         frame.sectionChange * 0.48 +
         frame.dropImpact * 0.34 +
         frame.releaseTail * 0.2 +
@@ -2062,38 +2088,67 @@ export class ObsidianBloomScene {
       1.6
     );
     const scores = buildPaletteStateScores(frame, this.activeAct, cuePlan, this.tuning);
+    const motifBaseState = cuePlan.paletteBaseState ?? this.paletteState;
+    scores[motifBaseState] = Math.min(1, scores[motifBaseState] + 0.18);
     const nextPaletteState = choosePaletteState({
       currentState: this.paletteState,
       secondsSinceLastChange: elapsedSeconds - this.lastPaletteChangeSeconds,
       scores,
       minimumHoldSeconds: Math.max(
-        1.1,
+        4.8,
         cuePlan.paletteHoldSeconds +
           (frame.showState === 'surge'
-            ? -1.2
+            ? -0.45
             : frame.showState === 'aftermath'
               ? 0.6
               : frame.showState === 'generative'
               ? 0.2
               : 0) -
-          paletteEscapePressure * 1.6
+          paletteEscapePressure * 0.42
       ),
       switchThreshold: THREE.MathUtils.clamp(
         0.08 -
-          frame.sectionChange * 0.09 -
-          frame.dropImpact * 0.1 -
-          frame.releaseTail * 0.05 +
+          frame.sectionChange * 0.035 -
+          frame.dropImpact * 0.05 -
+          frame.releaseTail * 0.025 +
           cuePlan.paletteHoldSeconds * 0.004 -
-          paletteEscapePressure * 0.04,
-        0.015,
-        0.09
+          paletteEscapePressure * 0.018,
+        0.045,
+        0.11
       )
+    });
+
+    this.paletteTransitionReason = derivePaletteTransitionReason({
+      frame,
+      cuePlan,
+      motif: motifKind,
+      currentBaseState: this.paletteState,
+      nextBaseState: nextPaletteState,
+      signatureMomentKind: this.signatureMomentSnapshot.kind
     });
 
     if (nextPaletteState !== this.paletteState) {
       this.paletteState = nextPaletteState;
       this.lastPaletteChangeSeconds = elapsedSeconds;
     }
+    this.visualMotifSnapshot = deriveVisualMotifSnapshot({
+      frame,
+      cuePlan,
+      paletteBaseState: this.paletteState,
+      paletteTransitionReason: this.paletteTransitionReason,
+      signatureMomentKind: this.signatureMomentSnapshot.kind
+    });
+    this.paletteFrame = this.visualMotifSnapshot.paletteFrame;
+    cuePlan.visualMotif = this.visualMotifSnapshot.kind;
+    cuePlan.visualMotifConfidence = this.visualMotifSnapshot.confidence;
+    cuePlan.visualMotifReason = this.visualMotifSnapshot.reason;
+    cuePlan.paletteBaseState = this.paletteFrame.baseState;
+    cuePlan.paletteTransitionReason = this.paletteTransitionReason;
+    cuePlan.paletteModulationAmount = this.paletteFrame.modulationAmount;
+    cuePlan.paletteTargetDominance = this.paletteFrame.targetDominance;
+    cuePlan.paletteTargetSpread = this.paletteFrame.targetSpread;
+    cuePlan.heroRole = this.visualMotifSnapshot.heroRole;
+    cuePlan.heroFormReason = this.visualMotifSnapshot.heroFormReason;
   }
 
   private updatePerformanceChoreography(
@@ -2588,6 +2643,23 @@ export class ObsidianBloomScene {
     this.heroCoverageEstimateCurrent = heroTelemetry.heroCoverageEstimate;
     this.heroOffCenterPenaltyCurrent = heroTelemetry.heroOffCenterPenalty;
     this.heroDepthPenaltyCurrent = heroTelemetry.heroDepthPenalty;
+    const paletteBaseAgeSeconds = Math.max(
+      0,
+      this.lastPreparedElapsedSeconds - this.lastPaletteChangeSeconds
+    );
+    const hueDistance = Math.abs(this.heroHue - this.worldHue);
+    const heroWorldHueDivergence = Math.min(hueDistance, 1 - hueDistance);
+    const plannedActiveHeroFormMatch =
+      heroTelemetry.plannedActiveHeroFormMatch ??
+      this.stageCuePlan.heroForm === heroTelemetry.activeHeroForm;
+    const unearnedChangeRisk = THREE.MathUtils.clamp(
+      (this.paletteTransitionReason === 'hold' && paletteBaseAgeSeconds < 2.4 ? 0.34 : 0) +
+        (!plannedActiveHeroFormMatch && heroTelemetry.heroFormReason === 'hold' ? 0.42 : 0) +
+        (heroWorldHueDivergence > 0.34 ? (heroWorldHueDivergence - 0.34) * 1.2 : 0) +
+        (1 - this.visualMotifSnapshot.confidence) * 0.18,
+      0,
+      1
+    );
 
     const cueGrammarInput = {
       frame: this.lastListeningFrame,
@@ -2684,6 +2756,25 @@ export class ObsidianBloomScene {
       silenceState,
       phraseConfidence,
       sectionIntent,
+      visualMotif: this.visualMotifSnapshot.kind,
+      visualMotifConfidence: this.visualMotifSnapshot.confidence,
+      visualMotifReason: this.visualMotifSnapshot.reason,
+      paletteBaseState: this.paletteFrame.baseState,
+      paletteBaseAgeSeconds,
+      paletteTransitionReason: this.paletteTransitionReason,
+      paletteModulationAmount: this.paletteFrame.modulationAmount,
+      paletteTargetDominance: this.paletteFrame.targetDominance,
+      paletteTargetSpread: this.paletteFrame.targetSpread,
+      heroRole: heroTelemetry.heroRole,
+      heroFormReason: heroTelemetry.heroFormReason,
+      plannedHeroForm: heroTelemetry.plannedHeroForm,
+      activeHeroForm: heroTelemetry.activeHeroForm,
+      plannedActiveHeroFormMatch,
+      heroFormHoldElapsedSeconds: heroTelemetry.heroFormHoldElapsedSeconds,
+      heroFormSwitchCount: this.heroFormSwitchCount,
+      semanticConfidence: this.visualMotifSnapshot.confidence,
+      heroWorldHueDivergence,
+      unearnedChangeRisk,
       cueIntensity: this.cueState.intensity,
       cueAttack: this.cueState.attack,
       cueSustain: this.cueState.sustain,

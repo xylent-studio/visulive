@@ -36,6 +36,10 @@ function collectRunMetrics(summaries = []) {
   const worldDominance = [];
   const chamberPresence = [];
   const ringAuthority = [];
+  const unearnedChangeRisk = [];
+  const heroFormSwitches = [];
+  const plannedHeroFormMatches = [];
+  const heroWorldHueDivergence = [];
   const cueClasses = [];
   const families = [];
   const quietCaptures = [];
@@ -77,6 +81,22 @@ function collectRunMetrics(summaries = []) {
 
     if (typeof visual.ringAuthorityMean === 'number') {
       ringAuthority.push(visual.ringAuthorityMean);
+    }
+
+    if (typeof visual.unearnedChangeRiskMean === 'number') {
+      unearnedChangeRisk.push(visual.unearnedChangeRiskMean);
+    }
+
+    if (typeof visual.heroFormSwitchesPerMinute === 'number') {
+      heroFormSwitches.push(visual.heroFormSwitchesPerMinute);
+    }
+
+    if (typeof visual.plannedActiveHeroFormMatchRate === 'number') {
+      plannedHeroFormMatches.push(visual.plannedActiveHeroFormMatchRate);
+    }
+
+    if (typeof visual.heroWorldHueDivergenceMean === 'number') {
+      heroWorldHueDivergence.push(visual.heroWorldHueDivergenceMean);
     }
 
     if (typeof visual.dominantCanonicalCueClass === 'string') {
@@ -123,6 +143,10 @@ function collectRunMetrics(summaries = []) {
     averageWorldDominance: average(worldDominance),
     averageChamberPresence: average(chamberPresence),
     averageRingAuthority: average(ringAuthority),
+    averageUnearnedChangeRisk: average(unearnedChangeRisk),
+    averageHeroFormSwitchesPerMinute: average(heroFormSwitches),
+    averagePlannedHeroFormMatchRate: average(plannedHeroFormMatches),
+    averageHeroWorldHueDivergence: average(heroWorldHueDivergence),
     cueClassCount: uniqueCount(cueClasses),
     familyCount: uniqueCount(families),
     quietCaptureCount: quietCaptures.length,
@@ -426,6 +450,91 @@ export function buildRunRecommendationArtifact({
         targetMetrics: ['averageRingAuthority <= 0.95', 'ringBeltPersistence down'],
         recommendedNextProofScenario: 'primary-benchmark',
         confidence: 0.74
+      })
+    );
+  }
+
+  if (
+    metrics.flagCounts.get('randomFeelingPaletteChurn') ||
+    metrics.averageUnearnedChangeRisk > 0.22
+  ) {
+    recommendations.push(
+      buildRecommendation({
+        runId,
+        clipFiles,
+        stillFiles,
+        issueId: 'random-feeling-palette-churn',
+        severity: metrics.averageUnearnedChangeRisk > 0.34 ? 'high' : 'medium',
+        title: 'Palette movement is not reading as musically earned',
+        ownerLane: 'show-direction-cue-logic',
+        subsystem: 'semantic motif routing + palette frame',
+        suspectedCause:
+          'Base palette or hero/world color roles are changing without a strong motif, phrase, release, rupture, or authority reason.',
+        impactedGates: ['taste', 'coverage'],
+        targetMetrics: [
+          'unearnedChangeRiskMean <= 0.18',
+          'paletteBaseLongestRunMs up',
+          'paletteTransitionReasonSpread has fewer hold-adjacent changes'
+        ],
+        recommendedNextProofScenario: 'primary-benchmark',
+        confidence: 0.8
+      })
+    );
+  }
+
+  if (
+    metrics.flagCounts.get('unearnedHeroFormSwitch') ||
+    metrics.averageHeroFormSwitchesPerMinute > 9 ||
+    metrics.averagePlannedHeroFormMatchRate < 0.72
+  ) {
+    recommendations.push(
+      buildRecommendation({
+        runId,
+        clipFiles,
+        stillFiles,
+        issueId: 'unearned-hero-form-switch',
+        severity: metrics.averagePlannedHeroFormMatchRate < 0.58 ? 'high' : 'medium',
+        title: 'Hero shape changes are not consistently matching the semantic plan',
+        ownerLane: 'hero-render-emissive-materials',
+        subsystem: 'HeroSystem semantic form arbitration',
+        suspectedCause:
+          'Hero form scoring or novelty pressure is still overriding the planned motif grammar too often.',
+        impactedGates: ['taste', 'hierarchy'],
+        targetMetrics: [
+          'plannedActiveHeroFormMatchRate >= 0.8',
+          'heroFormSwitchesPerMinute <= 7',
+          'heroFormLongestRunMs up'
+        ],
+        recommendedNextProofScenario: 'primary-benchmark',
+        confidence: 0.83
+      })
+    );
+  }
+
+  if (
+    metrics.flagCounts.get('heroWorldHueDivergence') ||
+    metrics.averageHeroWorldHueDivergence > 0.32
+  ) {
+    recommendations.push(
+      buildRecommendation({
+        runId,
+        clipFiles,
+        stillFiles,
+        issueId: 'hero-world-hue-divergence',
+        severity: metrics.averageHeroWorldHueDivergence > 0.42 ? 'high' : 'medium',
+        title: 'Hero and world color roles are drifting apart',
+        ownerLane: 'show-direction-cue-logic',
+        subsystem: 'PaletteFrame cross-system color roles',
+        suspectedCause:
+          'Hero, chamber, world, post, or pressure-wave color consumers are not respecting the same semantic palette frame.',
+        impactedGates: ['taste', 'hierarchy'],
+        targetMetrics: [
+          'heroWorldHueDivergenceMean <= 0.28',
+          'perceptualColorfulness stable',
+          'plannedActiveHeroFormMatchRate stable'
+        ],
+        recommendedNextProofScenario: 'coverage',
+        confidence: 0.76
       })
     );
   }

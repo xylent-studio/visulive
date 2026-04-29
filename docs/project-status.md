@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the neon-portal Signature Moment and proof-intelligence pass:
+Latest local verification on `codex/full-version-foundation` after the semantic motif routing pass:
 
 - `npm run anthology:validate` passes
 - `npm run test` passes
@@ -55,6 +55,7 @@ But it is still transitional in four important ways:
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark and operator-trust run packages, but strict release proof still needs clean scenario coverage, benchmark promotion, and no missed opportunities
 - The latest proof-pack now exposes the evidence-platform gap more honestly: stricter kind-aware matching reports 30 missed marker clusters across the current reviewed set, mostly governance-risk/authority moments that need explicit trigger clips or safety/authority stills rather than generic nearby evidence
 - The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the 4x3 variant matrix locally; and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
+- The semantic motif pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell instead of hash/time-bucket variety rotation; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, and ambiguous silhouette risk
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 

@@ -8,15 +8,21 @@ import type { SceneQualityProfile } from '../../runtime';
 import type { SceneVariationProfile } from '../../direction/sceneVariation';
 import type { MotionPoseState } from '../motion/MotionSystem';
 import {
+  DEFAULT_PALETTE_FRAME,
   DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
   DEFAULT_STAGE_COMPOSITION_PLAN,
   DEFAULT_STAGE_CUE_PLAN,
+  DEFAULT_VISUAL_MOTIF_SNAPSHOT,
+  type HeroFormSwitchReason,
+  type HeroSemanticRole,
+  type PaletteFrame,
   type PaletteState,
   type SignatureMomentSnapshot,
   type ShowAct,
   type StageCompositionPlan,
   type StageCuePlan,
-  type StageHeroForm
+  type StageHeroForm,
+  type VisualMotifSnapshot
 } from '../../../types/visual';
 import {
   HERO_COLOR_TRIGGER_OFFSETS,
@@ -185,6 +191,8 @@ export type HeroSystemUpdateContext = {
   };
   palette: {
     state: PaletteState;
+    frame: PaletteFrame;
+    motif: VisualMotifSnapshot;
   };
   sceneVariation: SceneVariationProfile;
   weights: {
@@ -281,6 +289,8 @@ export type HeroSystemUpdateResult = {
   heroScaleCurrent: number;
   activeHeroForm: StageHeroForm;
   activeHeroAccentForm: StageHeroForm;
+  heroFormSwitchReason: HeroFormSwitchReason;
+  heroFormHoldElapsedSeconds: number;
 };
 
 export type HeroSystemTelemetry = {
@@ -310,6 +320,11 @@ export type HeroSystemTelemetry = {
   twinEmissiveMean: number;
   activeHeroForm: StageHeroForm;
   activeHeroAccentForm: StageHeroForm;
+  plannedHeroForm: StageHeroForm;
+  plannedActiveHeroFormMatch: boolean;
+  heroRole: HeroSemanticRole;
+  heroFormReason: HeroFormSwitchReason;
+  heroFormHoldElapsedSeconds: number;
 };
 
 export class HeroSystem {
@@ -577,6 +592,11 @@ export class HeroSystem {
   private signatureMoment: SignatureMomentSnapshot = {
     ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT
   };
+  private paletteFrame: PaletteFrame = { ...DEFAULT_PALETTE_FRAME };
+  private visualMotifSnapshot: VisualMotifSnapshot = {
+    ...DEFAULT_VISUAL_MOTIF_SNAPSHOT,
+    paletteFrame: { ...DEFAULT_PALETTE_FRAME }
+  };
   private stageCuePlan: StageCuePlan = { ...DEFAULT_STAGE_CUE_PLAN };
   private stageCompositionPlan: StageCompositionPlan = {
     ...DEFAULT_STAGE_COMPOSITION_PLAN,
@@ -626,6 +646,9 @@ export class HeroSystem {
   private lastHeroColorRouteSignature = '';
   private lastHeroColorToneSignature = '';
   private lastHeroFormChangeSeconds = 0;
+  private activeHeroRole: HeroSemanticRole = 'supporting';
+  private heroFormSwitchReason: HeroFormSwitchReason = 'hold';
+  private heroFormHoldElapsedSeconds = 0;
 
   private readonly heroTelemetryColor = new THREE.Color();
   private readonly heroTelemetryScratch = new THREE.Color();
@@ -786,7 +809,15 @@ export class HeroSystem {
       heroCrownOpacity: this.crownMaterial.opacity,
       twinEmissiveMean,
       activeHeroForm: this.activeHeroForm,
-      activeHeroAccentForm: this.activeHeroAccentForm
+      activeHeroAccentForm: this.activeHeroAccentForm,
+      plannedHeroForm: this.stageCuePlan.heroForm,
+      plannedActiveHeroFormMatch: this.stageCuePlan.heroForm === this.activeHeroForm,
+      heroRole: this.activeHeroRole,
+      heroFormReason:
+        this.stageCuePlan.heroFormReason ??
+        this.visualMotifSnapshot.heroFormReason ??
+        this.heroFormSwitchReason,
+      heroFormHoldElapsedSeconds: this.heroFormHoldElapsedSeconds
     };
   }
 
@@ -822,7 +853,10 @@ export class HeroSystem {
     this.releaseTail = context.audio.releaseTail;
     this.activeAct = context.stage.activeAct;
     this.activeFamily = context.stage.activeFamily;
-    this.paletteState = context.palette.state;
+    this.paletteFrame = context.palette.frame;
+    this.visualMotifSnapshot = context.palette.motif;
+    this.paletteState = context.palette.frame.baseState ?? context.palette.state;
+    this.activeHeroRole = context.palette.motif.heroRole;
     Object.assign(this.actWeights, context.weights.act);
     Object.assign(this.familyWeights, context.weights.family);
     this.eventAmounts['portal-open'] = context.events.portalOpen;
@@ -879,7 +913,9 @@ export class HeroSystem {
       heroCoverageEstimate: this.heroCoverageEstimateCurrent,
       heroScaleCurrent: this.heroScaleCurrent,
       activeHeroForm: this.activeHeroForm,
-      activeHeroAccentForm: this.activeHeroAccentForm
+      activeHeroAccentForm: this.activeHeroAccentForm,
+      heroFormSwitchReason: this.heroFormSwitchReason,
+      heroFormHoldElapsedSeconds: this.heroFormHoldElapsedSeconds
     };
   }
 
@@ -949,15 +985,18 @@ export class HeroSystem {
     const rankedPaletteTargets = (
       Object.entries(cuePlan.paletteTargets) as Array<[PaletteState, number]>
     ).sort((left, right) => right[1] - left[1]);
-    const dominantPalette = rankedPaletteTargets[0]?.[0] ?? this.paletteState;
+    const dominantPalette =
+      this.paletteFrame.roles.primaryEmission ?? rankedPaletteTargets[0]?.[0] ?? this.paletteState;
     const secondaryPalette =
-      rankedPaletteTargets[1]?.[1] && rankedPaletteTargets[1]![1] > 0.08
+      this.paletteFrame.roles.rimSeam ??
+      (rankedPaletteTargets[1]?.[1] && rankedPaletteTargets[1]![1] > 0.08
         ? rankedPaletteTargets[1]![0]
-        : dominantPalette;
+        : dominantPalette);
     const tertiaryPalette =
-      rankedPaletteTargets[2]?.[1] && rankedPaletteTargets[2]![1] > 0.06
+      this.paletteFrame.roles.accentTransient ??
+      (rankedPaletteTargets[2]?.[1] && rankedPaletteTargets[2]![1] > 0.06
         ? rankedPaletteTargets[2]![0]
-        : secondaryPalette;
+        : secondaryPalette);
     const toneBand = this.resolveHeroColorToneBand(frame);
     const warmth = this.resolveHeroColorWarmth(frame);
     const accentToneBand: HeroColorToneBand =
@@ -970,6 +1009,10 @@ export class HeroSystem {
           : 'sub';
     const routeSignature = [
       this.activeAct,
+      this.visualMotifSnapshot.kind,
+      this.paletteFrame.baseState,
+      cuePlan.paletteTransitionReason ?? this.paletteFrame.transitionReason,
+      cuePlan.heroFormReason ?? this.visualMotifSnapshot.heroFormReason,
       cuePlan.family,
       cuePlan.heroForm,
       cuePlan.heroAccentForm,
@@ -1017,18 +1060,19 @@ export class HeroSystem {
       Math.round(frame.releaseTail * 4)
     ].join(':');
     const minimumHoldSeconds = THREE.MathUtils.clamp(
-      cuePlan.paletteHoldSeconds * 0.28 +
-        (cuePlan.family === 'brood' || cuePlan.family === 'haunt' ? 0.34 : 0) +
+      cuePlan.paletteHoldSeconds * 0.46 +
+        (cuePlan.paletteTransitionReason === 'hold' ? 0.72 : 0) +
+        (cuePlan.family === 'brood' || cuePlan.family === 'haunt' ? 0.48 : 0) +
         (frame.performanceIntent === 'detonate'
-          ? -0.3
+          ? -0.18
           : frame.performanceIntent === 'ignite'
-            ? -0.18
+            ? -0.1
             : 0) -
-        frame.sectionChange * 0.56 -
-        frame.dropImpact * 0.32 -
-        cuePlan.eventDensity * 0.22,
-      0.55,
-      1.9
+        frame.sectionChange * 0.28 -
+        frame.dropImpact * 0.18 -
+        cuePlan.eventDensity * 0.12,
+      1.25,
+      3.2
     );
     const routeChanged = routeSignature !== this.lastHeroColorRouteSignature;
     const toneChanged =
@@ -1379,59 +1423,70 @@ export class HeroSystem {
       form,
       score: heroFormScores[form]
     })).sort((left, right) => right.score - left.score);
+    const semanticSwitchReason =
+      this.stageCuePlan.heroFormReason ??
+      this.visualMotifSnapshot.heroFormReason ??
+      'hold';
+    const semanticLock = THREE.MathUtils.clamp(
+      this.visualMotifSnapshot.confidence * 0.74 +
+        (semanticSwitchReason === 'hold' ? 0.18 : 0) +
+        (this.paletteFrame.transitionReason === 'hold' ? 0.08 : 0),
+      0,
+      1
+    );
     const heroFormHoldSeconds = THREE.MathUtils.clamp(
       this.stageCuePlan.heroFormHoldSeconds *
-        (withheldSpend ? 1.14 : peakSpend ? 0.82 : 1) *
-        (this.stageCompositionPlan.eventScale === 'stage' ? 0.88 : 1.02) -
-        sceneVariation.noveltyDrive * 1.08 -
-        scenePrismatic * 0.56 -
-        paletteSpread * 0.72,
-      1.1,
-      5.4
+        (withheldSpend ? 1.22 : peakSpend ? 0.96 : 1.08) *
+        (this.stageCompositionPlan.eventScale === 'stage' ? 1 : 1.08) +
+        semanticLock * 1.3 -
+        this.sectionChange * 0.28 -
+        this.dropImpact * 0.22,
+      2.6,
+      7.6
     );
     const secondsSinceHeroFormChange = elapsedSeconds - this.lastHeroFormChangeSeconds;
+    this.heroFormHoldElapsedSeconds = Math.max(0, secondsSinceHeroFormChange);
+    const semanticSwitchEligible =
+      semanticSwitchReason !== 'hold' ||
+      this.stageCuePlan.family === 'rupture' ||
+      this.stageCuePlan.family === 'release' ||
+      this.stageCuePlan.family === 'reveal';
     const formVarietyPressure = THREE.MathUtils.clamp(
-      sceneVariation.noveltyDrive * 0.84 +
-        paletteSpread * 0.72 +
-        heroMorphBias * 0.32 +
-        prismaticDrive * 0.26 +
-        this.sectionChange * 0.18 +
+      sceneVariation.noveltyDrive * 0.22 +
+        paletteSpread * 0.28 +
+        heroMorphBias * 0.18 +
+        prismaticDrive * 0.14 +
+        this.sectionChange * 0.16 +
         this.dropImpact * 0.12,
       0,
-      1.8
+      1
     );
     const currentHeroFormScore = heroFormScores[this.activeHeroForm] ?? 0;
     const topHeroFormScore = rankedHeroForms[0]?.score ?? currentHeroFormScore;
-    const switchableHeroForms = rankedHeroForms.filter(
-      (entry, index) =>
-        index < (formVarietyPressure > 0.78 ? 6 : 5) &&
-        entry.score >= topHeroFormScore - (0.12 + formVarietyPressure * 0.08)
-    );
-    const heroFormRotationKey = `${this.activeAct}:${this.paletteState}:${this.activeFamily}:${this.stageCuePlan.family}:${Math.floor(
-      elapsedSeconds / Math.max(0.8, heroFormHoldSeconds * 0.72)
-    )}`;
-    const rotatedHeroForm =
-      switchableHeroForms.length > 0
-        ? switchableHeroForms[hashSignature(heroFormRotationKey) % switchableHeroForms.length]!
-            .form
-        : rankedHeroForms[0]?.form ?? this.activeHeroForm;
     const plannedHeroFormScore = heroFormScores[plannedHeroForm] ?? currentHeroFormScore;
+    const scorePlannedSwitchEligible =
+      plannedHeroForm !== this.activeHeroForm &&
+      secondsSinceHeroFormChange >= heroFormHoldSeconds * 1.35 &&
+      plannedHeroFormScore >= currentHeroFormScore + 0.14 &&
+      plannedHeroFormScore >= topHeroFormScore - 0.04;
     const nextHeroFormCandidate =
       plannedHeroForm !== this.activeHeroForm &&
-      plannedHeroFormScore >= topHeroFormScore - (0.1 + formVarietyPressure * 0.14)
+      (semanticSwitchEligible || scorePlannedSwitchEligible) &&
+      plannedHeroFormScore >= topHeroFormScore - (0.08 + formVarietyPressure * 0.08)
         ? plannedHeroForm
-        : rotatedHeroForm;
+        : this.activeHeroForm;
     const nextHeroFormScore = heroFormScores[nextHeroFormCandidate] ?? currentHeroFormScore;
     const formRotationEligible =
       secondsSinceHeroFormChange >= heroFormHoldSeconds &&
       nextHeroFormCandidate !== this.activeHeroForm &&
-      (nextHeroFormScore >= currentHeroFormScore - (0.02 + formVarietyPressure * 0.14) ||
-        nextHeroFormCandidate === plannedHeroForm ||
-        switchableHeroForms.length > 2);
+      nextHeroFormScore >= currentHeroFormScore - (0.02 + formVarietyPressure * 0.08);
+    this.heroFormSwitchReason = 'hold';
     if (formRotationEligible) {
       this.previousHeroForm = this.activeHeroForm;
       this.activeHeroForm = nextHeroFormCandidate;
       this.lastHeroFormChangeSeconds = elapsedSeconds;
+      this.heroFormHoldElapsedSeconds = 0;
+      this.heroFormSwitchReason = semanticSwitchReason === 'hold' ? 'cue-family' : semanticSwitchReason;
     }
     const accentHeroFormCandidate =
       rankedHeroForms.find(
@@ -1454,12 +1509,13 @@ export class HeroSystem {
         : THREE.MathUtils.clamp(
             0.06 +
               heroMorphBias * 0.18 +
-              prismaticDrive * 0.18 +
+              prismaticDrive * 0.12 +
               scenePrismatic * 0.08 +
               this.sectionChange * 0.08 +
-              (this.activeHeroAccentForm === plannedHeroAccentForm ? 0.04 : 0),
+              (this.activeHeroAccentForm === plannedHeroAccentForm ? 0.04 : 0) -
+              semanticLock * 0.06,
             0.06,
-            0.34
+            semanticSwitchReason === 'hold' ? 0.24 : 0.31
           );
     const primaryFormMix = 1 - accentMix;
     const priorPrimaryMix = (1 - this.heroFormTransition) * primaryFormMix;
@@ -2264,16 +2320,19 @@ export class HeroSystem {
     const rankedPaletteTargets = (
       Object.entries(this.stageCuePlan.paletteTargets) as Array<[PaletteState, number]>
     ).sort((left, right) => right[1] - left[1]);
-    const dominantPalette = rankedPaletteTargets[0]?.[0] ?? this.paletteState;
+    const dominantPalette =
+      this.paletteFrame.roles.primaryEmission ?? rankedPaletteTargets[0]?.[0] ?? this.paletteState;
     const secondaryPalette =
-      rankedPaletteTargets[1]?.[1] && rankedPaletteTargets[1]![1] > 0.08
+      this.paletteFrame.roles.rimSeam ??
+      (rankedPaletteTargets[1]?.[1] && rankedPaletteTargets[1]![1] > 0.08
         ? rankedPaletteTargets[1]![0]
-        : dominantPalette;
+        : dominantPalette);
     const tertiaryPalette =
-      rankedPaletteTargets[2]?.[1] && rankedPaletteTargets[2]![1] > 0.06
+      this.paletteFrame.roles.accentTransient ??
+      (rankedPaletteTargets[2]?.[1] && rankedPaletteTargets[2]![1] > 0.06
         ? rankedPaletteTargets[2]![0]
-        : secondaryPalette;
-    const paletteSeed = `${this.activeAct}:${this.stageCuePlan.family}:${this.activeHeroForm}:${this.activeHeroAccentForm}`;
+        : secondaryPalette);
+    const paletteSeed = `${this.visualMotifSnapshot.kind}:${this.paletteFrame.baseState}:${this.stageCuePlan.family}:${this.activeHeroForm}:${this.stageCuePlan.heroFormReason ?? 'hold'}`;
     copyPaletteCycleColor(
       this.heroPrimaryColor,
       dominantPalette,
@@ -2302,12 +2361,12 @@ export class HeroSystem {
     );
     const paletteAccentMix = THREE.MathUtils.clamp(
       0.12 +
-        paletteSpread * 0.42 +
+        paletteSpread * 0.24 +
         prismaticColorDrive * 0.18 +
         this.sectionChange * 0.1 +
         nonOrbFormPresence * 0.08,
       0.1,
-      0.42
+      0.34
     );
     const palettePulseMix = THREE.MathUtils.clamp(
       0.04 +

@@ -38,6 +38,7 @@ The current runtime split is improving, but not honest enough to treat as done:
 - [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) now owns world sphere, stain/flash planes, fog, atmosphere layers, world telemetry, and disposal
 - [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) now owns chamber geometry, chamber motion/update, chamber-local telemetry inputs, quality reset, and disposal
 - [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now owns lasting hero meshes/materials, build, update/mutation, color and form routing, quality reset, telemetry inputs, and disposal
+- [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) now owns semantic motif and palette-frame intent for major color and hero-form meaning; [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) renders that plan with semantic dwell rather than default hash/novelty rotation
 - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) now owns cross-system chamber/world authority judgment, frame hierarchy scoring, composition safety scoring, and post-render overbright refresh
 - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns rare moment eligibility, music-character style routing, candidate precharge, cooldown/rarity, phase, forced-preview, and suppression/conversion decisions for the first mythic consequence wave
 - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) now owns the first consequence/aftermath render lifecycle, style-matrix postures, stronger neon-portal moment silhouettes, post telemetry, memory-trace cap, quality reset, and disposal for collapse scar, cathedral open, ghost residue, and silence constellation
@@ -67,7 +68,7 @@ Until that happens:
 
 - ownership status: `owned-system`
 - current runtime owner:
-  - [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) for hero meshes/materials, build, update/mutation, color handoff, form choreography, quality reset, telemetry inputs, and disposal
+  - [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) for hero meshes/materials, build, update/mutation, semantic color handoff, semantic form choreography, quality reset, telemetry inputs, and disposal
 - still lives in `ObsidianBloomScene.ts`:
   - hero update context assembly
   - read-only hero root attachment and palette access for event systems
@@ -77,7 +78,7 @@ Until that happens:
 - owner lane:
   - `Hero Ecology`
 - blocker:
-  - runtime ownership is complete enough for safe hero capability work, but alternate hero species, quiet hero states, and hero-suppressed/world-as-hero states are still unproven
+  - runtime ownership is complete enough for safe hero capability work, but alternate hero species, quiet hero states, hero-suppressed/world-as-hero states, and proof that shape changes feel meaningfully earned are still unproven
 - completion condition:
   - met for runtime ownership: hero meshes/materials/build/update/telemetry/dispose and species mutation live in `systems/hero/*`
 

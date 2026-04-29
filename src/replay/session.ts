@@ -38,8 +38,11 @@ import {
   type CaptureQualityFlag,
   type AtmosphereMatterState,
   type CueClass,
+  type HeroFormSwitchReason,
   type HeroAuthorityState,
+  type HeroSemanticRole,
   type PaletteState,
+  type PaletteTransitionReason,
   type PerformanceRegime,
   type PhraseConfidence,
   type PostSpendIntent,
@@ -48,9 +51,11 @@ import {
   type ShowAct,
   type SignatureMomentKind,
   type StageCueFamily,
+  type StageHeroForm,
   type StageIntent,
   type StageShotClass,
   type StageWorldMode,
+  type VisualMotifKind,
   type VisualTelemetryFrame,
   type VisualTelemetrySummary,
   type WorldAuthorityState,
@@ -593,6 +598,54 @@ const SECTION_INTENT_KEYS: SectionIntent[] = [
   'drop',
   'release',
   'recovery'
+];
+const VISUAL_MOTIF_KEYS: VisualMotifKind[] = [
+  'void-anchor',
+  'machine-grid',
+  'neon-portal',
+  'rupture-scar',
+  'ghost-residue',
+  'silence-constellation',
+  'acoustic-transient',
+  'world-takeover'
+];
+const HERO_ROLE_KEYS: HeroSemanticRole[] = [
+  'dominant',
+  'supporting',
+  'fractured',
+  'ghost',
+  'twin',
+  'membrane',
+  'suppressed',
+  'world-as-hero'
+];
+const STAGE_HERO_FORM_KEYS: StageHeroForm[] = [
+  'orb',
+  'cube',
+  'pyramid',
+  'diamond',
+  'prism',
+  'shard',
+  'mushroom'
+];
+const HERO_FORM_SWITCH_REASON_KEYS: HeroFormSwitchReason[] = [
+  'hold',
+  'motif-change',
+  'cue-family',
+  'section-turn',
+  'drop-rupture',
+  'release-residue',
+  'signature-moment',
+  'authority-demotion'
+];
+const PALETTE_TRANSITION_REASON_KEYS: PaletteTransitionReason[] = [
+  'hold',
+  'motif-change',
+  'section-turn',
+  'drop-rupture',
+  'release-residue',
+  'signature-moment',
+  'authority-shift'
 ];
 const STAGE_WORLD_MODE_KEYS: StageWorldMode[] = [
   'hold',
@@ -1678,6 +1731,12 @@ function summarizeVisualTelemetry(
   const silenceStateCounts = new Map<SilenceState, number>();
   const phraseConfidenceCounts = new Map<PhraseConfidence, number>();
   const sectionIntentCounts = new Map<SectionIntent, number>();
+  const visualMotifCounts = new Map<VisualMotifKind, number>();
+  const heroRoleCounts = new Map<HeroSemanticRole, number>();
+  const heroFormCounts = new Map<StageHeroForm, number>();
+  const heroFormReasonCounts = new Map<HeroFormSwitchReason, number>();
+  const paletteTransitionReasonCounts = new Map<PaletteTransitionReason, number>();
+  const paletteBaseStateCounts = new Map<PaletteState, number>();
   const stageWorldModeCounts = new Map<StageWorldMode, number>();
   const atmosphereMatterStateCounts = new Map<AtmosphereMatterState, number>();
   const paletteByActCounts = new Map<ShowAct, Map<PaletteState, number>>();
@@ -1809,6 +1868,15 @@ function summarizeVisualTelemetry(
   let perceptualWashoutRiskSum = 0;
   let perceptualWashoutRiskPeak = 0;
   let perceptualSamples = 0;
+  let plannedActiveHeroFormMatchFrames = 0;
+  let plannedActiveHeroFormMatchSamples = 0;
+  let semanticConfidenceSum = 0;
+  let semanticConfidenceSamples = 0;
+  let heroWorldHueDivergenceSum = 0;
+  let heroWorldHueDivergenceSamples = 0;
+  let unearnedChangeRiskSum = 0;
+  let unearnedChangeRiskSamples = 0;
+  let heroFormSwitchCountPeak = 0;
   let qualityTransitionCount = 0;
   let firstQualityDowngradeMs: number | undefined;
   let previousQualityTier: string | null = null;
@@ -1989,6 +2057,76 @@ function summarizeVisualTelemetry(
       sectionIntent,
       (sectionIntentCounts.get(sectionIntent) ?? 0) + 1
     );
+    const visualMotif =
+      telemetry.visualMotif && VISUAL_MOTIF_KEYS.includes(telemetry.visualMotif)
+        ? telemetry.visualMotif
+        : DEFAULT_VISUAL_TELEMETRY.visualMotif ?? 'void-anchor';
+    visualMotifCounts.set(
+      visualMotif,
+      (visualMotifCounts.get(visualMotif) ?? 0) + 1
+    );
+    const heroRole =
+      telemetry.heroRole && HERO_ROLE_KEYS.includes(telemetry.heroRole)
+        ? telemetry.heroRole
+        : DEFAULT_VISUAL_TELEMETRY.heroRole ?? 'supporting';
+    heroRoleCounts.set(heroRole, (heroRoleCounts.get(heroRole) ?? 0) + 1);
+    const activeHeroForm =
+      telemetry.activeHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.activeHeroForm)
+        ? telemetry.activeHeroForm
+        : telemetry.stageHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.stageHeroForm)
+          ? telemetry.stageHeroForm
+          : DEFAULT_VISUAL_TELEMETRY.activeHeroForm ?? 'orb';
+    heroFormCounts.set(
+      activeHeroForm,
+      (heroFormCounts.get(activeHeroForm) ?? 0) + 1
+    );
+    const heroFormReason =
+      telemetry.heroFormReason &&
+      HERO_FORM_SWITCH_REASON_KEYS.includes(telemetry.heroFormReason)
+        ? telemetry.heroFormReason
+        : DEFAULT_VISUAL_TELEMETRY.heroFormReason ?? 'hold';
+    heroFormReasonCounts.set(
+      heroFormReason,
+      (heroFormReasonCounts.get(heroFormReason) ?? 0) + 1
+    );
+    const paletteTransitionReason =
+      telemetry.paletteTransitionReason &&
+      PALETTE_TRANSITION_REASON_KEYS.includes(telemetry.paletteTransitionReason)
+        ? telemetry.paletteTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY.paletteTransitionReason ?? 'hold';
+    paletteTransitionReasonCounts.set(
+      paletteTransitionReason,
+      (paletteTransitionReasonCounts.get(paletteTransitionReason) ?? 0) + 1
+    );
+    const paletteBaseState =
+      telemetry.paletteBaseState && PALETTE_STATE_KEYS.includes(telemetry.paletteBaseState)
+        ? telemetry.paletteBaseState
+        : telemetry.paletteState;
+    paletteBaseStateCounts.set(
+      paletteBaseState,
+      (paletteBaseStateCounts.get(paletteBaseState) ?? 0) + 1
+    );
+    if (typeof telemetry.plannedActiveHeroFormMatch === 'boolean') {
+      plannedActiveHeroFormMatchSamples += 1;
+      if (telemetry.plannedActiveHeroFormMatch) {
+        plannedActiveHeroFormMatchFrames += 1;
+      }
+    }
+    if (typeof telemetry.semanticConfidence === 'number') {
+      semanticConfidenceSamples += 1;
+      semanticConfidenceSum += telemetry.semanticConfidence;
+    }
+    if (typeof telemetry.heroWorldHueDivergence === 'number') {
+      heroWorldHueDivergenceSamples += 1;
+      heroWorldHueDivergenceSum += telemetry.heroWorldHueDivergence;
+    }
+    if (typeof telemetry.unearnedChangeRisk === 'number') {
+      unearnedChangeRiskSamples += 1;
+      unearnedChangeRiskSum += telemetry.unearnedChangeRisk;
+    }
+    if (typeof telemetry.heroFormSwitchCount === 'number') {
+      heroFormSwitchCountPeak = Math.max(heroFormSwitchCountPeak, telemetry.heroFormSwitchCount);
+    }
     incrementNestedCounter(
       paletteByFamilyCounts,
       stageCueFamily,
@@ -2533,6 +2671,52 @@ function summarizeVisualTelemetry(
     release: (sectionIntentCounts.get('release') ?? 0) / frames.length,
     recovery: (sectionIntentCounts.get('recovery') ?? 0) / frames.length
   };
+  const visualMotifSpread = Object.fromEntries(
+    VISUAL_MOTIF_KEYS.map((key) => [key, (visualMotifCounts.get(key) ?? 0) / frames.length])
+  ) as VisualTelemetrySummary['visualMotifSpread'];
+  const heroRoleSpread = Object.fromEntries(
+    HERO_ROLE_KEYS.map((key) => [key, (heroRoleCounts.get(key) ?? 0) / frames.length])
+  ) as VisualTelemetrySummary['heroRoleSpread'];
+  const heroFormSpread = Object.fromEntries(
+    STAGE_HERO_FORM_KEYS.map((key) => [key, (heroFormCounts.get(key) ?? 0) / frames.length])
+  ) as VisualTelemetrySummary['heroFormSpread'];
+  const heroFormReasonSpread = Object.fromEntries(
+    HERO_FORM_SWITCH_REASON_KEYS.map((key) => [
+      key,
+      (heroFormReasonCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['heroFormReasonSpread'];
+  const paletteTransitionReasonSpread = Object.fromEntries(
+    PALETTE_TRANSITION_REASON_KEYS.map((key) => [
+      key,
+      (paletteTransitionReasonCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['paletteTransitionReasonSpread'];
+  const paletteBaseStateSpread = Object.fromEntries(
+    PALETTE_STATE_KEYS.map((key) => [
+      key,
+      (paletteBaseStateCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['paletteBaseStateSpread'];
+  const dominantVisualMotif =
+    [...visualMotifCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'void-anchor';
+  const dominantHeroRole =
+    [...heroRoleCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'supporting';
+  const dominantHeroForm =
+    [...heroFormCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'orb';
+  const dominantHeroFormReason =
+    [...heroFormReasonCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'hold';
+  const dominantPaletteTransitionReason =
+    [...paletteTransitionReasonCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'hold';
+  const dominantPaletteBaseState =
+    [...paletteBaseStateCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'void-cyan';
   const stageWorldModeSpread: VisualTelemetrySummary['stageWorldModeSpread'] = {
     hold: (stageWorldModeCounts.get('hold') ?? 0) / frames.length,
     'aperture-cage': (stageWorldModeCounts.get('aperture-cage') ?? 0) / frames.length,
@@ -2578,6 +2762,14 @@ function summarizeVisualTelemetry(
   const paletteStateLongestRunMs = longestRunDurationMs(
     frames,
     (frame) => frame.visualTelemetry?.paletteState
+  );
+  const paletteBaseLongestRunMs = longestRunDurationMs(
+    frames,
+    (frame) => frame.visualTelemetry?.paletteBaseState
+  );
+  const heroFormLongestRunMs = longestRunDurationMs(
+    frames,
+    (frame) => frame.visualTelemetry?.activeHeroForm ?? frame.visualTelemetry?.stageHeroForm
   );
   const stageShotClassLongestRunMs = longestRunDurationMs(
     frames,
@@ -2740,6 +2932,41 @@ function summarizeVisualTelemetry(
       dominantSectionIntent === 'recovery'
         ? dominantSectionIntent
         : 'hold',
+    visualMotifSpread,
+    dominantVisualMotif,
+    heroRoleSpread,
+    dominantHeroRole,
+    heroFormSpread,
+    dominantHeroForm,
+    heroFormReasonSpread,
+    dominantHeroFormReason,
+    paletteTransitionReasonSpread,
+    dominantPaletteTransitionReason,
+    paletteBaseStateSpread,
+    dominantPaletteBaseState,
+    paletteBaseLongestRunMs,
+    heroFormLongestRunMs,
+    heroFormSwitchesPerMinute:
+      frames.length > 0
+        ? heroFormSwitchCountPeak /
+          Math.max(
+            0.016,
+            ((frames[frames.length - 1]?.timestampMs ?? 0) - (frames[0]?.timestampMs ?? 0)) /
+              60000
+          )
+        : 0,
+    plannedActiveHeroFormMatchRate:
+      plannedActiveHeroFormMatchSamples > 0
+        ? plannedActiveHeroFormMatchFrames / plannedActiveHeroFormMatchSamples
+        : undefined,
+    heroWorldHueDivergenceMean:
+      heroWorldHueDivergenceSamples > 0
+        ? heroWorldHueDivergenceSum / heroWorldHueDivergenceSamples
+        : undefined,
+    semanticConfidenceMean:
+      semanticConfidenceSamples > 0 ? semanticConfidenceSum / semanticConfidenceSamples : undefined,
+    unearnedChangeRiskMean:
+      unearnedChangeRiskSamples > 0 ? unearnedChangeRiskSum / unearnedChangeRiskSamples : undefined,
     stageWorldModeSpread,
     stageWorldModeSpreadByFamily,
     dominantStageWorldMode:
@@ -3130,6 +3357,29 @@ function deriveCaptureQualityFlags(input: {
 
   if ((input.visualSummary.chamberPresenceMean ?? 0) < 0.16) {
     flags.add('lowChamberPresence');
+  }
+
+  if ((input.visualSummary.unearnedChangeRiskMean ?? 0) > 0.22) {
+    flags.add('randomFeelingPaletteChurn');
+  }
+
+  if (
+    (input.visualSummary.heroFormSwitchesPerMinute ?? 0) > 9 ||
+    (input.visualSummary.plannedActiveHeroFormMatchRate ?? 1) < 0.72
+  ) {
+    flags.add('unearnedHeroFormSwitch');
+  }
+
+  if ((input.visualSummary.heroWorldHueDivergenceMean ?? 0) > 0.32) {
+    flags.add('heroWorldHueDivergence');
+  }
+
+  if (
+    (input.visualSummary.heroFormSpread &&
+      Math.max(...Object.values(input.visualSummary.heroFormSpread)) > 0.9) ||
+    (input.visualSummary.heroFormLongestRunMs ?? 0) < 1800
+  ) {
+    flags.add('ambiguousHeroSilhouette');
   }
 
   return [...flags];
@@ -3788,6 +4038,84 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.sectionIntent === 'recovery'
         ? telemetry.sectionIntent
         : DEFAULT_VISUAL_TELEMETRY.sectionIntent,
+    visualMotif:
+      telemetry?.visualMotif && VISUAL_MOTIF_KEYS.includes(telemetry.visualMotif)
+        ? telemetry.visualMotif
+        : DEFAULT_VISUAL_TELEMETRY.visualMotif,
+    visualMotifConfidence:
+      typeof telemetry?.visualMotifConfidence === 'number'
+        ? telemetry.visualMotifConfidence
+        : DEFAULT_VISUAL_TELEMETRY.visualMotifConfidence,
+    visualMotifReason:
+      typeof telemetry?.visualMotifReason === 'string'
+        ? telemetry.visualMotifReason
+        : DEFAULT_VISUAL_TELEMETRY.visualMotifReason,
+    paletteBaseState:
+      telemetry?.paletteBaseState && PALETTE_STATE_KEYS.includes(telemetry.paletteBaseState)
+        ? telemetry.paletteBaseState
+        : DEFAULT_VISUAL_TELEMETRY.paletteBaseState,
+    paletteBaseAgeSeconds:
+      typeof telemetry?.paletteBaseAgeSeconds === 'number'
+        ? telemetry.paletteBaseAgeSeconds
+        : DEFAULT_VISUAL_TELEMETRY.paletteBaseAgeSeconds,
+    paletteTransitionReason:
+      telemetry?.paletteTransitionReason &&
+      PALETTE_TRANSITION_REASON_KEYS.includes(telemetry.paletteTransitionReason)
+        ? telemetry.paletteTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY.paletteTransitionReason,
+    paletteModulationAmount:
+      typeof telemetry?.paletteModulationAmount === 'number'
+        ? telemetry.paletteModulationAmount
+        : DEFAULT_VISUAL_TELEMETRY.paletteModulationAmount,
+    paletteTargetDominance:
+      typeof telemetry?.paletteTargetDominance === 'number'
+        ? telemetry.paletteTargetDominance
+        : DEFAULT_VISUAL_TELEMETRY.paletteTargetDominance,
+    paletteTargetSpread:
+      typeof telemetry?.paletteTargetSpread === 'number'
+        ? telemetry.paletteTargetSpread
+        : DEFAULT_VISUAL_TELEMETRY.paletteTargetSpread,
+    heroRole:
+      telemetry?.heroRole && HERO_ROLE_KEYS.includes(telemetry.heroRole)
+        ? telemetry.heroRole
+        : DEFAULT_VISUAL_TELEMETRY.heroRole,
+    heroFormReason:
+      telemetry?.heroFormReason &&
+      HERO_FORM_SWITCH_REASON_KEYS.includes(telemetry.heroFormReason)
+        ? telemetry.heroFormReason
+        : DEFAULT_VISUAL_TELEMETRY.heroFormReason,
+    plannedHeroForm:
+      telemetry?.plannedHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.plannedHeroForm)
+        ? telemetry.plannedHeroForm
+        : DEFAULT_VISUAL_TELEMETRY.plannedHeroForm,
+    activeHeroForm:
+      telemetry?.activeHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.activeHeroForm)
+        ? telemetry.activeHeroForm
+        : DEFAULT_VISUAL_TELEMETRY.activeHeroForm,
+    plannedActiveHeroFormMatch:
+      typeof telemetry?.plannedActiveHeroFormMatch === 'boolean'
+        ? telemetry.plannedActiveHeroFormMatch
+        : DEFAULT_VISUAL_TELEMETRY.plannedActiveHeroFormMatch,
+    heroFormHoldElapsedSeconds:
+      typeof telemetry?.heroFormHoldElapsedSeconds === 'number'
+        ? telemetry.heroFormHoldElapsedSeconds
+        : DEFAULT_VISUAL_TELEMETRY.heroFormHoldElapsedSeconds,
+    heroFormSwitchCount:
+      typeof telemetry?.heroFormSwitchCount === 'number'
+        ? telemetry.heroFormSwitchCount
+        : DEFAULT_VISUAL_TELEMETRY.heroFormSwitchCount,
+    semanticConfidence:
+      typeof telemetry?.semanticConfidence === 'number'
+        ? telemetry.semanticConfidence
+        : DEFAULT_VISUAL_TELEMETRY.semanticConfidence,
+    heroWorldHueDivergence:
+      typeof telemetry?.heroWorldHueDivergence === 'number'
+        ? telemetry.heroWorldHueDivergence
+        : DEFAULT_VISUAL_TELEMETRY.heroWorldHueDivergence,
+    unearnedChangeRisk:
+      typeof telemetry?.unearnedChangeRisk === 'number'
+        ? telemetry.unearnedChangeRisk
+        : DEFAULT_VISUAL_TELEMETRY.unearnedChangeRisk,
     cueIntensity:
       typeof telemetry?.cueIntensity === 'number'
         ? telemetry.cueIntensity

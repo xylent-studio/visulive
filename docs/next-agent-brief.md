@@ -41,6 +41,7 @@ Read first:
 - strict proof remains blocked by incomplete scenario coverage, no current-canonical benchmark promotion, and missed-opportunity cleanup; the active inbox should be empty before the next proof pass
 - the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, and `updateCompositorSystem`
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
+- color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
 
 This means the next agent should return to proof validation and signature-moment tuning, not release cleanup or another capability expansion.
 
@@ -83,6 +84,7 @@ The highest-leverage move is:
    - prefer `npm run proof:refresh` for benchmark/analyzer/proof-pack refresh plus evidence indexing; `npm run proof:current` remains report refresh without indexing
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
    - tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), authority-fed lighting/particles, or stage cue policy without moving ownership back into the scene
+   - if color or hero shapes feel arbitrary, tune `VisualMotifSnapshot`, `PaletteFrame`, and `HeroSystem` semantic arbitration; do not restore hash/time-bucket form rotation as the primary variety mechanism
 5. if signature proof holds:
    - run `Operator trust`
    - then deepen the audio-to-regime-to-cue hierarchy or move to compositor/memory based on evidence

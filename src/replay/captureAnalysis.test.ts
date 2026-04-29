@@ -746,6 +746,62 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('Multi-event windows: 2');
   });
 
+  it('flags semantic palette and hero-form churn separately from low variation', () => {
+    const summary = summarizeCapture(
+      {
+        metadata: {
+          label: 'semantic-churn',
+          captureMode: 'auto',
+          triggerKind: 'section',
+          triggerReason: 'semantic regression',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'balanced',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              activeHeroForm: 'orb',
+              plannedHeroForm: 'shard',
+              plannedActiveHeroFormMatch: false,
+              heroFormSwitchCount: 1,
+              unearnedChangeRisk: 0.36,
+              heroWorldHueDivergence: 0.42,
+              paletteBaseState: 'void-cyan',
+              paletteTransitionReason: 'hold'
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 4000,
+            visualTelemetry: {
+              activeHeroForm: 'cube',
+              plannedHeroForm: 'shard',
+              plannedActiveHeroFormMatch: false,
+              heroFormSwitchCount: 2,
+              unearnedChangeRisk: 0.32,
+              heroWorldHueDivergence: 0.38,
+              paletteBaseState: 'acid-lime',
+              paletteTransitionReason: 'hold'
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/semantic-churn.json'
+    );
+
+    expect(summary.qualityFlags).toContain('randomFeelingPaletteChurn');
+    expect(summary.qualityFlags).toContain('unearnedHeroFormSwitch');
+    expect(summary.qualityFlags).toContain('heroWorldHueDivergence');
+    expect(summary.visualSummary?.plannedActiveHeroFormMatchRate).toBe(0);
+    expect(summary.visualSummary?.heroFormSwitchesPerMinute).toBeGreaterThan(0);
+  });
+
   it('classifies precharged timing separately and excludes it from lag averages', () => {
     const precharged = summarizeCapture(
       {

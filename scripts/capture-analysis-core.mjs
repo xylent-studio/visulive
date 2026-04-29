@@ -26,6 +26,51 @@ const SIGNATURE_MOMENT_STYLES = [
   'ambient-premium'
 ];
 
+const VISUAL_MOTIFS = [
+  'void-anchor',
+  'machine-grid',
+  'neon-portal',
+  'rupture-scar',
+  'ghost-residue',
+  'silence-constellation',
+  'acoustic-transient',
+  'world-takeover'
+];
+
+const HERO_ROLES = [
+  'dominant',
+  'supporting',
+  'fractured',
+  'ghost',
+  'twin',
+  'membrane',
+  'suppressed',
+  'world-as-hero'
+];
+
+const HERO_FORMS = ['orb', 'cube', 'pyramid', 'diamond', 'prism', 'shard', 'mushroom'];
+
+const HERO_FORM_REASONS = [
+  'hold',
+  'motif-change',
+  'cue-family',
+  'section-turn',
+  'drop-rupture',
+  'release-residue',
+  'signature-moment',
+  'authority-demotion'
+];
+
+const PALETTE_TRANSITION_REASONS = [
+  'hold',
+  'motif-change',
+  'section-turn',
+  'drop-rupture',
+  'release-residue',
+  'signature-moment',
+  'authority-shift'
+];
+
 const VISUAL_ASSET_LAYERS = [
   'worldSphere',
   'worldStain',
@@ -874,6 +919,82 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
       visualSummary.dominantSilenceState ??
       metadataVisual.dominantSilenceState ??
       'beauty',
+    visualMotifSpread:
+      visualSummary.visualMotifSpread ??
+      metadataVisual.visualMotifSpread ??
+      Object.fromEntries(VISUAL_MOTIFS.map((value) => [value, 0])),
+    dominantVisualMotif:
+      visualSummary.dominantVisualMotif ??
+      metadataVisual.dominantVisualMotif ??
+      'void-anchor',
+    heroRoleSpread:
+      visualSummary.heroRoleSpread ??
+      metadataVisual.heroRoleSpread ??
+      Object.fromEntries(HERO_ROLES.map((value) => [value, 0])),
+    dominantHeroRole:
+      visualSummary.dominantHeroRole ??
+      metadataVisual.dominantHeroRole ??
+      'supporting',
+    heroFormSpread:
+      visualSummary.heroFormSpread ??
+      metadataVisual.heroFormSpread ??
+      Object.fromEntries(HERO_FORMS.map((value) => [value, 0])),
+    dominantHeroForm:
+      visualSummary.dominantHeroForm ??
+      metadataVisual.dominantHeroForm ??
+      'orb',
+    heroFormReasonSpread:
+      visualSummary.heroFormReasonSpread ??
+      metadataVisual.heroFormReasonSpread ??
+      Object.fromEntries(HERO_FORM_REASONS.map((value) => [value, 0])),
+    dominantHeroFormReason:
+      visualSummary.dominantHeroFormReason ??
+      metadataVisual.dominantHeroFormReason ??
+      'hold',
+    paletteTransitionReasonSpread:
+      visualSummary.paletteTransitionReasonSpread ??
+      metadataVisual.paletteTransitionReasonSpread ??
+      Object.fromEntries(PALETTE_TRANSITION_REASONS.map((value) => [value, 0])),
+    dominantPaletteTransitionReason:
+      visualSummary.dominantPaletteTransitionReason ??
+      metadataVisual.dominantPaletteTransitionReason ??
+      'hold',
+    paletteBaseStateSpread:
+      visualSummary.paletteBaseStateSpread ??
+      metadataVisual.paletteBaseStateSpread ??
+      Object.fromEntries(COVERAGE_POLICY['palette states'].core.concat(COVERAGE_POLICY['palette states'].rare).map((value) => [value, 0])),
+    dominantPaletteBaseState:
+      visualSummary.dominantPaletteBaseState ??
+      metadataVisual.dominantPaletteBaseState ??
+      'void-cyan',
+    paletteBaseLongestRunMs:
+      visualSummary.paletteBaseLongestRunMs ??
+      metadataVisual.paletteBaseLongestRunMs ??
+      0,
+    heroFormLongestRunMs:
+      visualSummary.heroFormLongestRunMs ??
+      metadataVisual.heroFormLongestRunMs ??
+      0,
+    heroFormSwitchesPerMinute:
+      visualSummary.heroFormSwitchesPerMinute ??
+      metadataVisual.heroFormSwitchesPerMinute ??
+      0,
+    plannedActiveHeroFormMatchRate:
+      visualSummary.plannedActiveHeroFormMatchRate ??
+      metadataVisual.plannedActiveHeroFormMatchRate ??
+      1,
+    heroWorldHueDivergenceMean:
+      visualSummary.heroWorldHueDivergenceMean ??
+      metadataVisual.heroWorldHueDivergenceMean ??
+      0,
+    semanticConfidenceMean:
+      visualSummary.semanticConfidenceMean ??
+      metadataVisual.semanticConfidenceMean ??
+      0,
+    unearnedChangeRiskMean:
+      visualSummary.unearnedChangeRiskMean ??
+      metadataVisual.unearnedChangeRiskMean ??
+      0,
     stageWorldModeSpread:
       visualSummary.stageWorldModeSpread ??
       metadataVisual.stageWorldModeSpread ??
@@ -1633,6 +1754,12 @@ export function summarizeCapture(capture, filePath) {
   const stageTransitionClassCounts = new Map();
   const stageTempoCadenceModeCounts = new Map();
   const atmosphereMatterStateCounts = new Map();
+  const visualMotifCounts = new Map();
+  const heroRoleCounts = new Map();
+  const heroFormCounts = new Map();
+  const heroFormReasonCounts = new Map();
+  const paletteTransitionReasonCounts = new Map();
+  const paletteBaseStateCounts = new Map();
   let exposureSum = 0;
   let exposurePeak = 0;
   let bloomStrengthSum = 0;
@@ -1731,6 +1858,15 @@ export function summarizeCapture(capture, filePath) {
   let perceptualColorfulnessSum = 0;
   let perceptualWashoutRiskSum = 0;
   let perceptualWashoutRiskPeak = 0;
+  let plannedActiveHeroFormMatchFrames = 0;
+  let plannedActiveHeroFormMatchSamples = 0;
+  let semanticConfidenceSum = 0;
+  let semanticConfidenceSamples = 0;
+  let heroWorldHueDivergenceSum = 0;
+  let heroWorldHueDivergenceSamples = 0;
+  let unearnedChangeRiskSum = 0;
+  let unearnedChangeRiskSamples = 0;
+  let heroFormSwitchCountPeak = 0;
 
   for (const frame of frames) {
     const listening = frame.listeningFrame ?? {};
@@ -1745,6 +1881,44 @@ export function summarizeCapture(capture, filePath) {
     incrementCounter(qualityTierCounts, visual.qualityTier ?? 'unknown');
     incrementCounter(actCounts, normalizedAct);
     incrementCounter(paletteStateCounts, normalizedPaletteState);
+    incrementCounter(
+      visualMotifCounts,
+      VISUAL_MOTIFS.includes(visual.visualMotif)
+        ? visual.visualMotif
+        : 'void-anchor'
+    );
+    incrementCounter(
+      heroRoleCounts,
+      HERO_ROLES.includes(visual.heroRole) ? visual.heroRole : 'supporting'
+    );
+    incrementCounter(
+      heroFormCounts,
+      HERO_FORMS.includes(visual.activeHeroForm)
+        ? visual.activeHeroForm
+        : HERO_FORMS.includes(visual.stageHeroForm)
+          ? visual.stageHeroForm
+          : 'orb'
+    );
+    incrementCounter(
+      heroFormReasonCounts,
+      HERO_FORM_REASONS.includes(visual.heroFormReason)
+        ? visual.heroFormReason
+        : 'hold'
+    );
+    incrementCounter(
+      paletteTransitionReasonCounts,
+      PALETTE_TRANSITION_REASONS.includes(visual.paletteTransitionReason)
+        ? visual.paletteTransitionReason
+        : 'hold'
+    );
+    incrementCounter(
+      paletteBaseStateCounts,
+      COVERAGE_POLICY['palette states'].core
+        .concat(COVERAGE_POLICY['palette states'].rare)
+        .includes(visual.paletteBaseState)
+        ? visual.paletteBaseState
+        : normalizedPaletteState
+    );
     incrementCounter(showFamilyCounts, visual.showFamily ?? 'unknown');
     const atmosphereMatterState = ATMOSPHERE_MATTER_STATES.includes(
       visual.atmosphereMatterState
@@ -2030,6 +2204,27 @@ export function summarizeCapture(capture, filePath) {
         visual.perceptualWashoutRisk ?? 0
       );
     }
+    if (typeof visual.plannedActiveHeroFormMatch === 'boolean') {
+      plannedActiveHeroFormMatchSamples += 1;
+      if (visual.plannedActiveHeroFormMatch) {
+        plannedActiveHeroFormMatchFrames += 1;
+      }
+    }
+    if (typeof visual.semanticConfidence === 'number') {
+      semanticConfidenceSamples += 1;
+      semanticConfidenceSum += visual.semanticConfidence;
+    }
+    if (typeof visual.heroWorldHueDivergence === 'number') {
+      heroWorldHueDivergenceSamples += 1;
+      heroWorldHueDivergenceSum += visual.heroWorldHueDivergence;
+    }
+    if (typeof visual.unearnedChangeRisk === 'number') {
+      unearnedChangeRiskSamples += 1;
+      unearnedChangeRiskSum += visual.unearnedChangeRisk;
+    }
+    if (typeof visual.heroFormSwitchCount === 'number') {
+      heroFormSwitchCountPeak = Math.max(heroFormSwitchCountPeak, visual.heroFormSwitchCount);
+    }
 
     updateMetricTracker(metrics.subPressure, listening.subPressure ?? 0);
     updateMetricTracker(metrics.bassBody, listening.bassBody ?? 0);
@@ -2163,6 +2358,80 @@ export function summarizeCapture(capture, filePath) {
   const visualSummary = mergeVisualSummaryEnhancements(metadata, {
     dominantQualityTier,
     dominantPaletteState,
+    visualMotifSpread: Object.fromEntries(
+      VISUAL_MOTIFS.map((kind) => [
+        kind,
+        (visualMotifCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantVisualMotif:
+      [...visualMotifCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'void-anchor',
+    heroRoleSpread: Object.fromEntries(
+      HERO_ROLES.map((role) => [role, (heroRoleCounts.get(role) ?? 0) / frames.length])
+    ),
+    dominantHeroRole:
+      [...heroRoleCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'supporting',
+    heroFormSpread: Object.fromEntries(
+      HERO_FORMS.map((form) => [form, (heroFormCounts.get(form) ?? 0) / frames.length])
+    ),
+    dominantHeroForm:
+      [...heroFormCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'orb',
+    heroFormReasonSpread: Object.fromEntries(
+      HERO_FORM_REASONS.map((reason) => [
+        reason,
+        (heroFormReasonCounts.get(reason) ?? 0) / frames.length
+      ])
+    ),
+    dominantHeroFormReason:
+      [...heroFormReasonCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'hold',
+    paletteTransitionReasonSpread: Object.fromEntries(
+      PALETTE_TRANSITION_REASONS.map((reason) => [
+        reason,
+        (paletteTransitionReasonCounts.get(reason) ?? 0) / frames.length
+      ])
+    ),
+    dominantPaletteTransitionReason:
+      [...paletteTransitionReasonCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'hold',
+    paletteBaseStateSpread: Object.fromEntries(
+      COVERAGE_POLICY['palette states'].core
+        .concat(COVERAGE_POLICY['palette states'].rare)
+        .map((state) => [state, (paletteBaseStateCounts.get(state) ?? 0) / frames.length])
+    ),
+    dominantPaletteBaseState:
+      [...paletteBaseStateCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'void-cyan',
+    paletteBaseLongestRunMs: summarizeLongestRun(
+      frames,
+      (frame) => frame.visualTelemetry?.paletteBaseState
+    ).durationMs,
+    heroFormLongestRunMs: summarizeLongestRun(
+      frames,
+      (frame) => frame.visualTelemetry?.activeHeroForm ?? frame.visualTelemetry?.stageHeroForm
+    ).durationMs,
+    heroFormSwitchesPerMinute:
+      heroFormSwitchCountPeak /
+      Math.max(0.016, (lastTimestampMs - firstTimestampMs) / 60000),
+    plannedActiveHeroFormMatchRate:
+      plannedActiveHeroFormMatchSamples > 0
+        ? plannedActiveHeroFormMatchFrames / plannedActiveHeroFormMatchSamples
+        : undefined,
+    heroWorldHueDivergenceMean:
+      heroWorldHueDivergenceSamples > 0
+        ? heroWorldHueDivergenceSum / heroWorldHueDivergenceSamples
+        : undefined,
+    semanticConfidenceMean:
+      semanticConfidenceSamples > 0
+        ? semanticConfidenceSum / semanticConfidenceSamples
+        : undefined,
+    unearnedChangeRiskMean:
+      unearnedChangeRiskSamples > 0
+        ? unearnedChangeRiskSum / unearnedChangeRiskSamples
+        : undefined,
     exposureMean: exposureSum / frames.length,
     exposurePeak,
     bloomStrengthMean: bloomStrengthSum / frames.length,
@@ -2534,6 +2803,30 @@ export function summarizeCapture(capture, filePath) {
   if (qualityFlags.includes('lowPaletteVariation')) {
     findings.push(
       `Palette variation is still narrow (hero hue range ${formatNumber(heroHueRange)} / world hue range ${formatNumber(worldHueRange)}). The show is likely settling into one lane for too long.`
+    );
+  }
+
+  if (qualityFlags.includes('randomFeelingPaletteChurn')) {
+    findings.push(
+      `Palette movement may feel unearned (unearned-change risk ${formatNumber(visualSummary.unearnedChangeRiskMean)}; dominant base ${visualSummary.dominantPaletteBaseState ?? 'unknown'}). Base color should move on phrase, release, rupture, signature, or authority reasons.`
+    );
+  }
+
+  if (qualityFlags.includes('unearnedHeroFormSwitch')) {
+    findings.push(
+      `Hero form changes may be semantically weak (${formatNumber(visualSummary.heroFormSwitchesPerMinute)} switches/min; planned-active match ${formatPercent(visualSummary.plannedActiveHeroFormMatchRate)}). Shape changes should follow motif grammar, not variety pressure.`
+    );
+  }
+
+  if (qualityFlags.includes('heroWorldHueDivergence')) {
+    findings.push(
+      `Hero/world hue divergence is high (${formatNumber(visualSummary.heroWorldHueDivergenceMean)}), so the show may read as separate random color systems instead of one palette frame.`
+    );
+  }
+
+  if (qualityFlags.includes('ambiguousHeroSilhouette')) {
+    findings.push(
+      `Hero silhouette evidence is weak (dominant form ${visualSummary.dominantHeroForm ?? 'unknown'}, longest form run ${formatMs(visualSummary.heroFormLongestRunMs ?? 0)}). Motif identity may not read from across the room.`
     );
   }
 
@@ -3079,6 +3372,29 @@ function deriveQualityFlagsFromSummary({
 
   if ((visualSummary.chamberPresenceMean ?? 0) < 0.16) {
     flags.add('lowChamberPresence');
+  }
+
+  if ((visualSummary.unearnedChangeRiskMean ?? 0) > 0.22) {
+    flags.add('randomFeelingPaletteChurn');
+  }
+
+  if (
+    (visualSummary.heroFormSwitchesPerMinute ?? 0) > 9 ||
+    (visualSummary.plannedActiveHeroFormMatchRate ?? 1) < 0.72
+  ) {
+    flags.add('unearnedHeroFormSwitch');
+  }
+
+  if ((visualSummary.heroWorldHueDivergenceMean ?? 0) > 0.32) {
+    flags.add('heroWorldHueDivergence');
+  }
+
+  if (
+    (visualSummary.heroFormSpread &&
+      Math.max(...Object.values(visualSummary.heroFormSpread)) > 0.9) ||
+    (visualSummary.heroFormLongestRunMs ?? 0) < 1800
+  ) {
+    flags.add('ambiguousHeroSilhouette');
   }
 
   return [...flags];
@@ -3963,6 +4279,10 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant world mode: ${visual.dominantStageWorldMode ?? 'unknown'}`,
     `- Dominant atmosphere matter state: ${visual.dominantAtmosphereMatterState ?? 'gas'}`,
     `- Dominant signature moment/style: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}`,
+    `- Dominant motif / base palette: ${visual.dominantVisualMotif ?? 'void-anchor'} / ${visual.dominantPaletteBaseState ?? visual.dominantPaletteState}`,
+    `- Dominant hero role/form/reason: ${visual.dominantHeroRole ?? 'supporting'} / ${visual.dominantHeroForm ?? 'orb'} / ${visual.dominantHeroFormReason ?? 'hold'}`,
+    `- Semantic confidence / unearned risk: ${formatNumber(visual.semanticConfidenceMean)} / ${formatNumber(visual.unearnedChangeRiskMean)}`,
+    `- Hero planned-form match / switches-min / hue divergence: ${formatPercent(visual.plannedActiveHeroFormMatchRate)} / ${formatNumber(visual.heroFormSwitchesPerMinute)} / ${formatNumber(visual.heroWorldHueDivergenceMean)}`,
     '',
     '### Compositor summary',
     `- Exposure mean / peak: ${formatNumber(visual.exposureMean)} / ${formatNumber(visual.exposurePeak)}`,
@@ -4035,6 +4355,11 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     '### Structure summary',
     `- Act / palette / shot / world entropy: ${formatNumber(visual.actEntropy)} / ${formatNumber(visual.paletteEntropy)} / ${formatNumber(visual.stageShotClassEntropy)} / ${formatNumber(visual.stageWorldModeEntropy)}`,
     `- Longest act / palette / shot / world run: ${formatMs(visual.actLongestRunMs)} / ${formatMs(visual.paletteStateLongestRunMs)} / ${formatMs(visual.stageShotClassLongestRunMs)} / ${formatMs(visual.stageWorldModeLongestRunMs)}`,
+    `- Motif spread: ${Object.keys(visual.visualMotifSpread ?? {}).length > 0 ? Object.entries(visual.visualMotifSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Palette transition reasons: ${Object.keys(visual.paletteTransitionReasonSpread ?? {}).length > 0 ? Object.entries(visual.paletteTransitionReasonSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Hero form spread: ${Object.keys(visual.heroFormSpread ?? {}).length > 0 ? Object.entries(visual.heroFormSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Hero form reason spread: ${Object.keys(visual.heroFormReasonSpread ?? {}).length > 0 ? Object.entries(visual.heroFormReasonSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Longest base-palette / hero-form run: ${formatMs(visual.paletteBaseLongestRunMs)} / ${formatMs(visual.heroFormLongestRunMs)}`,
     `- Fallback rates hero-overreach / ring-overdraw / overbright / washout: ${formatPercent(visual.heroOverreachFallbackRate)} / ${formatPercent(visual.ringOverdrawFallbackRate)} / ${formatPercent(visual.overbrightFallbackRate)} / ${formatPercent(visual.washoutFallbackRate)}`,
     '',
     '### Cause spread',

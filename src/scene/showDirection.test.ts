@@ -1,16 +1,120 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_LISTENING_FRAME } from '../types/audio';
+import { DEFAULT_STAGE_CUE_PLAN } from '../types/visual';
 import {
   buildShowActScores,
   buildPaletteStateScores,
+  buildPaletteFrame,
   chooseShowAct,
   choosePaletteState,
   deriveStageCuePlan,
   deriveVisualCue,
+  deriveVisualMotifKind,
+  deriveVisualMotifSnapshot,
   deriveTemporalWindows
 } from './showDirection';
 
 describe('showDirection', () => {
+  it('derives semantic motifs and hero grammar from musical cues', () => {
+    const ruptureFrame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      performanceIntent: 'detonate' as const,
+      musicConfidence: 0.84,
+      beatConfidence: 0.72,
+      transientConfidence: 0.68,
+      dropImpact: 0.72,
+      sectionChange: 0.28,
+      releaseTail: 0.04,
+      air: 0.2,
+      body: 0.74,
+      shimmer: 0.24,
+      harmonicColor: 0.48
+    };
+
+    expect(
+      deriveVisualMotifKind({
+        frame: ruptureFrame,
+        cuePlan: {
+          family: 'rupture',
+          dominance: 'hybrid',
+          worldMode: 'collapse-well',
+          heroWeight: 0.32,
+          worldWeight: 0.68,
+          eventDensity: 0.68
+        }
+      })
+    ).toBe('rupture-scar');
+
+    const ruptureSnapshot = deriveVisualMotifSnapshot({
+      frame: ruptureFrame,
+      cuePlan: {
+        ...DEFAULT_STAGE_CUE_PLAN,
+        family: 'rupture',
+        worldMode: 'collapse-well',
+        heroForm: 'shard',
+        heroAccentForm: 'pyramid'
+      },
+      paletteBaseState: 'solar-magenta',
+      paletteTransitionReason: 'drop-rupture'
+    });
+
+    expect(ruptureSnapshot.kind).toBe('rupture-scar');
+    expect(ruptureSnapshot.heroForm).toBe('shard');
+    expect(ruptureSnapshot.heroFormReason).toBe('drop-rupture');
+
+    const releaseSnapshot = deriveVisualMotifSnapshot({
+      frame: {
+        ...DEFAULT_LISTENING_FRAME,
+        mode: 'system-audio' as const,
+        performanceIntent: 'haunt' as const,
+        musicConfidence: 0.64,
+        beatConfidence: 0.28,
+        transientConfidence: 0.12,
+        dropImpact: 0.04,
+        sectionChange: 0.08,
+        releaseTail: 0.58,
+        air: 0.42,
+        body: 0.24,
+        shimmer: 0.36,
+        harmonicColor: 0.38
+      },
+      cuePlan: {
+        ...DEFAULT_STAGE_CUE_PLAN,
+        family: 'release',
+        worldMode: 'ghost-chamber',
+        heroForm: 'diamond',
+        heroAccentForm: 'orb'
+      },
+      paletteBaseState: 'ghost-white',
+      paletteTransitionReason: 'release-residue'
+    });
+
+    expect(['ghost-residue', 'silence-constellation']).toContain(releaseSnapshot.kind);
+    expect(releaseSnapshot.heroForm).toBe('diamond');
+    expect(releaseSnapshot.heroFormReason).toBe('release-residue');
+  });
+
+  it('separates semantic palette base from continuous modulation targets', () => {
+    const frame = buildPaletteFrame({
+      baseState: 'tron-blue',
+      targets: {
+        'void-cyan': 0.18,
+        'tron-blue': 0.32,
+        'acid-lime': 0.24,
+        'solar-magenta': 0.18,
+        'ghost-white': 0.08
+      },
+      transitionReason: 'hold',
+      semanticConfidence: 0.72
+    });
+
+    expect(frame.baseState).toBe('tron-blue');
+    expect(frame.modulationTargets['acid-lime']).toBeGreaterThan(0.2);
+    expect(frame.roles.primaryEmission).toBe('tron-blue');
+    expect(frame.transitionReason).toBe('hold');
+  });
+
   it('keeps palette changes deliberate until a strong new winner appears', () => {
     const frame: Parameters<typeof buildPaletteStateScores>[0] = {
       ...DEFAULT_LISTENING_FRAME,

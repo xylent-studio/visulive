@@ -2,10 +2,16 @@ import { clamp01 } from '../audio/audioMath';
 import type { ListeningFrame } from '../types/audio';
 import type { RuntimeTuning } from '../types/tuning';
 import type {
+  HeroFormSwitchReason,
+  HeroSemanticRole,
   PaletteState,
+  PaletteFrame,
+  PaletteTransitionReason,
   ShowAct,
   StageCuePlan,
   VisualCueState,
+  VisualMotifKind,
+  VisualMotifSnapshot,
   VisualTemporalWindows
 } from '../types/visual';
 
@@ -24,6 +30,133 @@ const SHOW_ACTS: ShowAct[] = [
   'eclipse-rupture',
   'ghost-afterimage'
 ];
+
+function paletteSpreadOf(targets: Record<PaletteState, number>): number {
+  return 1 - Math.max(...Object.values(targets));
+}
+
+function semanticPaletteBaseForMotif(
+  motif: VisualMotifKind,
+  targets: Record<PaletteState, number>
+): PaletteState {
+  switch (motif) {
+    case 'machine-grid':
+      return 'tron-blue';
+    case 'neon-portal':
+      return targets['acid-lime'] > targets['solar-magenta']
+        ? 'acid-lime'
+        : 'solar-magenta';
+    case 'rupture-scar':
+      return 'solar-magenta';
+    case 'ghost-residue':
+    case 'silence-constellation':
+      return 'ghost-white';
+    case 'acoustic-transient':
+      return 'acid-lime';
+    case 'world-takeover':
+      return targets['tron-blue'] >= targets['acid-lime'] ? 'tron-blue' : 'acid-lime';
+    default:
+      return targets['tron-blue'] > 0.28 ? 'tron-blue' : 'void-cyan';
+  }
+}
+
+function paletteRolesForBase(baseState: PaletteState): PaletteFrame['roles'] {
+  switch (baseState) {
+    case 'tron-blue':
+      return {
+        anchorDark: 'void-cyan',
+        primaryEmission: 'tron-blue',
+        rimSeam: 'void-cyan',
+        accentTransient: 'acid-lime',
+        residueMemory: 'ghost-white',
+        flashWhite: 'ghost-white'
+      };
+    case 'acid-lime':
+      return {
+        anchorDark: 'tron-blue',
+        primaryEmission: 'acid-lime',
+        rimSeam: 'void-cyan',
+        accentTransient: 'solar-magenta',
+        residueMemory: 'ghost-white',
+        flashWhite: 'ghost-white'
+      };
+    case 'solar-magenta':
+      return {
+        anchorDark: 'void-cyan',
+        primaryEmission: 'solar-magenta',
+        rimSeam: 'tron-blue',
+        accentTransient: 'acid-lime',
+        residueMemory: 'ghost-white',
+        flashWhite: 'ghost-white'
+      };
+    case 'ghost-white':
+      return {
+        anchorDark: 'void-cyan',
+        primaryEmission: 'ghost-white',
+        rimSeam: 'tron-blue',
+        accentTransient: 'solar-magenta',
+        residueMemory: 'ghost-white',
+        flashWhite: 'ghost-white'
+      };
+    default:
+      return {
+        anchorDark: 'void-cyan',
+        primaryEmission: 'void-cyan',
+        rimSeam: 'tron-blue',
+        accentTransient: 'acid-lime',
+        residueMemory: 'ghost-white',
+        flashWhite: 'ghost-white'
+      };
+  }
+}
+
+function heroRoleForMotif(
+  motif: VisualMotifKind,
+  plan: Pick<StageCuePlan, 'dominance' | 'heroWeight' | 'worldWeight' | 'eventDensity'>
+): HeroSemanticRole {
+  if (plan.worldWeight > 0.74 && plan.heroWeight < 0.26) {
+    return 'world-as-hero';
+  }
+  if (plan.heroWeight < 0.22 || plan.dominance === 'world') {
+    return 'suppressed';
+  }
+  if (motif === 'rupture-scar') {
+    return 'fractured';
+  }
+  if (motif === 'ghost-residue' || motif === 'silence-constellation') {
+    return 'ghost';
+  }
+  if (plan.eventDensity > 0.52) {
+    return 'twin';
+  }
+  if (plan.dominance === 'hero') {
+    return 'dominant';
+  }
+  return 'supporting';
+}
+
+function heroFormReasonForMotif(
+  motif: VisualMotifKind,
+  plan: Pick<StageCuePlan, 'family' | 'dominance'>
+): HeroFormSwitchReason {
+  if (plan.dominance === 'world') {
+    return 'authority-demotion';
+  }
+  switch (motif) {
+    case 'rupture-scar':
+      return 'drop-rupture';
+    case 'ghost-residue':
+    case 'silence-constellation':
+      return 'release-residue';
+    case 'neon-portal':
+    case 'world-takeover':
+      return 'motif-change';
+    default:
+      return plan.family === 'gather' || plan.family === 'reveal'
+        ? 'cue-family'
+        : 'hold';
+  }
+}
 
 function normalizePaletteTargets(
   targets: Partial<Record<PaletteState, number>>
@@ -1040,6 +1173,185 @@ export function choosePaletteState(input: {
   });
 }
 
+export function deriveVisualMotifKind(input: {
+  frame: Pick<
+    ListeningFrame,
+    | 'performanceIntent'
+    | 'mode'
+    | 'dropImpact'
+    | 'sectionChange'
+    | 'releaseTail'
+    | 'musicConfidence'
+    | 'transientConfidence'
+    | 'beatConfidence'
+    | 'air'
+    | 'body'
+    | 'shimmer'
+    | 'harmonicColor'
+  >;
+  cuePlan: Pick<
+    StageCuePlan,
+    'family' | 'dominance' | 'worldMode' | 'heroWeight' | 'worldWeight' | 'eventDensity'
+  >;
+}): VisualMotifKind {
+  const { frame, cuePlan } = input;
+  const acousticTransient =
+    frame.mode === 'system-audio' &&
+    frame.transientConfidence > 0.55 &&
+    frame.beatConfidence < 0.52 &&
+    frame.air > 0.28;
+
+  if (
+    cuePlan.worldMode === 'collapse-well' ||
+    cuePlan.family === 'rupture' ||
+    frame.performanceIntent === 'detonate' ||
+    frame.dropImpact > 0.58
+  ) {
+    return 'rupture-scar';
+  }
+  if (
+    cuePlan.worldMode === 'ghost-chamber' ||
+    cuePlan.family === 'release' ||
+    cuePlan.family === 'haunt' ||
+    frame.releaseTail > 0.34
+  ) {
+    return frame.musicConfidence < 0.32 || frame.air > frame.body + 0.18
+      ? 'silence-constellation'
+      : 'ghost-residue';
+  }
+  if (
+    cuePlan.worldMode === 'cathedral-rise' ||
+    cuePlan.family === 'reveal' ||
+    frame.sectionChange > 0.28
+  ) {
+    return 'neon-portal';
+  }
+  if (cuePlan.dominance === 'world' || cuePlan.worldWeight > 0.72) {
+    return 'world-takeover';
+  }
+  if (acousticTransient) {
+    return 'acoustic-transient';
+  }
+  if (
+    cuePlan.family === 'gather' ||
+    cuePlan.worldMode === 'aperture-cage' ||
+    cuePlan.worldMode === 'fan-sweep' ||
+    frame.beatConfidence > 0.56
+  ) {
+    return 'machine-grid';
+  }
+  return frame.shimmer > 0.42 || frame.harmonicColor > 0.58
+    ? 'neon-portal'
+    : 'void-anchor';
+}
+
+export function derivePaletteTransitionReason(input: {
+  frame: Pick<ListeningFrame, 'dropImpact' | 'sectionChange' | 'releaseTail'>;
+  cuePlan: Pick<StageCuePlan, 'family' | 'dominance'>;
+  motif: VisualMotifKind;
+  currentBaseState: PaletteState;
+  nextBaseState: PaletteState;
+  signatureMomentKind?: string;
+}): PaletteTransitionReason {
+  if (input.nextBaseState === input.currentBaseState) {
+    return 'hold';
+  }
+  if (input.signatureMomentKind && input.signatureMomentKind !== 'none') {
+    return 'signature-moment';
+  }
+  if (input.frame.dropImpact > 0.46 || input.cuePlan.family === 'rupture') {
+    return 'drop-rupture';
+  }
+  if (input.frame.releaseTail > 0.28 || input.cuePlan.family === 'release') {
+    return 'release-residue';
+  }
+  if (input.frame.sectionChange > 0.2) {
+    return 'section-turn';
+  }
+  if (input.cuePlan.dominance === 'world') {
+    return 'authority-shift';
+  }
+  return input.motif === 'void-anchor' ? 'hold' : 'motif-change';
+}
+
+export function buildPaletteFrame(input: {
+  baseState: PaletteState;
+  targets: Record<PaletteState, number>;
+  transitionReason: PaletteTransitionReason;
+  semanticConfidence: number;
+}): PaletteFrame {
+  const targetDominance = Math.max(...Object.values(input.targets));
+  const targetSpread = paletteSpreadOf(input.targets);
+  return {
+    baseState: input.baseState,
+    modulationTargets: normalizePaletteTargets(input.targets),
+    modulationAmount: clamp01(0.18 + targetSpread * 0.52 + (1 - targetDominance) * 0.18),
+    targetDominance,
+    targetSpread,
+    transitionReason: input.transitionReason,
+    semanticConfidence: input.semanticConfidence,
+    roles: paletteRolesForBase(input.baseState)
+  };
+}
+
+export function deriveVisualMotifSnapshot(input: {
+  frame: Pick<
+    ListeningFrame,
+    | 'performanceIntent'
+    | 'mode'
+    | 'dropImpact'
+    | 'sectionChange'
+    | 'releaseTail'
+    | 'musicConfidence'
+    | 'transientConfidence'
+    | 'beatConfidence'
+    | 'air'
+    | 'body'
+    | 'shimmer'
+    | 'harmonicColor'
+  >;
+  cuePlan: StageCuePlan;
+  paletteBaseState: PaletteState;
+  paletteTransitionReason: PaletteTransitionReason;
+  signatureMomentKind?: string;
+}): VisualMotifSnapshot {
+  const motif = deriveVisualMotifKind({
+    frame: input.frame,
+    cuePlan: input.cuePlan
+  });
+  const targetDominance = Math.max(...Object.values(input.cuePlan.paletteTargets));
+  const targetSpread = paletteSpreadOf(input.cuePlan.paletteTargets);
+  const semanticConfidence = clamp01(
+    0.42 +
+      targetDominance * 0.2 +
+      input.frame.musicConfidence * 0.18 +
+      Math.max(input.frame.sectionChange, input.frame.dropImpact, input.frame.releaseTail) *
+        0.18 -
+      targetSpread * 0.06
+  );
+  const paletteFrame = buildPaletteFrame({
+    baseState: input.paletteBaseState,
+    targets: input.cuePlan.paletteTargets,
+    transitionReason: input.paletteTransitionReason,
+    semanticConfidence
+  });
+  const heroRole = heroRoleForMotif(motif, input.cuePlan);
+  const heroFormReason =
+    input.signatureMomentKind && input.signatureMomentKind !== 'none'
+      ? 'signature-moment'
+      : heroFormReasonForMotif(motif, input.cuePlan);
+  return {
+    kind: motif,
+    confidence: semanticConfidence,
+    reason: `${motif}:${input.cuePlan.family}:${input.cuePlan.worldMode}`,
+    paletteFrame,
+    heroRole,
+    heroForm: input.cuePlan.heroForm,
+    heroAccentForm: input.cuePlan.heroAccentForm,
+    heroFormReason
+  };
+}
+
 export function deriveVisualCue(
   frame: Pick<
     ListeningFrame,
@@ -1320,6 +1632,7 @@ export function deriveStageCuePlan(input: {
     | 'resonance'
     | 'momentum'
     | 'speechConfidence'
+    | 'transientConfidence'
     | 'body'
     | 'tonalStability'
     | 'harmonicColor'
@@ -1348,6 +1661,16 @@ export function deriveStageCuePlan(input: {
     | 'heroForm'
     | 'heroAccentForm'
     | 'heroFormHoldSeconds'
+    | 'heroRole'
+    | 'heroFormReason'
+    | 'visualMotif'
+    | 'visualMotifConfidence'
+    | 'visualMotifReason'
+    | 'paletteBaseState'
+    | 'paletteTransitionReason'
+    | 'paletteModulationAmount'
+    | 'paletteTargetDominance'
+    | 'paletteTargetSpread'
     | 'paletteTargets'
     | 'paletteHoldSeconds'
     | 'screenEffectIntent'
@@ -1360,6 +1683,16 @@ export function deriveStageCuePlan(input: {
         | 'heroForm'
         | 'heroAccentForm'
         | 'heroFormHoldSeconds'
+        | 'heroRole'
+        | 'heroFormReason'
+        | 'visualMotif'
+        | 'visualMotifConfidence'
+        | 'visualMotifReason'
+        | 'paletteBaseState'
+        | 'paletteTransitionReason'
+        | 'paletteModulationAmount'
+        | 'paletteTargetDominance'
+        | 'paletteTargetSpread'
         | 'paletteTargets'
         | 'paletteHoldSeconds'
         | 'screenEffectIntent'
@@ -1758,8 +2091,48 @@ export function deriveStageCuePlan(input: {
       screenEffectIntent:
         draft.screenEffectIntent ?? deriveScreenEffectIntent(draft)
     };
+    const applySemanticFields = (targetPlan: StageCuePlan): StageCuePlan => {
+      const visualMotif = deriveVisualMotifKind({
+        frame,
+        cuePlan: targetPlan
+      });
+      const paletteBaseState =
+        targetPlan.paletteBaseState ??
+        semanticPaletteBaseForMotif(visualMotif, targetPlan.paletteTargets);
+      const paletteTransitionReason =
+        targetPlan.paletteTransitionReason ??
+        derivePaletteTransitionReason({
+          frame,
+          cuePlan: targetPlan,
+          motif: visualMotif,
+          currentBaseState: paletteBaseState,
+          nextBaseState: paletteBaseState
+        });
+      const paletteFrame = buildPaletteFrame({
+        baseState: paletteBaseState,
+        targets: targetPlan.paletteTargets,
+        transitionReason: paletteTransitionReason,
+        semanticConfidence: targetPlan.visualMotifConfidence ?? 0.62
+      });
+      targetPlan.visualMotif = targetPlan.visualMotif ?? visualMotif;
+      targetPlan.visualMotifConfidence =
+        targetPlan.visualMotifConfidence ?? paletteFrame.semanticConfidence;
+      targetPlan.visualMotifReason =
+        targetPlan.visualMotifReason ??
+        `${targetPlan.visualMotif}:${targetPlan.family}:${targetPlan.worldMode}`;
+      targetPlan.paletteBaseState = paletteBaseState;
+      targetPlan.paletteTransitionReason = paletteTransitionReason;
+      targetPlan.paletteModulationAmount = paletteFrame.modulationAmount;
+      targetPlan.paletteTargetDominance = paletteFrame.targetDominance;
+      targetPlan.paletteTargetSpread = paletteFrame.targetSpread;
+      targetPlan.heroRole = targetPlan.heroRole ?? heroRoleForMotif(visualMotif, targetPlan);
+      targetPlan.heroFormReason =
+        targetPlan.heroFormReason ?? heroFormReasonForMotif(visualMotif, targetPlan);
+
+      return targetPlan;
+    };
     if (!input.tuning) {
-      return plan;
+      return applySemanticFields(plan);
     }
 
     const neonLift = operatorBias.neon;
@@ -1858,7 +2231,7 @@ export function deriveStageCuePlan(input: {
       );
     }
 
-    return plan;
+    return applySemanticFields(plan);
   };
   const cueFamilySeconds = Math.max(0, input.cueFamilySeconds ?? 0);
   const temporalWindows = deriveTemporalWindows(frame);

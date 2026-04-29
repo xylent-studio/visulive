@@ -86,8 +86,9 @@ Short version:
   - [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now owns lasting hero assets, mutation/update, color and form choreography, telemetry inputs, quality reset, and disposal; the remaining blocker is capability proof, not runtime ownership
 - last meaningful pass:
   - 2026-04-23 hero mutation ownership extraction into `HeroSystem` plus explicit hero sequencing in `FlagshipShowRuntime`
+  - 2026-04-29 semantic motif routing pass: show direction now derives motif, hero role, form reason, and palette frame; `HeroSystem` now defaults to semantic form arbitration with longer dwell instead of hash/time-bucket variety rotation
 - current biggest failure mode:
-  - hero monopoly still crowds chamber/world authority and risks drifting back toward softly lit blob behavior
+  - hero monopoly still crowds chamber/world authority, and fresh proof must show hero shape/color changes feel musically earned rather than arbitrary or novelty-driven
 
 ### World Grammar / Mutation
 

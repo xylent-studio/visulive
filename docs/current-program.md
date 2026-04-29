@@ -65,6 +65,7 @@ April 28 proof-first override:
 - strict release proof remains blocked by non-promoted benchmark truth, incomplete scenario coverage, and missed-opportunity cleanup; do not promote archived diagnostic runs as current-canonical proof
 - `overbright` in older reports is now treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail; the latest signature run showed high legacy glow spend but low perceptual washout, matching the user's washed/unsaturated visual read better than a literal "too bright" diagnosis
 - the user-approved Mythic Signature Moment Engine full-capability slice is now the active exception to the earlier proof-first hold; the current code direction is neon-portals first, with risk-based safe-neon, rarer phrase-scale moments, signature-aware ring decay, and stronger collapse/cathedral/ghost/quiet silhouettes; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab, proof-tuned, and operator-trust proof is restored
+- the latest semantic-motif pass makes color and hero form changes meaning-bearing instead of novelty-driven: show direction now derives a `VisualMotifSnapshot`, palette identity has a held base plus continuous modulation, `HeroSystem` defaults to semantic form arbitration with longer dwell, pressure waves use the palette-frame transient role, and analyzer/recommendation output can flag random-feeling palette churn, unearned hero-form switches, and hero/world hue divergence
 
 ## Immediate Start-Right Gate
 
@@ -160,6 +161,7 @@ The next sequence is:
    - authority or true perceptual washout failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, compositor post-profile, or stage cue policy only
    - high legacy glow-spend with low washout: tune/relabel spend governance without globally dimming or flattening saturation
    - generic signature treatment, weak moment distinctness, washed-out post, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, `CompositorSystem`, signature-fed system consumers, or cue policy only
+   - random-feeling color or hero-shape changes: `showDirection` motif routing, `HeroSystem` form arbitration, `PaletteFrame` consumers, or analyzer thresholds only; do not reintroduce hash/novelty rotation as the default
    - cue/silence/diversity failure: audio/show-direction governance only
 6. if signature proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence
 7. widen repertoire through owned systems only after proof and ownership are both real

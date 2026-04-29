@@ -200,6 +200,76 @@ export type StageHeroForm =
   | 'shard'
   | 'mushroom';
 
+export type VisualMotifKind =
+  | 'void-anchor'
+  | 'machine-grid'
+  | 'neon-portal'
+  | 'rupture-scar'
+  | 'ghost-residue'
+  | 'silence-constellation'
+  | 'acoustic-transient'
+  | 'world-takeover';
+
+export type HeroSemanticRole =
+  | 'dominant'
+  | 'supporting'
+  | 'fractured'
+  | 'ghost'
+  | 'twin'
+  | 'membrane'
+  | 'suppressed'
+  | 'world-as-hero';
+
+export type HeroFormSwitchReason =
+  | 'hold'
+  | 'motif-change'
+  | 'cue-family'
+  | 'section-turn'
+  | 'drop-rupture'
+  | 'release-residue'
+  | 'signature-moment'
+  | 'authority-demotion';
+
+export type PaletteTransitionReason =
+  | 'hold'
+  | 'motif-change'
+  | 'section-turn'
+  | 'drop-rupture'
+  | 'release-residue'
+  | 'signature-moment'
+  | 'authority-shift';
+
+export type PaletteFrameRoles = {
+  anchorDark: PaletteState;
+  primaryEmission: PaletteState;
+  rimSeam: PaletteState;
+  accentTransient: PaletteState;
+  residueMemory: PaletteState;
+  flashWhite: PaletteState;
+};
+
+export type PaletteFrame = {
+  baseState: PaletteState;
+  modulationTargets: Record<PaletteState, number>;
+  modulationAmount: number;
+  targetDominance: number;
+  targetSpread: number;
+  transitionReason: PaletteTransitionReason;
+  semanticConfidence: number;
+  roles: PaletteFrameRoles;
+};
+
+export type VisualMotifSnapshot = {
+  kind: VisualMotifKind;
+  confidence: number;
+  reason: string;
+  paletteFrame: PaletteFrame;
+  heroRole: HeroSemanticRole;
+  heroForm: StageHeroForm;
+  heroAccentForm: StageHeroForm;
+  heroFormReason: HeroFormSwitchReason;
+};
+
 export type StageScreenEffectFamily =
   | 'none'
   | 'residue'
@@ -421,6 +491,16 @@ export type StageCuePlan = {
   heroForm: StageHeroForm;
   heroAccentForm: StageHeroForm;
   heroFormHoldSeconds: number;
+  heroRole?: HeroSemanticRole;
+  heroFormReason?: HeroFormSwitchReason;
+  visualMotif?: VisualMotifKind;
+  visualMotifConfidence?: number;
+  visualMotifReason?: string;
+  paletteBaseState?: PaletteState;
+  paletteTransitionReason?: PaletteTransitionReason;
+  paletteModulationAmount?: number;
+  paletteTargetDominance?: number;
+  paletteTargetSpread?: number;
   paletteTargets: StagePaletteTargets;
   paletteHoldSeconds: number;
   screenEffectIntent: StageScreenEffectIntent;
@@ -508,6 +588,25 @@ export type VisualTelemetryFrame = {
   silenceState?: SilenceState;
   phraseConfidence?: PhraseConfidence;
   sectionIntent?: SectionIntent;
+  visualMotif?: VisualMotifKind;
+  visualMotifConfidence?: number;
+  visualMotifReason?: string;
+  paletteBaseState?: PaletteState;
+  paletteBaseAgeSeconds?: number;
+  paletteTransitionReason?: PaletteTransitionReason;
+  paletteModulationAmount?: number;
+  paletteTargetDominance?: number;
+  paletteTargetSpread?: number;
+  heroRole?: HeroSemanticRole;
+  heroFormReason?: HeroFormSwitchReason;
+  plannedHeroForm?: StageHeroForm;
+  activeHeroForm?: StageHeroForm;
+  plannedActiveHeroFormMatch?: boolean;
+  heroFormHoldElapsedSeconds?: number;
+  heroFormSwitchCount?: number;
+  semanticConfidence?: number;
+  heroWorldHueDivergence?: number;
+  unearnedChangeRisk?: number;
   cueIntensity?: number;
   cueAttack?: number;
   cueSustain?: number;
@@ -715,6 +814,25 @@ export type VisualTelemetrySummary = {
   dominantPhraseConfidence?: PhraseConfidence;
   sectionIntentSpread?: Record<SectionIntent, number>;
   dominantSectionIntent?: SectionIntent;
+  visualMotifSpread?: Record<VisualMotifKind, number>;
+  dominantVisualMotif?: VisualMotifKind;
+  heroRoleSpread?: Record<HeroSemanticRole, number>;
+  dominantHeroRole?: HeroSemanticRole;
+  heroFormSpread?: Record<StageHeroForm, number>;
+  dominantHeroForm?: StageHeroForm;
+  heroFormReasonSpread?: Record<HeroFormSwitchReason, number>;
+  dominantHeroFormReason?: HeroFormSwitchReason;
+  paletteTransitionReasonSpread?: Record<PaletteTransitionReason, number>;
+  dominantPaletteTransitionReason?: PaletteTransitionReason;
+  paletteBaseStateSpread?: Record<PaletteState, number>;
+  dominantPaletteBaseState?: PaletteState;
+  paletteBaseLongestRunMs?: number;
+  heroFormLongestRunMs?: number;
+  heroFormSwitchesPerMinute?: number;
+  plannedActiveHeroFormMatchRate?: number;
+  heroWorldHueDivergenceMean?: number;
+  semanticConfidenceMean?: number;
+  unearnedChangeRiskMean?: number;
   stageWorldModeSpread?: Record<StageWorldMode, number>;
   stageWorldModeSpreadByFamily?: Record<StageCueFamily, Record<StageWorldMode, number>>;
   dominantStageWorldMode?: StageWorldMode;
@@ -840,6 +958,10 @@ export type CaptureQualityFlag =
   | 'heroMonopolyRisk'
   | 'ringOverdrawRisk'
   | 'lowChamberPresence'
+  | 'randomFeelingPaletteChurn'
+  | 'unearnedHeroFormSwitch'
+  | 'heroWorldHueDivergence'
+  | 'ambiguousHeroSilhouette'
   | 'missedOpportunity';
 
 export const DEFAULT_VISUAL_TEMPORAL_WINDOWS: VisualTemporalWindows = {
@@ -895,6 +1017,16 @@ export const DEFAULT_STAGE_CUE_PLAN: StageCuePlan = {
   heroForm: 'prism',
   heroAccentForm: 'shard',
   heroFormHoldSeconds: 3.2,
+  heroRole: 'supporting',
+  heroFormReason: 'motif-change',
+  visualMotif: 'neon-portal',
+  visualMotifConfidence: 0.62,
+  visualMotifReason: 'default portal stage cue',
+  paletteBaseState: 'void-cyan',
+  paletteTransitionReason: 'hold',
+  paletteModulationAmount: 0.22,
+  paletteTargetDominance: 0.32,
+  paletteTargetSpread: 0.68,
   paletteTargets: {
     'void-cyan': 0.32,
     'tron-blue': 0.22,
@@ -1006,6 +1138,41 @@ export const DEFAULT_SIGNATURE_MOMENT_SNAPSHOT: SignatureMomentSnapshot = {
   safetyRisk: 0
 };
 
+export const DEFAULT_PALETTE_FRAME: PaletteFrame = {
+  baseState: 'void-cyan',
+  modulationTargets: {
+    'void-cyan': 0.48,
+    'tron-blue': 0.22,
+    'acid-lime': 0.08,
+    'solar-magenta': 0.06,
+    'ghost-white': 0.16
+  },
+  modulationAmount: 0.22,
+  targetDominance: 0.48,
+  targetSpread: 0.72,
+  transitionReason: 'hold',
+  semanticConfidence: 0.62,
+  roles: {
+    anchorDark: 'void-cyan',
+    primaryEmission: 'void-cyan',
+    rimSeam: 'tron-blue',
+    accentTransient: 'acid-lime',
+    residueMemory: 'ghost-white',
+    flashWhite: 'ghost-white'
+  }
+};
+
+export const DEFAULT_VISUAL_MOTIF_SNAPSHOT: VisualMotifSnapshot = {
+  kind: 'void-anchor',
+  confidence: 0.62,
+  reason: 'default void anchor',
+  paletteFrame: DEFAULT_PALETTE_FRAME,
+  heroRole: 'supporting',
+  heroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
+  heroAccentForm: DEFAULT_STAGE_CUE_PLAN.heroAccentForm,
+  heroFormReason: 'hold'
+};
+
 export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   qualityTier: 'unknown',
   exposure: 1,
@@ -1034,6 +1201,25 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   silenceState: 'beauty',
   phraseConfidence: 'uncertain',
   sectionIntent: 'hold',
+  visualMotif: DEFAULT_VISUAL_MOTIF_SNAPSHOT.kind,
+  visualMotifConfidence: DEFAULT_VISUAL_MOTIF_SNAPSHOT.confidence,
+  visualMotifReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.reason,
+  paletteBaseState: DEFAULT_PALETTE_FRAME.baseState,
+  paletteBaseAgeSeconds: 0,
+  paletteTransitionReason: DEFAULT_PALETTE_FRAME.transitionReason,
+  paletteModulationAmount: DEFAULT_PALETTE_FRAME.modulationAmount,
+  paletteTargetDominance: DEFAULT_PALETTE_FRAME.targetDominance,
+  paletteTargetSpread: DEFAULT_PALETTE_FRAME.targetSpread,
+  heroRole: DEFAULT_VISUAL_MOTIF_SNAPSHOT.heroRole,
+  heroFormReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.heroFormReason,
+  plannedHeroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
+  activeHeroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
+  plannedActiveHeroFormMatch: true,
+  heroFormHoldElapsedSeconds: 0,
+  heroFormSwitchCount: 0,
+  semanticConfidence: DEFAULT_VISUAL_MOTIF_SNAPSHOT.confidence,
+  heroWorldHueDivergence: 0,
+  unearnedChangeRisk: 0,
   cueIntensity: DEFAULT_VISUAL_CUE_STATE.intensity,
   cueAttack: DEFAULT_VISUAL_CUE_STATE.attack,
   cueSustain: DEFAULT_VISUAL_CUE_STATE.sustain,
@@ -1406,6 +1592,74 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     recovery: 0
   },
   dominantSectionIntent: 'hold',
+  visualMotifSpread: {
+    'void-anchor': 0,
+    'machine-grid': 0,
+    'neon-portal': 0,
+    'rupture-scar': 0,
+    'ghost-residue': 0,
+    'silence-constellation': 0,
+    'acoustic-transient': 0,
+    'world-takeover': 0
+  },
+  dominantVisualMotif: 'void-anchor',
+  heroRoleSpread: {
+    dominant: 0,
+    supporting: 0,
+    fractured: 0,
+    ghost: 0,
+    twin: 0,
+    membrane: 0,
+    suppressed: 0,
+    'world-as-hero': 0
+  },
+  dominantHeroRole: 'supporting',
+  heroFormSpread: {
+    orb: 0,
+    cube: 0,
+    pyramid: 0,
+    diamond: 0,
+    prism: 0,
+    shard: 0,
+    mushroom: 0
+  },
+  dominantHeroForm: 'orb',
+  heroFormReasonSpread: {
+    hold: 0,
+    'motif-change': 0,
+    'cue-family': 0,
+    'section-turn': 0,
+    'drop-rupture': 0,
+    'release-residue': 0,
+    'signature-moment': 0,
+    'authority-demotion': 0
+  },
+  dominantHeroFormReason: 'hold',
+  paletteTransitionReasonSpread: {
+    hold: 0,
+    'motif-change': 0,
+    'section-turn': 0,
+    'drop-rupture': 0,
+    'release-residue': 0,
+    'signature-moment': 0,
+    'authority-shift': 0
+  },
+  dominantPaletteTransitionReason: 'hold',
+  paletteBaseStateSpread: {
+    'void-cyan': 0,
+    'tron-blue': 0,
+    'acid-lime': 0,
+    'solar-magenta': 0,
+    'ghost-white': 0
+  },
+  dominantPaletteBaseState: 'void-cyan',
+  paletteBaseLongestRunMs: 0,
+  heroFormLongestRunMs: 0,
+  heroFormSwitchesPerMinute: 0,
+  plannedActiveHeroFormMatchRate: 1,
+  heroWorldHueDivergenceMean: 0,
+  semanticConfidenceMean: 0,
+  unearnedChangeRiskMean: 0,
   stageWorldModeSpread: {
     hold: 0,
     'aperture-cage': 0,
