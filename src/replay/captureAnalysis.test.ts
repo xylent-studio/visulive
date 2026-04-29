@@ -918,8 +918,72 @@ describe('capture analysis', () => {
     expect(summary.visualSummary?.playableMotifSceneIntentMatchRate).toBe(0);
     expect(summary.visualSummary?.dominantPlayableMotifSceneDriver).toBe('motif');
     expect(summary.qualityFlags).toContain('sceneIntentMismatch');
-    expect(section).toContain('Scene intent/motif/palette match / silhouette');
+    expect(section).toContain('Scene intent/motif/palette/profile match / silhouette');
     expect(section).toContain('Playable scene driver spread: motif=100.0%');
+  });
+
+  it('flags scene profile mismatch and decorative particle activity', () => {
+    const summary = summarizeCapture(
+      {
+        metadata: {
+          label: 'scene-profile-mismatch',
+          captureMode: 'auto',
+          triggerKind: 'signature-moment-peak',
+          triggerReason: 'same label different image',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'balanced',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'neon-cathedral',
+              playableMotifSceneProfileId: 'machine-tunnel',
+              playableMotifSceneSilhouetteFamily: 'perspective-tunnel',
+              playableMotifSceneSurfaceRole: 'shutter-lanes',
+              playableMotifSceneProfileMatch: false,
+              compositorMaskFamily: 'shutter',
+              particleFieldJob: 'none',
+              playableMotifSceneSilhouetteConfidence: 0.5,
+              assetLayerActivity: {
+                ...DEFAULT_VISUAL_TELEMETRY.assetLayerActivity,
+                particles: 0.9
+              }
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 3000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'neon-cathedral',
+              playableMotifSceneProfileId: 'machine-tunnel',
+              playableMotifSceneSilhouetteFamily: 'perspective-tunnel',
+              playableMotifSceneSurfaceRole: 'shutter-lanes',
+              playableMotifSceneProfileMatch: false,
+              compositorMaskFamily: 'shutter',
+              particleFieldJob: 'none',
+              playableMotifSceneSilhouetteConfidence: 0.5,
+              assetLayerActivity: {
+                ...DEFAULT_VISUAL_TELEMETRY.assetLayerActivity,
+                particles: 0.9
+              }
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/scene-profile-mismatch.json'
+    );
+
+    expect(summary.visualSummary?.playableMotifSceneProfileMatchRate).toBe(0);
+    expect(summary.visualSummary?.dominantPlayableMotifSceneProfile).toBe('machine-tunnel');
+    expect(summary.visualSummary?.dominantParticleFieldJob).toBe('none');
+    expect(summary.qualityFlags).toContain('sceneProfileMismatch');
+    expect(summary.qualityFlags).toContain('decorativeParticleActivity');
   });
 
   it('classifies precharged timing separately and excludes it from lag averages', () => {

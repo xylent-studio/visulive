@@ -2953,6 +2953,7 @@ export class ObsidianBloomScene {
       aftermathClearance: postTelemetry.aftermathClearance,
       postConsequenceIntensity: postTelemetry.postConsequenceIntensity,
       postOverprocessRisk: postTelemetry.postOverprocessRisk,
+      compositorMaskFamily: compositorTelemetry.compositorMaskFamily,
       compositorSignatureMask: compositorTelemetry.compositorSignatureMask,
       compositorCutAmount: compositorTelemetry.compositorCutAmount,
       compositorVignetteAmount: compositorTelemetry.compositorVignetteAmount,
@@ -2969,6 +2970,15 @@ export class ObsidianBloomScene {
       perceptualWashoutRisk: compositorTelemetry.perceptualWashoutRisk,
       activePlayableMotifScene:
         playableMotifTelemetry.activePlayableMotifScene,
+      playableMotifSceneProfileId:
+        playableMotifTelemetry.playableMotifSceneProfileId,
+      playableMotifSceneSilhouetteFamily:
+        playableMotifTelemetry.playableMotifSceneSilhouetteFamily,
+      playableMotifSceneSurfaceRole:
+        playableMotifTelemetry.playableMotifSceneSurfaceRole,
+      playableMotifSceneProfileMatch:
+        playableMotifTelemetry.playableMotifSceneProfileMatch,
+      particleFieldJob: playableMotifTelemetry.particleFieldJob,
       playableMotifSceneDriver:
         playableMotifTelemetry.playableMotifSceneDriver,
       playableMotifSceneIntentMatch:

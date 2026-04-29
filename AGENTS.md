@@ -77,6 +77,7 @@ Current hosting truth:
 One important current clue from live screenshots:
 - the wireframe, seam, and rim direction is stronger than the old filled-shell read
 - future hero specialists should push emitted structure and dark-body contrast further, not revert to a softly lit blob
+- authored playable scenes now have code-native procedural profiles in [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts); future visual specialists should strengthen those silhouettes, surfaces, compositor masks, and particle jobs before importing media or adding public asset controls
 
 ## Transitional Honesty Rules
 
@@ -145,6 +146,7 @@ Own:
 Own specifically:
 - `ShowAct`
 - `PaletteState`
+- procedural scene profile intent through [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) when the change is about scene ontology rather than renderer implementation
 - temporal windows
 - act hysteresis
 - palette holds and transitions

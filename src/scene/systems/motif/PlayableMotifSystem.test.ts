@@ -94,6 +94,10 @@ describe('PlayableMotifSystem', () => {
 
     expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('void-pressure');
     expect(system.collectTelemetryInputs().playableMotifSceneMotifMatch).toBe(true);
+    expect(system.collectTelemetryInputs().playableMotifSceneSilhouetteFamily).toBe(
+      'negative-space-mass'
+    );
+    expect(system.collectTelemetryInputs().particleFieldJob).toBe('pressure-dust');
 
     system.dispose();
     expect(system.group.children.length).toBe(0);
@@ -124,6 +128,9 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneTransitionReason).toBe('signature-moment');
     expect(telemetry.playableMotifSceneDriver).toBe('signature');
     expect(telemetry.playableMotifSceneIntentMatch).toBe(true);
+    expect(telemetry.playableMotifSceneProfileId).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneSurfaceRole).toBe('architectural-aperture');
+    expect(telemetry.compositorMaskFamily).toBe('portal-aperture');
     expect(telemetry.playableMotifSceneSilhouetteConfidence).toBeGreaterThan(0.7);
   });
 
@@ -149,6 +156,7 @@ describe('PlayableMotifSystem', () => {
 
     const telemetry = system.collectTelemetryInputs();
     expect(telemetry.activePlayableMotifScene).toBe('collapse-scar');
+    expect(telemetry.playableMotifSceneSilhouetteFamily).toBe('diagonal-rupture');
     expect(telemetry.playableMotifSceneMotifMatch).toBe(true);
     expect(telemetry.playableMotifSceneDistinctness).toBeGreaterThan(0.85);
   });

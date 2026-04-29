@@ -43,6 +43,7 @@ function collectRunMetrics(summaries = []) {
   const playableSceneMotifMatches = [];
   const playableSceneIntentMatches = [];
   const playableScenePaletteMatches = [];
+  const playableSceneProfileMatches = [];
   const playableSceneSilhouettes = [];
   const cueClasses = [];
   const families = [];
@@ -115,6 +116,10 @@ function collectRunMetrics(summaries = []) {
       playableScenePaletteMatches.push(visual.playableMotifScenePaletteMatchRate);
     }
 
+    if (typeof visual.playableMotifSceneProfileMatchRate === 'number') {
+      playableSceneProfileMatches.push(visual.playableMotifSceneProfileMatchRate);
+    }
+
     if (typeof visual.playableMotifSceneSilhouetteConfidenceMean === 'number') {
       playableSceneSilhouettes.push(visual.playableMotifSceneSilhouetteConfidenceMean);
     }
@@ -170,6 +175,7 @@ function collectRunMetrics(summaries = []) {
     averagePlayableSceneMotifMatchRate: average(playableSceneMotifMatches),
     averagePlayableSceneIntentMatchRate: average(playableSceneIntentMatches),
     averagePlayableScenePaletteMatchRate: average(playableScenePaletteMatches),
+    averagePlayableSceneProfileMatchRate: average(playableSceneProfileMatches),
     averagePlayableSceneSilhouetteConfidence: average(playableSceneSilhouettes),
     cueClassCount: uniqueCount(cueClasses),
     familyCount: uniqueCount(families),
@@ -566,11 +572,14 @@ export function buildRunRecommendationArtifact({
   if (
     metrics.flagCounts.get('sceneMotifMismatch') ||
     metrics.flagCounts.get('sceneIntentMismatch') ||
+    metrics.flagCounts.get('sceneProfileMismatch') ||
     metrics.flagCounts.get('sameySceneSilhouette') ||
+    metrics.flagCounts.get('decorativeParticleActivity') ||
     metrics.flagCounts.get('sceneChurn') ||
     metrics.averagePlayableSceneMotifMatchRate < 0.72 ||
     metrics.averagePlayableSceneIntentMatchRate < 0.72 ||
     metrics.averagePlayableScenePaletteMatchRate < 0.72 ||
+    metrics.averagePlayableSceneProfileMatchRate < 0.72 ||
     metrics.averagePlayableSceneSilhouetteConfidence < 0.46
   ) {
     recommendations.push(
@@ -583,6 +592,7 @@ export function buildRunRecommendationArtifact({
           metrics.averagePlayableSceneMotifMatchRate < 0.58 ||
           metrics.averagePlayableSceneIntentMatchRate < 0.58 ||
           metrics.averagePlayableScenePaletteMatchRate < 0.58 ||
+          metrics.averagePlayableSceneProfileMatchRate < 0.58 ||
           metrics.averagePlayableSceneSilhouetteConfidence < 0.36
             ? 'high'
             : 'medium',
@@ -596,7 +606,9 @@ export function buildRunRecommendationArtifact({
           'playableMotifSceneIntentMatchRate >= 0.8',
           'playableMotifSceneMotifMatchRate >= 0.78',
           'playableMotifScenePaletteMatchRate >= 0.78',
+          'playableMotifSceneProfileMatchRate >= 0.78',
           'playableMotifSceneSilhouetteConfidenceMean >= 0.55',
+          'dominantParticleFieldJob != none when particles are active',
           'playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes'
         ],
         recommendedNextProofScenario: 'primary-benchmark',

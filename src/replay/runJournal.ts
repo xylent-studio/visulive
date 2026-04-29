@@ -976,6 +976,13 @@ export function buildReplayRunJournalSample(
     },
     playableMotif: {
       activePlayableMotifScene: telemetry.activePlayableMotifScene,
+      playableMotifSceneProfileId: telemetry.playableMotifSceneProfileId,
+      playableMotifSceneSilhouetteFamily:
+        telemetry.playableMotifSceneSilhouetteFamily,
+      playableMotifSceneSurfaceRole: telemetry.playableMotifSceneSurfaceRole,
+      playableMotifSceneProfileMatch: telemetry.playableMotifSceneProfileMatch,
+      compositorMaskFamily: telemetry.compositorMaskFamily,
+      particleFieldJob: telemetry.particleFieldJob,
       playableMotifSceneAgeSeconds: telemetry.playableMotifSceneAgeSeconds,
       playableMotifSceneTransitionReason: telemetry.playableMotifSceneTransitionReason,
       playableMotifSceneIntensity: telemetry.playableMotifSceneIntensity,

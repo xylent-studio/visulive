@@ -45,14 +45,14 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `Authored Playable Motif Scenes` coherence proof on top of semantic episode routing, style-aware `PostSystem`, first `PlayableMotifSystem`, and bounded `CompositorSystem`
+  - `Authored Procedural Scene Ontology` proof on top of semantic episode routing, style-aware `PostSystem`, first `PlayableMotifSystem`, bounded `CompositorSystem`, and code-native `visualAssetProfiles`
 - single highest-leverage next move:
   - use `run_20260429_123116_jzqbjo` as diagnostic context, then run a fresh no-touch proof wave that shows neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar as stable, readable scene silhouettes with semantic hero form, ring posture, and palette-base coherence
 - single blocking extraction:
   - chamber/world authority handoff, the first `PostSystem` vertical slice, `PlayableMotifSystem`, and the bounded signature/playable-scene `CompositorSystem` slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then full memory and broader compositor/content ownership
 - proof scenario required next:
   - one fresh `Primary benchmark` canary, then a full no-touch `PC Audio` benchmark if the canary is valid
-  - the analyzer must report signature moment coverage, style spread, playable scene spread, scene-driver spread, scene-intent/motif/palette match, scene silhouette confidence, ring posture spread, overbright/ring impact, perceptual washout/colorfulness, and aftermath clearance
+  - the analyzer must report signature moment coverage, style spread, playable scene spread, scene-driver spread, scene-intent/motif/palette/profile match, scene silhouette family, scene surface role, compositor mask spread, particle field jobs, ring posture spread, overbright/ring impact, perceptual washout/colorfulness, and aftermath clearance
 
 ## Do Not Drift Into
 
@@ -137,7 +137,7 @@ Short version:
   - 2026-04-29 Authored Playable Motif System vertical slice with five owned playable scenes, scene dwell, compositor scene input, and analyzer metrics for scene coherence
   - 2026-04-29 coherence unlock pass with semantic episode telemetry, scene driver/intent match, collapse-residue exit rules, and ring posture reporting
 - current biggest failure mode:
-  - the four moments and five scenes could still read as generic treatment, washed-out post, or scene churn until Moment Lab receipts and fresh proof show recognizable image classes, scene dwell, and clean aftermath clearance
+  - the four moments and five scenes could still read as generic treatment, washed-out post, scene churn, or different labels with the same image until Moment Lab receipts and fresh proof show recognizable image classes, scene dwell, explicit masks/surfaces/jobs, and clean aftermath clearance
 
 ### Lighting / Cinematography
 
@@ -181,20 +181,21 @@ Short version:
 
 - current maturity: `frontier`
 - current owner lane: `Mixed Media / Compositor / Content`
-- runtime ownership status: `partial-system`
+- runtime ownership status: `partial-system with procedural profile contracts`
 - next target:
-  - prove the bounded `CompositorSystem` signature/playable-scene slice before adding asset-backed masks
-  - define disciplined asset and mask families only after proof says the post/compositor language is worth broadening
+  - prove the bounded `CompositorSystem` signature/playable-scene slice and procedural scene profiles before adding any asset-backed mask atlas
+  - keep asset and mask families procedural/local/provenance-tracked unless proof shows a specific scene readability gap
 - proof target:
   - mixed media strengthens consequence or memory instead of reading as collage
 - graduation target:
   - `frontier -> flagship`
 - blocking dependency:
-  - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns screen-space masks/cuts/vignettes/bands for signature moments, but mixed-media layers, content packs, and legality metadata are still future work
+  - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns screen-space masks/cuts/vignettes/bands for signature moments and consumes procedural scene-profile mask families; mixed-media layers, large content packs, and broader legality metadata are still future work
 - last meaningful pass:
   - 2026-04-29 bounded `CompositorSystem` slice for signature moments
+  - 2026-04-29 authored procedural asset profile pass for five playable scene ontologies, compositor mask family telemetry, particle field job telemetry, and quick contact-sheet scoring tags
 - current biggest failure mode:
-  - mixed media could arrive as collage novelty instead of authored show language
+  - mixed media could arrive as collage novelty instead of authored show language; reject opaque media unless it improves thumbnail readability or aftermath memory beyond the procedural engine
 
 ### Motif / Memory
 

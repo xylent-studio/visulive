@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { SceneQualityProfile } from '../../runtime';
 import type {
   AuthorityFrameSnapshot,
+  CompositorMaskFamily,
   PaletteState,
   ResolvedSignatureMomentStyle,
   SignatureMomentSnapshot
@@ -21,6 +22,7 @@ export type CompositorSystemUpdateContext = {
 };
 
 export type CompositorSystemTelemetry = {
+  compositorMaskFamily: CompositorMaskFamily;
   compositorSignatureMask: number;
   compositorCutAmount: number;
   compositorVignetteAmount: number;
@@ -56,6 +58,47 @@ function styleContrast(style: ResolvedSignatureMomentStyle): number {
   return style === 'contrast-mythic' ? 1.08 : style === 'ambient-premium' ? 0.6 : 0.86;
 }
 
+function resolveCompositorMaskFamily(
+  context: CompositorSystemUpdateContext
+): CompositorMaskFamily {
+  const moment = context.signatureMoment;
+
+  if (moment.kind === 'collapse-scar' && moment.phase !== 'idle' && moment.phase !== 'clear') {
+    return 'scar-matte';
+  }
+
+  if (moment.kind === 'cathedral-open' && moment.phase !== 'idle' && moment.phase !== 'clear') {
+    return 'portal-aperture';
+  }
+
+  if (
+    (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') &&
+    moment.phase !== 'idle' &&
+    moment.phase !== 'clear'
+  ) {
+    return 'ghost-veil';
+  }
+
+  if (context.playableMotif.compositorMaskFamily) {
+    return context.playableMotif.compositorMaskFamily;
+  }
+
+  switch (context.playableMotif.activePlayableMotifScene) {
+    case 'machine-tunnel':
+      return 'shutter';
+    case 'void-pressure':
+      return 'iris';
+    case 'neon-cathedral':
+      return 'portal-aperture';
+    case 'ghost-constellation':
+      return 'ghost-veil';
+    case 'collapse-scar':
+      return 'scar-matte';
+    default:
+      return 'none';
+  }
+}
+
 export class CompositorSystem {
   readonly group = new THREE.Group();
 
@@ -82,6 +125,7 @@ export class CompositorSystem {
   private built = false;
   private disposed = false;
   private telemetry: CompositorSystemTelemetry = {
+    compositorMaskFamily: 'none',
     compositorSignatureMask: 0,
     compositorCutAmount: 0,
     compositorVignetteAmount: 0,
@@ -178,6 +222,7 @@ export class CompositorSystem {
     const moment = context.signatureMoment;
     const style = moment.style;
     const intensity = clamp01(moment.intensity);
+    const maskFamily = resolveCompositorMaskFamily(context);
     const collapse = moment.kind === 'collapse-scar' ? intensity : 0;
     const cathedral = moment.kind === 'cathedral-open' ? intensity : 0;
     const ghost = moment.kind === 'ghost-residue' ? intensity : 0;
@@ -193,6 +238,11 @@ export class CompositorSystem {
       context.playableMotif.activePlayableMotifScene === 'machine-tunnel'
         ? sceneIntensity * 0.14
         : 0;
+    const portalMask = maskFamily === 'portal-aperture' ? sceneIntensity * 0.18 : 0;
+    const shutterMask = maskFamily === 'shutter' || maskFamily === 'slit' ? sceneIntensity * 0.16 : 0;
+    const irisMask = maskFamily === 'iris' ? sceneIntensity * 0.2 : 0;
+    const scarMask = maskFamily === 'scar-matte' ? sceneIntensity * 0.22 : 0;
+    const ghostMask = maskFamily === 'ghost-veil' ? sceneIntensity * 0.14 : 0;
     const contrastBias = styleContrast(style);
     const saturationBias = styleSaturation(style);
     const safetyDamp = clamp01(
@@ -201,14 +251,24 @@ export class CompositorSystem {
         Math.max(0, context.authority.ringBeltPersistence - 0.3) * 0.24
     );
     const signatureMask = clamp01(
-      collapse * 0.82 + cathedral * 0.72 + ghost * 0.58 + quiet * 0.42
+      collapse * 0.82 +
+        cathedral * 0.72 +
+        ghost * 0.58 +
+        quiet * 0.42 +
+        portalMask +
+        shutterMask +
+        irisMask +
+        scarMask +
+        ghostMask
     );
-    const cutAmount = clamp01(collapse * 0.86 + ghost * 0.18);
+    const cutAmount = clamp01(collapse * 0.86 + ghost * 0.18 + scarMask + shutterMask * 0.32);
     const vignetteAmount = clamp01(
       collapse * 0.36 +
         ghost * 0.18 +
         quiet * 0.16 +
         sceneContrast +
+        irisMask +
+        ghostMask * 0.4 +
         (style === 'contrast-mythic' ? signatureMask * 0.12 : 0)
     );
     const chromaticAmount = clamp01(
@@ -216,10 +276,15 @@ export class CompositorSystem {
         collapse * 0.18 +
         ghost * 0.16 +
         sceneNeon +
+        portalMask * 0.42 +
+        shutterMask * 0.28 +
         (style === 'maximal-neon' ? signatureMask * 0.28 : 0)
     );
     const edgeWindowAmount = clamp01(
-      cathedral * (style === 'maximal-neon' ? 0.84 : 0.68) + quiet * 0.38
+      cathedral * (style === 'maximal-neon' ? 0.84 : 0.68) +
+        quiet * 0.38 +
+        portalMask +
+        ghostMask * 0.4
     );
 
     this.updateVignette(vignetteAmount, contrastBias, safetyDamp);
@@ -260,6 +325,7 @@ export class CompositorSystem {
     );
 
     this.telemetry = {
+      compositorMaskFamily: maskFamily,
       compositorSignatureMask: signatureMask,
       compositorCutAmount: cutAmount,
       compositorVignetteAmount: vignetteAmount,

@@ -66,6 +66,45 @@ const PLAYABLE_MOTIF_SCENE_DRIVERS = [
   'hold'
 ];
 
+const SCENE_SILHOUETTE_FAMILIES = [
+  'none',
+  'vertical-vault',
+  'perspective-tunnel',
+  'negative-space-mass',
+  'wide-constellation',
+  'diagonal-rupture'
+];
+
+const SCENE_SURFACE_ROLES = [
+  'none',
+  'architectural-aperture',
+  'shutter-lanes',
+  'void-scrim',
+  'celestial-field',
+  'scar-matte'
+];
+
+const COMPOSITOR_MASK_FAMILIES = [
+  'none',
+  'iris',
+  'shutter',
+  'slit',
+  'edge-window',
+  'scar-matte',
+  'portal-aperture',
+  'ghost-veil'
+];
+
+const PARTICLE_FIELD_JOBS = [
+  'none',
+  'weather',
+  'offspring',
+  'punctuation',
+  'residue',
+  'memory-echo',
+  'pressure-dust'
+];
+
 const RING_POSTURES = [
   'background-scaffold',
   'cathedral-architecture',
@@ -972,6 +1011,50 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
       visualSummary.dominantPlayableMotifScene ??
       metadataVisual.dominantPlayableMotifScene ??
       'none',
+    playableMotifSceneProfileSpread:
+      visualSummary.playableMotifSceneProfileSpread ??
+      metadataVisual.playableMotifSceneProfileSpread ??
+      Object.fromEntries(PLAYABLE_MOTIF_SCENES.map((value) => [value, 0])),
+    dominantPlayableMotifSceneProfile:
+      visualSummary.dominantPlayableMotifSceneProfile ??
+      metadataVisual.dominantPlayableMotifSceneProfile ??
+      'none',
+    playableMotifSceneSilhouetteFamilySpread:
+      visualSummary.playableMotifSceneSilhouetteFamilySpread ??
+      metadataVisual.playableMotifSceneSilhouetteFamilySpread ??
+      Object.fromEntries(SCENE_SILHOUETTE_FAMILIES.map((value) => [value, 0])),
+    dominantPlayableMotifSceneSilhouetteFamily:
+      visualSummary.dominantPlayableMotifSceneSilhouetteFamily ??
+      metadataVisual.dominantPlayableMotifSceneSilhouetteFamily ??
+      'none',
+    playableMotifSceneSurfaceRoleSpread:
+      visualSummary.playableMotifSceneSurfaceRoleSpread ??
+      metadataVisual.playableMotifSceneSurfaceRoleSpread ??
+      Object.fromEntries(SCENE_SURFACE_ROLES.map((value) => [value, 0])),
+    dominantPlayableMotifSceneSurfaceRole:
+      visualSummary.dominantPlayableMotifSceneSurfaceRole ??
+      metadataVisual.dominantPlayableMotifSceneSurfaceRole ??
+      'none',
+    compositorMaskFamilySpread:
+      visualSummary.compositorMaskFamilySpread ??
+      metadataVisual.compositorMaskFamilySpread ??
+      Object.fromEntries(COMPOSITOR_MASK_FAMILIES.map((value) => [value, 0])),
+    dominantCompositorMaskFamily:
+      visualSummary.dominantCompositorMaskFamily ??
+      metadataVisual.dominantCompositorMaskFamily ??
+      'none',
+    particleFieldJobSpread:
+      visualSummary.particleFieldJobSpread ??
+      metadataVisual.particleFieldJobSpread ??
+      Object.fromEntries(PARTICLE_FIELD_JOBS.map((value) => [value, 0])),
+    particleFieldJobTelemetryRate:
+      visualSummary.particleFieldJobTelemetryRate ??
+      metadataVisual.particleFieldJobTelemetryRate ??
+      0,
+    dominantParticleFieldJob:
+      visualSummary.dominantParticleFieldJob ??
+      metadataVisual.dominantParticleFieldJob ??
+      'none',
     playableMotifSceneTransitionReasonSpread:
       visualSummary.playableMotifSceneTransitionReasonSpread ??
       metadataVisual.playableMotifSceneTransitionReasonSpread ??
@@ -993,6 +1076,10 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
     playableMotifScenePaletteMatchRate:
       visualSummary.playableMotifScenePaletteMatchRate ??
       metadataVisual.playableMotifScenePaletteMatchRate ??
+      1,
+    playableMotifSceneProfileMatchRate:
+      visualSummary.playableMotifSceneProfileMatchRate ??
+      metadataVisual.playableMotifSceneProfileMatchRate ??
       1,
     playableMotifSceneDistinctnessMean:
       visualSummary.playableMotifSceneDistinctnessMean ??
@@ -1831,6 +1918,12 @@ export function summarizeCapture(capture, filePath) {
   const atmosphereMatterStateCounts = new Map();
   const visualMotifCounts = new Map();
   const playableMotifSceneCounts = new Map();
+  const playableMotifSceneProfileCounts = new Map();
+  const playableMotifSceneSilhouetteFamilyCounts = new Map();
+  const playableMotifSceneSurfaceRoleCounts = new Map();
+  const compositorMaskFamilyCounts = new Map();
+  const particleFieldJobCounts = new Map();
+  let particleFieldJobTelemetryFrames = 0;
   const playableMotifSceneTransitionReasonCounts = new Map();
   const playableMotifSceneDriverCounts = new Map();
   const ringPostureCounts = new Map();
@@ -1839,6 +1932,15 @@ export function summarizeCapture(capture, filePath) {
   const heroFormReasonCounts = new Map();
   const paletteTransitionReasonCounts = new Map();
   const paletteBaseStateCounts = new Map();
+  const assetLayerTotals = Object.fromEntries(
+    VISUAL_ASSET_LAYERS.map((layer) => [layer, 0])
+  );
+  const assetLayerPeaks = Object.fromEntries(
+    VISUAL_ASSET_LAYERS.map((layer) => [layer, 0])
+  );
+  const assetLayerActiveFrames = Object.fromEntries(
+    VISUAL_ASSET_LAYERS.map((layer) => [layer, 0])
+  );
   let exposureSum = 0;
   let exposurePeak = 0;
   let bloomStrengthSum = 0;
@@ -1951,6 +2053,8 @@ export function summarizeCapture(capture, filePath) {
   let playableMotifScenePaletteMatchSamples = 0;
   let playableMotifSceneIntentMatchFrames = 0;
   let playableMotifSceneIntentMatchSamples = 0;
+  let playableMotifSceneProfileMatchFrames = 0;
+  let playableMotifSceneProfileMatchSamples = 0;
   let playableMotifSceneDistinctnessSum = 0;
   let playableMotifSceneDistinctnessSamples = 0;
   let playableMotifSceneSilhouetteConfidenceSum = 0;
@@ -1983,6 +2087,39 @@ export function summarizeCapture(capture, filePath) {
         ? visual.activePlayableMotifScene
         : 'none'
     );
+    incrementCounter(
+      playableMotifSceneProfileCounts,
+      PLAYABLE_MOTIF_SCENES.includes(visual.playableMotifSceneProfileId)
+        ? visual.playableMotifSceneProfileId
+        : 'none'
+    );
+    incrementCounter(
+      playableMotifSceneSilhouetteFamilyCounts,
+      SCENE_SILHOUETTE_FAMILIES.includes(visual.playableMotifSceneSilhouetteFamily)
+        ? visual.playableMotifSceneSilhouetteFamily
+        : 'none'
+    );
+    incrementCounter(
+      playableMotifSceneSurfaceRoleCounts,
+      SCENE_SURFACE_ROLES.includes(visual.playableMotifSceneSurfaceRole)
+        ? visual.playableMotifSceneSurfaceRole
+        : 'none'
+    );
+    incrementCounter(
+      compositorMaskFamilyCounts,
+      COMPOSITOR_MASK_FAMILIES.includes(visual.compositorMaskFamily)
+        ? visual.compositorMaskFamily
+        : 'none'
+    );
+    incrementCounter(
+      particleFieldJobCounts,
+      PARTICLE_FIELD_JOBS.includes(visual.particleFieldJob)
+        ? visual.particleFieldJob
+        : 'none'
+    );
+    if (PARTICLE_FIELD_JOBS.includes(visual.particleFieldJob)) {
+      particleFieldJobTelemetryFrames += 1;
+    }
     incrementCounter(
       playableMotifSceneTransitionReasonCounts,
       PLAYABLE_MOTIF_SCENE_TRANSITION_REASONS.includes(
@@ -2021,6 +2158,12 @@ export function summarizeCapture(capture, filePath) {
         playableMotifSceneIntentMatchFrames += 1;
       }
     }
+    if (typeof visual.playableMotifSceneProfileMatch === 'boolean') {
+      playableMotifSceneProfileMatchSamples += 1;
+      if (visual.playableMotifSceneProfileMatch) {
+        playableMotifSceneProfileMatchFrames += 1;
+      }
+    }
     if (typeof visual.playableMotifSceneDistinctness === 'number') {
       playableMotifSceneDistinctnessSamples += 1;
       playableMotifSceneDistinctnessSum += visual.playableMotifSceneDistinctness;
@@ -2029,6 +2172,14 @@ export function summarizeCapture(capture, filePath) {
       playableMotifSceneSilhouetteConfidenceSamples += 1;
       playableMotifSceneSilhouetteConfidenceSum +=
         visual.playableMotifSceneSilhouetteConfidence;
+    }
+    for (const layer of VISUAL_ASSET_LAYERS) {
+      const activity = Math.max(0, visual.assetLayerActivity?.[layer] ?? 0);
+      assetLayerTotals[layer] += activity;
+      assetLayerPeaks[layer] = Math.max(assetLayerPeaks[layer], activity);
+      if (activity > 0.01) {
+        assetLayerActiveFrames[layer] += 1;
+      }
     }
     incrementCounter(
       heroRoleCounts,
@@ -2523,6 +2674,57 @@ export function summarizeCapture(capture, filePath) {
     dominantPlayableMotifScene:
       [...playableMotifSceneCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
       'none',
+    playableMotifSceneProfileSpread: Object.fromEntries(
+      PLAYABLE_MOTIF_SCENES.map((kind) => [
+        kind,
+        (playableMotifSceneProfileCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantPlayableMotifSceneProfile:
+      [...playableMotifSceneProfileCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'none',
+    playableMotifSceneSilhouetteFamilySpread: Object.fromEntries(
+      SCENE_SILHOUETTE_FAMILIES.map((kind) => [
+        kind,
+        (playableMotifSceneSilhouetteFamilyCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantPlayableMotifSceneSilhouetteFamily:
+      [...playableMotifSceneSilhouetteFamilyCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'none',
+    playableMotifSceneSurfaceRoleSpread: Object.fromEntries(
+      SCENE_SURFACE_ROLES.map((kind) => [
+        kind,
+        (playableMotifSceneSurfaceRoleCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantPlayableMotifSceneSurfaceRole:
+      [...playableMotifSceneSurfaceRoleCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'none',
+    compositorMaskFamilySpread: Object.fromEntries(
+      COMPOSITOR_MASK_FAMILIES.map((kind) => [
+        kind,
+        (compositorMaskFamilyCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantCompositorMaskFamily:
+      [...compositorMaskFamilyCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'none',
+    particleFieldJobSpread: Object.fromEntries(
+      PARTICLE_FIELD_JOBS.map((kind) => [
+        kind,
+        (particleFieldJobCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    particleFieldJobTelemetryRate: particleFieldJobTelemetryFrames / frames.length,
+    dominantParticleFieldJob:
+      [...particleFieldJobCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'none',
     playableMotifSceneTransitionReasonSpread: Object.fromEntries(
       PLAYABLE_MOTIF_SCENE_TRANSITION_REASONS.map((reason) => [
         reason,
@@ -2570,6 +2772,11 @@ export function summarizeCapture(capture, filePath) {
       playableMotifSceneIntentMatchSamples > 0
         ? playableMotifSceneIntentMatchFrames /
           playableMotifSceneIntentMatchSamples
+        : undefined,
+    playableMotifSceneProfileMatchRate:
+      playableMotifSceneProfileMatchSamples > 0
+        ? playableMotifSceneProfileMatchFrames /
+          playableMotifSceneProfileMatchSamples
         : undefined,
     playableMotifSceneDistinctnessMean:
       playableMotifSceneDistinctnessSamples > 0
@@ -2888,6 +3095,16 @@ export function summarizeCapture(capture, filePath) {
         key,
         count / frames.length
       ])
+    ),
+    assetLayerSummary: Object.fromEntries(
+      VISUAL_ASSET_LAYERS.map((layer) => [
+        layer,
+        {
+          mean: assetLayerTotals[layer] / frames.length,
+          peak: assetLayerPeaks[layer],
+          activeFrameRate: assetLayerActiveFrames[layer] / frames.length
+        }
+      ])
     )
   });
   const eventTimingSummary = deriveEventTimingSummary({
@@ -3066,9 +3283,21 @@ export function summarizeCapture(capture, filePath) {
     );
   }
 
+  if (qualityFlags.includes('sceneProfileMismatch')) {
+    findings.push(
+      `Playable motif scene profile is not consistently matching active ontology (${formatPercent(visualSummary.playableMotifSceneProfileMatchRate)} match). Scene labels need distinct silhouette, surface, mask, and particle-job posture.`
+    );
+  }
+
   if (qualityFlags.includes('sameySceneSilhouette')) {
     findings.push(
       `Playable motif scene silhouette confidence is low (${formatNumber(visualSummary.playableMotifSceneSilhouetteConfidenceMean)}). Strengthen scene posture until it reads in thumbnail review.`
+    );
+  }
+
+  if (qualityFlags.includes('decorativeParticleActivity')) {
+    findings.push(
+      `Particles are active without a resolved field job (${visualSummary.dominantParticleFieldJob ?? 'none'}). Route particles as weather, punctuation, pressure dust, residue, or memory echo instead of decorative activity.`
     );
   }
 
@@ -3654,8 +3883,22 @@ function deriveQualityFlagsFromSummary({
     flags.add('sceneIntentMismatch');
   }
 
+  if ((visualSummary.playableMotifSceneProfileMatchRate ?? 1) < 0.78) {
+    flags.add('sceneProfileMismatch');
+  }
+
   if ((visualSummary.playableMotifSceneSilhouetteConfidenceMean ?? 1) < 0.46) {
     flags.add('sameySceneSilhouette');
+  }
+
+  const particleActivity = visualSummary.assetLayerSummary?.particles?.activeFrameRate ?? 0;
+  const particleJobTelemetryRate = visualSummary.particleFieldJobTelemetryRate ?? 0;
+  if (
+    particleJobTelemetryRate > 0.5 &&
+    particleActivity > 0.68 &&
+    (visualSummary.dominantParticleFieldJob ?? 'none') === 'none'
+  ) {
+    flags.add('decorativeParticleActivity');
   }
 
   return [...flags];
@@ -4506,6 +4749,13 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
   const signatureMomentSpread = visual.signatureMomentSpread ?? {};
   const signatureMomentStyleSpread = visual.signatureMomentStyleSpread ?? {};
   const playableMotifSceneSpread = visual.playableMotifSceneSpread ?? {};
+  const playableMotifSceneProfileSpread = visual.playableMotifSceneProfileSpread ?? {};
+  const playableMotifSceneSilhouetteFamilySpread =
+    visual.playableMotifSceneSilhouetteFamilySpread ?? {};
+  const playableMotifSceneSurfaceRoleSpread =
+    visual.playableMotifSceneSurfaceRoleSpread ?? {};
+  const compositorMaskFamilySpread = visual.compositorMaskFamilySpread ?? {};
+  const particleFieldJobSpread = visual.particleFieldJobSpread ?? {};
   const playableMotifSceneTransitionReasonSpread =
     visual.playableMotifSceneTransitionReasonSpread ?? {};
   const paletteStateSpreadByAct = visual.paletteStateSpreadByAct ?? {};
@@ -4631,10 +4881,11 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant signature moment/style: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}`,
     `- Dominant motif / base palette: ${visual.dominantVisualMotif ?? 'void-anchor'} / ${visual.dominantPaletteBaseState ?? visual.dominantPaletteState}`,
     `- Dominant playable scene / transition / driver: ${visual.dominantPlayableMotifScene ?? 'none'} / ${visual.dominantPlayableMotifSceneTransitionReason ?? 'hold'} / ${visual.dominantPlayableMotifSceneDriver ?? 'hold'}`,
+    `- Dominant scene profile / silhouette / surface / mask / particle job: ${visual.dominantPlayableMotifSceneProfile ?? 'none'} / ${visual.dominantPlayableMotifSceneSilhouetteFamily ?? 'none'} / ${visual.dominantPlayableMotifSceneSurfaceRole ?? 'none'} / ${visual.dominantCompositorMaskFamily ?? 'none'} / ${visual.dominantParticleFieldJob ?? 'none'}`,
     `- Dominant hero role/form/reason: ${visual.dominantHeroRole ?? 'supporting'} / ${visual.dominantHeroForm ?? 'orb'} / ${visual.dominantHeroFormReason ?? 'hold'}`,
     `- Semantic confidence / unearned risk: ${formatNumber(visual.semanticConfidenceMean)} / ${formatNumber(visual.unearnedChangeRiskMean)}`,
     `- Hero planned-form match / switches-min / hue divergence: ${formatPercent(visual.plannedActiveHeroFormMatchRate)} / ${formatNumber(visual.heroFormSwitchesPerMinute)} / ${formatNumber(visual.heroWorldHueDivergenceMean)}`,
-    `- Scene intent/motif/palette match / silhouette: ${formatPercent(visual.playableMotifSceneIntentMatchRate)} / ${formatPercent(visual.playableMotifSceneMotifMatchRate)} / ${formatPercent(visual.playableMotifScenePaletteMatchRate)} / ${formatNumber(visual.playableMotifSceneSilhouetteConfidenceMean)}`,
+    `- Scene intent/motif/palette/profile match / silhouette: ${formatPercent(visual.playableMotifSceneIntentMatchRate)} / ${formatPercent(visual.playableMotifSceneMotifMatchRate)} / ${formatPercent(visual.playableMotifScenePaletteMatchRate)} / ${formatPercent(visual.playableMotifSceneProfileMatchRate)} / ${formatNumber(visual.playableMotifSceneSilhouetteConfidenceMean)}`,
     '',
     '### Compositor summary',
     `- Exposure mean / peak: ${formatNumber(visual.exposureMean)} / ${formatNumber(visual.exposurePeak)}`,
@@ -4652,6 +4903,12 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Active rate / intensity mean / peak: ${formatPercent(visual.signatureMomentActiveRate)} / ${formatNumber(visual.signatureMomentIntensityMean)} / ${formatNumber(visual.signatureMomentIntensityPeak)}`,
     `- Trigger confidence / forced preview rate: ${formatNumber(visual.signatureMomentTriggerConfidenceMean)} / ${formatPercent(visual.signatureMomentForcedPreviewRate)}`,
     `- Playable scene spread: ${Object.keys(playableMotifSceneSpread).length > 0 ? Object.entries(playableMotifSceneSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Scene profile spread: ${Object.keys(playableMotifSceneProfileSpread).length > 0 ? Object.entries(playableMotifSceneProfileSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Scene silhouette spread: ${Object.keys(playableMotifSceneSilhouetteFamilySpread).length > 0 ? Object.entries(playableMotifSceneSilhouetteFamilySpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Scene surface spread: ${Object.keys(playableMotifSceneSurfaceRoleSpread).length > 0 ? Object.entries(playableMotifSceneSurfaceRoleSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Compositor mask spread: ${Object.keys(compositorMaskFamilySpread).length > 0 ? Object.entries(compositorMaskFamilySpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Particle field job spread: ${Object.keys(particleFieldJobSpread).length > 0 ? Object.entries(particleFieldJobSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Particle job telemetry coverage: ${formatPercent(visual.particleFieldJobTelemetryRate)}`,
     `- Playable scene transition spread: ${Object.keys(playableMotifSceneTransitionReasonSpread).length > 0 ? Object.entries(playableMotifSceneTransitionReasonSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Playable scene driver spread: ${Object.keys(visual.playableMotifSceneDriverSpread ?? {}).length > 0 ? Object.entries(visual.playableMotifSceneDriverSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Scene longest run / distinctness: ${formatMs(visual.playableMotifSceneLongestRunMs ?? 0)} / ${formatNumber(visual.playableMotifSceneDistinctnessMean)}`,

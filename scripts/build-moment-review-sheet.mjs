@@ -129,7 +129,7 @@ function summarizeSample(sample) {
   return {
     cue: `${stage.canonicalCueClass ?? 'unknown'} / ${stage.stageCueFamily ?? 'unknown'} / ${stage.stageWorldMode ?? 'unknown'}`,
     signature: `${signature.activeSignatureMoment ?? 'none'} / ${signature.signatureMomentPhase ?? 'idle'} / ${signature.signatureMomentStyle ?? 'n/a'} / i=${formatNumber(signature.signatureMomentIntensity)}`,
-    scene: `${playable.activePlayableMotifScene ?? 'n/a'} / ${playable.playableMotifSceneTransitionReason ?? 'n/a'} / i=${formatNumber(playable.playableMotifSceneIntensity)} / silhouette=${formatNumber(playable.playableMotifSceneSilhouetteConfidence)}`,
+    scene: `${playable.activePlayableMotifScene ?? 'n/a'} / ${playable.playableMotifSceneProfileId ?? 'n/a'} / ${playable.playableMotifSceneSilhouetteFamily ?? 'n/a'} / ${playable.playableMotifSceneSurfaceRole ?? 'n/a'} / mask=${playable.compositorMaskFamily ?? 'n/a'} / job=${playable.particleFieldJob ?? 'n/a'} / i=${formatNumber(playable.playableMotifSceneIntensity)} / silhouette=${formatNumber(playable.playableMotifSceneSilhouetteConfidence)}`,
     authority: `world=${formatNumber(authority.worldDominanceDelivered)} chamber=${formatNumber(authority.chamberPresenceScore)} ring=${formatNumber(authority.ringAuthority)}`,
     safety: `wash=${formatNumber(signature.perceptualWashoutRisk)} color=${formatNumber(signature.perceptualColorfulnessScore)} over=${formatNumber(authority.overbright)}`
   };
@@ -199,7 +199,16 @@ async function writeReviewSheet(runPackage, args) {
     '',
     '- First pass: squint or zoom out and decide whether the image class reads before details matter.',
     '- Second pass: compare the `signature` and `scene` columns; generic-looking images with different labels are failures.',
-    '- Third pass: mark favorites and weak frames in the run review note, then route fixes to the owner lane shown by the telemetry.',
+    '- Third pass: mark quick scores below, then route fixes to the owner lane shown by the telemetry.',
+    '',
+    'Quick score tags for the review note:',
+    '',
+    '- `favorite`: frame should influence the target look.',
+    '- `weak`: frame is mechanically valid but visually underpowered.',
+    '- `reads-at-thumbnail`: scene/moment is identifiable when small.',
+    '- `scene-label-mismatch`: telemetry says one scene but the image reads as another.',
+    '- `generic-ring-wallpaper`: rings dominate without serving architecture, strike, residue, or suppression.',
+    '- `premium-frame`: frame is showable even without diagnostics.',
     '',
     '## Contact Sheet',
     '',

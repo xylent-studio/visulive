@@ -320,6 +320,83 @@ export type PlayableMotifSceneTransitionReason =
   | 'authority-shift'
   | 'quiet-state';
 
+export type VisualAssetPackKind =
+  | 'mask-pack'
+  | 'glyph-pack'
+  | 'surface-pack'
+  | 'stage-geometry-pack'
+  | 'particle-job-pack'
+  | 'post-memory-pack';
+
+export type VisualAssetProvenanceSource =
+  | 'procedural-code'
+  | 'generated-local'
+  | 'ai-assisted-concept';
+
+export type VisualAssetProvenance = {
+  source: VisualAssetProvenanceSource;
+  createdAt: string;
+  generator: string;
+  license: 'project-owned' | 'local-generated' | 'concept-only';
+  notes?: string;
+};
+
+export type SceneSilhouetteFamily =
+  | 'none'
+  | 'vertical-vault'
+  | 'perspective-tunnel'
+  | 'negative-space-mass'
+  | 'wide-constellation'
+  | 'diagonal-rupture';
+
+export type SceneSurfaceRole =
+  | 'none'
+  | 'architectural-aperture'
+  | 'shutter-lanes'
+  | 'void-scrim'
+  | 'celestial-field'
+  | 'scar-matte';
+
+export type CompositorMaskFamily =
+  | 'none'
+  | 'iris'
+  | 'shutter'
+  | 'slit'
+  | 'edge-window'
+  | 'scar-matte'
+  | 'portal-aperture'
+  | 'ghost-veil';
+
+export type ParticleFieldJob =
+  | 'none'
+  | 'weather'
+  | 'offspring'
+  | 'punctuation'
+  | 'residue'
+  | 'memory-echo'
+  | 'pressure-dust';
+
+export type SceneVisualProfile = {
+  id: Exclude<PlayableMotifSceneKind, 'none'>;
+  label: string;
+  assetPacks: readonly VisualAssetPackKind[];
+  provenance: VisualAssetProvenance;
+  silhouetteFamily: SceneSilhouetteFamily;
+  surfaceRole: SceneSurfaceRole;
+  expectedMotifs: readonly VisualMotifKind[];
+  expectedPaletteBases: readonly PaletteState[];
+  paletteBase: PaletteState;
+  ringPosture: RingPosture;
+  heroRole: HeroSemanticRole;
+  heroForm: StageHeroForm;
+  particleJob: ParticleFieldJob;
+  compositorMask: CompositorMaskFamily;
+  motionBias: StageMotionPhrase;
+  minimumDwellSeconds: number;
+  distinctness: number;
+  silhouetteConfidence: number;
+};
+
 export type StageScreenEffectFamily =
   | 'none'
   | 'residue'
@@ -784,6 +861,12 @@ export type VisualTelemetryFrame = {
   perceptualColorfulnessScore?: number;
   perceptualWashoutRisk?: number;
   activePlayableMotifScene?: PlayableMotifSceneKind;
+  playableMotifSceneProfileId?: PlayableMotifSceneKind;
+  playableMotifSceneSilhouetteFamily?: SceneSilhouetteFamily;
+  playableMotifSceneSurfaceRole?: SceneSurfaceRole;
+  playableMotifSceneProfileMatch?: boolean;
+  compositorMaskFamily?: CompositorMaskFamily;
+  particleFieldJob?: ParticleFieldJob;
   playableMotifSceneDriver?: PlayableMotifSceneDriver;
   playableMotifSceneIntentMatch?: boolean;
   playableMotifSceneAgeSeconds?: number;
@@ -884,6 +967,17 @@ export type VisualTelemetrySummary = {
   dominantVisualMotif?: VisualMotifKind;
   playableMotifSceneSpread?: Record<PlayableMotifSceneKind, number>;
   dominantPlayableMotifScene?: PlayableMotifSceneKind;
+  playableMotifSceneProfileSpread?: Record<PlayableMotifSceneKind, number>;
+  dominantPlayableMotifSceneProfile?: PlayableMotifSceneKind;
+  playableMotifSceneSilhouetteFamilySpread?: Record<SceneSilhouetteFamily, number>;
+  dominantPlayableMotifSceneSilhouetteFamily?: SceneSilhouetteFamily;
+  playableMotifSceneSurfaceRoleSpread?: Record<SceneSurfaceRole, number>;
+  dominantPlayableMotifSceneSurfaceRole?: SceneSurfaceRole;
+  compositorMaskFamilySpread?: Record<CompositorMaskFamily, number>;
+  dominantCompositorMaskFamily?: CompositorMaskFamily;
+  particleFieldJobSpread?: Record<ParticleFieldJob, number>;
+  dominantParticleFieldJob?: ParticleFieldJob;
+  particleFieldJobTelemetryRate?: number;
   playableMotifSceneTransitionReasonSpread?: Record<
     PlayableMotifSceneTransitionReason,
     number
@@ -897,6 +991,7 @@ export type VisualTelemetrySummary = {
   playableMotifSceneIntentMatchRate?: number;
   playableMotifSceneMotifMatchRate?: number;
   playableMotifScenePaletteMatchRate?: number;
+  playableMotifSceneProfileMatchRate?: number;
   playableMotifSceneDistinctnessMean?: number;
   playableMotifSceneSilhouetteConfidenceMean?: number;
   heroRoleSpread?: Record<HeroSemanticRole, number>;
@@ -1048,7 +1143,9 @@ export type CaptureQualityFlag =
   | 'sceneChurn'
   | 'sceneMotifMismatch'
   | 'sceneIntentMismatch'
+  | 'sceneProfileMismatch'
   | 'sameySceneSilhouette'
+  | 'decorativeParticleActivity'
   | 'missedOpportunity';
 
 export const DEFAULT_VISUAL_TEMPORAL_WINDOWS: VisualTemporalWindows = {
@@ -1445,6 +1542,12 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   perceptualColorfulnessScore: 0.52,
   perceptualWashoutRisk: 0,
   activePlayableMotifScene: 'none',
+  playableMotifSceneProfileId: 'none',
+  playableMotifSceneSilhouetteFamily: 'none',
+  playableMotifSceneSurfaceRole: 'none',
+  playableMotifSceneProfileMatch: true,
+  compositorMaskFamily: 'none',
+  particleFieldJob: 'none',
   playableMotifSceneDriver: 'hold',
   playableMotifSceneIntentMatch: true,
   playableMotifSceneAgeSeconds: 0,
@@ -1720,6 +1823,55 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     'collapse-scar': 0
   },
   dominantPlayableMotifScene: 'none',
+  playableMotifSceneProfileSpread: {
+    none: 0,
+    'neon-cathedral': 0,
+    'machine-tunnel': 0,
+    'void-pressure': 0,
+    'ghost-constellation': 0,
+    'collapse-scar': 0
+  },
+  dominantPlayableMotifSceneProfile: 'none',
+  playableMotifSceneSilhouetteFamilySpread: {
+    none: 0,
+    'vertical-vault': 0,
+    'perspective-tunnel': 0,
+    'negative-space-mass': 0,
+    'wide-constellation': 0,
+    'diagonal-rupture': 0
+  },
+  dominantPlayableMotifSceneSilhouetteFamily: 'none',
+  playableMotifSceneSurfaceRoleSpread: {
+    none: 0,
+    'architectural-aperture': 0,
+    'shutter-lanes': 0,
+    'void-scrim': 0,
+    'celestial-field': 0,
+    'scar-matte': 0
+  },
+  dominantPlayableMotifSceneSurfaceRole: 'none',
+  compositorMaskFamilySpread: {
+    none: 0,
+    iris: 0,
+    shutter: 0,
+    slit: 0,
+    'edge-window': 0,
+    'scar-matte': 0,
+    'portal-aperture': 0,
+    'ghost-veil': 0
+  },
+  dominantCompositorMaskFamily: 'none',
+  particleFieldJobSpread: {
+    none: 0,
+    weather: 0,
+    offspring: 0,
+    punctuation: 0,
+    residue: 0,
+    'memory-echo': 0,
+    'pressure-dust': 0
+  },
+  dominantParticleFieldJob: 'none',
+  particleFieldJobTelemetryRate: 0,
   playableMotifSceneTransitionReasonSpread: {
     hold: 0,
     'motif-change': 0,
@@ -1752,6 +1904,7 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
   playableMotifSceneIntentMatchRate: 1,
   playableMotifSceneMotifMatchRate: 1,
   playableMotifScenePaletteMatchRate: 1,
+  playableMotifSceneProfileMatchRate: 1,
   playableMotifSceneDistinctnessMean: 0,
   playableMotifSceneSilhouetteConfidenceMean: 0,
   heroRoleSpread: {

@@ -37,6 +37,7 @@ import {
   VISUAL_ASSET_LAYERS,
   type CaptureQualityFlag,
   type AtmosphereMatterState,
+  type CompositorMaskFamily,
   type CueClass,
   type HeroFormSwitchReason,
   type HeroAuthorityState,
@@ -44,6 +45,7 @@ import {
   type PaletteState,
   type PaletteBaseHoldReason,
   type PaletteTransitionReason,
+  type ParticleFieldJob,
   type PerformanceRegime,
   type PhraseConfidence,
   type PlayableMotifSceneDriver,
@@ -52,6 +54,8 @@ import {
   type PostSpendIntent,
   type SectionIntent,
   type RingPosture,
+  type SceneSilhouetteFamily,
+  type SceneSurfaceRole,
   type SemanticEpisodeTransitionReason,
   type ResolvedSignatureMomentStyle,
   type ShowAct,
@@ -746,6 +750,41 @@ const PLAYABLE_MOTIF_SCENE_DRIVER_KEYS: PlayableMotifSceneDriver[] = [
   'release',
   'quiet',
   'hold'
+];
+const SCENE_SILHOUETTE_FAMILY_KEYS: SceneSilhouetteFamily[] = [
+  'none',
+  'vertical-vault',
+  'perspective-tunnel',
+  'negative-space-mass',
+  'wide-constellation',
+  'diagonal-rupture'
+];
+const SCENE_SURFACE_ROLE_KEYS: SceneSurfaceRole[] = [
+  'none',
+  'architectural-aperture',
+  'shutter-lanes',
+  'void-scrim',
+  'celestial-field',
+  'scar-matte'
+];
+const COMPOSITOR_MASK_FAMILY_KEYS: CompositorMaskFamily[] = [
+  'none',
+  'iris',
+  'shutter',
+  'slit',
+  'edge-window',
+  'scar-matte',
+  'portal-aperture',
+  'ghost-veil'
+];
+const PARTICLE_FIELD_JOB_KEYS: ParticleFieldJob[] = [
+  'none',
+  'weather',
+  'offspring',
+  'punctuation',
+  'residue',
+  'memory-echo',
+  'pressure-dust'
 ];
 
 type AxisTracker = {
@@ -1792,6 +1831,13 @@ function summarizeVisualTelemetry(
   const playableMotifSceneTransitionReasonCounts =
     new Map<PlayableMotifSceneTransitionReason, number>();
   const playableMotifSceneDriverCounts = new Map<PlayableMotifSceneDriver, number>();
+  const playableMotifSceneProfileCounts = new Map<PlayableMotifSceneKind, number>();
+  const playableMotifSceneSilhouetteFamilyCounts =
+    new Map<SceneSilhouetteFamily, number>();
+  const playableMotifSceneSurfaceRoleCounts = new Map<SceneSurfaceRole, number>();
+  const compositorMaskFamilyCounts = new Map<CompositorMaskFamily, number>();
+  const particleFieldJobCounts = new Map<ParticleFieldJob, number>();
+  let particleFieldJobTelemetrySamples = 0;
   const ringPostureCounts = new Map<RingPosture, number>();
   const stageWorldModeCounts = new Map<StageWorldMode, number>();
   const atmosphereMatterStateCounts = new Map<AtmosphereMatterState, number>();
@@ -1938,6 +1984,8 @@ function summarizeVisualTelemetry(
   let playableMotifScenePaletteMatchSamples = 0;
   let playableMotifSceneIntentMatchFrames = 0;
   let playableMotifSceneIntentMatchSamples = 0;
+  let playableMotifSceneProfileMatchFrames = 0;
+  let playableMotifSceneProfileMatchSamples = 0;
   let playableMotifSceneDistinctnessSum = 0;
   let playableMotifSceneDistinctnessSamples = 0;
   let playableMotifSceneSilhouetteConfidenceSum = 0;
@@ -2207,6 +2255,57 @@ function summarizeVisualTelemetry(
       activePlayableMotifScene,
       (playableMotifSceneCounts.get(activePlayableMotifScene) ?? 0) + 1
     );
+    const playableMotifSceneProfileId =
+      telemetry.playableMotifSceneProfileId &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.playableMotifSceneProfileId)
+        ? telemetry.playableMotifSceneProfileId
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneProfileId ?? 'none';
+    playableMotifSceneProfileCounts.set(
+      playableMotifSceneProfileId,
+      (playableMotifSceneProfileCounts.get(playableMotifSceneProfileId) ?? 0) + 1
+    );
+    const playableMotifSceneSilhouetteFamily =
+      telemetry.playableMotifSceneSilhouetteFamily &&
+      SCENE_SILHOUETTE_FAMILY_KEYS.includes(telemetry.playableMotifSceneSilhouetteFamily)
+        ? telemetry.playableMotifSceneSilhouetteFamily
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneSilhouetteFamily ?? 'none';
+    playableMotifSceneSilhouetteFamilyCounts.set(
+      playableMotifSceneSilhouetteFamily,
+      (playableMotifSceneSilhouetteFamilyCounts.get(
+        playableMotifSceneSilhouetteFamily
+      ) ?? 0) + 1
+    );
+    const playableMotifSceneSurfaceRole =
+      telemetry.playableMotifSceneSurfaceRole &&
+      SCENE_SURFACE_ROLE_KEYS.includes(telemetry.playableMotifSceneSurfaceRole)
+        ? telemetry.playableMotifSceneSurfaceRole
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneSurfaceRole ?? 'none';
+    playableMotifSceneSurfaceRoleCounts.set(
+      playableMotifSceneSurfaceRole,
+      (playableMotifSceneSurfaceRoleCounts.get(playableMotifSceneSurfaceRole) ?? 0) + 1
+    );
+    const compositorMaskFamily =
+      telemetry.compositorMaskFamily &&
+      COMPOSITOR_MASK_FAMILY_KEYS.includes(telemetry.compositorMaskFamily)
+        ? telemetry.compositorMaskFamily
+        : DEFAULT_VISUAL_TELEMETRY.compositorMaskFamily ?? 'none';
+    compositorMaskFamilyCounts.set(
+      compositorMaskFamily,
+      (compositorMaskFamilyCounts.get(compositorMaskFamily) ?? 0) + 1
+    );
+    const hasParticleFieldJobTelemetry =
+      typeof frame.visualTelemetry?.particleFieldJob === 'string' &&
+      PARTICLE_FIELD_JOB_KEYS.includes(frame.visualTelemetry.particleFieldJob);
+    if (hasParticleFieldJobTelemetry) {
+      particleFieldJobTelemetrySamples += 1;
+    }
+    const particleFieldJob = hasParticleFieldJobTelemetry
+      ? frame.visualTelemetry?.particleFieldJob ?? 'none'
+      : DEFAULT_VISUAL_TELEMETRY.particleFieldJob ?? 'none';
+    particleFieldJobCounts.set(
+      particleFieldJob,
+      (particleFieldJobCounts.get(particleFieldJob) ?? 0) + 1
+    );
     const playableMotifSceneTransitionReason =
       telemetry.playableMotifSceneTransitionReason &&
       PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.includes(
@@ -2247,6 +2346,12 @@ function summarizeVisualTelemetry(
       playableMotifSceneIntentMatchSamples += 1;
       if (telemetry.playableMotifSceneIntentMatch) {
         playableMotifSceneIntentMatchFrames += 1;
+      }
+    }
+    if (typeof telemetry.playableMotifSceneProfileMatch === 'boolean') {
+      playableMotifSceneProfileMatchSamples += 1;
+      if (telemetry.playableMotifSceneProfileMatch) {
+        playableMotifSceneProfileMatchFrames += 1;
       }
     }
     if (typeof telemetry.playableMotifScenePaletteMatch === 'boolean') {
@@ -2662,6 +2767,26 @@ function summarizeVisualTelemetry(
     [...playableMotifSceneCounts.entries()].sort(
       (left, right) => right[1] - left[1]
     )[0]?.[0] ?? 'none';
+  const dominantPlayableMotifSceneProfile =
+    [...playableMotifSceneProfileCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const dominantPlayableMotifSceneSilhouetteFamily =
+    [...playableMotifSceneSilhouetteFamilyCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const dominantPlayableMotifSceneSurfaceRole =
+    [...playableMotifSceneSurfaceRoleCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const dominantCompositorMaskFamily =
+    [...compositorMaskFamilyCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const dominantParticleFieldJob =
+    [...particleFieldJobCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
   const dominantPlayableMotifSceneTransitionReason =
     [...playableMotifSceneTransitionReasonCounts.entries()].sort(
       (left, right) => right[1] - left[1]
@@ -2832,6 +2957,36 @@ function summarizeVisualTelemetry(
       (playableMotifSceneCounts.get(key) ?? 0) / frames.length
     ])
   ) as VisualTelemetrySummary['playableMotifSceneSpread'];
+  const playableMotifSceneProfileSpread = Object.fromEntries(
+    PLAYABLE_MOTIF_SCENE_KEYS.map((key) => [
+      key,
+      (playableMotifSceneProfileCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneProfileSpread'];
+  const playableMotifSceneSilhouetteFamilySpread = Object.fromEntries(
+    SCENE_SILHOUETTE_FAMILY_KEYS.map((key) => [
+      key,
+      (playableMotifSceneSilhouetteFamilyCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneSilhouetteFamilySpread'];
+  const playableMotifSceneSurfaceRoleSpread = Object.fromEntries(
+    SCENE_SURFACE_ROLE_KEYS.map((key) => [
+      key,
+      (playableMotifSceneSurfaceRoleCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneSurfaceRoleSpread'];
+  const compositorMaskFamilySpread = Object.fromEntries(
+    COMPOSITOR_MASK_FAMILY_KEYS.map((key) => [
+      key,
+      (compositorMaskFamilyCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['compositorMaskFamilySpread'];
+  const particleFieldJobSpread = Object.fromEntries(
+    PARTICLE_FIELD_JOB_KEYS.map((key) => [
+      key,
+      (particleFieldJobCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['particleFieldJobSpread'];
   const playableMotifSceneTransitionReasonSpread = Object.fromEntries(
     PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.map((key) => [
       key,
@@ -3116,6 +3271,17 @@ function summarizeVisualTelemetry(
     dominantVisualMotif,
     playableMotifSceneSpread,
     dominantPlayableMotifScene,
+    playableMotifSceneProfileSpread,
+    dominantPlayableMotifSceneProfile,
+    playableMotifSceneSilhouetteFamilySpread,
+    dominantPlayableMotifSceneSilhouetteFamily,
+    playableMotifSceneSurfaceRoleSpread,
+    dominantPlayableMotifSceneSurfaceRole,
+    compositorMaskFamilySpread,
+    dominantCompositorMaskFamily,
+    particleFieldJobSpread,
+    particleFieldJobTelemetryRate: particleFieldJobTelemetrySamples / frames.length,
+    dominantParticleFieldJob,
     playableMotifSceneTransitionReasonSpread,
     dominantPlayableMotifSceneTransitionReason,
     playableMotifSceneDriverSpread,
@@ -3134,6 +3300,10 @@ function summarizeVisualTelemetry(
     playableMotifScenePaletteMatchRate:
       playableMotifScenePaletteMatchSamples > 0
         ? playableMotifScenePaletteMatchFrames / playableMotifScenePaletteMatchSamples
+        : undefined,
+    playableMotifSceneProfileMatchRate:
+      playableMotifSceneProfileMatchSamples > 0
+        ? playableMotifSceneProfileMatchFrames / playableMotifSceneProfileMatchSamples
         : undefined,
     playableMotifSceneDistinctnessMean:
       playableMotifSceneDistinctnessSamples > 0
@@ -3611,8 +3781,24 @@ function deriveCaptureQualityFlags(input: {
     flags.add('sceneIntentMismatch');
   }
 
+  if ((input.visualSummary.playableMotifSceneProfileMatchRate ?? 1) < 0.78) {
+    flags.add('sceneProfileMismatch');
+  }
+
   if ((input.visualSummary.playableMotifSceneSilhouetteConfidenceMean ?? 1) < 0.46) {
     flags.add('sameySceneSilhouette');
+  }
+
+  const particleActivity =
+    input.visualSummary.assetLayerSummary.particles?.activeFrameRate ?? 0;
+  const dominantParticleJob = input.visualSummary.dominantParticleFieldJob ?? 'none';
+  const particleJobTelemetryRate = input.visualSummary.particleFieldJobTelemetryRate ?? 0;
+  if (
+    particleJobTelemetryRate > 0.5 &&
+    particleActivity > 0.68 &&
+    dominantParticleJob === 'none'
+  ) {
+    flags.add('decorativeParticleActivity');
   }
 
   return [...flags];
@@ -4895,6 +5081,11 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       typeof telemetry?.postOverprocessRisk === 'number'
         ? telemetry.postOverprocessRisk
         : DEFAULT_VISUAL_TELEMETRY.postOverprocessRisk,
+    compositorMaskFamily:
+      telemetry?.compositorMaskFamily &&
+      COMPOSITOR_MASK_FAMILY_KEYS.includes(telemetry.compositorMaskFamily)
+        ? telemetry.compositorMaskFamily
+        : DEFAULT_VISUAL_TELEMETRY.compositorMaskFamily,
     compositorSignatureMask:
       typeof telemetry?.compositorSignatureMask === 'number'
         ? telemetry.compositorSignatureMask
@@ -4956,6 +5147,29 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.activePlayableMotifScene)
         ? telemetry.activePlayableMotifScene
         : DEFAULT_VISUAL_TELEMETRY.activePlayableMotifScene,
+    playableMotifSceneProfileId:
+      telemetry?.playableMotifSceneProfileId &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.playableMotifSceneProfileId)
+        ? telemetry.playableMotifSceneProfileId
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneProfileId,
+    playableMotifSceneSilhouetteFamily:
+      telemetry?.playableMotifSceneSilhouetteFamily &&
+      SCENE_SILHOUETTE_FAMILY_KEYS.includes(telemetry.playableMotifSceneSilhouetteFamily)
+        ? telemetry.playableMotifSceneSilhouetteFamily
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneSilhouetteFamily,
+    playableMotifSceneSurfaceRole:
+      telemetry?.playableMotifSceneSurfaceRole &&
+      SCENE_SURFACE_ROLE_KEYS.includes(telemetry.playableMotifSceneSurfaceRole)
+        ? telemetry.playableMotifSceneSurfaceRole
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneSurfaceRole,
+    playableMotifSceneProfileMatch:
+      typeof telemetry?.playableMotifSceneProfileMatch === 'boolean'
+        ? telemetry.playableMotifSceneProfileMatch
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneProfileMatch,
+    particleFieldJob:
+      telemetry?.particleFieldJob && PARTICLE_FIELD_JOB_KEYS.includes(telemetry.particleFieldJob)
+        ? telemetry.particleFieldJob
+        : DEFAULT_VISUAL_TELEMETRY.particleFieldJob,
     playableMotifSceneDriver:
       telemetry?.playableMotifSceneDriver &&
       PLAYABLE_MOTIF_SCENE_DRIVER_KEYS.includes(telemetry.playableMotifSceneDriver)
@@ -5634,6 +5848,57 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       PLAYABLE_MOTIF_SCENE_KEYS.includes(summary.dominantPlayableMotifScene)
         ? summary.dominantPlayableMotifScene
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifScene,
+    playableMotifSceneProfileSpread: normalizeFixedNumberRecord(
+      PLAYABLE_MOTIF_SCENE_KEYS,
+      summary.playableMotifSceneProfileSpread
+    ),
+    dominantPlayableMotifSceneProfile:
+      summary.dominantPlayableMotifSceneProfile &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(summary.dominantPlayableMotifSceneProfile)
+        ? summary.dominantPlayableMotifSceneProfile
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneProfile,
+    playableMotifSceneSilhouetteFamilySpread: normalizeFixedNumberRecord(
+      SCENE_SILHOUETTE_FAMILY_KEYS,
+      summary.playableMotifSceneSilhouetteFamilySpread
+    ),
+    dominantPlayableMotifSceneSilhouetteFamily:
+      summary.dominantPlayableMotifSceneSilhouetteFamily &&
+      SCENE_SILHOUETTE_FAMILY_KEYS.includes(
+        summary.dominantPlayableMotifSceneSilhouetteFamily
+      )
+        ? summary.dominantPlayableMotifSceneSilhouetteFamily
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneSilhouetteFamily,
+    playableMotifSceneSurfaceRoleSpread: normalizeFixedNumberRecord(
+      SCENE_SURFACE_ROLE_KEYS,
+      summary.playableMotifSceneSurfaceRoleSpread
+    ),
+    dominantPlayableMotifSceneSurfaceRole:
+      summary.dominantPlayableMotifSceneSurfaceRole &&
+      SCENE_SURFACE_ROLE_KEYS.includes(summary.dominantPlayableMotifSceneSurfaceRole)
+        ? summary.dominantPlayableMotifSceneSurfaceRole
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneSurfaceRole,
+    compositorMaskFamilySpread: normalizeFixedNumberRecord(
+      COMPOSITOR_MASK_FAMILY_KEYS,
+      summary.compositorMaskFamilySpread
+    ),
+    dominantCompositorMaskFamily:
+      summary.dominantCompositorMaskFamily &&
+      COMPOSITOR_MASK_FAMILY_KEYS.includes(summary.dominantCompositorMaskFamily)
+        ? summary.dominantCompositorMaskFamily
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantCompositorMaskFamily,
+    particleFieldJobSpread: normalizeFixedNumberRecord(
+      PARTICLE_FIELD_JOB_KEYS,
+      summary.particleFieldJobSpread
+    ),
+    particleFieldJobTelemetryRate:
+      typeof summary.particleFieldJobTelemetryRate === 'number'
+        ? Math.max(0, Math.min(1, summary.particleFieldJobTelemetryRate))
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.particleFieldJobTelemetryRate,
+    dominantParticleFieldJob:
+      summary.dominantParticleFieldJob &&
+      PARTICLE_FIELD_JOB_KEYS.includes(summary.dominantParticleFieldJob)
+        ? summary.dominantParticleFieldJob
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantParticleFieldJob,
     playableMotifSceneTransitionReasonSpread: normalizeFixedNumberRecord(
       PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS,
       summary.playableMotifSceneTransitionReasonSpread
@@ -5679,6 +5944,10 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       typeof summary.playableMotifScenePaletteMatchRate === 'number'
         ? summary.playableMotifScenePaletteMatchRate
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifScenePaletteMatchRate,
+    playableMotifSceneProfileMatchRate:
+      typeof summary.playableMotifSceneProfileMatchRate === 'number'
+        ? summary.playableMotifSceneProfileMatchRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneProfileMatchRate,
     playableMotifSceneDistinctnessMean:
       typeof summary.playableMotifSceneDistinctnessMean === 'number'
         ? summary.playableMotifSceneDistinctnessMean

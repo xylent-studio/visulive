@@ -44,6 +44,7 @@ Read first:
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
 - color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
 - the Authored Playable Motif System vertical slice is now installed and coherence-hardened: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, scene driver, scene intent match, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, scene-intent mismatch, and samey scene silhouettes
+- the authored procedural asset system is now installed as code-native scene ontology, not imported media: [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) defines procedural asset-pack provenance, silhouette family, surface role, palette base, ring posture, hero role/form, compositor mask, and particle job for each playable scene; the analyzer can now flag scene-profile mismatch and decorative particle activity, while `moment:sheet` includes quick score tags for thumbnail readability and generic-ring-wallpaper review
 - chamber rings now receive semantic `ringPosture` from direction and decay as `event-strike`, `residue-trace`, or `suppressed` unless the current episode owns `cathedral-architecture`
 - [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) translates current real-world references into VisuLive-specific rules: playable systems, stable scene identity, simple operator surfaces, large readable image classes, phrase envelopes, and review tooling before taste claims
 
@@ -86,6 +87,7 @@ The highest-leverage move is:
    - analyzer review
    - proof-pack review
    - require the analyzer to report signature moment coverage, style spread, playable scene spread, scene-driver spread, scene-intent/motif/palette match, scene silhouette confidence, ring posture spread, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
+   - require `moment:sheet` review to mark obvious `favorite`, `weak`, `reads-at-thumbnail`, `scene-label-mismatch`, `generic-ring-wallpaper`, and `premium-frame` calls before claiming a scene ontology works
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:refresh` for benchmark/analyzer/proof-pack refresh plus evidence indexing; `npm run proof:current` remains report refresh without indexing
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
@@ -110,6 +112,7 @@ The highest-leverage move is:
 - do not spend time on legacy V1 work unless explicitly asked
 - do not promote a run to `current-canonical` until it has a review note, zero invalidations, no missed capture opportunities, validated scenario assessment, screenshot/still refs, and relevant strict gates passing
 - do not add a fifth signature moment before the first four and their three postures are previewed, proof-tuned, and distinct
+- do not import stock VJ loops, copied show imagery, large video plates, or opaque 3D model packs; any asset seed must be procedural/local/provenance-tracked and must improve scene readability, not replace the live engine
 
 ## Success Criteria
 

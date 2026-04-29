@@ -42,6 +42,12 @@ const POST_TELEMETRY: PostSystemTelemetry = {
 
 const PLAYABLE_MOTIF_TELEMETRY: PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: 'collapse-scar',
+  playableMotifSceneProfileId: 'collapse-scar',
+  playableMotifSceneSilhouetteFamily: 'diagonal-rupture',
+  playableMotifSceneSurfaceRole: 'scar-matte',
+  playableMotifSceneProfileMatch: true,
+  compositorMaskFamily: 'scar-matte',
+  particleFieldJob: 'punctuation',
   playableMotifSceneDriver: 'signature',
   playableMotifSceneIntentMatch: true,
   playableMotifSceneAgeSeconds: 1.2,
@@ -95,6 +101,7 @@ describe('CompositorSystem', () => {
     const telemetry = system.collectTelemetryInputs();
 
     expect(telemetry.compositorSignatureMask).toBeGreaterThan(0);
+    expect(telemetry.compositorMaskFamily).toBe('scar-matte');
     expect(telemetry.compositorContrastLift).toBeGreaterThan(0);
     expect(telemetry.perceptualContrastScore).toBeGreaterThan(0);
     expect(telemetry.perceptualWashoutRisk).toBeGreaterThanOrEqual(0);
@@ -127,6 +134,7 @@ describe('CompositorSystem', () => {
     const telemetry = system.collectTelemetryInputs();
 
     expect(telemetry.compositorSaturationLift).toBeGreaterThan(0.1);
+    expect(telemetry.compositorMaskFamily).toBe('portal-aperture');
     expect(telemetry.compositorEdgeWindowAmount).toBeGreaterThan(0.2);
     expect(telemetry.compositorExposureBias).toBeLessThan(0.04);
     expect(telemetry.perceptualColorfulnessScore).toBeGreaterThan(0.45);

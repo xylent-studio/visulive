@@ -530,6 +530,12 @@ export type ReplayRunJournalSample = {
   };
   playableMotif: {
     activePlayableMotifScene?: VisualTelemetryFrame['activePlayableMotifScene'];
+    playableMotifSceneProfileId?: VisualTelemetryFrame['playableMotifSceneProfileId'];
+    playableMotifSceneSilhouetteFamily?: VisualTelemetryFrame['playableMotifSceneSilhouetteFamily'];
+    playableMotifSceneSurfaceRole?: VisualTelemetryFrame['playableMotifSceneSurfaceRole'];
+    playableMotifSceneProfileMatch?: boolean;
+    compositorMaskFamily?: VisualTelemetryFrame['compositorMaskFamily'];
+    particleFieldJob?: VisualTelemetryFrame['particleFieldJob'];
     playableMotifSceneAgeSeconds?: number;
     playableMotifSceneTransitionReason?: VisualTelemetryFrame['playableMotifSceneTransitionReason'];
     playableMotifSceneIntensity?: number;

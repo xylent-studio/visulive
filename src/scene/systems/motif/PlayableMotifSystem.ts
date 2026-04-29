@@ -3,14 +3,23 @@ import type { SceneQualityProfile } from '../../runtime';
 import type { PostSystemTelemetry } from '../post/PostSystem';
 import type {
   AuthorityFrameSnapshot,
+  CompositorMaskFamily,
   PaletteFrame,
+  ParticleFieldJob,
   PlayableMotifSceneDriver,
   PlayableMotifSceneKind,
   PlayableMotifSceneTransitionReason,
+  SceneSilhouetteFamily,
+  SceneSurfaceRole,
   SignatureMomentSnapshot,
   StageCuePlan,
   VisualMotifKind
 } from '../../../types/visual';
+import {
+  getSceneVisualProfile,
+  sceneProfileMatchesMotif,
+  sceneProfileMatchesPalette
+} from '../../assets/visualAssetProfiles';
 
 export type PlayableMotifSystemUpdateContext = {
   elapsedSeconds: number;
@@ -36,6 +45,12 @@ export type PlayableMotifSystemUpdateContext = {
 
 export type PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: PlayableMotifSceneKind;
+  playableMotifSceneProfileId: PlayableMotifSceneKind;
+  playableMotifSceneSilhouetteFamily: SceneSilhouetteFamily;
+  playableMotifSceneSurfaceRole: SceneSurfaceRole;
+  playableMotifSceneProfileMatch: boolean;
+  compositorMaskFamily: CompositorMaskFamily;
+  particleFieldJob: ParticleFieldJob;
   playableMotifSceneDriver: PlayableMotifSceneDriver;
   playableMotifSceneIntentMatch: boolean;
   playableMotifSceneAgeSeconds: number;
@@ -45,52 +60,6 @@ export type PlayableMotifSystemTelemetry = {
   playableMotifScenePaletteMatch: boolean;
   playableMotifSceneDistinctness: number;
   playableMotifSceneSilhouetteConfidence: number;
-};
-
-type ScenePosture = {
-  expectedMotifs: readonly VisualMotifKind[];
-  expectedPaletteBases: readonly PaletteFrame['baseState'][];
-  minimumDwellSeconds: number;
-  distinctness: number;
-  silhouetteConfidence: number;
-};
-
-const SCENE_POSTURES: Record<Exclude<PlayableMotifSceneKind, 'none'>, ScenePosture> = {
-  'neon-cathedral': {
-    expectedMotifs: ['neon-portal', 'world-takeover'],
-    expectedPaletteBases: ['tron-blue', 'acid-lime', 'solar-magenta'],
-    minimumDwellSeconds: 7.4,
-    distinctness: 0.86,
-    silhouetteConfidence: 0.82
-  },
-  'machine-tunnel': {
-    expectedMotifs: ['machine-grid', 'acoustic-transient'],
-    expectedPaletteBases: ['tron-blue', 'acid-lime', 'void-cyan'],
-    minimumDwellSeconds: 6.8,
-    distinctness: 0.78,
-    silhouetteConfidence: 0.76
-  },
-  'void-pressure': {
-    expectedMotifs: ['void-anchor', 'world-takeover'],
-    expectedPaletteBases: ['void-cyan', 'tron-blue'],
-    minimumDwellSeconds: 8.2,
-    distinctness: 0.82,
-    silhouetteConfidence: 0.8
-  },
-  'ghost-constellation': {
-    expectedMotifs: ['ghost-residue', 'silence-constellation'],
-    expectedPaletteBases: ['ghost-white', 'void-cyan', 'solar-magenta'],
-    minimumDwellSeconds: 9.2,
-    distinctness: 0.72,
-    silhouetteConfidence: 0.68
-  },
-  'collapse-scar': {
-    expectedMotifs: ['rupture-scar', 'world-takeover', 'machine-grid'],
-    expectedPaletteBases: ['void-cyan', 'solar-magenta', 'tron-blue'],
-    minimumDwellSeconds: 5.6,
-    distinctness: 0.9,
-    silhouetteConfidence: 0.88
-  }
 };
 
 const VOID_BLACK = new THREE.Color('#010205');
@@ -311,6 +280,12 @@ export class PlayableMotifSystem {
   private disposed = false;
   private telemetry: PlayableMotifSystemTelemetry = {
     activePlayableMotifScene: 'none',
+    playableMotifSceneProfileId: 'none',
+    playableMotifSceneSilhouetteFamily: 'none',
+    playableMotifSceneSurfaceRole: 'none',
+    playableMotifSceneProfileMatch: true,
+    compositorMaskFamily: 'none',
+    particleFieldJob: 'none',
     playableMotifSceneDriver: 'hold',
     playableMotifSceneIntentMatch: true,
     playableMotifSceneAgeSeconds: 0,
@@ -419,20 +394,23 @@ export class PlayableMotifSystem {
     const intensity = this.resolveIntensity(context, ageSeconds);
     const motifMatch = this.matchesMotif(this.activeScene, context.visualMotif);
     const paletteMatch = this.matchesPalette(this.activeScene, context.paletteFrame.baseState);
+    const profile = getSceneVisualProfile(this.activeScene);
     const sceneIntentMatch = this.matchesSceneIntent(
       this.activeScene,
       context,
       sceneDriver,
       targetScene
     );
-    const posture =
-      this.activeScene !== 'none' ? SCENE_POSTURES[this.activeScene] : null;
-    const distinctness =
-      posture?.distinctness ?? 0;
+    const profileMatch =
+      this.activeScene === 'none'
+        ? true
+        : motifMatch && paletteMatch && profile?.id === this.activeScene;
+    const distinctness = profile?.distinctness ?? 0;
     const silhouetteConfidence =
-      (posture?.silhouetteConfidence ?? 0) *
+      (profile?.silhouetteConfidence ?? 0) *
       (motifMatch ? 1 : 0.72) *
-      (paletteMatch ? 1 : 0.84);
+      (paletteMatch ? 1 : 0.84) *
+      (profileMatch ? 1 : 0.88);
 
     this.updatePortal(context, this.activeScene === 'neon-cathedral' ? intensity : 0);
     this.updateTunnel(context, this.activeScene === 'machine-tunnel' ? intensity : 0);
@@ -445,6 +423,12 @@ export class PlayableMotifSystem {
 
     this.telemetry = {
       activePlayableMotifScene: this.activeScene,
+      playableMotifSceneProfileId: profile?.id ?? 'none',
+      playableMotifSceneSilhouetteFamily: profile?.silhouetteFamily ?? 'none',
+      playableMotifSceneSurfaceRole: profile?.surfaceRole ?? 'none',
+      playableMotifSceneProfileMatch: profileMatch,
+      compositorMaskFamily: profile?.compositorMask ?? 'none',
+      particleFieldJob: profile?.particleJob ?? 'none',
       playableMotifSceneDriver: sceneDriver,
       playableMotifSceneIntentMatch: sceneIntentMatch,
       playableMotifSceneAgeSeconds: ageSeconds,
@@ -510,8 +494,7 @@ export class PlayableMotifSystem {
     }
 
     const ageSeconds = Math.max(0, context.elapsedSeconds - this.lastSceneChangeSeconds);
-    const posture =
-      this.activeScene !== 'none' ? SCENE_POSTURES[this.activeScene] : null;
+    const posture = getSceneVisualProfile(this.activeScene);
     const urgent =
       reason === 'signature-moment' ||
       reason === 'drop-rupture' ||
@@ -563,7 +546,7 @@ export class PlayableMotifSystem {
       return true;
     }
 
-    return SCENE_POSTURES[scene].expectedMotifs.includes(motif);
+    return sceneProfileMatchesMotif(getSceneVisualProfile(scene), motif);
   }
 
   private matchesPalette(
@@ -574,7 +557,7 @@ export class PlayableMotifSystem {
       return true;
     }
 
-    return SCENE_POSTURES[scene].expectedPaletteBases.includes(baseState);
+    return sceneProfileMatchesPalette(getSceneVisualProfile(scene), baseState);
   }
 
   private matchesSceneIntent(
@@ -620,22 +603,23 @@ export class PlayableMotifSystem {
     this.portalMeshes.forEach((mesh, index) => {
       const side = index % 2 === 0 ? -1 : 1;
       const lane = Math.floor(index / 2);
+      const vaultCurve = lane === 2 ? 0.52 : lane === 1 ? 0.18 : -0.1;
       mesh.material.color
         .copy(index % 3 === 0 ? ELECTRIC_CYAN : HOT_MAGENTA)
         .lerp(ACID_LIME, context.paletteFrame.baseState === 'acid-lime' ? 0.22 : 0)
         .lerp(GHOST_WARM, context.signatureMoment.style === 'ambient-premium' ? 0.12 : 0);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        opacityBase * (0.05 + lane * 0.018),
+        opacityBase * (0.07 + lane * 0.024),
         0,
-        0.22
+        0.26
       );
       mesh.position.set(
-        side * (1.65 + lane * 0.72 + amount * 0.42),
-        lane === 2 ? 0.8 + amount * 0.18 : 0,
+        side * (1.34 + lane * 0.88 + amount * 0.58),
+        vaultCurve + amount * (lane === 2 ? 0.36 : 0.08),
         lane * 0.012
       );
-      mesh.rotation.z = side * (0.04 + lane * 0.12 + amount * 0.04);
-      mesh.scale.set(1 + amount * (1.4 + lane * 0.35), 1 + amount * 0.28, 1);
+      mesh.rotation.z = side * (0.03 + lane * 0.18 + amount * 0.06);
+      mesh.scale.set(1 + amount * (1.95 + lane * 0.52), 1 + amount * (0.42 + lane * 0.08), 1);
     });
   }
 
@@ -646,22 +630,26 @@ export class PlayableMotifSystem {
     this.tunnelMeshes.forEach((mesh, index) => {
       const lane = index - (this.tunnelMeshes.length - 1) / 2;
       const perspective = 1 - Math.abs(lane) / 6;
-      const beatPulse = 0.86 + Math.sin(context.audio.beatPhase * Math.PI * 2 + index) * 0.12;
+      const scan = (context.elapsedSeconds * 0.38 + index * 0.11) % 1;
+      const beatPulse =
+        0.72 +
+        Math.sin(context.audio.beatPhase * Math.PI * 2 + index) * 0.1 +
+        Math.max(0, 1 - Math.abs(scan - 0.5) * 3.2) * 0.22;
       mesh.material.color
         .copy(index % 2 === 0 ? TRON_BLUE : ACID_LIME)
         .lerp(HOT_MAGENTA, context.audio.shimmer * 0.14);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * beatPulse * (0.028 + perspective * 0.035) * this.qualityScalar,
+        amount * beatPulse * (0.034 + perspective * 0.048) * this.qualityScalar,
         0,
-        0.14
+        0.18
       );
       mesh.position.set(
-        Math.sin(context.elapsedSeconds * 0.16 + index) * amount * 0.12,
-        lane * (0.34 + amount * 0.18),
-        index * 0.008
+        lane * amount * 0.08 + Math.sin(context.elapsedSeconds * 0.16 + index) * amount * 0.1,
+        lane * (0.32 + amount * 0.2),
+        index * 0.018
       );
-      mesh.rotation.z = lane * 0.025 + amount * 0.06;
-      mesh.scale.set(1 + amount * (1.8 + Math.abs(lane) * 0.1), 1, 1);
+      mesh.rotation.z = lane * 0.035 + amount * 0.08;
+      mesh.scale.set(1 + amount * (2.2 + Math.abs(lane) * 0.16), 1 + amount * 0.18, 1);
     });
   }
 
@@ -672,12 +660,18 @@ export class PlayableMotifSystem {
     this.voidMaterial.color.copy(VOID_BLACK).lerp(DEEP_BLUE, amount * 0.18);
     this.voidMaterial.opacity = THREE.MathUtils.clamp(
       amount *
-        (0.08 + context.authority.worldDominanceDelivered * 0.06) *
+        (0.12 + context.authority.worldDominanceDelivered * 0.08) *
         this.qualityScalar,
       0,
-      0.18
+      0.24
     );
-    this.voidMesh.scale.set(0.58 + amount * 0.36, 0.54 + amount * 0.24, 1);
+    this.voidMesh.position.set(
+      Math.sin(context.elapsedSeconds * 0.09) * amount * 0.16,
+      -0.08 - amount * 0.12,
+      0.015
+    );
+    this.voidMesh.rotation.z = Math.sin(context.elapsedSeconds * 0.045) * amount * 0.08;
+    this.voidMesh.scale.set(0.78 + amount * 0.58, 0.62 + amount * 0.38, 1);
   }
 
   private updateGhostConstellation(
@@ -688,13 +682,18 @@ export class PlayableMotifSystem {
       .copy(GHOST_WARM)
       .lerp(paletteColor(this.colorScratch, context.paletteFrame.baseState), 0.18);
     this.constellationMaterial.opacity = THREE.MathUtils.clamp(
-      amount * (0.22 + context.audio.releaseTail * 0.1) * this.qualityScalar,
+      amount * (0.18 + context.audio.releaseTail * 0.16) * this.qualityScalar,
       0,
-      0.34
+      0.3
     );
     this.constellationPoints.rotation.z =
       Math.sin(context.elapsedSeconds * 0.045) * 0.04;
-    this.constellationPoints.scale.setScalar(1 + amount * 0.1);
+    this.constellationPoints.position.set(
+      Math.sin(context.elapsedSeconds * 0.035) * amount * 0.12,
+      Math.cos(context.elapsedSeconds * 0.027) * amount * 0.08,
+      0.018
+    );
+    this.constellationPoints.scale.set(1 + amount * 0.16, 0.92 + amount * 0.1, 1);
   }
 
   private updateScar(
@@ -707,13 +706,13 @@ export class PlayableMotifSystem {
         .copy(darkCut ? VOID_BLACK : HOT_MAGENTA)
         .lerp(this.colorScratchB.copy(TRON_BLUE), darkCut ? 0.08 : 0.18);
       mesh.material.opacity = THREE.MathUtils.clamp(
-        amount * (darkCut ? 0.17 : 0.075) * this.qualityScalar,
+        amount * (darkCut ? 0.22 : 0.085) * this.qualityScalar,
         0,
-        darkCut ? 0.3 : 0.16
+        darkCut ? 0.36 : 0.18
       );
-      mesh.position.set(index * 0.18 - 0.36, 0, 0.025 + index * 0.01);
-      mesh.rotation.z = -0.64 + index * 0.05 + context.audio.dropImpact * 0.08;
-      mesh.scale.set(1 + amount * 4.8, 1 + amount * (0.4 + index * 0.08), 1);
+      mesh.position.set(index * 0.22 - 0.58 + amount * 0.18, -0.06 + index * 0.05, 0.025 + index * 0.012);
+      mesh.rotation.z = -0.78 + index * 0.07 + context.audio.dropImpact * 0.1;
+      mesh.scale.set(1 + amount * (5.8 + index * 0.34), 1 + amount * (0.7 + index * 0.12), 1);
     });
   }
 
@@ -723,9 +722,10 @@ export class PlayableMotifSystem {
 
     for (let index = 0; index < count; index += 1) {
       const angle = index * 2.399963 + Math.sin(index * 0.37) * 0.24;
-      const radius = Math.sqrt(index / count) * 3.8;
-      positions[index * 3] = Math.cos(angle) * radius * 1.35;
-      positions[index * 3 + 1] = Math.sin(angle) * radius * 0.72;
+      const radius = (0.24 + Math.sqrt(index / count) * 3.9) * (index % 7 === 0 ? 1.18 : 1);
+      const negativeSpace = index % 11 === 0 ? 0.36 : 1;
+      positions[index * 3] = Math.cos(angle) * radius * 1.58 * negativeSpace;
+      positions[index * 3 + 1] = Math.sin(angle) * radius * 0.8 * negativeSpace;
       positions[index * 3 + 2] = 0;
 
       const color = index % 3 === 0 ? GHOST_WARM : index % 3 === 1 ? ELECTRIC_CYAN : HOT_MAGENTA;
