@@ -148,6 +148,13 @@ export type StageRingAuthority =
   | 'framing-architecture'
   | 'event-platform';
 
+export type RingPosture =
+  | 'background-scaffold'
+  | 'cathedral-architecture'
+  | 'event-strike'
+  | 'residue-trace'
+  | 'suppressed';
+
 export type StageWorldMode =
   | 'hold'
   | 'aperture-cage'
@@ -239,6 +246,26 @@ export type PaletteTransitionReason =
   | 'signature-moment'
   | 'authority-shift';
 
+export type PaletteBaseHoldReason =
+  | PaletteTransitionReason
+  | 'semantic-episode'
+  | 'motif-held'
+  | 'scene-held';
+
+export type SemanticEpisodeTransitionReason =
+  | PaletteTransitionReason
+  | 'cue-family'
+  | 'signature-moment'
+  | 'scene-handoff';
+
+export type PlayableMotifSceneDriver =
+  | 'motif'
+  | 'signature'
+  | 'authority'
+  | 'release'
+  | 'quiet'
+  | 'hold';
+
 export type PaletteFrameRoles = {
   anchorDark: PaletteState;
   primaryEmission: PaletteState;
@@ -260,10 +287,15 @@ export type PaletteFrame = {
 };
 
 export type VisualMotifSnapshot = {
+  semanticEpisodeId: string;
+  semanticEpisodeAgeSeconds: number;
+  semanticEpisodeTransitionReason: SemanticEpisodeTransitionReason;
   kind: VisualMotifKind;
   confidence: number;
   reason: string;
   paletteFrame: PaletteFrame;
+  paletteBaseHoldReason: PaletteBaseHoldReason;
+  ringPosture: RingPosture;
   heroRole: HeroSemanticRole;
   heroForm: StageHeroForm;
   heroAccentForm: StageHeroForm;
@@ -607,11 +639,15 @@ export type VisualTelemetryFrame = {
   phraseConfidence?: PhraseConfidence;
   sectionIntent?: SectionIntent;
   visualMotif?: VisualMotifKind;
+  semanticEpisodeId?: string;
+  episodeAgeSeconds?: number;
+  episodeTransitionReason?: SemanticEpisodeTransitionReason;
   visualMotifConfidence?: number;
   visualMotifReason?: string;
   paletteBaseState?: PaletteState;
   paletteBaseAgeSeconds?: number;
   paletteTransitionReason?: PaletteTransitionReason;
+  paletteBaseHoldReason?: PaletteBaseHoldReason;
   paletteModulationAmount?: number;
   paletteTargetDominance?: number;
   paletteTargetSpread?: number;
@@ -619,6 +655,7 @@ export type VisualTelemetryFrame = {
   heroFormReason?: HeroFormSwitchReason;
   plannedHeroForm?: StageHeroForm;
   activeHeroForm?: StageHeroForm;
+  pendingHeroForm?: StageHeroForm;
   plannedActiveHeroFormMatch?: boolean;
   heroFormHoldElapsedSeconds?: number;
   heroFormSwitchCount?: number;
@@ -699,6 +736,7 @@ export type VisualTelemetryFrame = {
   cameraRotationYaw?: number;
   cameraRotationRoll?: number;
   ringAuthority?: number;
+  ringPosture?: RingPosture;
   chamberPresenceScore?: number;
   frameHierarchyScore?: number;
   compositionSafetyFlag?: boolean;
@@ -746,6 +784,8 @@ export type VisualTelemetryFrame = {
   perceptualColorfulnessScore?: number;
   perceptualWashoutRisk?: number;
   activePlayableMotifScene?: PlayableMotifSceneKind;
+  playableMotifSceneDriver?: PlayableMotifSceneDriver;
+  playableMotifSceneIntentMatch?: boolean;
   playableMotifSceneAgeSeconds?: number;
   playableMotifSceneTransitionReason?: PlayableMotifSceneTransitionReason;
   playableMotifSceneIntensity?: number;
@@ -849,7 +889,12 @@ export type VisualTelemetrySummary = {
     number
   >;
   dominantPlayableMotifSceneTransitionReason?: PlayableMotifSceneTransitionReason;
+  playableMotifSceneDriverSpread?: Record<PlayableMotifSceneDriver, number>;
+  dominantPlayableMotifSceneDriver?: PlayableMotifSceneDriver;
+  ringPostureSpread?: Record<RingPosture, number>;
+  dominantRingPosture?: RingPosture;
   playableMotifSceneLongestRunMs?: number;
+  playableMotifSceneIntentMatchRate?: number;
   playableMotifSceneMotifMatchRate?: number;
   playableMotifScenePaletteMatchRate?: number;
   playableMotifSceneDistinctnessMean?: number;
@@ -1002,6 +1047,7 @@ export type CaptureQualityFlag =
   | 'ambiguousHeroSilhouette'
   | 'sceneChurn'
   | 'sceneMotifMismatch'
+  | 'sceneIntentMismatch'
   | 'sameySceneSilhouette'
   | 'missedOpportunity';
 
@@ -1204,10 +1250,15 @@ export const DEFAULT_PALETTE_FRAME: PaletteFrame = {
 };
 
 export const DEFAULT_VISUAL_MOTIF_SNAPSHOT: VisualMotifSnapshot = {
+  semanticEpisodeId: 'void-anchor:void-cyan:supporting:orb',
+  semanticEpisodeAgeSeconds: 0,
+  semanticEpisodeTransitionReason: 'hold',
   kind: 'void-anchor',
   confidence: 0.62,
   reason: 'default void anchor',
   paletteFrame: DEFAULT_PALETTE_FRAME,
+  paletteBaseHoldReason: 'semantic-episode',
+  ringPosture: 'background-scaffold',
   heroRole: 'supporting',
   heroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
   heroAccentForm: DEFAULT_STAGE_CUE_PLAN.heroAccentForm,
@@ -1243,11 +1294,15 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   phraseConfidence: 'uncertain',
   sectionIntent: 'hold',
   visualMotif: DEFAULT_VISUAL_MOTIF_SNAPSHOT.kind,
+  semanticEpisodeId: DEFAULT_VISUAL_MOTIF_SNAPSHOT.semanticEpisodeId,
+  episodeAgeSeconds: DEFAULT_VISUAL_MOTIF_SNAPSHOT.semanticEpisodeAgeSeconds,
+  episodeTransitionReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.semanticEpisodeTransitionReason,
   visualMotifConfidence: DEFAULT_VISUAL_MOTIF_SNAPSHOT.confidence,
   visualMotifReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.reason,
   paletteBaseState: DEFAULT_PALETTE_FRAME.baseState,
   paletteBaseAgeSeconds: 0,
   paletteTransitionReason: DEFAULT_PALETTE_FRAME.transitionReason,
+  paletteBaseHoldReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.paletteBaseHoldReason,
   paletteModulationAmount: DEFAULT_PALETTE_FRAME.modulationAmount,
   paletteTargetDominance: DEFAULT_PALETTE_FRAME.targetDominance,
   paletteTargetSpread: DEFAULT_PALETTE_FRAME.targetSpread,
@@ -1255,6 +1310,7 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   heroFormReason: DEFAULT_VISUAL_MOTIF_SNAPSHOT.heroFormReason,
   plannedHeroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
   activeHeroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
+  pendingHeroForm: DEFAULT_STAGE_CUE_PLAN.heroForm,
   plannedActiveHeroFormMatch: true,
   heroFormHoldElapsedSeconds: 0,
   heroFormSwitchCount: 0,
@@ -1337,6 +1393,7 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   cameraRotationYaw: 0,
   cameraRotationRoll: 0,
   ringAuthority: 0,
+  ringPosture: DEFAULT_VISUAL_MOTIF_SNAPSHOT.ringPosture,
   chamberPresenceScore: 0.18,
   frameHierarchyScore: 0.72,
   compositionSafetyFlag: false,
@@ -1388,6 +1445,8 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   perceptualColorfulnessScore: 0.52,
   perceptualWashoutRisk: 0,
   activePlayableMotifScene: 'none',
+  playableMotifSceneDriver: 'hold',
+  playableMotifSceneIntentMatch: true,
   playableMotifSceneAgeSeconds: 0,
   playableMotifSceneTransitionReason: 'hold',
   playableMotifSceneIntensity: 0,
@@ -1672,7 +1731,25 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     'quiet-state': 0
   },
   dominantPlayableMotifSceneTransitionReason: 'hold',
+  playableMotifSceneDriverSpread: {
+    motif: 0,
+    signature: 0,
+    authority: 0,
+    release: 0,
+    quiet: 0,
+    hold: 0
+  },
+  dominantPlayableMotifSceneDriver: 'hold',
+  ringPostureSpread: {
+    'background-scaffold': 0,
+    'cathedral-architecture': 0,
+    'event-strike': 0,
+    'residue-trace': 0,
+    suppressed: 0
+  },
+  dominantRingPosture: 'background-scaffold',
   playableMotifSceneLongestRunMs: 0,
+  playableMotifSceneIntentMatchRate: 1,
   playableMotifSceneMotifMatchRate: 1,
   playableMotifScenePaletteMatchRate: 1,
   playableMotifSceneDistinctnessMean: 0,

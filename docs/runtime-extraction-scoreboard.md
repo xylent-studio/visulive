@@ -37,15 +37,15 @@ The current runtime split is improving, but not honest enough to treat as done:
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now prepares frame state, resolves stage composition, resolves [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), updates [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), updates [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), explicitly sequences the hero pass, resolves frame authority, runs the remaining stage frame, updates [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), updates [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), and updates [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) instead of forwarding one opaque `update()` call
 - [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) now owns world sphere, stain/flash planes, fog, atmosphere layers, world telemetry, and disposal
 - [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) now owns chamber geometry, chamber motion/update, chamber-local telemetry inputs, quality reset, and disposal
-- [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now owns lasting hero meshes/materials, build, update/mutation, color and form routing, quality reset, telemetry inputs, and disposal
-- [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) now owns semantic motif and palette-frame intent for major color and hero-form meaning; [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) renders that plan with semantic dwell rather than default hash/novelty rotation
+- [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now owns lasting hero meshes/materials, build, update/mutation, color and form routing, quality reset, telemetry inputs, pending-form reporting, and disposal
+- [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) now owns semantic motif, semantic episode, palette-frame, palette hold reason, ring posture, and hero-form intent for major color/ring/hero meaning; [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) renders that plan with semantic dwell rather than default hash/novelty rotation
 - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) now owns cross-system chamber/world authority judgment, frame hierarchy scoring, composition safety scoring, and post-render overbright refresh
 - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns rare moment eligibility, music-character style routing, candidate precharge, cooldown/rarity, phase, forced-preview, and suppression/conversion decisions for the first mythic consequence wave
 - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) now owns the first consequence/aftermath render lifecycle, style-matrix postures, stronger neon-portal moment silhouettes, post telemetry, memory-trace cap, quality reset, and disposal for collapse scar, cathedral open, ghost residue, and silence constellation
-- [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) now owns the first authored playable scene layer: neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar scene posture, scene dwell, motif/palette match telemetry, and camera-space scene silhouettes
+- [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) now owns the first authored playable scene layer: neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar scene posture, scene dwell, scene driver/intent match, motif/palette match telemetry, and camera-space scene silhouettes
 - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now owns the bounded signature-moment compositor slice and consumes playable motif telemetry: screen-space masks, cuts, vignettes, chromatic bands, edge windows, renderer post-profile inputs, and perceptual contrast/colorfulness/washout telemetry tuned to preserve saturation before adding brightness
 - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) and [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) now consume a typed authority snapshot instead of scene-local chamber/world heuristics
-- [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), [StageFrameSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/StageFrameSystem.ts), [MotionSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/MotionSystem.ts), and [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now consume the signature moment snapshot where the moment needs whole-frame coordination; chamber now treats rings as event architecture with signature-aware decay rather than default wallpaper
+- [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), [StageFrameSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/StageFrameSystem.ts), [MotionSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/MotionSystem.ts), and [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) now consume the signature moment snapshot where the moment needs whole-frame coordination; chamber now treats rings as semantic posture (`cathedral-architecture`, `event-strike`, `residue-trace`, `suppressed`) rather than default wallpaper
 - some `systems/**` and `governors/**` files are only re-export shims
 - the real code hotspots still live across the scene file, `modules/**`, and `rigs/**`
 
@@ -53,7 +53,7 @@ The current runtime split is improving, but not honest enough to treat as done:
 
 The single highest-leverage blocking extraction is now:
 
-- the `PostSystem`, `PlayableMotifSystem`, and bounded `CompositorSystem` vertical slice is now real, so the active blocker is Moment Lab/playable-scene preview plus proof-tuning before any additional consequence family, mixed-media asset pack, or memory system is added
+- the `PostSystem`, `PlayableMotifSystem`, and bounded `CompositorSystem` vertical slice is now real, so the active blocker is coherence proof: planned-active hero form, scene intent/motif/palette match, ring posture, and distinct signature moment coverage before any additional consequence family, mixed-media asset pack, or memory system is added
 
 Until that happens:
 
@@ -147,7 +147,7 @@ Until that happens:
 
 - ownership status: `owned-system` for the first authored scene layer
 - current runtime owner:
-  - [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) for scene selection from signature/motif/stage/authority context, dwell, camera-space scene silhouettes, motif/palette match telemetry, and quality/disposal lifecycle
+  - [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) for scene selection from signature/motif/stage/authority context, dwell, camera-space scene silhouettes, scene driver/intent telemetry, motif/palette match telemetry, and quality/disposal lifecycle
   - [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) for semantic motif and palette-frame intent that playable scenes consume
   - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) for explicit sequencing between `PostSystem` and `CompositorSystem`
 - still lives in `ObsidianBloomScene.ts`:
@@ -159,7 +159,7 @@ Until that happens:
 - owner lane:
   - `Show Direction / Motif / Compositor`
 - blocker:
-  - the first owned playable scene layer exists, but fresh proof must show scene dwell, scene-motif match, scene-palette match, and thumbnail silhouette confidence before more scenes are added
+  - the first owned playable scene layer exists, but fresh proof must show scene dwell, scene intent match, scene-motif match, scene-palette match, ring posture containment, and thumbnail silhouette confidence before more scenes are added
 - completion condition:
   - fresh Moment Lab/contact-sheet review plus no-touch capture shows the active scene is recognizable, musically earned, and not just another transient post overlay
 

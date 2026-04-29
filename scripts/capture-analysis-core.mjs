@@ -57,6 +57,23 @@ const PLAYABLE_MOTIF_SCENE_TRANSITION_REASONS = [
   'quiet-state'
 ];
 
+const PLAYABLE_MOTIF_SCENE_DRIVERS = [
+  'motif',
+  'signature',
+  'authority',
+  'release',
+  'quiet',
+  'hold'
+];
+
+const RING_POSTURES = [
+  'background-scaffold',
+  'cathedral-architecture',
+  'event-strike',
+  'residue-trace',
+  'suppressed'
+];
+
 const HERO_ROLES = [
   'dominant',
   'supporting',
@@ -1815,6 +1832,8 @@ export function summarizeCapture(capture, filePath) {
   const visualMotifCounts = new Map();
   const playableMotifSceneCounts = new Map();
   const playableMotifSceneTransitionReasonCounts = new Map();
+  const playableMotifSceneDriverCounts = new Map();
+  const ringPostureCounts = new Map();
   const heroRoleCounts = new Map();
   const heroFormCounts = new Map();
   const heroFormReasonCounts = new Map();
@@ -1930,6 +1949,8 @@ export function summarizeCapture(capture, filePath) {
   let playableMotifSceneMotifMatchSamples = 0;
   let playableMotifScenePaletteMatchFrames = 0;
   let playableMotifScenePaletteMatchSamples = 0;
+  let playableMotifSceneIntentMatchFrames = 0;
+  let playableMotifSceneIntentMatchSamples = 0;
   let playableMotifSceneDistinctnessSum = 0;
   let playableMotifSceneDistinctnessSamples = 0;
   let playableMotifSceneSilhouetteConfidenceSum = 0;
@@ -1970,6 +1991,18 @@ export function summarizeCapture(capture, filePath) {
         ? visual.playableMotifSceneTransitionReason
         : 'hold'
     );
+    incrementCounter(
+      playableMotifSceneDriverCounts,
+      PLAYABLE_MOTIF_SCENE_DRIVERS.includes(visual.playableMotifSceneDriver)
+        ? visual.playableMotifSceneDriver
+        : 'hold'
+    );
+    incrementCounter(
+      ringPostureCounts,
+      RING_POSTURES.includes(visual.ringPosture)
+        ? visual.ringPosture
+        : 'background-scaffold'
+    );
     if (typeof visual.playableMotifSceneMotifMatch === 'boolean') {
       playableMotifSceneMotifMatchSamples += 1;
       if (visual.playableMotifSceneMotifMatch) {
@@ -1980,6 +2013,12 @@ export function summarizeCapture(capture, filePath) {
       playableMotifScenePaletteMatchSamples += 1;
       if (visual.playableMotifScenePaletteMatch) {
         playableMotifScenePaletteMatchFrames += 1;
+      }
+    }
+    if (typeof visual.playableMotifSceneIntentMatch === 'boolean') {
+      playableMotifSceneIntentMatchSamples += 1;
+      if (visual.playableMotifSceneIntentMatch) {
+        playableMotifSceneIntentMatchFrames += 1;
       }
     }
     if (typeof visual.playableMotifSceneDistinctness === 'number') {
@@ -2494,6 +2533,25 @@ export function summarizeCapture(capture, filePath) {
       [...playableMotifSceneTransitionReasonCounts.entries()].sort(
         (left, right) => right[1] - left[1]
       )[0]?.[0] ?? 'hold',
+    playableMotifSceneDriverSpread: Object.fromEntries(
+      PLAYABLE_MOTIF_SCENE_DRIVERS.map((driver) => [
+        driver,
+        (playableMotifSceneDriverCounts.get(driver) ?? 0) / frames.length
+      ])
+    ),
+    dominantPlayableMotifSceneDriver:
+      [...playableMotifSceneDriverCounts.entries()].sort(
+        (left, right) => right[1] - left[1]
+      )[0]?.[0] ?? 'hold',
+    ringPostureSpread: Object.fromEntries(
+      RING_POSTURES.map((posture) => [
+        posture,
+        (ringPostureCounts.get(posture) ?? 0) / frames.length
+      ])
+    ),
+    dominantRingPosture:
+      [...ringPostureCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'background-scaffold',
     playableMotifSceneLongestRunMs: summarizeLongestRun(
       frames,
       (frame) => frame.visualTelemetry?.activePlayableMotifScene
@@ -2507,6 +2565,11 @@ export function summarizeCapture(capture, filePath) {
       playableMotifScenePaletteMatchSamples > 0
         ? playableMotifScenePaletteMatchFrames /
           playableMotifScenePaletteMatchSamples
+        : undefined,
+    playableMotifSceneIntentMatchRate:
+      playableMotifSceneIntentMatchSamples > 0
+        ? playableMotifSceneIntentMatchFrames /
+          playableMotifSceneIntentMatchSamples
         : undefined,
     playableMotifSceneDistinctnessMean:
       playableMotifSceneDistinctnessSamples > 0
@@ -2994,6 +3057,12 @@ export function summarizeCapture(capture, filePath) {
   if (qualityFlags.includes('sceneMotifMismatch')) {
     findings.push(
       `Playable motif scene does not consistently match the active motif (${formatPercent(visualSummary.playableMotifSceneMotifMatchRate)} match). Authored scenes should lock to motif grammar before variety.`
+    );
+  }
+
+  if (qualityFlags.includes('sceneIntentMismatch')) {
+    findings.push(
+      `Playable motif scene intent is drifting from the current driver (${formatPercent(visualSummary.playableMotifSceneIntentMatchRate)} match). Check signature override, dwell, and collapse-residue exit rules before adding new scenes.`
     );
   }
 
@@ -3579,6 +3648,10 @@ function deriveQualityFlagsFromSummary({
 
   if ((visualSummary.playableMotifSceneMotifMatchRate ?? 1) < 0.72) {
     flags.add('sceneMotifMismatch');
+  }
+
+  if ((visualSummary.playableMotifSceneIntentMatchRate ?? 1) < 0.78) {
+    flags.add('sceneIntentMismatch');
   }
 
   if ((visualSummary.playableMotifSceneSilhouetteConfidenceMean ?? 1) < 0.46) {
@@ -4557,11 +4630,11 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant atmosphere matter state: ${visual.dominantAtmosphereMatterState ?? 'gas'}`,
     `- Dominant signature moment/style: ${visual.dominantSignatureMoment ?? 'none'} / ${visual.dominantSignatureMomentStyle ?? 'contrast-mythic'}`,
     `- Dominant motif / base palette: ${visual.dominantVisualMotif ?? 'void-anchor'} / ${visual.dominantPaletteBaseState ?? visual.dominantPaletteState}`,
-    `- Dominant playable scene / transition: ${visual.dominantPlayableMotifScene ?? 'none'} / ${visual.dominantPlayableMotifSceneTransitionReason ?? 'hold'}`,
+    `- Dominant playable scene / transition / driver: ${visual.dominantPlayableMotifScene ?? 'none'} / ${visual.dominantPlayableMotifSceneTransitionReason ?? 'hold'} / ${visual.dominantPlayableMotifSceneDriver ?? 'hold'}`,
     `- Dominant hero role/form/reason: ${visual.dominantHeroRole ?? 'supporting'} / ${visual.dominantHeroForm ?? 'orb'} / ${visual.dominantHeroFormReason ?? 'hold'}`,
     `- Semantic confidence / unearned risk: ${formatNumber(visual.semanticConfidenceMean)} / ${formatNumber(visual.unearnedChangeRiskMean)}`,
     `- Hero planned-form match / switches-min / hue divergence: ${formatPercent(visual.plannedActiveHeroFormMatchRate)} / ${formatNumber(visual.heroFormSwitchesPerMinute)} / ${formatNumber(visual.heroWorldHueDivergenceMean)}`,
-    `- Scene motif/palette match / silhouette: ${formatPercent(visual.playableMotifSceneMotifMatchRate)} / ${formatPercent(visual.playableMotifScenePaletteMatchRate)} / ${formatNumber(visual.playableMotifSceneSilhouetteConfidenceMean)}`,
+    `- Scene intent/motif/palette match / silhouette: ${formatPercent(visual.playableMotifSceneIntentMatchRate)} / ${formatPercent(visual.playableMotifSceneMotifMatchRate)} / ${formatPercent(visual.playableMotifScenePaletteMatchRate)} / ${formatNumber(visual.playableMotifSceneSilhouetteConfidenceMean)}`,
     '',
     '### Compositor summary',
     `- Exposure mean / peak: ${formatNumber(visual.exposureMean)} / ${formatNumber(visual.exposurePeak)}`,
@@ -4580,6 +4653,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Trigger confidence / forced preview rate: ${formatNumber(visual.signatureMomentTriggerConfidenceMean)} / ${formatPercent(visual.signatureMomentForcedPreviewRate)}`,
     `- Playable scene spread: ${Object.keys(playableMotifSceneSpread).length > 0 ? Object.entries(playableMotifSceneSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Playable scene transition spread: ${Object.keys(playableMotifSceneTransitionReasonSpread).length > 0 ? Object.entries(playableMotifSceneTransitionReasonSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Playable scene driver spread: ${Object.keys(visual.playableMotifSceneDriverSpread ?? {}).length > 0 ? Object.entries(visual.playableMotifSceneDriverSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Scene longest run / distinctness: ${formatMs(visual.playableMotifSceneLongestRunMs ?? 0)} / ${formatNumber(visual.playableMotifSceneDistinctnessMean)}`,
     `- Collapse scar mean / peak: ${formatNumber(visual.collapseScarMean)} / ${formatNumber(visual.collapseScarPeak)}`,
     `- Cathedral open mean / peak: ${formatNumber(visual.cathedralOpenMean)} / ${formatNumber(visual.cathedralOpenPeak)}`,
@@ -4599,6 +4673,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     '',
     '### Governance summary',
     `- Spend profile spread: ${Object.keys(spendProfileSpread).length > 0 ? Object.entries(spendProfileSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Ring posture spread: ${Object.keys(visual.ringPostureSpread ?? {}).length > 0 ? Object.entries(visual.ringPostureSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Stage cue-family spread: ${Object.keys(stageCueFamilySpread).length > 0 ? Object.entries(stageCueFamilySpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Canonical cue-class spread: ${Object.keys(visual.canonicalCueClassSpread ?? {}).length > 0 ? Object.entries(visual.canonicalCueClassSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
     `- Performance regime spread: ${Object.keys(visual.performanceRegimeSpread ?? {}).length > 0 ? Object.entries(visual.performanceRegimeSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,

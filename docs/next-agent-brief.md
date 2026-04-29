@@ -38,11 +38,13 @@ Read first:
 - `Primary benchmark` canary `run_20260428_192855_gnmlg1` and full run `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, not current-canonical release proof
 - the latest full primary signature run `run_20260429_004346_zsvdmx` is valid, no-touch, finalized, and artifact-integrity clean; it was archived after review as development evidence, not promoted to current-canonical proof
 - that run confirms strong chamber/world authority, low hero monopoly, natural signature moment firing, and low perceptual washout; the old high `overbright` read should be treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail
+- latest valid development baseline `run_20260429_123116_jzqbjo` used `Jon Hopkins - Emerald Rush`; it proves natural signature/playable firing on the current path, but it is not a greenlight because the evidence showed semantic coherence debt: planned-active hero-form mismatch, scene/motif mismatch, sticky collapse-scar, ring-wallpaper risk, and weak ghost/ambient reach
 - strict proof remains blocked by incomplete scenario coverage, no current-canonical benchmark promotion, and missed-opportunity cleanup; the active inbox should be empty before the next proof pass
 - the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) turns moments and motifs into authored playable scenes, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, `updatePlayableMotifSystem`, and `updateCompositorSystem`
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
 - color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
-- the Authored Playable Motif System vertical slice is now installed: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, and samey scene silhouettes
+- the Authored Playable Motif System vertical slice is now installed and coherence-hardened: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, scene driver, scene intent match, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, scene-intent mismatch, and samey scene silhouettes
+- chamber rings now receive semantic `ringPosture` from direction and decay as `event-strike`, `residue-trace`, or `suppressed` unless the current episode owns `cathedral-architecture`
 - [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) translates current real-world references into VisuLive-specific rules: playable systems, stable scene identity, simple operator surfaces, large readable image classes, phrase envelopes, and review tooling before taste claims
 
 This means the next agent should return to proof validation and playable-scene/signature-moment tuning, not release cleanup or another capability expansion.
@@ -51,13 +53,13 @@ This means the next agent should return to proof validation and playable-scene/s
 
 The next serious wave is:
 
-- `Signature Moment Proof / Tuning`
+- `Coherence Proof / Tuning`
 
 The highest-leverage move is:
 
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
-- use the archived `run_20260429_004346_zsvdmx` findings as diagnostic context only; the current code already targets its main gaps: legacy glow-spend language, ring persistence, governance-risk evidence coverage, safe-neon preservation, and natural style diversity
+- use archived `run_20260429_004346_zsvdmx` for signature/governance context and valid run `run_20260429_123116_jzqbjo` for semantic-coherence context; the current code targets its main gaps with semantic episodes, scene driver/intent match, pending hero form telemetry, collapse-residue exit rules, and ring posture decay
 - prove the authority split plus the first 5 scene x 4 signature moment matrix with Moment Lab/contact-sheet preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
@@ -78,12 +80,12 @@ The highest-leverage move is:
 3. run the proof wave:
    - launch with `npm run dev:proof`
    - select the mission under `Backstage -> Capture -> Proof Mission`
-   - use a short `Primary benchmark` canary first after the current analyzer/capture fixes are committed, then a full `Primary benchmark` if the canary is valid
+   - use a short `Primary benchmark` canary first after the current coherence fixes are committed and the proof server is restarted, then a full `Primary benchmark` if the canary is valid
    - start only when the launch surface reports serious proof is ready
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
    - analyzer review
    - proof-pack review
-   - require the analyzer to report signature moment coverage, style spread, playable scene spread, scene-motif match, scene-palette match, scene silhouette confidence, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
+   - require the analyzer to report signature moment coverage, style spread, playable scene spread, scene-driver spread, scene-intent/motif/palette match, scene silhouette confidence, ring posture spread, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:refresh` for benchmark/analyzer/proof-pack refresh plus evidence indexing; `npm run proof:current` remains report refresh without indexing
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
@@ -91,7 +93,7 @@ The highest-leverage move is:
    - if color or hero shapes feel arbitrary, tune `VisualMotifSnapshot`, `PaletteFrame`, and `HeroSystem` semantic arbitration; do not restore hash/time-bucket form rotation as the primary variety mechanism
 5. if signature proof holds:
    - run `Operator trust`
-   - then deepen the audio-to-regime-to-cue hierarchy or move to compositor/memory based on evidence
+   - then start the `Hero/World Wave` only if coherence targets hold: `plannedActiveHeroFormMatch >= 0.8`, `sceneMotifMatch >= 0.8`, `scenePaletteMatch >= 0.8`, `sceneIntentMatch >= 0.8`, and ring-overdraw risk is contained
 6. keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) responsible for orchestration/context assembly instead of scene-local sequencing
 7. update:
    - [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)

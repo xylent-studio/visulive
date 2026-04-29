@@ -860,6 +860,68 @@ describe('capture analysis', () => {
     expect(summary.qualityFlags).toContain('sameySceneSilhouette');
   });
 
+  it('flags playable scene intent mismatch and reports scene drivers', () => {
+    const summary = summarizeCapture(
+      {
+        metadata: {
+          label: 'scene-intent-mismatch',
+          captureMode: 'auto',
+          triggerKind: 'section',
+          triggerReason: 'scene intent mismatch',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'balanced',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'machine-tunnel',
+              playableMotifSceneDriver: 'motif',
+              playableMotifSceneIntentMatch: false,
+              playableMotifSceneTransitionReason: 'hold',
+              playableMotifSceneMotifMatch: false,
+              playableMotifScenePaletteMatch: true,
+              playableMotifSceneDistinctness: 0.78,
+              playableMotifSceneSilhouetteConfidence: 0.42,
+              visualMotif: 'neon-portal'
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 3000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'machine-tunnel',
+              playableMotifSceneDriver: 'motif',
+              playableMotifSceneIntentMatch: false,
+              playableMotifSceneTransitionReason: 'hold',
+              playableMotifSceneMotifMatch: false,
+              playableMotifScenePaletteMatch: true,
+              playableMotifSceneDistinctness: 0.78,
+              playableMotifSceneSilhouetteConfidence: 0.42,
+              visualMotif: 'neon-portal'
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/scene-intent-mismatch.json'
+    );
+    const section = buildCaptureSection(
+      summary,
+      'C:/dev/GitHub/visulive'
+    );
+
+    expect(summary.visualSummary?.playableMotifSceneIntentMatchRate).toBe(0);
+    expect(summary.visualSummary?.dominantPlayableMotifSceneDriver).toBe('motif');
+    expect(summary.qualityFlags).toContain('sceneIntentMismatch');
+    expect(section).toContain('Scene intent/motif/palette match / silhouette');
+    expect(section).toContain('Playable scene driver spread: motif=100.0%');
+  });
+
   it('classifies precharged timing separately and excludes it from lag averages', () => {
     const precharged = summarizeCapture(
       {

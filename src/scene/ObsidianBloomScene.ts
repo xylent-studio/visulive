@@ -369,6 +369,8 @@ export class ObsidianBloomScene {
   private lastPaletteChangeSeconds = 0;
   private paletteTransitionReason: PaletteTransitionReason = 'hold';
   private paletteFrame: PaletteFrame = { ...DEFAULT_PALETTE_FRAME };
+  private semanticEpisodeId = DEFAULT_VISUAL_MOTIF_SNAPSHOT.semanticEpisodeId;
+  private lastSemanticEpisodeChangeSeconds = 0;
   private visualMotifSnapshot: VisualMotifSnapshot = {
     ...DEFAULT_VISUAL_MOTIF_SNAPSHOT,
     paletteFrame: { ...DEFAULT_PALETTE_FRAME }
@@ -1140,7 +1142,8 @@ export class ObsidianBloomScene {
       },
       stage: {
         cuePlan: this.stageCuePlan,
-        compositionPlan: this.stageCompositionPlan
+        compositionPlan: this.stageCompositionPlan,
+        ringPosture: this.visualMotifSnapshot.ringPosture
       },
       signatureMoment: this.signatureMomentSnapshot,
       stageAudioFeatures: this.stageAudioFeatures,
@@ -2181,8 +2184,17 @@ export class ObsidianBloomScene {
       cuePlan,
       paletteBaseState: this.paletteState,
       paletteTransitionReason: this.paletteTransitionReason,
-      signatureMomentKind: this.signatureMomentSnapshot.kind
+      signatureMomentKind: this.signatureMomentSnapshot.kind,
+      signatureMomentPhase: this.signatureMomentSnapshot.phase,
+      currentEpisodeId: this.semanticEpisodeId,
+      elapsedSeconds,
+      lastEpisodeChangeSeconds: this.lastSemanticEpisodeChangeSeconds
     });
+    if (this.visualMotifSnapshot.semanticEpisodeId !== this.semanticEpisodeId) {
+      this.semanticEpisodeId = this.visualMotifSnapshot.semanticEpisodeId;
+      this.lastSemanticEpisodeChangeSeconds = elapsedSeconds;
+      this.visualMotifSnapshot.semanticEpisodeAgeSeconds = 0;
+    }
     this.paletteFrame = this.visualMotifSnapshot.paletteFrame;
     cuePlan.visualMotif = this.visualMotifSnapshot.kind;
     cuePlan.visualMotifConfidence = this.visualMotifSnapshot.confidence;
@@ -2803,11 +2815,16 @@ export class ObsidianBloomScene {
       phraseConfidence,
       sectionIntent,
       visualMotif: this.visualMotifSnapshot.kind,
+      semanticEpisodeId: this.visualMotifSnapshot.semanticEpisodeId,
+      episodeAgeSeconds: this.visualMotifSnapshot.semanticEpisodeAgeSeconds,
+      episodeTransitionReason:
+        this.visualMotifSnapshot.semanticEpisodeTransitionReason,
       visualMotifConfidence: this.visualMotifSnapshot.confidence,
       visualMotifReason: this.visualMotifSnapshot.reason,
       paletteBaseState: this.paletteFrame.baseState,
       paletteBaseAgeSeconds,
       paletteTransitionReason: this.paletteTransitionReason,
+      paletteBaseHoldReason: this.visualMotifSnapshot.paletteBaseHoldReason,
       paletteModulationAmount: this.paletteFrame.modulationAmount,
       paletteTargetDominance: this.paletteFrame.targetDominance,
       paletteTargetSpread: this.paletteFrame.targetSpread,
@@ -2815,6 +2832,7 @@ export class ObsidianBloomScene {
       heroFormReason: heroTelemetry.heroFormReason,
       plannedHeroForm: heroTelemetry.plannedHeroForm,
       activeHeroForm: heroTelemetry.activeHeroForm,
+      pendingHeroForm: heroTelemetry.pendingHeroForm,
       plannedActiveHeroFormMatch,
       heroFormHoldElapsedSeconds: heroTelemetry.heroFormHoldElapsedSeconds,
       heroFormSwitchCount: this.heroFormSwitchCount,
@@ -2844,6 +2862,7 @@ export class ObsidianBloomScene {
       stageExposureCeiling: this.stageCuePlan.exposureCeiling,
       stageBloomCeiling: this.stageCuePlan.bloomCeiling,
       stageRingAuthority: this.stageCuePlan.ringAuthority,
+      ringPosture: this.visualMotifSnapshot.ringPosture,
       stageWashoutSuppression: this.stageCuePlan.washoutSuppression,
       stageMotionPhrase: this.stageCuePlan.motionPhrase,
       stageCameraPhrase: this.stageCuePlan.cameraPhrase,
@@ -2950,6 +2969,10 @@ export class ObsidianBloomScene {
       perceptualWashoutRisk: compositorTelemetry.perceptualWashoutRisk,
       activePlayableMotifScene:
         playableMotifTelemetry.activePlayableMotifScene,
+      playableMotifSceneDriver:
+        playableMotifTelemetry.playableMotifSceneDriver,
+      playableMotifSceneIntentMatch:
+        playableMotifTelemetry.playableMotifSceneIntentMatch,
       playableMotifSceneAgeSeconds:
         playableMotifTelemetry.playableMotifSceneAgeSeconds,
       playableMotifSceneTransitionReason:

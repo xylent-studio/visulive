@@ -6,7 +6,10 @@ import type {
   HeroSemanticRole,
   PaletteState,
   PaletteFrame,
+  PaletteBaseHoldReason,
   PaletteTransitionReason,
+  RingPosture,
+  SemanticEpisodeTransitionReason,
   ShowAct,
   StageCuePlan,
   VisualCueState,
@@ -1327,6 +1330,135 @@ export function derivePaletteTransitionReason(input: {
   return input.motif === 'void-anchor' ? 'hold' : 'motif-change';
 }
 
+function derivePaletteBaseHoldReason(input: {
+  transitionReason: PaletteTransitionReason;
+  motif: VisualMotifKind;
+  cuePlan: Pick<StageCuePlan, 'family' | 'worldMode'>;
+  signatureMomentKind?: string;
+}): PaletteBaseHoldReason {
+  if (input.transitionReason !== 'hold') {
+    return input.transitionReason;
+  }
+
+  if (input.signatureMomentKind && input.signatureMomentKind !== 'none') {
+    return 'signature-moment';
+  }
+
+  if (
+    input.motif === 'ghost-residue' ||
+    input.motif === 'silence-constellation' ||
+    input.cuePlan.family === 'haunt' ||
+    input.cuePlan.family === 'release'
+  ) {
+    return 'semantic-episode';
+  }
+
+  if (
+    input.cuePlan.worldMode === 'cathedral-rise' ||
+    input.cuePlan.worldMode === 'collapse-well'
+  ) {
+    return 'scene-held';
+  }
+
+  return 'motif-held';
+}
+
+function deriveRingPosture(input: {
+  motif: VisualMotifKind;
+  cuePlan: Pick<StageCuePlan, 'family' | 'ringAuthority' | 'worldMode' | 'residueMode'>;
+  signatureMomentKind?: string;
+  signatureMomentPhase?: string;
+}): RingPosture {
+  const signatureActive =
+    input.signatureMomentKind &&
+    input.signatureMomentKind !== 'none' &&
+    input.signatureMomentPhase !== 'idle' &&
+    input.signatureMomentPhase !== 'clear';
+
+  if (
+    input.motif === 'rupture-scar' ||
+    input.cuePlan.family === 'rupture' ||
+    input.signatureMomentKind === 'collapse-scar'
+  ) {
+    return 'event-strike';
+  }
+
+  if (
+    input.motif === 'ghost-residue' ||
+    input.motif === 'silence-constellation' ||
+    input.cuePlan.residueMode === 'ghost' ||
+    input.cuePlan.residueMode === 'afterglow'
+  ) {
+    return 'residue-trace';
+  }
+
+  if (
+    input.cuePlan.ringAuthority === 'framing-architecture' &&
+    (input.motif === 'neon-portal' ||
+      input.cuePlan.worldMode === 'cathedral-rise' ||
+      input.signatureMomentKind === 'cathedral-open')
+  ) {
+    return 'cathedral-architecture';
+  }
+
+  if (input.cuePlan.ringAuthority === 'event-platform' || signatureActive) {
+    return 'event-strike';
+  }
+
+  return input.cuePlan.ringAuthority === 'background-scaffold'
+    ? 'suppressed'
+    : 'background-scaffold';
+}
+
+export function deriveSemanticEpisodeSnapshot(input: {
+  motif: VisualMotifKind;
+  paletteBaseState: PaletteState;
+  heroRole: HeroSemanticRole;
+  heroForm: StageCuePlan['heroForm'];
+  cuePlan: Pick<StageCuePlan, 'family' | 'worldMode' | 'dominance'>;
+  transitionReason: PaletteTransitionReason;
+  currentEpisodeId?: string;
+  currentEpisodeAgeSeconds?: number;
+  elapsedSeconds?: number;
+  lastEpisodeChangeSeconds?: number;
+  signatureMomentKind?: string;
+}): {
+  semanticEpisodeId: string;
+  semanticEpisodeAgeSeconds: number;
+  semanticEpisodeTransitionReason: SemanticEpisodeTransitionReason;
+} {
+  const semanticEpisodeId = [
+    input.motif,
+    input.paletteBaseState,
+    input.heroRole,
+    input.heroForm,
+    input.cuePlan.family,
+    input.cuePlan.worldMode,
+    input.cuePlan.dominance
+  ].join(':');
+
+  const changed = semanticEpisodeId !== input.currentEpisodeId;
+  const semanticEpisodeAgeSeconds = changed
+    ? 0
+    : input.lastEpisodeChangeSeconds !== undefined && input.elapsedSeconds !== undefined
+      ? Math.max(0, input.elapsedSeconds - input.lastEpisodeChangeSeconds)
+      : Math.max(0, input.currentEpisodeAgeSeconds ?? 0);
+  const semanticEpisodeTransitionReason: SemanticEpisodeTransitionReason =
+    !changed
+      ? 'hold'
+      : input.signatureMomentKind && input.signatureMomentKind !== 'none'
+        ? 'signature-moment'
+        : input.transitionReason !== 'hold'
+          ? input.transitionReason
+          : 'cue-family';
+
+  return {
+    semanticEpisodeId,
+    semanticEpisodeAgeSeconds,
+    semanticEpisodeTransitionReason
+  };
+}
+
 export function buildPaletteFrame(input: {
   baseState: PaletteState;
   targets: Record<PaletteState, number>;
@@ -1367,6 +1499,11 @@ export function deriveVisualMotifSnapshot(input: {
   paletteBaseState: PaletteState;
   paletteTransitionReason: PaletteTransitionReason;
   signatureMomentKind?: string;
+  signatureMomentPhase?: string;
+  currentEpisodeId?: string;
+  currentEpisodeAgeSeconds?: number;
+  elapsedSeconds?: number;
+  lastEpisodeChangeSeconds?: number;
 }): VisualMotifSnapshot {
   const motif = deriveVisualMotifKind({
     frame: input.frame,
@@ -1393,11 +1530,37 @@ export function deriveVisualMotifSnapshot(input: {
     input.signatureMomentKind && input.signatureMomentKind !== 'none'
       ? 'signature-moment'
       : heroFormReasonForMotif(motif, input.cuePlan);
+  const semanticEpisode = deriveSemanticEpisodeSnapshot({
+    motif,
+    paletteBaseState: input.paletteBaseState,
+    heroRole,
+    heroForm: input.cuePlan.heroForm,
+    cuePlan: input.cuePlan,
+    transitionReason: input.paletteTransitionReason,
+    currentEpisodeId: input.currentEpisodeId,
+    currentEpisodeAgeSeconds: input.currentEpisodeAgeSeconds,
+    elapsedSeconds: input.elapsedSeconds,
+    lastEpisodeChangeSeconds: input.lastEpisodeChangeSeconds,
+    signatureMomentKind: input.signatureMomentKind
+  });
   return {
+    ...semanticEpisode,
     kind: motif,
     confidence: semanticConfidence,
     reason: `${motif}:${input.cuePlan.family}:${input.cuePlan.worldMode}`,
     paletteFrame,
+    paletteBaseHoldReason: derivePaletteBaseHoldReason({
+      transitionReason: input.paletteTransitionReason,
+      motif,
+      cuePlan: input.cuePlan,
+      signatureMomentKind: input.signatureMomentKind
+    }),
+    ringPosture: deriveRingPosture({
+      motif,
+      cuePlan: input.cuePlan,
+      signatureMomentKind: input.signatureMomentKind,
+      signatureMomentPhase: input.signatureMomentPhase
+    }),
     heroRole,
     heroForm: input.cuePlan.heroForm,
     heroAccentForm: input.cuePlan.heroAccentForm,

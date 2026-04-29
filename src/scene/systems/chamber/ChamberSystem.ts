@@ -3,6 +3,7 @@ import type { StageAudioFeatures } from '../../../audio/stageAudioFeatures';
 import type { RuntimeTuning } from '../../../types/tuning';
 import type {
   PaletteState,
+  RingPosture,
   SignatureMomentSnapshot,
   StageCompositionPlan,
   StageCuePlan
@@ -110,6 +111,7 @@ export type ChamberSystemUpdateContext = {
   stage: {
     cuePlan: StageCuePlan;
     compositionPlan: StageCompositionPlan;
+    ringPosture: RingPosture;
   };
   stageAudioFeatures: StageAudioFeatures;
   motion: {
@@ -502,6 +504,14 @@ export class ChamberSystem {
       context.stage.cuePlan.ringAuthority === 'framing-architecture' ? 1 : 0;
     const ringBackground =
       context.stage.cuePlan.ringAuthority === 'background-scaffold' ? 1 : 0;
+    const ringCathedralArchitecture =
+      context.stage.ringPosture === 'cathedral-architecture' ? 1 : 0;
+    const ringEventStrike =
+      context.stage.ringPosture === 'event-strike' ? 1 : 0;
+    const ringResidueTrace =
+      context.stage.ringPosture === 'residue-trace' ? 1 : 0;
+    const ringSuppressed =
+      context.stage.ringPosture === 'suppressed' ? 1 : 0;
     const shotAnchor =
       context.stage.compositionPlan.shotClass === 'anchor' ? 1 : 0;
     const shotPressure =
@@ -556,6 +566,14 @@ export class ChamberSystem {
       musicStageFloor * 0.018 +
       context.tuning.neonStageFloor * 0.012 +
       context.tuning.worldBootFloor * 0.01;
+    const ringPostureSuppression = THREE.MathUtils.clamp(
+      ringSuppressed * 0.62 +
+        ringResidueTrace * 0.38 +
+        ringEventStrike * 0.16 -
+        ringCathedralArchitecture * 0.34,
+      0,
+      0.72
+    );
     const ringPersistencePressure = THREE.MathUtils.clamp(
       Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.18) * 1.65 +
         Math.max(
@@ -854,7 +872,11 @@ export class ChamberSystem {
           chamberEmitterFloor *
             (0.34 +
               ringFrameArchitecture * 0.14 +
+              ringCathedralArchitecture * 0.18 +
               ringEventPlatform * 0.08 +
+              ringEventStrike * 0.06 -
+              ringResidueTrace * 0.08 -
+              ringSuppressed * 0.12 +
               shotWorldTakeover * 0.12 +
               cueReveal * 0.08 +
               cueGather * 0.04) +
@@ -875,6 +897,11 @@ export class ChamberSystem {
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
         1 - (ringSuppression * 0.62 + ringPersistencePressure * 0.28),
         0.18,
+        1
+      );
+      ring.mesh.material.opacity *= THREE.MathUtils.clamp(
+        1 - ringPostureSuppression * (0.72 + index * 0.035),
+        ringCathedralArchitecture > 0 ? 0.28 : 0.08,
         1
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
@@ -1047,6 +1074,10 @@ export class ChamberSystem {
           context.qualityProfile.auraOpacityMultiplier +
           chamberEmitterFloor *
             (0.42 +
+              ringCathedralArchitecture * 0.16 +
+              ringEventStrike * 0.06 -
+              ringResidueTrace * 0.08 -
+              ringSuppressed * 0.14 +
               chamberWorldTakeoverBias * 0.14 +
               cueReveal * 0.12 +
               shotWorldTakeover * 0.1) +
@@ -1068,6 +1099,11 @@ export class ChamberSystem {
             portalSuppression * 0.44 +
             ringPersistencePressure * 0.32),
         0.16,
+        1
+      );
+      ring.mesh.material.opacity *= THREE.MathUtils.clamp(
+        1 - ringPostureSuppression * (0.78 + index * 0.04),
+        ringCathedralArchitecture > 0 ? 0.32 : 0.06,
         1
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(

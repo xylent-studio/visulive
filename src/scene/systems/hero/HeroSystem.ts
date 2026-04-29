@@ -321,6 +321,7 @@ export type HeroSystemTelemetry = {
   activeHeroForm: StageHeroForm;
   activeHeroAccentForm: StageHeroForm;
   plannedHeroForm: StageHeroForm;
+  pendingHeroForm: StageHeroForm;
   plannedActiveHeroFormMatch: boolean;
   heroRole: HeroSemanticRole;
   heroFormReason: HeroFormSwitchReason;
@@ -813,6 +814,7 @@ export class HeroSystem {
       activeHeroForm: this.activeHeroForm,
       activeHeroAccentForm: this.activeHeroAccentForm,
       plannedHeroForm: this.stageCuePlan.heroForm,
+      pendingHeroForm: this.heroFormCandidate,
       plannedActiveHeroFormMatch: this.stageCuePlan.heroForm === this.activeHeroForm,
       heroRole: this.activeHeroRole,
       heroFormReason:
@@ -1507,17 +1509,25 @@ export class HeroSystem {
       plannedHeroFormScore >= currentHeroFormScore + 0.18 &&
       plannedHeroFormScore >= topHeroFormScore - 0.025;
     const nextHeroFormCandidate =
-      plannedHeroForm !== this.activeHeroForm &&
-      (semanticSwitchEligible || scorePlannedSwitchEligible) &&
-      plannedHeroFormScore >= topHeroFormScore - (0.04 + formVarietyPressure * 0.035)
+      semanticSwitchEligible ||
+      (scorePlannedSwitchEligible &&
+        plannedHeroFormScore >= topHeroFormScore - (0.04 + formVarietyPressure * 0.035))
         ? plannedHeroForm
         : this.activeHeroForm;
     const nextHeroFormScore = heroFormScores[nextHeroFormCandidate] ?? currentHeroFormScore;
+    const semanticMinimumHoldSeconds = urgentSemanticSwitch
+      ? 0.8
+      : semanticSwitchReason === 'signature-moment'
+        ? 2.2
+        : Math.min(heroFormHoldSeconds, candidateDwellSeconds + 1.4);
+    const semanticFormRotationEligible =
+      semanticSwitchEligible && secondsSinceHeroFormChange >= semanticMinimumHoldSeconds;
     const formRotationEligible =
-      secondsSinceHeroFormChange >= heroFormHoldSeconds &&
       nextHeroFormCandidate !== this.activeHeroForm &&
       candidateIsStable &&
-      nextHeroFormScore >= currentHeroFormScore - (0.01 + formVarietyPressure * 0.035);
+      (semanticFormRotationEligible ||
+        (secondsSinceHeroFormChange >= heroFormHoldSeconds &&
+          nextHeroFormScore >= currentHeroFormScore - (0.01 + formVarietyPressure * 0.035)));
     this.heroFormSwitchReason = 'hold';
     if (formRotationEligible) {
       this.previousHeroForm = this.activeHeroForm;

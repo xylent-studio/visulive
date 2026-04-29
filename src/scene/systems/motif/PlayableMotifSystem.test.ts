@@ -122,6 +122,8 @@ describe('PlayableMotifSystem', () => {
     const telemetry = system.collectTelemetryInputs();
     expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
     expect(telemetry.playableMotifSceneTransitionReason).toBe('signature-moment');
+    expect(telemetry.playableMotifSceneDriver).toBe('signature');
+    expect(telemetry.playableMotifSceneIntentMatch).toBe(true);
     expect(telemetry.playableMotifSceneSilhouetteConfidence).toBeGreaterThan(0.7);
   });
 
@@ -179,5 +181,64 @@ describe('PlayableMotifSystem', () => {
 
     expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('machine-tunnel');
     expect(system.collectTelemetryInputs().playableMotifSceneTransitionReason).toBe('hold');
+    expect(system.collectTelemetryInputs().playableMotifSceneDriver).toBe('motif');
+    expect(system.collectTelemetryInputs().playableMotifSceneIntentMatch).toBe(false);
+  });
+
+  it('lets collapse residue yield back to the current motif once rupture no longer owns it', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'rupture-scar',
+        signatureMoment: signatureMoment({
+          kind: 'collapse-scar',
+          phase: 'strike',
+          intensity: 0.88,
+          style: 'contrast-mythic',
+          postConsequence: 0.72
+        }),
+        audio: {
+          ...context().audio,
+          dropImpact: 0.72
+        }
+      })
+    );
+
+    expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('collapse-scar');
+
+    system.update(
+      context({
+        elapsedSeconds: 10,
+        visualMotif: 'neon-portal',
+        signatureMoment: signatureMoment({
+          kind: 'collapse-scar',
+          phase: 'residue',
+          intensity: 0.22,
+          style: 'contrast-mythic',
+          postConsequence: 0.18
+        }),
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'reveal',
+          worldMode: 'cathedral-rise'
+        },
+        paletteFrame: {
+          ...DEFAULT_PALETTE_FRAME,
+          baseState: 'tron-blue'
+        },
+        audio: {
+          ...context().audio,
+          sectionChange: 0.36,
+          dropImpact: 0.05
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneDriver).toBe('motif');
+    expect(telemetry.playableMotifSceneIntentMatch).toBe(true);
   });
 });

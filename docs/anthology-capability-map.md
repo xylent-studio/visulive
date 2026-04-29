@@ -45,14 +45,14 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `Authored Playable Motif Scenes` proof on top of semantic motif routing, style-aware `PostSystem`, first `PlayableMotifSystem`, and bounded `CompositorSystem`
+  - `Authored Playable Motif Scenes` coherence proof on top of semantic episode routing, style-aware `PostSystem`, first `PlayableMotifSystem`, and bounded `CompositorSystem`
 - single highest-leverage next move:
-  - use local Moment Lab/contact sheets to preview the 5 scene x 4 signature moment matrix, then run a fresh no-touch proof wave that shows neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar as stable, readable scene silhouettes
+  - use `run_20260429_123116_jzqbjo` as diagnostic context, then run a fresh no-touch proof wave that shows neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar as stable, readable scene silhouettes with semantic hero form, ring posture, and palette-base coherence
 - single blocking extraction:
   - chamber/world authority handoff, the first `PostSystem` vertical slice, `PlayableMotifSystem`, and the bounded signature/playable-scene `CompositorSystem` slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then full memory and broader compositor/content ownership
 - proof scenario required next:
   - one fresh `Primary benchmark` canary, then a full no-touch `PC Audio` benchmark if the canary is valid
-  - the analyzer must report signature moment coverage, style spread, playable scene spread, scene-motif match, scene-palette match, scene silhouette confidence, overbright/ring impact, perceptual washout/colorfulness, and aftermath clearance
+  - the analyzer must report signature moment coverage, style spread, playable scene spread, scene-driver spread, scene-intent/motif/palette match, scene silhouette confidence, ring posture spread, overbright/ring impact, perceptual washout/colorfulness, and aftermath clearance
 
 ## Do Not Drift Into
 
@@ -87,6 +87,7 @@ Short version:
 - last meaningful pass:
   - 2026-04-23 hero mutation ownership extraction into `HeroSystem` plus explicit hero sequencing in `FlagshipShowRuntime`
   - 2026-04-29 semantic motif routing pass: show direction now derives motif, hero role, form reason, and palette frame; `HeroSystem` now defaults to semantic form arbitration with longer dwell instead of hash/time-bucket variety rotation
+  - 2026-04-29 coherence unlock pass: `HeroSystem` exposes pending form and can adopt planned semantic forms earlier when the cue/motif reason is earned
 - current biggest failure mode:
   - hero monopoly still crowds chamber/world authority, and fresh proof must show hero shape/color changes feel musically earned rather than arbitrary or novelty-driven
 
@@ -134,6 +135,7 @@ Short version:
   - 2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded `CompositorSystem`, renderer post-profile inputs, and perceptual washout telemetry
   - 2026-04-29 neon-portal hardening with decision traces, risk-based safe-neon preservation, stronger moment silhouettes, signature-aware ring decay, kind-aware missed-opportunity matching, recomputed package integrity, and `proof:refresh`
   - 2026-04-29 Authored Playable Motif System vertical slice with five owned playable scenes, scene dwell, compositor scene input, and analyzer metrics for scene coherence
+  - 2026-04-29 coherence unlock pass with semantic episode telemetry, scene driver/intent match, collapse-residue exit rules, and ring posture reporting
 - current biggest failure mode:
   - the four moments and five scenes could still read as generic treatment, washed-out post, or scene churn until Moment Lab receipts and fresh proof show recognizable image classes, scene dwell, and clean aftermath clearance
 

@@ -4,6 +4,7 @@ import type { PostSystemTelemetry } from '../post/PostSystem';
 import type {
   AuthorityFrameSnapshot,
   PaletteFrame,
+  PlayableMotifSceneDriver,
   PlayableMotifSceneKind,
   PlayableMotifSceneTransitionReason,
   SignatureMomentSnapshot,
@@ -35,6 +36,8 @@ export type PlayableMotifSystemUpdateContext = {
 
 export type PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: PlayableMotifSceneKind;
+  playableMotifSceneDriver: PlayableMotifSceneDriver;
+  playableMotifSceneIntentMatch: boolean;
   playableMotifSceneAgeSeconds: number;
   playableMotifSceneTransitionReason: PlayableMotifSceneTransitionReason;
   playableMotifSceneIntensity: number;
@@ -118,7 +121,8 @@ function paletteColor(target: THREE.Color, palette: PaletteFrame['baseState']): 
 }
 
 function resolveSceneFromSignature(
-  moment: SignatureMomentSnapshot
+  moment: SignatureMomentSnapshot,
+  motif?: VisualMotifKind
 ): PlayableMotifSceneKind | null {
   if (
     moment.kind === 'cathedral-open' &&
@@ -135,7 +139,8 @@ function resolveSceneFromSignature(
     (moment.phase === 'precharge' ||
       moment.phase === 'strike' ||
       moment.phase === 'hold' ||
-      moment.phase === 'residue')
+      (moment.phase === 'residue' &&
+        (motif === 'rupture-scar' || moment.postConsequence > 0.48)))
   ) {
     return 'collapse-scar';
   }
@@ -182,7 +187,7 @@ function resolveTransitionReason(
   context: PlayableMotifSystemUpdateContext,
   targetScene: PlayableMotifSceneKind
 ): PlayableMotifSceneTransitionReason {
-  if (resolveSceneFromSignature(context.signatureMoment) === targetScene) {
+  if (resolveSceneFromSignature(context.signatureMoment, context.visualMotif) === targetScene) {
     return 'signature-moment';
   }
 
@@ -221,6 +226,41 @@ function resolveTransitionReason(
   }
 
   return 'motif-change';
+}
+
+function resolveSceneDriver(
+  context: PlayableMotifSystemUpdateContext,
+  targetScene: PlayableMotifSceneKind,
+  activeScene: PlayableMotifSceneKind
+): PlayableMotifSceneDriver {
+  if (resolveSceneFromSignature(context.signatureMoment, context.visualMotif) === targetScene) {
+    return 'signature';
+  }
+
+  if (
+    context.visualMotif === 'ghost-residue' ||
+    context.stageCuePlan.family === 'release' ||
+    context.audio.releaseTail > 0.48
+  ) {
+    return 'release';
+  }
+
+  if (
+    context.visualMotif === 'silence-constellation' ||
+    context.stageCuePlan.family === 'haunt'
+  ) {
+    return 'quiet';
+  }
+
+  if (
+    context.visualMotif === 'world-takeover' ||
+    context.authority.worldDominanceDelivered > 0.58 ||
+    context.stageCuePlan.dominance === 'world'
+  ) {
+    return 'authority';
+  }
+
+  return targetScene === activeScene ? 'hold' : 'motif';
 }
 
 export class PlayableMotifSystem {
@@ -271,6 +311,8 @@ export class PlayableMotifSystem {
   private disposed = false;
   private telemetry: PlayableMotifSystemTelemetry = {
     activePlayableMotifScene: 'none',
+    playableMotifSceneDriver: 'hold',
+    playableMotifSceneIntentMatch: true,
     playableMotifSceneAgeSeconds: 0,
     playableMotifSceneTransitionReason: 'hold',
     playableMotifSceneIntensity: 0,
@@ -363,16 +405,26 @@ export class PlayableMotifSystem {
 
     this.applyQualityProfile(context.qualityProfile);
 
-    const signatureScene = resolveSceneFromSignature(context.signatureMoment);
+    const signatureScene = resolveSceneFromSignature(
+      context.signatureMoment,
+      context.visualMotif
+    );
     const targetScene =
       signatureScene ?? resolveSceneFromMotif(context.visualMotif, context.stageCuePlan);
     const reason = resolveTransitionReason(context, targetScene);
+    const sceneDriver = resolveSceneDriver(context, targetScene, this.activeScene);
     this.maybeTransitionScene(context, targetScene, reason);
 
     const ageSeconds = Math.max(0, context.elapsedSeconds - this.lastSceneChangeSeconds);
     const intensity = this.resolveIntensity(context, ageSeconds);
     const motifMatch = this.matchesMotif(this.activeScene, context.visualMotif);
     const paletteMatch = this.matchesPalette(this.activeScene, context.paletteFrame.baseState);
+    const sceneIntentMatch = this.matchesSceneIntent(
+      this.activeScene,
+      context,
+      sceneDriver,
+      targetScene
+    );
     const posture =
       this.activeScene !== 'none' ? SCENE_POSTURES[this.activeScene] : null;
     const distinctness =
@@ -393,13 +445,17 @@ export class PlayableMotifSystem {
 
     this.telemetry = {
       activePlayableMotifScene: this.activeScene,
+      playableMotifSceneDriver: sceneDriver,
+      playableMotifSceneIntentMatch: sceneIntentMatch,
       playableMotifSceneAgeSeconds: ageSeconds,
       playableMotifSceneTransitionReason: this.transitionReason,
       playableMotifSceneIntensity: intensity,
       playableMotifSceneMotifMatch: motifMatch,
       playableMotifScenePaletteMatch: paletteMatch,
       playableMotifSceneDistinctness: distinctness,
-      playableMotifSceneSilhouetteConfidence: clamp01(silhouetteConfidence)
+      playableMotifSceneSilhouetteConfidence: clamp01(
+        silhouetteConfidence * (sceneIntentMatch ? 1 : 0.8)
+      )
     };
   }
 
@@ -519,6 +575,35 @@ export class PlayableMotifSystem {
     }
 
     return SCENE_POSTURES[scene].expectedPaletteBases.includes(baseState);
+  }
+
+  private matchesSceneIntent(
+    scene: PlayableMotifSceneKind,
+    context: PlayableMotifSystemUpdateContext,
+    driver: PlayableMotifSceneDriver,
+    targetScene: PlayableMotifSceneKind
+  ): boolean {
+    if (scene === 'none') {
+      return true;
+    }
+
+    if (scene === targetScene) {
+      return true;
+    }
+
+    if (driver === 'signature') {
+      return resolveSceneFromSignature(context.signatureMoment, context.visualMotif) === scene;
+    }
+
+    if (driver === 'release' || driver === 'quiet') {
+      return scene === 'ghost-constellation';
+    }
+
+    if (driver === 'authority') {
+      return scene === 'void-pressure' || scene === 'neon-cathedral';
+    }
+
+    return this.matchesMotif(scene, context.visualMotif);
   }
 
   private updatePortal(

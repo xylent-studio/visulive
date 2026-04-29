@@ -42,13 +42,17 @@ import {
   type HeroAuthorityState,
   type HeroSemanticRole,
   type PaletteState,
+  type PaletteBaseHoldReason,
   type PaletteTransitionReason,
   type PerformanceRegime,
   type PhraseConfidence,
+  type PlayableMotifSceneDriver,
   type PlayableMotifSceneKind,
   type PlayableMotifSceneTransitionReason,
   type PostSpendIntent,
   type SectionIntent,
+  type RingPosture,
+  type SemanticEpisodeTransitionReason,
   type ResolvedSignatureMomentStyle,
   type ShowAct,
   type SignatureMomentKind,
@@ -649,6 +653,25 @@ const PALETTE_TRANSITION_REASON_KEYS: PaletteTransitionReason[] = [
   'signature-moment',
   'authority-shift'
 ];
+const PALETTE_BASE_HOLD_REASON_KEYS: PaletteBaseHoldReason[] = [
+  ...PALETTE_TRANSITION_REASON_KEYS,
+  'semantic-episode',
+  'motif-held',
+  'scene-held'
+];
+const SEMANTIC_EPISODE_TRANSITION_REASON_KEYS: SemanticEpisodeTransitionReason[] = [
+  ...PALETTE_TRANSITION_REASON_KEYS,
+  'cue-family',
+  'signature-moment',
+  'scene-handoff'
+];
+const RING_POSTURE_KEYS: RingPosture[] = [
+  'background-scaffold',
+  'cathedral-architecture',
+  'event-strike',
+  'residue-trace',
+  'suppressed'
+];
 const STAGE_WORLD_MODE_KEYS: StageWorldMode[] = [
   'hold',
   'aperture-cage',
@@ -715,6 +738,14 @@ const PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS: PlayableMotifSceneTransitionR
   'signature-moment',
   'authority-shift',
   'quiet-state'
+];
+const PLAYABLE_MOTIF_SCENE_DRIVER_KEYS: PlayableMotifSceneDriver[] = [
+  'motif',
+  'signature',
+  'authority',
+  'release',
+  'quiet',
+  'hold'
 ];
 
 type AxisTracker = {
@@ -1760,6 +1791,8 @@ function summarizeVisualTelemetry(
   const playableMotifSceneCounts = new Map<PlayableMotifSceneKind, number>();
   const playableMotifSceneTransitionReasonCounts =
     new Map<PlayableMotifSceneTransitionReason, number>();
+  const playableMotifSceneDriverCounts = new Map<PlayableMotifSceneDriver, number>();
+  const ringPostureCounts = new Map<RingPosture, number>();
   const stageWorldModeCounts = new Map<StageWorldMode, number>();
   const atmosphereMatterStateCounts = new Map<AtmosphereMatterState, number>();
   const paletteByActCounts = new Map<ShowAct, Map<PaletteState, number>>();
@@ -1903,6 +1936,8 @@ function summarizeVisualTelemetry(
   let playableMotifSceneMotifMatchSamples = 0;
   let playableMotifScenePaletteMatchFrames = 0;
   let playableMotifScenePaletteMatchSamples = 0;
+  let playableMotifSceneIntentMatchFrames = 0;
+  let playableMotifSceneIntentMatchSamples = 0;
   let playableMotifSceneDistinctnessSum = 0;
   let playableMotifSceneDistinctnessSamples = 0;
   let playableMotifSceneSilhouetteConfidenceSum = 0;
@@ -2185,10 +2220,33 @@ function summarizeVisualTelemetry(
         playableMotifSceneTransitionReason
       ) ?? 0) + 1
     );
+    const playableMotifSceneDriver =
+      telemetry.playableMotifSceneDriver &&
+      PLAYABLE_MOTIF_SCENE_DRIVER_KEYS.includes(telemetry.playableMotifSceneDriver)
+        ? telemetry.playableMotifSceneDriver
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneDriver ?? 'hold';
+    playableMotifSceneDriverCounts.set(
+      playableMotifSceneDriver,
+      (playableMotifSceneDriverCounts.get(playableMotifSceneDriver) ?? 0) + 1
+    );
+    const ringPosture =
+      telemetry.ringPosture && RING_POSTURE_KEYS.includes(telemetry.ringPosture)
+        ? telemetry.ringPosture
+        : DEFAULT_VISUAL_TELEMETRY.ringPosture ?? 'background-scaffold';
+    ringPostureCounts.set(
+      ringPosture,
+      (ringPostureCounts.get(ringPosture) ?? 0) + 1
+    );
     if (typeof telemetry.playableMotifSceneMotifMatch === 'boolean') {
       playableMotifSceneMotifMatchSamples += 1;
       if (telemetry.playableMotifSceneMotifMatch) {
         playableMotifSceneMotifMatchFrames += 1;
+      }
+    }
+    if (typeof telemetry.playableMotifSceneIntentMatch === 'boolean') {
+      playableMotifSceneIntentMatchSamples += 1;
+      if (telemetry.playableMotifSceneIntentMatch) {
+        playableMotifSceneIntentMatchFrames += 1;
       }
     }
     if (typeof telemetry.playableMotifScenePaletteMatch === 'boolean') {
@@ -2608,6 +2666,13 @@ function summarizeVisualTelemetry(
     [...playableMotifSceneTransitionReasonCounts.entries()].sort(
       (left, right) => right[1] - left[1]
     )[0]?.[0] ?? 'hold';
+  const dominantPlayableMotifSceneDriver =
+    [...playableMotifSceneDriverCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'hold';
+  const dominantRingPosture =
+    [...ringPostureCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'background-scaffold';
   const dominantSpendProfile =
     [...spendProfileCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
     undefined;
@@ -2773,6 +2838,18 @@ function summarizeVisualTelemetry(
       (playableMotifSceneTransitionReasonCounts.get(key) ?? 0) / frames.length
     ])
   ) as VisualTelemetrySummary['playableMotifSceneTransitionReasonSpread'];
+  const playableMotifSceneDriverSpread = Object.fromEntries(
+    PLAYABLE_MOTIF_SCENE_DRIVER_KEYS.map((key) => [
+      key,
+      (playableMotifSceneDriverCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneDriverSpread'];
+  const ringPostureSpread = Object.fromEntries(
+    RING_POSTURE_KEYS.map((key) => [
+      key,
+      (ringPostureCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['ringPostureSpread'];
   const heroRoleSpread = Object.fromEntries(
     HERO_ROLE_KEYS.map((key) => [key, (heroRoleCounts.get(key) ?? 0) / frames.length])
   ) as VisualTelemetrySummary['heroRoleSpread'];
@@ -3041,7 +3118,15 @@ function summarizeVisualTelemetry(
     dominantPlayableMotifScene,
     playableMotifSceneTransitionReasonSpread,
     dominantPlayableMotifSceneTransitionReason,
+    playableMotifSceneDriverSpread,
+    dominantPlayableMotifSceneDriver,
+    ringPostureSpread,
+    dominantRingPosture,
     playableMotifSceneLongestRunMs,
+    playableMotifSceneIntentMatchRate:
+      playableMotifSceneIntentMatchSamples > 0
+        ? playableMotifSceneIntentMatchFrames / playableMotifSceneIntentMatchSamples
+        : undefined,
     playableMotifSceneMotifMatchRate:
       playableMotifSceneMotifMatchSamples > 0
         ? playableMotifSceneMotifMatchFrames / playableMotifSceneMotifMatchSamples
@@ -3520,6 +3605,10 @@ function deriveCaptureQualityFlags(input: {
 
   if ((input.visualSummary.playableMotifSceneMotifMatchRate ?? 1) < 0.72) {
     flags.add('sceneMotifMismatch');
+  }
+
+  if ((input.visualSummary.playableMotifSceneIntentMatchRate ?? 1) < 0.78) {
+    flags.add('sceneIntentMismatch');
   }
 
   if ((input.visualSummary.playableMotifSceneSilhouetteConfidenceMean ?? 1) < 0.46) {
@@ -4186,6 +4275,19 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.visualMotif && VISUAL_MOTIF_KEYS.includes(telemetry.visualMotif)
         ? telemetry.visualMotif
         : DEFAULT_VISUAL_TELEMETRY.visualMotif,
+    semanticEpisodeId:
+      typeof telemetry?.semanticEpisodeId === 'string'
+        ? telemetry.semanticEpisodeId
+        : DEFAULT_VISUAL_TELEMETRY.semanticEpisodeId,
+    episodeAgeSeconds:
+      typeof telemetry?.episodeAgeSeconds === 'number'
+        ? telemetry.episodeAgeSeconds
+        : DEFAULT_VISUAL_TELEMETRY.episodeAgeSeconds,
+    episodeTransitionReason:
+      telemetry?.episodeTransitionReason &&
+      SEMANTIC_EPISODE_TRANSITION_REASON_KEYS.includes(telemetry.episodeTransitionReason)
+        ? telemetry.episodeTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY.episodeTransitionReason,
     visualMotifConfidence:
       typeof telemetry?.visualMotifConfidence === 'number'
         ? telemetry.visualMotifConfidence
@@ -4207,6 +4309,11 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       PALETTE_TRANSITION_REASON_KEYS.includes(telemetry.paletteTransitionReason)
         ? telemetry.paletteTransitionReason
         : DEFAULT_VISUAL_TELEMETRY.paletteTransitionReason,
+    paletteBaseHoldReason:
+      telemetry?.paletteBaseHoldReason &&
+      PALETTE_BASE_HOLD_REASON_KEYS.includes(telemetry.paletteBaseHoldReason)
+        ? telemetry.paletteBaseHoldReason
+        : DEFAULT_VISUAL_TELEMETRY.paletteBaseHoldReason,
     paletteModulationAmount:
       typeof telemetry?.paletteModulationAmount === 'number'
         ? telemetry.paletteModulationAmount
@@ -4236,6 +4343,10 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       telemetry?.activeHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.activeHeroForm)
         ? telemetry.activeHeroForm
         : DEFAULT_VISUAL_TELEMETRY.activeHeroForm,
+    pendingHeroForm:
+      telemetry?.pendingHeroForm && STAGE_HERO_FORM_KEYS.includes(telemetry.pendingHeroForm)
+        ? telemetry.pendingHeroForm
+        : DEFAULT_VISUAL_TELEMETRY.pendingHeroForm,
     plannedActiveHeroFormMatch:
       typeof telemetry?.plannedActiveHeroFormMatch === 'boolean'
         ? telemetry.plannedActiveHeroFormMatch
@@ -4633,6 +4744,10 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       typeof telemetry?.ringAuthority === 'number'
         ? telemetry.ringAuthority
         : undefined,
+    ringPosture:
+      telemetry?.ringPosture && RING_POSTURE_KEYS.includes(telemetry.ringPosture)
+        ? telemetry.ringPosture
+        : DEFAULT_VISUAL_TELEMETRY.ringPosture,
     chamberPresenceScore:
       typeof telemetry?.chamberPresenceScore === 'number'
         ? telemetry.chamberPresenceScore
@@ -4841,6 +4956,15 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.activePlayableMotifScene)
         ? telemetry.activePlayableMotifScene
         : DEFAULT_VISUAL_TELEMETRY.activePlayableMotifScene,
+    playableMotifSceneDriver:
+      telemetry?.playableMotifSceneDriver &&
+      PLAYABLE_MOTIF_SCENE_DRIVER_KEYS.includes(telemetry.playableMotifSceneDriver)
+        ? telemetry.playableMotifSceneDriver
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneDriver,
+    playableMotifSceneIntentMatch:
+      typeof telemetry?.playableMotifSceneIntentMatch === 'boolean'
+        ? telemetry.playableMotifSceneIntentMatch
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneIntentMatch,
     playableMotifSceneAgeSeconds:
       typeof telemetry?.playableMotifSceneAgeSeconds === 'number'
         ? telemetry.playableMotifSceneAgeSeconds
@@ -5521,10 +5645,32 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       )
         ? summary.dominantPlayableMotifSceneTransitionReason
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneTransitionReason,
+    playableMotifSceneDriverSpread: normalizeFixedNumberRecord(
+      PLAYABLE_MOTIF_SCENE_DRIVER_KEYS,
+      summary.playableMotifSceneDriverSpread
+    ),
+    dominantPlayableMotifSceneDriver:
+      summary.dominantPlayableMotifSceneDriver &&
+      PLAYABLE_MOTIF_SCENE_DRIVER_KEYS.includes(summary.dominantPlayableMotifSceneDriver)
+        ? summary.dominantPlayableMotifSceneDriver
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneDriver,
+    ringPostureSpread: normalizeFixedNumberRecord(
+      RING_POSTURE_KEYS,
+      summary.ringPostureSpread
+    ),
+    dominantRingPosture:
+      summary.dominantRingPosture &&
+      RING_POSTURE_KEYS.includes(summary.dominantRingPosture)
+        ? summary.dominantRingPosture
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantRingPosture,
     playableMotifSceneLongestRunMs:
       typeof summary.playableMotifSceneLongestRunMs === 'number'
         ? summary.playableMotifSceneLongestRunMs
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneLongestRunMs,
+    playableMotifSceneIntentMatchRate:
+      typeof summary.playableMotifSceneIntentMatchRate === 'number'
+        ? summary.playableMotifSceneIntentMatchRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneIntentMatchRate,
     playableMotifSceneMotifMatchRate:
       typeof summary.playableMotifSceneMotifMatchRate === 'number'
         ? summary.playableMotifSceneMotifMatchRate

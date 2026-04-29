@@ -115,6 +115,59 @@ describe('showDirection', () => {
     expect(frame.transitionReason).toBe('hold');
   });
 
+  it('latches semantic episodes and exposes authored ring posture instead of anonymous holds', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.8,
+      beatConfidence: 0.62,
+      transientConfidence: 0.28,
+      dropImpact: 0.08,
+      sectionChange: 0.34,
+      releaseTail: 0.04,
+      air: 0.36,
+      body: 0.42,
+      shimmer: 0.72,
+      harmonicColor: 0.68
+    };
+    const cuePlan = {
+      ...DEFAULT_STAGE_CUE_PLAN,
+      family: 'reveal' as const,
+      worldMode: 'cathedral-rise' as const,
+      dominance: 'hybrid' as const,
+      heroForm: 'prism' as const,
+      heroAccentForm: 'pyramid' as const,
+      ringAuthority: 'framing-architecture' as const
+    };
+
+    const opened = deriveVisualMotifSnapshot({
+      frame,
+      cuePlan,
+      paletteBaseState: 'tron-blue',
+      paletteTransitionReason: 'hold',
+      elapsedSeconds: 12,
+      lastEpisodeChangeSeconds: 12
+    });
+    const held = deriveVisualMotifSnapshot({
+      frame,
+      cuePlan,
+      paletteBaseState: 'tron-blue',
+      paletteTransitionReason: 'hold',
+      currentEpisodeId: opened.semanticEpisodeId,
+      elapsedSeconds: 17,
+      lastEpisodeChangeSeconds: 12
+    });
+
+    expect(opened.kind).toBe('neon-portal');
+    expect(opened.semanticEpisodeTransitionReason).toBe('cue-family');
+    expect(opened.paletteBaseHoldReason).toBe('scene-held');
+    expect(opened.ringPosture).toBe('cathedral-architecture');
+    expect(held.semanticEpisodeId).toBe(opened.semanticEpisodeId);
+    expect(held.semanticEpisodeAgeSeconds).toBe(5);
+    expect(held.semanticEpisodeTransitionReason).toBe('hold');
+  });
+
   it('lets motif grammar choose readable hero forms instead of palette jitter', () => {
     const frame = {
       ...DEFAULT_LISTENING_FRAME,

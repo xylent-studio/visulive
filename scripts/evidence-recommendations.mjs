@@ -41,6 +41,8 @@ function collectRunMetrics(summaries = []) {
   const plannedHeroFormMatches = [];
   const heroWorldHueDivergence = [];
   const playableSceneMotifMatches = [];
+  const playableSceneIntentMatches = [];
+  const playableScenePaletteMatches = [];
   const playableSceneSilhouettes = [];
   const cueClasses = [];
   const families = [];
@@ -105,6 +107,14 @@ function collectRunMetrics(summaries = []) {
       playableSceneMotifMatches.push(visual.playableMotifSceneMotifMatchRate);
     }
 
+    if (typeof visual.playableMotifSceneIntentMatchRate === 'number') {
+      playableSceneIntentMatches.push(visual.playableMotifSceneIntentMatchRate);
+    }
+
+    if (typeof visual.playableMotifScenePaletteMatchRate === 'number') {
+      playableScenePaletteMatches.push(visual.playableMotifScenePaletteMatchRate);
+    }
+
     if (typeof visual.playableMotifSceneSilhouetteConfidenceMean === 'number') {
       playableSceneSilhouettes.push(visual.playableMotifSceneSilhouetteConfidenceMean);
     }
@@ -158,6 +168,8 @@ function collectRunMetrics(summaries = []) {
     averagePlannedHeroFormMatchRate: average(plannedHeroFormMatches),
     averageHeroWorldHueDivergence: average(heroWorldHueDivergence),
     averagePlayableSceneMotifMatchRate: average(playableSceneMotifMatches),
+    averagePlayableSceneIntentMatchRate: average(playableSceneIntentMatches),
+    averagePlayableScenePaletteMatchRate: average(playableScenePaletteMatches),
     averagePlayableSceneSilhouetteConfidence: average(playableSceneSilhouettes),
     cueClassCount: uniqueCount(cueClasses),
     familyCount: uniqueCount(families),
@@ -553,9 +565,12 @@ export function buildRunRecommendationArtifact({
 
   if (
     metrics.flagCounts.get('sceneMotifMismatch') ||
+    metrics.flagCounts.get('sceneIntentMismatch') ||
     metrics.flagCounts.get('sameySceneSilhouette') ||
     metrics.flagCounts.get('sceneChurn') ||
     metrics.averagePlayableSceneMotifMatchRate < 0.72 ||
+    metrics.averagePlayableSceneIntentMatchRate < 0.72 ||
+    metrics.averagePlayableScenePaletteMatchRate < 0.72 ||
     metrics.averagePlayableSceneSilhouetteConfidence < 0.46
   ) {
     recommendations.push(
@@ -566,6 +581,8 @@ export function buildRunRecommendationArtifact({
         issueId: 'playable-motif-scene-coherence',
         severity:
           metrics.averagePlayableSceneMotifMatchRate < 0.58 ||
+          metrics.averagePlayableSceneIntentMatchRate < 0.58 ||
+          metrics.averagePlayableScenePaletteMatchRate < 0.58 ||
           metrics.averagePlayableSceneSilhouetteConfidence < 0.36
             ? 'high'
             : 'medium',
@@ -576,7 +593,9 @@ export function buildRunRecommendationArtifact({
           'Scene routing, palette base, or signature moment posture is drifting away from the locked motif instead of holding an authored scene long enough to read.',
         impactedGates: ['taste', 'coverage'],
         targetMetrics: [
+          'playableMotifSceneIntentMatchRate >= 0.8',
           'playableMotifSceneMotifMatchRate >= 0.78',
+          'playableMotifScenePaletteMatchRate >= 0.78',
           'playableMotifSceneSilhouetteConfidenceMean >= 0.55',
           'playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes'
         ],

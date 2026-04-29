@@ -42,6 +42,8 @@ const POST_TELEMETRY: PostSystemTelemetry = {
 
 const PLAYABLE_MOTIF_TELEMETRY: PlayableMotifSystemTelemetry = {
   activePlayableMotifScene: 'collapse-scar',
+  playableMotifSceneDriver: 'signature',
+  playableMotifSceneIntentMatch: true,
   playableMotifSceneAgeSeconds: 1.2,
   playableMotifSceneTransitionReason: 'signature-moment',
   playableMotifSceneIntensity: 0.82,

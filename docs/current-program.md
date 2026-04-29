@@ -62,10 +62,12 @@ April 28 proof-first override:
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
 - primary-benchmark proof now has valid reviewed development evidence, including archived run `run_20260429_004346_zsvdmx` on commit `2fbce57`; it proves the no-touch mission path, strong world/chamber authority, and natural signature moment firing
+- latest valid development baseline `run_20260429_123116_jzqbjo` proves Proof Mission still works and signature/playable systems fire naturally, but it is a diagnostic baseline rather than a greenlight: it exposed planned-vs-active hero-form mismatch, scene/motif mismatch, sticky collapse-scar behavior, ring-wallpaper risk, and missing ghost/ambient reach
 - strict release proof remains blocked by non-promoted benchmark truth, incomplete scenario coverage, and missed-opportunity cleanup; do not promote archived diagnostic runs as current-canonical proof
 - `overbright` in older reports is now treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail; the latest signature run showed high legacy glow spend but low perceptual washout, matching the user's washed/unsaturated visual read better than a literal "too bright" diagnosis
 - the user-approved Mythic Signature Moment Engine and Authored Playable Motif System slice is now the active exception to the earlier proof-first hold; the current code direction is neon-portals first, with risk-based safe-neon, rarer phrase-scale moments, signature-aware ring decay, stronger collapse/cathedral/ghost/quiet silhouettes, and five owned playable scene postures; no further capability wave, staging host, public UX expansion, or major new extraction starts until this slice is previewed in Moment Lab/contact sheets, proof-tuned, and operator-trust proof is restored
 - the latest semantic-motif pass makes color and hero form changes meaning-bearing instead of novelty-driven: show direction now derives a `VisualMotifSnapshot`, palette identity has a held base plus continuous modulation, `HeroSystem` defaults to semantic form arbitration with longer dwell, pressure waves use the palette-frame transient role, `PlayableMotifSystem` turns motifs into stable authored scenes, and analyzer/recommendation output can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, scene churn, scene-motif mismatch, and samey scene silhouettes
+- the current coherence unlock extends that semantic layer into phrase-scale episodes: visual telemetry now records semantic episode id/age/transition reason, palette base hold reason, pending hero form, playable scene driver/intent match, and ring posture so proof can distinguish authored holds from arbitrary churn
 - [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) is now the active real-world reference translation: the relevant lesson from Sphere, Phish, Radiohead, Anyma, Prydz, Chemical Brothers, Massive Attack/UVA, Amon Tobin, projectM/MilkDrop, and TouchDesigner is authored playable systems with stable image classes, not more random effects
 
 ## Immediate Start-Right Gate
@@ -151,7 +153,8 @@ The next sequence is:
    - `Primary benchmark` canary and full primary signature runs are done as reviewed diagnostic packages, with `run_20260429_004346_zsvdmx` archived after review to keep the active inbox clean
    - end every serious run with `Finish Proof Run` so pending clips close, journal/manifest finalization is written, and the receipt commands are shown
    - before the next proof run, commit the analyzer/capture fixes and launch from a clean inbox with `npm run dev:proof`
-   - run a new short `Primary benchmark` canary only after the safety-still and proof-report fixes are committed
+   - run a new 90-120 second `Primary benchmark` canary only after the coherence unlock is committed and the proof server is restarted
+   - use `Jon Hopkins - Emerald Rush` if you want continuity with `run_20260429_123116_jzqbjo`; use `deadmau5 - Strobe (Original Mix)` after that for release/ghost/ambient proof
    - run `Operator trust`, no-touch, 6-8 minutes after the next primary proof has no missed governance/signature opportunities
    - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid
 4. keep canon aligned around the anthology engine, runtime architecture, and graduation model
@@ -165,7 +168,7 @@ The next sequence is:
    - random-feeling color or hero-shape changes: `showDirection` motif routing, `HeroSystem` form arbitration, `PaletteFrame` consumers, or analyzer thresholds only; do not reintroduce hash/novelty rotation as the default
    - reference-inspired ideas that do not strengthen authored scenes, phrase arcs, scene dwell, or proof review tooling: reject or defer them
    - cue/silence/diversity failure: audio/show-direction governance only
-6. if signature/playable-scene proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence
+6. if signature/playable-scene coherence plus no-touch proof holds, start the `Hero/World Wave`: hero-suppressed/world-as-hero states, stronger alternate hero roles, and first world mutation verbs through owned systems only
 7. widen repertoire through owned systems only after proof and ownership are both real
 8. keep the active public host proof-backed and deliberate, and only provision `frontier` later when a true staging lane is worth the complexity
 

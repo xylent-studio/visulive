@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the semantic motif routing and playable motif scene pass:
+Latest local verification on `codex/full-version-foundation` after the semantic motif routing, playable motif scene, and coherence unlock pass:
 
 - `npm run anthology:validate` passes
 - `npm run test` passes
@@ -39,6 +39,7 @@ Current standing warning:
 - the later April 28 diagnostic run `run_20260428_165811_8gs5ht` showed strong chamber/world authority but invalid proof metadata: primary-benchmark manifest with room-floor route invalidation, null sample scenario, null clip declared scenario, and false `advanced:steer` contamination; it must remain diagnostic until the Mission Control pass is rerun cleanly
 - Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
 - archived primary signature run `run_20260429_004346_zsvdmx` is valid, no-touch, finalized, and artifact-integrity clean; it is development evidence, not current-canonical proof, because it still has one missed governance-risk opportunity and no benchmark promotion
+- latest valid development baseline `run_20260429_123116_jzqbjo` is also diagnostic, not a greenlight: Proof Mission and natural signature/playable firing worked, but the run exposed the next blocker as semantic coherence rather than raw capability
 - regenerated current proof-pack output may report no signature moment evidence after inbox cleanup because the latest signature run was archived intentionally; use the archived run package for development diagnosis and collect a fresh canary after committing the current fixes
 
 ## Start-Right Audit Snapshot
@@ -55,7 +56,7 @@ But it is still transitional in four important ways:
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark and operator-trust run packages, but strict release proof still needs clean scenario coverage, benchmark promotion, and no missed opportunities
 - The latest proof-pack now exposes the evidence-platform gap more honestly: stricter kind-aware matching reports 30 missed marker clusters across the current reviewed set, mostly governance-risk/authority moments that need explicit trigger clips or safety/authority stills rather than generic nearby evidence
 - The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `PlayableMotifSystem` owns five authored scene postures; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the moment/style variants locally; and the analyzer can report signature moment coverage, style spread, playable scene coherence, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
-- The semantic motif and playable scene pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell instead of hash/time-bucket variety rotation; [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five authored scene postures; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, ambiguous silhouette risk, scene churn, scene-motif mismatch, and samey scene silhouettes
+- The semantic motif and playable scene pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots plus semantic episode id/age/transition reason, palette base hold reason, and ring posture; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell and exposes pending form; [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five authored scene postures plus scene driver/intent match; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, ambiguous silhouette risk, scene churn, scene-motif mismatch, scene-intent mismatch, ring posture spread, and samey scene silhouettes
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -91,11 +92,12 @@ development.
 
 The next wave is:
 
-- `Signature Moment Proof / Tuning`
+- `Coherence Proof / Tuning`
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
-- next, commit/restart the signature-moment/playable-scene build, use local Moment Lab/contact sheets to preview the 5 scene x 4 moment matrix, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; refresh serious evidence with `npm run proof:refresh`; `Operator trust` remains the next proof lane after signature moment distinctness and playable-scene stability have a clean primary run
+- next, commit/restart the coherence build, use local Moment Lab/contact sheets if visual sanity is needed, run a 90-120 second `Primary benchmark` canary against `Jon Hopkins - Emerald Rush` for continuity, then run a full primary benchmark if the canary improves planned-active hero form match, scene intent/motif/palette match, and ring posture behavior; refresh serious evidence with `npm run proof:refresh`; `Operator trust` remains the next proof lane after coherence has a clean primary run
+- if coherence proof holds, the next feature wave is `Hero/World Wave`: hero-suppressed/world-as-hero states, stronger alternate hero roles, and first world mutation verbs through owned systems only
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
