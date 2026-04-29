@@ -154,6 +154,59 @@ function resolveSceneFromMotif(
   return 'void-pressure';
 }
 
+function isHardRuptureContext(context: PlayableMotifSystemUpdateContext): boolean {
+  return (
+    context.stageCuePlan.family === 'rupture' ||
+    context.stageCuePlan.worldMode === 'collapse-well' ||
+    context.stageCuePlan.transformIntent === 'collapse' ||
+    context.audio.dropImpact > 0.5
+  );
+}
+
+function resolveSceneFromContext(
+  context: PlayableMotifSystemUpdateContext
+): PlayableMotifSceneKind {
+  const signatureScene = resolveSceneFromSignature(
+    context.signatureMoment,
+    context.visualMotif
+  );
+  if (signatureScene) {
+    return signatureScene;
+  }
+
+  if (context.visualMotif === 'rupture-scar' && !isHardRuptureContext(context)) {
+    if (
+      context.stageCuePlan.family === 'release' ||
+      context.stageCuePlan.residueMode === 'ghost' ||
+      context.audio.releaseTail > 0.32
+    ) {
+      return 'ghost-constellation';
+    }
+
+    if (
+      context.stageCuePlan.family === 'reveal' ||
+      context.stageCuePlan.worldMode === 'fan-sweep' ||
+      context.stageCuePlan.worldMode === 'cathedral-rise'
+    ) {
+      return 'neon-cathedral';
+    }
+
+    return context.authority.worldDominanceDelivered > 0.58
+      ? 'void-pressure'
+      : 'machine-tunnel';
+  }
+
+  if (
+    context.stageCuePlan.family === 'gather' &&
+    context.audio.dropImpact < 0.42 &&
+    context.audio.releaseTail < 0.36
+  ) {
+    return 'machine-tunnel';
+  }
+
+  return resolveSceneFromMotif(context.visualMotif, context.stageCuePlan);
+}
+
 function resolveTransitionReason(
   context: PlayableMotifSystemUpdateContext,
   targetScene: PlayableMotifSceneKind
@@ -163,9 +216,8 @@ function resolveTransitionReason(
   }
 
   if (
-    context.visualMotif === 'rupture-scar' ||
-    context.stageCuePlan.family === 'rupture' ||
-    context.audio.dropImpact > 0.62
+    targetScene === 'collapse-scar' &&
+    (isHardRuptureContext(context) || context.visualMotif === 'rupture-scar')
   ) {
     return 'drop-rupture';
   }
@@ -383,12 +435,7 @@ export class PlayableMotifSystem {
 
     this.applyQualityProfile(context.qualityProfile);
 
-    const signatureScene = resolveSceneFromSignature(
-      context.signatureMoment,
-      context.visualMotif
-    );
-    const targetScene =
-      signatureScene ?? resolveSceneFromMotif(context.visualMotif, context.stageCuePlan);
+    const targetScene = resolveSceneFromContext(context);
     const reason = resolveTransitionReason(context, targetScene);
     const sceneDriver = resolveSceneDriver(context, targetScene, this.activeScene);
     this.maybeTransitionScene(context, targetScene, reason);
@@ -501,10 +548,17 @@ export class PlayableMotifSystem {
     const posture = getSceneVisualProfile(this.activeScene);
     const urgent =
       reason === 'signature-moment' ||
-      reason === 'drop-rupture' ||
-      targetScene === 'collapse-scar';
+      reason === 'drop-rupture';
+    const yieldingFromCollapse =
+      this.activeScene === 'collapse-scar' && targetScene !== 'collapse-scar';
     const minimumDwellSeconds =
-      this.activeScene === 'none' ? 0 : urgent ? 1.2 : posture?.minimumDwellSeconds ?? 7;
+      this.activeScene === 'none'
+        ? 0
+        : urgent
+          ? 1.2
+          : yieldingFromCollapse
+            ? 2.6
+            : posture?.minimumDwellSeconds ?? 7;
 
     if (ageSeconds >= minimumDwellSeconds) {
       this.activeScene = targetScene;

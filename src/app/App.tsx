@@ -532,7 +532,7 @@ export function App() {
     persistQueued: boolean;
     lastCheckpointStillTimestampMs: number;
     checkpointStillCaptureInFlight: boolean;
-    queuedCheckpointStill: PendingRunCheckpointStill | null;
+    queuedCheckpointStills: PendingRunCheckpointStill[];
     lastWorldAuthorityState: string | null;
     lastQualityTier: string | null;
     lastShowState: string | null;
@@ -552,7 +552,7 @@ export function App() {
     persistQueued: false,
     lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
     checkpointStillCaptureInFlight: false,
-    queuedCheckpointStill: null,
+    queuedCheckpointStills: [],
     lastWorldAuthorityState: null,
     lastQualityTier: null,
     lastShowState: null,
@@ -1325,37 +1325,65 @@ export function App() {
       kind,
       exploratory
     };
-    const currentQueuedStill = runJournalRef.current.queuedCheckpointStill;
+    const queuedStills = runJournalRef.current.queuedCheckpointStills;
+    const existingIndex = queuedStills.findIndex(
+      (still) =>
+        still.runId === nextQueuedStill.runId &&
+        still.kind === nextQueuedStill.kind &&
+        still.exploratory === nextQueuedStill.exploratory
+    );
 
-    if (
-      !currentQueuedStill ||
-      RUN_CHECKPOINT_STILL_PRIORITY[kind] >
-        RUN_CHECKPOINT_STILL_PRIORITY[currentQueuedStill.kind] ||
-      (RUN_CHECKPOINT_STILL_PRIORITY[kind] ===
-        RUN_CHECKPOINT_STILL_PRIORITY[currentQueuedStill.kind] &&
-        timestampMs >= currentQueuedStill.timestampMs)
-    ) {
-      runJournalRef.current.queuedCheckpointStill = nextQueuedStill;
+    if (existingIndex >= 0) {
+      const existingStill = queuedStills[existingIndex];
+      if (timestampMs >= existingStill.timestampMs) {
+        queuedStills[existingIndex] = nextQueuedStill;
+      }
+      return;
     }
+
+    queuedStills.push(nextQueuedStill);
   };
 
   const flushQueuedRunCheckpointStill = () => {
-    const queuedStill = runJournalRef.current.queuedCheckpointStill;
+    const queuedStills = runJournalRef.current.queuedCheckpointStills;
 
-    if (!queuedStill) {
+    if (queuedStills.length === 0) {
       return;
     }
 
     const activeJournal = runJournalRef.current.journal;
-    runJournalRef.current.queuedCheckpointStill = null;
+    const eligibleStills = queuedStills
+      .map((still, index) => ({ still, index }))
+      .filter(
+        ({ still }) =>
+          activeJournal &&
+          activeJournal.metadata.runId === still.runId &&
+          (proofWaveArmedRef.current || still.exploratory)
+      );
 
-    if (
-      !activeJournal ||
-      activeJournal.metadata.runId !== queuedStill.runId ||
-      (!proofWaveArmedRef.current && !queuedStill.exploratory)
-    ) {
+    if (eligibleStills.length === 0) {
+      runJournalRef.current.queuedCheckpointStills = [];
       return;
     }
+
+    eligibleStills.sort((left, right) => {
+      const priorityDelta =
+        RUN_CHECKPOINT_STILL_PRIORITY[right.still.kind] -
+        RUN_CHECKPOINT_STILL_PRIORITY[left.still.kind];
+      return priorityDelta !== 0
+        ? priorityDelta
+        : left.still.timestampMs - right.still.timestampMs;
+    });
+
+    const queuedStillIndex = eligibleStills[0]?.index;
+    if (queuedStillIndex === undefined) {
+      return;
+    }
+
+    const [queuedStill] = runJournalRef.current.queuedCheckpointStills.splice(
+      queuedStillIndex,
+      1
+    );
 
     window.setTimeout(() => {
       captureRunCheckpointStill(
@@ -1528,7 +1556,7 @@ export function App() {
     autoCaptureState.lastProofStillSampleMs = Number.NEGATIVE_INFINITY;
     autoCaptureState.proofStillCaptureInFlight = false;
     autoCaptureState.captureCountsByKind = {};
-    runJournalRef.current.queuedCheckpointStill = null;
+    runJournalRef.current.queuedCheckpointStills = [];
     const proofReadiness = deriveReplayProofReadiness({
       proofWaveArmed: proofWaveArmedRef.current,
       captureFolderLabel: captureFolderStatusRef.current.folderName,
@@ -1588,7 +1616,7 @@ export function App() {
       persistQueued: false,
       lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
       checkpointStillCaptureInFlight: false,
-      queuedCheckpointStill: null,
+      queuedCheckpointStills: [],
       lastWorldAuthorityState: null,
       lastQualityTier: null,
       lastShowState: null,

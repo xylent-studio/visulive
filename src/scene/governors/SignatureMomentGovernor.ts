@@ -219,6 +219,43 @@ export function deriveSignatureMomentStyle(
   return 'contrast-mythic';
 }
 
+function resolveStyleSafetyRisk(input: SignatureMomentGovernorInput): number {
+  return clamp01(
+    (1 - input.authority.compositionSafetyScore) * 0.54 +
+      input.authority.overbright * 0.36
+  );
+}
+
+function deriveSignatureMomentStyleForKind(
+  kind: MomentKind,
+  input: SignatureMomentGovernorInput
+): ResolvedSignatureMomentStyle {
+  const baseStyle = deriveSignatureMomentStyle(input);
+  if (baseStyle === 'ambient-premium') {
+    return baseStyle;
+  }
+
+  const quietOrRelease =
+    input.frame.ambienceConfidence > 0.32 ||
+    input.frame.releaseTail > 0.22 ||
+    input.frame.musicConfidence < 0.26 ||
+    input.stageCuePlan.family === 'release' ||
+    input.stageCuePlan.family === 'haunt';
+  const lowImpact = input.frame.dropImpact < 0.26 && input.frame.sectionChange < 0.3;
+  const safeEnough = resolveStyleSafetyRisk(input) < 0.68;
+
+  if (
+    safeEnough &&
+    lowImpact &&
+    quietOrRelease &&
+    (kind === 'ghost-residue' || kind === 'silence-constellation')
+  ) {
+    return 'ambient-premium';
+  }
+
+  return baseStyle;
+}
+
 export class SignatureMomentGovernor {
   private activeMoment: ActiveSignatureMoment | null = null;
   private armedCandidate: ArmedSignatureCandidate | null = null;
@@ -289,7 +326,7 @@ export class SignatureMomentGovernor {
     if (shouldStrike) {
       this.activeMoment = this.startMoment(
         candidate.kind,
-        deriveSignatureMomentStyle(input),
+        deriveSignatureMomentStyleForKind(candidate.kind, input),
         input,
         candidate.score,
         rarityBudget,
@@ -797,14 +834,14 @@ export class SignatureMomentGovernor {
     if (this.armedCandidate?.kind === candidate.kind) {
       return {
         ...this.armedCandidate,
-        style: deriveSignatureMomentStyle(input),
+        style: deriveSignatureMomentStyleForKind(candidate.kind, input),
         sourceScore: Math.max(this.armedCandidate.sourceScore, candidate.score)
       };
     }
 
     return {
       kind: candidate.kind,
-      style: deriveSignatureMomentStyle(input),
+      style: deriveSignatureMomentStyleForKind(candidate.kind, input),
       armedAtSeconds: input.elapsedSeconds,
       seed: hashSignature(
         `armed:${candidate.kind}:${Math.floor(input.elapsedSeconds * 2)}:${input.stageCuePlan.family}:${input.stageCuePlan.worldMode}`

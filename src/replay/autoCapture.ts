@@ -192,13 +192,13 @@ export function getAutoCaptureTriggerPriority(
     case 'floor':
       return 1;
     case 'authority-turn':
-      return 5;
+      return 4;
     case 'governance-risk':
       return 2;
     case 'quality-downgrade':
       return 5;
     case 'operator-trust-clear':
-      return 6;
+      return 7;
     case 'signature-moment-peak':
       return 6;
     case 'signature-moment-precharge':
@@ -206,7 +206,7 @@ export function getAutoCaptureTriggerPriority(
     case 'signature-moment-residue':
       return 3;
     case 'quiet-beauty':
-      return 1;
+      return 5;
     default:
       return 0;
   }
@@ -487,6 +487,11 @@ export function detectAutoCaptureTrigger(
     return signatureMomentTrigger;
   }
 
+  const quietBeautyTrigger = detectQuietBeautyTrigger(frame, visual);
+  if (quietBeautyTrigger) {
+    return quietBeautyTrigger;
+  }
+
   const authorityTurnTrigger = detectAuthorityTurnTrigger(
     frame,
     visual,
@@ -534,11 +539,6 @@ export function detectAutoCaptureTrigger(
       reason: `release=${frame.releaseTail.toFixed(3)} resonance=${frame.resonance.toFixed(3)}`,
       timestampMs: frame.timestampMs
     };
-  }
-
-  const quietBeautyTrigger = detectQuietBeautyTrigger(frame, visual);
-  if (quietBeautyTrigger) {
-    return quietBeautyTrigger;
   }
 
   const floorTrigger = detectFloorTrigger(frame, diagnostics);

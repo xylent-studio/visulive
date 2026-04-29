@@ -126,4 +126,36 @@ describe('auto capture helpers', () => {
 
     expect(trigger?.kind).toBe('operator-trust-clear');
   });
+
+  it('prioritizes rare quiet-beauty evidence over authority churn', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 104000,
+        mode: 'system-audio',
+        musicConfidence: 0.34,
+        ambienceConfidence: 0.62,
+        beatConfidence: 0.16,
+        dropImpact: 0.04,
+        sectionChange: 0.05,
+        releaseTail: 0.08
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        previousWorldAuthorityState: 'support',
+        visualTelemetry: {
+          worldAuthorityState: 'shared',
+          worldDominanceDelivered: 0.5,
+          chamberPresenceScore: 0.62,
+          compositionSafetyScore: 0.92,
+          overbright: 0.03
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).toBe('quiet-beauty');
+    expect(getAutoCaptureTriggerPriority('quiet-beauty')).toBeGreaterThan(
+      getAutoCaptureTriggerPriority('authority-turn')
+    );
+  });
 });

@@ -213,6 +213,7 @@ describe('SignatureMomentGovernor', () => {
     );
 
     expect(snapshot.kind).toBe('ghost-residue');
+    expect(snapshot.style).toBe('ambient-premium');
     expect(snapshot.memoryStrength).toBeGreaterThan(0);
   });
 
@@ -234,6 +235,7 @@ describe('SignatureMomentGovernor', () => {
     );
 
     expect(snapshot.kind).toBe('silence-constellation');
+    expect(snapshot.style).toBe('ambient-premium');
   });
 
   it('precharges a weak candidate before striking on phrase-scale proof', () => {

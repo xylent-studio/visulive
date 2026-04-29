@@ -220,15 +220,21 @@ function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
   const clusterStart = cluster.timestampMs - MATCH_WINDOW_MS;
   const clusterEnd = cluster.endTimestampMs + MATCH_WINDOW_MS;
   const expectedEvidence = resolveExpectedEvidence(cluster);
-  const matchedClip = runClips.some(
+  const matchedExpectedClip = runClips.some(
     (clip) =>
       clip.endMs >= clusterStart &&
       clip.startMs <= clusterEnd &&
       (expectedEvidence.clipKinds.has(clip.triggerKind) ||
         (clip.triggerKind === null && (clip.version ?? 0) < 3))
   );
+  const matchedContextClip = runClips.some(
+    (clip) =>
+      clip.endMs >= cluster.timestampMs &&
+      clip.startMs <= cluster.endTimestampMs &&
+      (clip.version ?? 0) >= 3
+  );
 
-  if (matchedClip) {
+  if (matchedExpectedClip || matchedContextClip) {
     return {
       matched: true,
       expectedEvidence

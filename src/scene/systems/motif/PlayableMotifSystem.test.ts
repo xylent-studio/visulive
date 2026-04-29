@@ -200,6 +200,56 @@ describe('PlayableMotifSystem', () => {
     expect(system.collectTelemetryInputs().playableMotifSceneIntentMatch).toBe(false);
   });
 
+  it('routes gather passages to machine tunnel instead of another portal colorway', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'gather'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.08,
+          releaseTail: 0.04
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('machine-tunnel');
+    expect(telemetry.playableMotifSceneSilhouetteFamily).toBe('perspective-tunnel');
+  });
+
+  it('does not treat soft rupture residue as a collapse scene when reveal still owns the phrase', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'rupture-scar',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'reveal',
+          worldMode: 'fan-sweep',
+          transformIntent: 'open'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.12,
+          sectionChange: 0.18
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneTransitionReason).not.toBe('drop-rupture');
+  });
+
   it('lets collapse residue yield back to the current motif once rupture no longer owns it', () => {
     const system = new PlayableMotifSystem();
     system.build();

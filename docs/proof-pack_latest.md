@@ -1,8 +1,8 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-29T06:07:42.470Z
+Generated: 2026-04-29T22:47:11.277Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-29T06:07:39.859Z
+Report timestamp: 2026-04-29T22:47:07.843Z
 Report capture count: 69
 
 ## Executive Read
@@ -40,7 +40,7 @@ Report capture count: 69
 - world authority delivery: pass - 41 capture(s) show shared or dominant world authority.
 - operator trust: pass - 15 operator-trust scenario capture(s) are attached.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
-- missed capture opportunities: fail - 30 meaningful run marker(s) were not matched to saved clips.
+- missed capture opportunities: fail - 18 meaningful run marker(s) were not matched to saved clips.
 - scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
@@ -138,7 +138,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_19-54-17.json`
   - score: 8.47
   - trigger/event: authority-turn / strike-burst
@@ -156,7 +156,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_19-33-45.json`
   - score: 8.38
   - trigger/event: authority-turn / strike-burst
@@ -174,7 +174,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_20-39-11.json`
   - score: 8.36
   - trigger/event: authority-turn / strike-burst
@@ -192,7 +192,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, ringOverdrawRisk
+  - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_19-33-53.json`
   - score: 8.33
   - trigger/event: authority-turn / strike-burst
@@ -210,7 +210,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 
 ## Weak Evidence
 - `auto_authority-turn_2026-04-28_20-37-06.json`
@@ -230,7 +230,7 @@ Report capture count: 69
   - spend: withheld; legacy glow 0.0%; hero scale peak 0.987
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk
+  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_19-29-03.json`
   - score: 5.22
   - trigger/event: authority-turn / void
@@ -248,7 +248,7 @@ Report capture count: 69
   - spend: withheld; legacy glow 0.0%; hero scale peak 0.987
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk
+  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk, sameySceneSilhouette
 - `auto_authority-turn_2026-04-28_19-48-15.json`
   - score: 5.76
   - trigger/event: authority-turn / generative
@@ -266,7 +266,7 @@ Report capture count: 69
   - spend: earned; legacy glow 43.0%; hero scale peak 1.150
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, ringOverdrawRisk
+  - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_governance-risk_2026-04-28_20-37-14.json`
   - score: 6.19
   - trigger/event: governance-risk / ghost-trace
@@ -284,7 +284,7 @@ Report capture count: 69
   - spend: earned; legacy glow 88.3%; hero scale peak 1.250
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 - `auto_drop_2026-04-28_19-32-23.json`
   - score: 6.42
   - trigger/event: drop / ghost-trace
@@ -302,7 +302,7 @@ Report capture count: 69
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, undercommittedDrop, ringOverdrawRisk
+  - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, undercommittedDrop, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 
 ## Screenshot Review Set
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
