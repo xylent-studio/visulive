@@ -3219,7 +3219,7 @@ export function summarizeCapture(capture, filePath) {
 
   if (qualityFlags.includes('manualCustom')) {
     findings.push(
-      'This capture was not anchored to an authored quick start, so it is useful history but lower-confidence tuning evidence.'
+      'This capture was not anchored to a locked Proof Mission / launch profile, so it is useful history but lower-confidence tuning evidence.'
     );
   }
 
@@ -4800,13 +4800,13 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
         ? [`- Benchmark kind: \`${resolveBenchmarkKind(summary)}\``]
         : []),
       `- Launch profile: ${resolveLaunchQuickStartLabel(metadata)}`,
-    `- Active quick start: ${resolveQuickStartLabel(metadata)}`,
-    `- Serialized preset: ${metadata.controls?.preset ?? 'n/a'}`,
-    `- Frames: ${summary.frameCount}`,
-    `- Duration: ${formatMs(summary.durationMs)}`,
-    `- Renderer: ${metadata.rendererBackend ?? 'n/a'} / ${metadata.qualityTier ?? 'n/a'}`,
-    `- Raw path: ${metadata.rawPathGranted ? 'clean' : 'compromised'}`,
-    `- Quality flags: ${(summary.qualityFlags ?? []).length > 0 ? summary.qualityFlags.join(', ') : 'none'}`,
+      `- Active launch profile: ${resolveQuickStartLabel(metadata)}`,
+      `- Serialized preset: ${metadata.controls?.preset ?? 'n/a'}`,
+      `- Frames: ${summary.frameCount}`,
+      `- Duration: ${formatMs(summary.durationMs)}`,
+      `- Renderer: ${metadata.rendererBackend ?? 'n/a'} / ${metadata.qualityTier ?? 'n/a'}`,
+      `- Raw path: ${metadata.rawPathGranted ? 'clean' : 'compromised'}`,
+      `- Quality flags: ${(summary.qualityFlags ?? []).length > 0 ? summary.qualityFlags.join(', ') : 'none'}`,
     ...(typeof metadata.triggerCount === 'number'
       ? [
           `- Trigger hits in window: ${metadata.triggerCount}`,
@@ -4815,13 +4815,13 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
       : []),
     '',
     '### Provenance',
-    `- Launch quick start: ${resolveLaunchQuickStartLabel(metadata)}`,
-    `- Active quick start: ${resolveQuickStartLabel(metadata)}`,
+    `- Launch profile: ${resolveLaunchQuickStartLabel(metadata)}`,
+    `- Active launch profile: ${resolveQuickStartLabel(metadata)}`,
     `- Serialized preset: ${metadata.controls?.preset ?? 'n/a'}`,
-    `- Provenance note: quick-start label and serialized preset are both preserved here so the benchmark can keep room-floor provenance separate from control-state provenance.`,
+    `- Provenance note: legacy quick-start metadata and serialized preset are both preserved here so the benchmark can keep room-floor provenance separate from control-state provenance.`,
     ...(resolveLaunchQuickStartLabel(metadata) !== resolveQuickStartLabel(metadata)
       ? [
-          `- Provenance warning: launch quick start ${resolveLaunchQuickStartLabel(metadata)} drifted to active quick start ${resolveQuickStartLabel(metadata)}.`
+          `- Provenance warning: launch profile ${resolveLaunchQuickStartLabel(metadata)} drifted to active launch profile ${resolveQuickStartLabel(metadata)}.`
         ]
       : []),
     ...(metadata.sourceSummary?.provenanceMismatch
@@ -5284,13 +5284,13 @@ export function buildAggregateSection(summaries, options = {}) {
       ? aggregateStats.launchQuickStartLines
       : ['- No launch profiles were recorded.']),
     '',
-    '### Active quick start spread',
+    '### Active launch profile spread',
     ...(aggregateStats.activeQuickStartLines.length > 0
       ? aggregateStats.activeQuickStartLines
-      : ['- No quick starts were recorded.']),
+      : ['- No active launch profiles were recorded.']),
     '',
-    `- Captures launched from authored quick starts: ${aggregateStats.launchedFromQuickStartCount}`,
-    `- Captures customized away from their launch quick start: ${aggregateStats.customizedFromLaunchCount}`,
+    `- Captures launched from authored profiles: ${aggregateStats.launchedFromQuickStartCount}`,
+    `- Captures customized away from their launch profile: ${aggregateStats.customizedFromLaunchCount}`,
     '',
     ...(freshStats
       ? [
@@ -5382,13 +5382,13 @@ export function buildAggregateSection(summaries, options = {}) {
             ? freshStats.launchQuickStartLines
             : ['- No launch profiles were recorded.']),
           '',
-          '### Fresh active quick start spread',
+          '### Fresh active launch profile spread',
           ...(freshStats.activeQuickStartLines.length > 0
             ? freshStats.activeQuickStartLines
-            : ['- No quick starts were recorded.']),
+            : ['- No active launch profiles were recorded.']),
           '',
-          `- Fresh captures launched from authored quick starts: ${freshStats.launchedFromQuickStartCount}`,
-          `- Fresh captures customized away from their launch quick start: ${freshStats.customizedFromLaunchCount}`,
+          `- Fresh captures launched from authored profiles: ${freshStats.launchedFromQuickStartCount}`,
+          `- Fresh captures customized away from their launch profile: ${freshStats.customizedFromLaunchCount}`,
           '',
           '### Fresh trigger/archetype spread',
           ...(freshStats.triggerLines.length > 0

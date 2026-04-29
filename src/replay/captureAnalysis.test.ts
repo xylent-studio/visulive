@@ -1170,13 +1170,13 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('Primary benchmark (1)');
     expect(aggregate).toContain('Coverage (1)');
     expect(aggregate).toContain('### Launch profile spread');
-    expect(aggregate).toContain('### Active quick start spread');
+    expect(aggregate).toContain('### Active launch profile spread');
     expect(aggregate).toContain('### Act spread');
     expect(aggregate).not.toContain('dropImpact=x');
     expect(section).toContain('Event archetype: `collapse`');
     expect(section).toContain('Dominant state: `surge`');
     expect(section).toContain('Proof scenario: Primary benchmark');
-    expect(section).toContain('Active quick start: Music On This PC');
+    expect(section).toContain('Active launch profile: Music On This PC');
     expect(section).toContain('Dominant act:');
   });
 

@@ -173,7 +173,7 @@ The report summarizes:
 - trigger-to-archetype spread across the analyzed capture set
 - source-mode spread and quick-start spread
 - launch-profile spread versus active quick-start spread
-- how many captures were customized away from their launch quick start
+- how many captures were customized away from their launch profile
 - quality-tier spread
 - act spread
 - ambient-vs-event glow occupancy
