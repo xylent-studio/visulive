@@ -504,14 +504,24 @@ export class ChamberSystem {
       context.tuning.neonStageFloor * 0.012 +
       context.tuning.worldBootFloor * 0.01;
     const ringPersistencePressure = THREE.MathUtils.clamp(
-      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.22) * 1.35 +
+      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.18) * 1.65 +
         Math.max(
           0,
           context.metrics.wirefieldDensityScoreCurrent - chamberWireDensityCap
         ) *
-          0.38,
+          0.46,
       0,
-      0.42
+      0.56
+    );
+    const chamberColorIntegrityGuard = THREE.MathUtils.clamp(
+      1 - ringPersistencePressure * 0.54 - washoutSuppression * 0.18,
+      0.56,
+      1
+    );
+    const chamberChromaRecoveryLift = THREE.MathUtils.clamp(
+      ringPersistencePressure * 0.12 + washoutSuppression * 0.08,
+      0,
+      0.14
     );
     const chamberDrift = context.motion.chamberDrift;
     const shellDrift = context.motion.shellDrift;
@@ -756,7 +766,8 @@ export class ChamberSystem {
           0.05 +
             paletteAcid * 0.22 +
             context.audio.shimmer * 0.06 +
-            matrixAct * 0.12
+            matrixAct * 0.12 +
+            chamberChromaRecoveryLift
         )
         .lerp(
           CYBER_YELLOW,
@@ -764,12 +775,13 @@ export class ChamberSystem {
         )
         .lerp(
           ELECTRIC_WHITE,
-          ghost * 0.08 +
+          (ghost * 0.08 +
             cathedral * 0.06 +
             beatPulse * 0.05 +
             voidAct * 0.06 +
             ghostAct * 0.08 +
-            paletteGhost * 0.16
+            paletteGhost * 0.16) *
+            chamberColorIntegrityGuard
         );
       ring.mesh.material.opacity = THREE.MathUtils.clamp(
         (ambientGlow * thicknessOpacity * 0.92 +
@@ -804,8 +816,8 @@ export class ChamberSystem {
         )
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
-        1 - (ringSuppression * 0.62 + ringPersistencePressure * 0.16),
-        0.22,
+        1 - (ringSuppression * 0.62 + ringPersistencePressure * 0.28),
+        0.18,
         1
       );
       ring.mesh.material.opacity *=
@@ -825,9 +837,9 @@ export class ChamberSystem {
           Math.max(0, context.metrics.heroScaleCurrent - 0.92) * 0.22 -
           Math.max(
             0,
-            context.metrics.ringBeltPersistenceCurrent - 0.24
+            context.metrics.ringBeltPersistenceCurrent - 0.22
           ) *
-            0.58 -
+            0.74 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.2
@@ -848,8 +860,8 @@ export class ChamberSystem {
             0,
             context.metrics.ringBeltPersistenceCurrent - 0.24
           ) *
-            0.46,
-        0.42,
+            0.58,
+        0.36,
         1
       );
     });
@@ -938,7 +950,8 @@ export class ChamberSystem {
             laserScan * 0.08 +
             irisPulse * 0.04 +
             matrixAct * 0.14 +
-            paletteAcid * 0.22
+            paletteAcid * 0.22 +
+            chamberChromaRecoveryLift
         )
         .lerp(VOLT_VIOLET, phrasePulse * 0.02 + ghostAct * 0.04)
         .lerp(
@@ -947,11 +960,12 @@ export class ChamberSystem {
         )
         .lerp(
           ELECTRIC_WHITE,
-          ghost * 0.06 +
+          (ghost * 0.06 +
             chromaWarp * 0.04 +
             glowOverdrive * 0.05 +
             ghostAct * 0.08 +
-            paletteGhost * 0.16
+            paletteGhost * 0.16) *
+            chamberColorIntegrityGuard
         )
         .lerp(MATRIX_GREEN, chromaPulse * 0.06 + paletteAcid * 0.18);
       ring.mesh.material.opacity = THREE.MathUtils.clamp(
@@ -984,7 +998,7 @@ export class ChamberSystem {
         1 -
           (ringSuppression * 0.36 +
             portalSuppression * 0.44 +
-            ringPersistencePressure * 0.18),
+            ringPersistencePressure * 0.32),
         0.16,
         1
       );
@@ -1005,9 +1019,9 @@ export class ChamberSystem {
           Math.max(0, context.metrics.heroScaleCurrent - 0.88) * 0.3 -
           Math.max(
             0,
-            context.metrics.ringBeltPersistenceCurrent - 0.24
+            context.metrics.ringBeltPersistenceCurrent - 0.22
           ) *
-            0.62 -
+            0.82 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.2
@@ -1095,15 +1109,19 @@ export class ChamberSystem {
         )
         .lerp(
           ELECTRIC_WHITE,
-          ghost * 0.08 +
+          (ghost * 0.08 +
             cathedralRise * 0.06 +
             chromaWarp * 0.04 +
             shellHalo * 0.04 +
-            paletteGhost * 0.18
+            paletteGhost * 0.18) *
+            chamberColorIntegrityGuard
         )
         .lerp(
           MATRIX_GREEN,
-          chromaPulse * 0.08 + matrixAct * 0.14 + paletteAcid * 0.18
+          chromaPulse * 0.08 +
+            matrixAct * 0.14 +
+            paletteAcid * 0.18 +
+            chamberChromaRecoveryLift
         );
       halo.mesh.material.opacity = THREE.MathUtils.clamp(
         open *
@@ -1143,9 +1161,9 @@ export class ChamberSystem {
           Math.max(0, context.metrics.heroScaleCurrent - 1.02) * 0.1 -
           Math.max(
             0,
-            context.metrics.ringBeltPersistenceCurrent - 0.28
+            context.metrics.ringBeltPersistenceCurrent - 0.22
           ) *
-            0.36 -
+            0.5 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.24
@@ -1364,15 +1382,19 @@ export class ChamberSystem {
         )
         .lerp(
           ELECTRIC_WHITE,
-          context.audio.dropImpact * 0.08 +
+          (context.audio.dropImpact * 0.08 +
             context.audio.sectionChange * 0.06 +
             chromaWarp * 0.06 +
             ghostAct * 0.08 +
-            paletteGhost * 0.12
+            paletteGhost * 0.12) *
+            chamberColorIntegrityGuard
         )
         .lerp(
           MATRIX_GREEN,
-          chromaPulse * 0.08 + matrixAct * 0.12 + paletteAcid * 0.18
+          chromaPulse * 0.08 +
+            matrixAct * 0.12 +
+            paletteAcid * 0.18 +
+            chamberChromaRecoveryLift
         );
       beam.mesh.material.opacity = THREE.MathUtils.clamp(
         (ambientGlow * (0.0018 + worldActivity * 0.003 + radiance * 0.002) +
@@ -1430,7 +1452,7 @@ export class ChamberSystem {
             0,
             context.metrics.ringBeltPersistenceCurrent - 0.24
           ) *
-            0.26 -
+            0.38 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.2

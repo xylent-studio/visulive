@@ -74,9 +74,9 @@ export class AuthorityGovernor {
     const shellGlowSpend = THREE.MathUtils.clamp(
       hero.heroEdgesOpacity * 2.2 +
         hero.heroSeamOpacity * 1.2 +
-        chamber.frontRingOpacity * 6 +
-        chamber.frontPortalOpacity * 6 +
-        chamber.frontHaloOpacity * 6,
+        chamber.frontRingOpacity * 4.8 +
+        chamber.frontPortalOpacity * 4.6 +
+        chamber.frontHaloOpacity * 4.2,
       0,
       1.2
     );
@@ -86,17 +86,17 @@ export class AuthorityGovernor {
       1
     );
     const ringAuthority = THREE.MathUtils.clamp(
-      chamber.chamberRingOpacityAverage * 8 +
-        chamber.portalRingOpacityAverage * 6 +
-        chamber.chromaHaloOpacityAverage * 5,
+      chamber.chamberRingOpacityAverage * 6.8 +
+        chamber.portalRingOpacityAverage * 5.2 +
+        chamber.chromaHaloOpacityAverage * 4.2,
       0,
       1.5
     );
     const ringBeltPersistence = THREE.MathUtils.clamp(
-      chamber.portalRingOpacityAverage * 4.8 +
-        chamber.chromaHaloOpacityAverage * 1.8 +
-        chamber.chamberRingOpacityAverage * 1.3 +
-        midlineBias * 0.08,
+      chamber.portalRingOpacityAverage * 3.9 +
+        chamber.chromaHaloOpacityAverage * 1.35 +
+        chamber.chamberRingOpacityAverage * 1.05 +
+        midlineBias * 0.04,
       0,
       1
     );

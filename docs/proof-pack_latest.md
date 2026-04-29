@@ -1,28 +1,28 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-29T00:33:42.644Z
+Generated: 2026-04-29T00:50:26.534Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-29T00:33:19.947Z
-Report capture count: 54
+Report timestamp: 2026-04-29T00:50:05.850Z
+Report capture count: 69
 
 ## Executive Read
-- Captures analyzed: 54
-- Current-proof-eligible captures: 26
-- Safe-tier captures: 26/26
-- Screenshot references: 187
+- Captures analyzed: 69
+- Current-proof-eligible captures: 41
+- Safe-tier captures: 41/41
+- Screenshot references: 271
 - Strong evidence picks: 5
 - Weak evidence picks: 5
 
 ## Evidence Freshness
-- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-28T23:56:22.239Z
-- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-28T23:56:22.239Z
-- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-28T23:56:22.239Z
+- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T00:44:04.808Z
+- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
+- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
 - Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z
 - Current branch proof cutoff: 2026-04-23T08:28:02.000Z
 - Serious proof max age: 7 day(s)
 - Current branch proof freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - Screenshot review freshness: pass - Screenshot references satisfy the current proof cutoff and freshness window.
-- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-28T23:56:39.997Z
+- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-29T00:44:54.021Z
 
 ## Validation Gates
 - current-branch freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
@@ -32,72 +32,73 @@ Report capture count: 54
 - compositor consequence: pass - At least one capture shows visible event-glow spend.
 - build identity: pass - All current captures include valid build identity.
 - scenario validation: pass - Current capture scenarios are validated or unrecorded.
-- proof-pack completeness: pass - 187 current screenshot reference(s) are available and all captures are attributable to a valid build.
-- no-touch autonomy: pass - 17 capture(s) cleared the no-touch proof window.
-- authority split validation: fail - authority-ready 1/26; world 0.949; chamber 0.961; hierarchy 0.788; hero coverage 0.057; overbright 93.9%; risks hero/chamber/world/overbright 0/0/0/25.
+- proof-pack completeness: pass - 271 current screenshot reference(s) are available and all captures are attributable to a valid build.
+- no-touch autonomy: pass - 28 capture(s) cleared the no-touch proof window.
+- authority split validation: fail - authority-ready 2/41; world 0.951; chamber 0.960; hierarchy 0.787; hero coverage 0.058; overbright 93.4%; risks hero/chamber/world/overbright 0/0/0/39.
 - primary authority proof: pass - 17 no-touch primary benchmark capture(s) show world/chamber authority.
-- silence dignity: pass - 1 capture(s) preserved quiet-state regime evidence.
-- world authority delivery: pass - 26 capture(s) show shared or dominant world authority.
-- operator trust: fail - No current operator-trust scenario is attached to this pack yet.
+- silence dignity: pass - 2 capture(s) preserved quiet-state regime evidence.
+- world authority delivery: pass - 41 capture(s) show shared or dominant world authority.
+- operator trust: pass - 15 operator-trust scenario capture(s) are attached.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
 - missed capture opportunities: fail - 1 meaningful run marker(s) were not matched to saved clips.
-- scenario coverage: fail - Current scenarios present: primary-benchmark; historical baselines: primary-benchmark, room-floor
+- scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
 ### Current scenarios
+- `operator-trust`: 15 capture(s)
 - `primary-benchmark`: 26 capture(s)
 
 ### Historical baselines
 - `primary-benchmark`: 1 capture(s)
 - `room-floor`: 1 capture(s)
 
-- Current review captures: 26
+- Current review captures: 41
 - Unclassified current captures: 0
 - Historical baseline captures: 2
-- No-touch captures: 26
-- Qualified no-touch windows: 17
-- Quiet-state evidence: 1
-- World-authority evidence: 26
+- No-touch captures: 41
+- Qualified no-touch windows: 28
+- Quiet-state evidence: 2
+- World-authority evidence: 41
 - Primary no-touch authority evidence: 17
-- Operator-trust evidence: 0
+- Operator-trust evidence: 15
 
 ## Cue Spread
+- `laser-burst`: 12 capture(s)
 - `gather`: 7 capture(s)
-- `orbit-widen`: 5 capture(s)
-- `laser-burst`: 5 capture(s)
-- `collapse`: 4 capture(s)
-- `hold`: 2 capture(s)
-- `fan-sweep`: 2 capture(s)
+- `collapse`: 7 capture(s)
+- `orbit-widen`: 6 capture(s)
+- `fan-sweep`: 5 capture(s)
+- `hold`: 3 capture(s)
 - `residue`: 1 capture(s)
 
 ## Authority Split Read
-- Authority-ready captures: 1/26
-- World-authority evidence: 26/26
-- Chamber presence mean: 0.961 (target >= 0.240)
-- World dominance delivered mean: 0.949 (target >= 0.280)
-- Frame hierarchy mean: 0.788 (target >= 0.620)
-- Hero coverage mean: 0.057 (target <= 0.320)
-- Overbright rate: 93.9% (target <= 12.0%)
-- Risk counts: hero monopoly 0/26; low chamber 0/26; weak world 0/26; overbright 25/26
+- Authority-ready captures: 2/41
+- World-authority evidence: 41/41
+- Chamber presence mean: 0.960 (target >= 0.240)
+- World dominance delivered mean: 0.951 (target >= 0.280)
+- Frame hierarchy mean: 0.787 (target >= 0.620)
+- Hero coverage mean: 0.058 (target <= 0.320)
+- Overbright rate: 93.4% (target <= 12.0%)
+- Risk counts: hero monopoly 0/41; low chamber 0/41; weak world 0/41; overbright 39/41
 ### World authority state spread
-- `dominant`: 14 capture(s)
-- `shared`: 12 capture(s)
+- `dominant`: 27 capture(s)
+- `shared`: 14 capture(s)
 
 ## Chamber Authority
-- `liquid-pressure-core`: 14 capture(s)
-- `portal-iris`: 6 capture(s)
-- `spectral-plume`: 4 capture(s)
-- `cathedral-rings`: 2 capture(s)
+- `liquid-pressure-core`: 23 capture(s)
+- `portal-iris`: 7 capture(s)
+- `cathedral-rings`: 6 capture(s)
+- `spectral-plume`: 5 capture(s)
 
 ## Compositor Consequence
-- `consequence`: 26 capture(s)
+- `consequence`: 41 capture(s)
 
 ## Spend Governance
-- `earned`: weighted presence 24.26
-- `withheld`: weighted presence 1.74
-- Overbright risk: 93.9%
-- Large hero frequency: 0/26 capture(s)
-- Ring authority mean: 0.975
+- `earned`: weighted presence 38.22
+- `withheld`: weighted presence 2.78
+- Overbright risk: 93.4%
+- Large hero frequency: 1/41 capture(s)
+- Ring authority mean: 0.973
 
 ## Strong Evidence
 - `auto_authority-turn_2026-04-28_19-54-09.json`
@@ -151,6 +152,23 @@ Report capture count: 54
   - interventions: 0; no-touch window passed
   - safe tier: yes
   - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
+- `auto_authority-turn_2026-04-28_20-39-11.json`
+  - score: 8.36
+  - trigger/event: authority-turn / strike-burst
+  - route/world/look: this-computer / portal-chamber / machine-halo
+  - proof scenario: Operator trust
+  - build: 1.0.0 / afa9c7d / stable (valid)
+  - scenario validation: operator-trust -> operator-trust (validated)
+  - capability: full-autonomous
+  - canonical cue class: collapse
+  - dominant act: laser-bloom
+  - dominant chamber family: liquid-pressure-core
+  - authority: world 0.991; chamber 1.000; hierarchy 0.771; hero coverage 0.040
+  - compositor: event glow 0.898 mean / 0.918 peak; bloom 0.740 mean / 0.740 peak
+  - spend: earned; overbright 100.0%; hero scale peak 1.140
+  - interventions: 0; no-touch window passed
+  - safe tier: yes
+  - flags: safeTierActive, ringOverdrawRisk
 - `auto_authority-turn_2026-04-28_19-33-53.json`
   - score: 8.33
   - trigger/event: authority-turn / strike-burst
@@ -168,25 +186,25 @@ Report capture count: 54
   - interventions: 0; no-touch window passed
   - safe tier: yes
   - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
-- `auto_authority-turn_2026-04-28_19-31-13.json`
-  - score: 8.29
-  - trigger/event: authority-turn / strike-burst
-  - route/world/look: this-computer / portal-chamber / machine-halo
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: laser-burst
-  - dominant act: laser-bloom
-  - dominant chamber family: portal-iris
-  - authority: world 0.996; chamber 1.000; hierarchy 0.777; hero coverage 0.087
-  - compositor: event glow 0.917 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
-  - spend: earned; overbright 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window passed
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
 
 ## Weak Evidence
+- `auto_authority-turn_2026-04-28_20-37-06.json`
+  - score: 5.19
+  - trigger/event: authority-turn / void
+  - route/world/look: this-computer / haunted-residue / ghost-signal
+  - proof scenario: Operator trust
+  - build: 1.0.0 / afa9c7d / stable (valid)
+  - scenario validation: operator-trust -> operator-trust (validated)
+  - capability: full-autonomous
+  - canonical cue class: hold
+  - dominant act: matrix-storm
+  - dominant chamber family: spectral-plume
+  - authority: world 0.488; chamber 0.509; hierarchy 0.823; hero coverage 0.024
+  - compositor: event glow 0.333 mean / 0.466 peak; bloom 0.398 mean / 0.520 peak
+  - spend: withheld; overbright 0.0%; hero scale peak 0.987
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk
 - `auto_authority-turn_2026-04-28_19-29-03.json`
   - score: 5.22
   - trigger/event: authority-turn / void
@@ -221,6 +239,23 @@ Report capture count: 54
   - interventions: 0; no-touch window not proven
   - safe tier: yes
   - flags: safeTierActive, ringOverdrawRisk
+- `auto_governance-risk_2026-04-28_20-37-14.json`
+  - score: 6.19
+  - trigger/event: governance-risk / ghost-trace
+  - route/world/look: this-computer / eclipse-chamber / ember-veil
+  - proof scenario: Operator trust
+  - build: 1.0.0 / afa9c7d / stable (valid)
+  - scenario validation: operator-trust -> operator-trust (validated)
+  - capability: full-autonomous
+  - canonical cue class: orbit-widen
+  - dominant act: matrix-storm
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.913; chamber 0.930; hierarchy 0.811; hero coverage 0.071
+  - compositor: event glow 0.698 mean / 0.802 peak; bloom 0.740 mean / 0.740 peak
+  - spend: earned; overbright 88.3%; hero scale peak 1.250
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
 - `auto_drop_2026-04-28_19-32-23.json`
   - score: 6.42
   - trigger/event: drop / ghost-trace
@@ -238,42 +273,92 @@ Report capture count: 54
   - interventions: 0; no-touch window passed
   - safe tier: yes
   - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, undercommittedDrop, ringOverdrawRisk
-- `auto_authority-turn_2026-04-28_19-48-32.json`
-  - score: 6.48
-  - trigger/event: authority-turn / generative
-  - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 95279fd / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: orbit-widen
-  - dominant act: matrix-storm
-  - dominant chamber family: liquid-pressure-core
-  - authority: world 0.990; chamber 0.994; hierarchy 0.791; hero coverage 0.078
-  - compositor: event glow 0.799 mean / 0.888 peak; bloom 0.740 mean / 0.740 peak
-  - spend: earned; overbright 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window not proven
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
-- `auto_authority-turn_2026-04-28_19-29-44.json`
-  - score: 6.59
-  - trigger/event: authority-turn / ghost-trace
-  - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: residue
-  - dominant act: matrix-storm
-  - dominant chamber family: cathedral-rings
-  - authority: world 0.877; chamber 0.858; hierarchy 0.739; hero coverage 0.045
-  - compositor: event glow 0.733 mean / 0.841 peak; bloom 0.673 mean / 0.740 peak
-  - spend: earned; overbright 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window passed
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk
 
 ## Screenshot Review Set
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_464275.png` (1070 KB, modified 2026-04-29T00:44:51.297Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_461181.png` (980 KB, modified 2026-04-29T00:44:42.764Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_453245.png` (959 KB, modified 2026-04-29T00:44:39.708Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_451165.png` (865 KB, modified 2026-04-29T00:44:37.942Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_443688.png` (895 KB, modified 2026-04-29T00:44:30.632Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_436157.png` (552 KB, modified 2026-04-29T00:44:23.004Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_429480.png` (520 KB, modified 2026-04-29T00:44:14.615Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_424168.png` (867 KB, modified 2026-04-29T00:44:11.354Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_415720.png` (981 KB, modified 2026-04-29T00:44:02.863Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_407549.png` (539 KB, modified 2026-04-29T00:43:54.393Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_399336.png` (889 KB, modified 2026-04-29T00:43:46.104Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_389544.png` (955 KB, modified 2026-04-29T00:43:37.852Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_382643.png` (935 KB, modified 2026-04-29T00:43:29.532Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_373160.png` (672 KB, modified 2026-04-29T00:43:19.897Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_364765.png` (1258 KB, modified 2026-04-29T00:43:11.685Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_356403.png` (997 KB, modified 2026-04-29T00:43:03.196Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_353555.png` (859 KB, modified 2026-04-29T00:42:54.694Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_345128.png` (962 KB, modified 2026-04-29T00:42:52.080Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_337277.png` (883 KB, modified 2026-04-29T00:42:43.924Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_328829.png` (875 KB, modified 2026-04-29T00:42:35.610Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_320669.png` (680 KB, modified 2026-04-29T00:42:27.220Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_312285.png` (625 KB, modified 2026-04-29T00:42:18.877Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_309128.png` (620 KB, modified 2026-04-29T00:42:10.477Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_299549.png` (795 KB, modified 2026-04-29T00:42:07.747Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_292691.png` (1125 KB, modified 2026-04-29T00:41:59.503Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_284648.png` (466 KB, modified 2026-04-29T00:41:51.220Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_274237.png` (759 KB, modified 2026-04-29T00:41:43.169Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_267901.png` (1011 KB, modified 2026-04-29T00:41:34.924Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_263229.png` (657 KB, modified 2026-04-29T00:41:26.536Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_259709.png` (676 KB, modified 2026-04-29T00:41:21.770Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_257683.png` (594 KB, modified 2026-04-29T00:41:19.090Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_254632.png` (671 KB, modified 2026-04-29T00:41:16.540Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_246429.png` (723 KB, modified 2026-04-29T00:41:13.388Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_237725.png` (709 KB, modified 2026-04-29T00:41:05.170Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_230536.png` (595 KB, modified 2026-04-29T00:40:57.020Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_219123.png` (1209 KB, modified 2026-04-29T00:40:42.174Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_211059.png` (911 KB, modified 2026-04-29T00:40:39.389Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_208691.png` (514 KB, modified 2026-04-29T00:40:31.000Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_202504.png` (448 KB, modified 2026-04-29T00:40:29.120Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_199763.png` (693 KB, modified 2026-04-29T00:40:20.714Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_196680.png` (746 KB, modified 2026-04-29T00:40:18.008Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_194184.png` (1371 KB, modified 2026-04-29T00:40:14.929Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_191357.png` (691 KB, modified 2026-04-29T00:40:12.440Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_188307.png` (668 KB, modified 2026-04-29T00:40:09.714Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_179912.png` (655 KB, modified 2026-04-29T00:40:06.854Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_177768.png` (573 KB, modified 2026-04-29T00:39:58.510Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_175389.png` (535 KB, modified 2026-04-29T00:39:56.143Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_172509.png` (868 KB, modified 2026-04-29T00:39:53.696Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_170237.png` (480 KB, modified 2026-04-29T00:39:51.010Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_161949.png` (941 KB, modified 2026-04-29T00:39:48.448Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_159336.png` (868 KB, modified 2026-04-29T00:39:40.044Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_150909.png` (866 KB, modified 2026-04-29T00:39:37.537Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_142429.png` (638 KB, modified 2026-04-29T00:39:29.001Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_133363.png` (832 KB, modified 2026-04-29T00:39:20.876Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_130376.png` (869 KB, modified 2026-04-29T00:39:11.337Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_121075.png` (670 KB, modified 2026-04-29T00:39:08.590Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_119048.png` (436 KB, modified 2026-04-29T00:39:00.141Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_111016.png` (673 KB, modified 2026-04-29T00:38:57.584Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_107837.png` (413 KB, modified 2026-04-29T00:38:49.145Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_106184.png` (750 KB, modified 2026-04-29T00:38:46.745Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_102067.png` (513 KB, modified 2026-04-29T00:38:43.643Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_92989.png` (863 KB, modified 2026-04-29T00:38:40.861Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_91987.png` (966 KB, modified 2026-04-29T00:38:32.887Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_83965.png` (798 KB, modified 2026-04-29T00:38:30.257Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_80040.png` (1072 KB, modified 2026-04-29T00:38:21.958Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_78739.png` (697 KB, modified 2026-04-29T00:38:19.539Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_68115.png` (873 KB, modified 2026-04-29T00:38:17.108Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_62109.png` (681 KB, modified 2026-04-29T00:38:08.660Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_54173.png` (978 KB, modified 2026-04-29T00:38:00.502Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__trust_49640.png` (1013 KB, modified 2026-04-29T00:37:51.373Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_47464.png` (707 KB, modified 2026-04-29T00:37:48.102Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_43389.png` (680 KB, modified 2026-04-29T00:37:45.633Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_42397.png` (1115 KB, modified 2026-04-29T00:37:43.272Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_39560.png` (781 KB, modified 2026-04-29T00:37:40.798Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_35112.png` (1069 KB, modified 2026-04-29T00:37:38.040Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_28776.png` (1069 KB, modified 2026-04-29T00:37:35.635Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_20189.png` (729 KB, modified 2026-04-29T00:37:27.228Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_19229.png` (617 KB, modified 2026-04-29T00:37:19.577Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_14173.png` (1022 KB, modified 2026-04-29T00:37:14.569Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_9789.png` (919 KB, modified 2026-04-29T00:37:11.812Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_8349.png` (444 KB, modified 2026-04-29T00:37:09.246Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_2173.png` (428 KB, modified 2026-04-29T00:37:06.335Z)
+- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_2173.png` (374 KB, modified 2026-04-29T00:37:02.814Z)
 - `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_509789.png` (443 KB, modified 2026-04-28T23:56:39.997Z)
 - `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_508467.png` (488 KB, modified 2026-04-28T23:56:38.807Z)
 - `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_507005.png` (826 KB, modified 2026-04-28T23:56:36.932Z)

@@ -146,17 +146,33 @@ export class LightingSystem {
       1.2
     );
     const authorityRingSuppression = THREE.MathUtils.clamp(
-      Math.max(0, context.authority.ringBeltPersistence - 0.24) * 0.62 +
-        Math.max(0, context.authority.wirefieldDensityScore - 0.2) * 0.54 +
-        Math.max(0, context.authority.ringAuthority - 1.02) * 0.24,
+      Math.max(0, context.authority.ringBeltPersistence - 0.2) * 0.78 +
+        Math.max(0, context.authority.wirefieldDensityScore - 0.2) * 0.58 +
+        Math.max(0, context.authority.ringAuthority - 0.94) * 0.34,
       0,
-      0.44
+      0.56
     );
     const authorityWashoutSuppression = THREE.MathUtils.clamp(
-      context.authority.overbright * 0.22 +
-        Math.max(0, context.authority.ringBeltPersistence - 0.3) * 0.12,
+      context.authority.overbright * 0.34 +
+        Math.max(0, context.authority.ringBeltPersistence - 0.26) * 0.2 +
+        Math.max(0, context.authority.shellGlowSpend - 0.82) * 0.16,
       0,
-      0.32
+      0.52
+    );
+    const colorIntegrityGuard = THREE.MathUtils.clamp(
+      1 - authorityWashoutSuppression * 0.68 - authorityRingSuppression * 0.18,
+      0.58,
+      1
+    );
+    const chromaRecoveryLift = THREE.MathUtils.clamp(
+      authorityWashoutSuppression * 0.16 + authorityRingSuppression * 0.08,
+      0,
+      0.18
+    );
+    const lightIntensityGuard = THREE.MathUtils.clamp(
+      1 - authorityWashoutSuppression * 0.28 - authorityRingSuppression * 0.12,
+      0.68,
+      1
     );
     const authoritySafetyFloor = THREE.MathUtils.clamp(
       context.authority.compositionSafetyScore * 0.08 +
@@ -191,15 +207,18 @@ export class LightingSystem {
       0,
       1.2
     );
-    const stageLightFloor =
+    const stageLightFloor = THREE.MathUtils.clamp(
       context.stage.chamberPresenceFloor * 0.06 +
-      context.stage.chamberDominanceFloor * 0.08 +
-      chamberStageLift * 0.05 +
-      musicStageFloor * 0.04 +
-      authorityWorldLift * 0.028 +
-      authoritySafetyFloor -
-      authorityRingSuppression * 0.02 -
-      authorityWashoutSuppression * 0.018;
+        context.stage.chamberDominanceFloor * 0.08 +
+        chamberStageLift * 0.05 +
+        musicStageFloor * 0.04 +
+        authorityWorldLift * 0.028 +
+        authoritySafetyFloor -
+        authorityRingSuppression * 0.034 -
+        authorityWashoutSuppression * 0.046,
+      0,
+      0.22
+    );
 
     this.ambientLight.color
       .copy(LASER_CYAN)
@@ -239,15 +258,19 @@ export class LightingSystem {
         context.director.colorWarp * 0.04 +
           context.actWeights.matrix * 0.1 +
           paletteAcid * 0.14 +
-          stageColorLift * 0.08
+          stageColorLift * 0.08 +
+          chromaRecoveryLift * 0.2
       )
       .lerp(
         ELECTRIC_WHITE,
-        context.actWeights.ghost * 0.06 +
+        (context.actWeights.ghost * 0.06 +
           paletteGhost * 0.08 +
-          context.stage.shotWorldTakeover * 0.06
+          context.stage.shotWorldTakeover * 0.06) *
+          colorIntegrityGuard
       );
-    this.ambientLight.intensity =
+    this.ambientLight.intensity = Math.max(
+      0,
+      (
       0.012 +
       context.budgets.ambientGlow * (0.052 + chamberStageLift * 0.018) +
       context.audio.roomness * 0.012 +
@@ -260,8 +283,11 @@ export class LightingSystem {
       context.stage.shotWorldTakeover * 0.014 -
       context.sceneVariation.postContrastBoost * 0.012 +
       context.authority.worldDominanceDelivered * 0.01 -
-      authorityRingSuppression * 0.01 -
-      authorityWashoutSuppression * 0.012;
+        authorityRingSuppression * 0.018 -
+        authorityWashoutSuppression * 0.028
+      ) *
+        lightIntensityGuard
+    );
 
     this.fillLight.color
       .copy(LASER_CYAN)
@@ -288,7 +314,8 @@ export class LightingSystem {
           context.audio.transientConfidence * 0.05 +
           chromaPulse * 0.04 +
           paletteAcid * 0.18 +
-          stageColorLift * 0.08
+          stageColorLift * 0.08 +
+          chromaRecoveryLift * 0.18
       )
       .lerp(
         HOT_MAGENTA,
@@ -306,11 +333,14 @@ export class LightingSystem {
       .lerp(MATRIX_GREEN, context.director.colorWarp * 0.06 + paletteAcid * 0.12)
       .lerp(
         ELECTRIC_WHITE,
-        context.actWeights.ghost * 0.06 +
+        (context.actWeights.ghost * 0.06 +
           paletteGhost * 0.08 +
-          context.stage.shotWorldTakeover * 0.05
+          context.stage.shotWorldTakeover * 0.05) *
+          colorIntegrityGuard
       );
-    this.fillLight.intensity =
+    this.fillLight.intensity = Math.max(
+      0,
+      (
       0.074 +
       context.budgets.ambientGlow * (0.052 + chamberStageLift * 0.026) +
       context.audio.air * 0.03 +
@@ -324,8 +354,11 @@ export class LightingSystem {
       context.stage.shotPressure * 0.026 +
       context.stage.shotWorldTakeover * 0.04 +
       context.authority.worldDominanceDelivered * 0.018 -
-      authorityRingSuppression * 0.016 -
-      authorityWashoutSuppression * 0.018;
+        authorityRingSuppression * 0.028 -
+        authorityWashoutSuppression * 0.04
+      ) *
+        lightIntensityGuard
+    );
 
     this.warmLight.color
       .copy(HOT_MAGENTA)
@@ -345,7 +378,8 @@ export class LightingSystem {
           chromaPulse * 0.04 +
           context.actWeights.laser * 0.04 +
           paletteSolar * 0.04 +
-          stageColorLift * 0.06
+          stageColorLift * 0.06 +
+          chromaRecoveryLift * 0.16
       )
       .lerp(
         TOXIC_PINK,
@@ -354,13 +388,16 @@ export class LightingSystem {
       )
       .lerp(
         ELECTRIC_WHITE,
-        context.events.haloIgnition * 0.16 +
+        (context.events.haloIgnition * 0.16 +
           context.director.colorWarp * 0.05 +
           paletteGhost * 0.12 +
-          context.stage.shotWorldTakeover * 0.04
+          context.stage.shotWorldTakeover * 0.04) *
+          colorIntegrityGuard
       )
       .lerp(MATRIX_GREEN, context.director.colorWarp * 0.04 + paletteAcid * 0.1);
-    this.warmLight.intensity =
+    this.warmLight.intensity = Math.max(
+      0,
+      (
       0.03 +
       context.budgets.ambientGlow * (0.02 + chamberStageLift * 0.008) +
       context.audio.body * 0.028 +
@@ -375,8 +412,11 @@ export class LightingSystem {
       context.stage.shotPressure * 0.016 +
       context.stage.shotAnchor * 0.006 +
       context.authority.chamberPresenceScore * 0.012 -
-      authorityRingSuppression * 0.008 -
-      authorityWashoutSuppression * 0.014;
+        authorityRingSuppression * 0.018 -
+        authorityWashoutSuppression * 0.034
+      ) *
+        lightIntensityGuard
+    );
     this.warmLight.position.set(
       2.2 +
         Math.sin(context.elapsedSeconds * 0.32) *
@@ -417,7 +457,8 @@ export class LightingSystem {
           context.audio.transientConfidence * 0.06 +
           chromaPulse * 0.06 +
           paletteAcid * 0.18 +
-          stageColorLift * 0.08
+          stageColorLift * 0.08 +
+          chromaRecoveryLift * 0.2
       )
       .lerp(
         CYBER_YELLOW,
@@ -441,11 +482,14 @@ export class LightingSystem {
       .lerp(MATRIX_GREEN, context.director.colorWarp * 0.08 + paletteAcid * 0.14)
       .lerp(
         ELECTRIC_WHITE,
-        context.actWeights.ghost * 0.06 +
+        (context.actWeights.ghost * 0.06 +
           paletteGhost * 0.1 +
-          context.stage.shotWorldTakeover * 0.04
+          context.stage.shotWorldTakeover * 0.04) *
+          colorIntegrityGuard
       );
-    this.coolLight.intensity =
+    this.coolLight.intensity = Math.max(
+      0,
+      (
       0.062 +
       context.budgets.ambientGlow * (0.042 + chamberStageLift * 0.02) +
       context.audio.air * 0.05 +
@@ -460,8 +504,11 @@ export class LightingSystem {
       context.stage.shotPressure * 0.018 +
       context.stage.shotWorldTakeover * 0.028 +
       context.authority.worldDominanceDelivered * 0.02 -
-      authorityRingSuppression * 0.014 -
-      authorityWashoutSuppression * 0.016;
+        authorityRingSuppression * 0.026 -
+        authorityWashoutSuppression * 0.038
+      ) *
+        lightIntensityGuard
+    );
     this.coolLight.position.set(
       -2.6 -
         Math.cos(context.elapsedSeconds * 0.28) *

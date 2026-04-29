@@ -183,17 +183,18 @@ export class ParticleSystem {
       1.2
     );
     const authorityRingSuppression = THREE.MathUtils.clamp(
-      Math.max(0, context.authority.ringBeltPersistence - 0.24) * 0.68 +
-        Math.max(0, context.authority.wirefieldDensityScore - 0.2) * 0.56,
+      Math.max(0, context.authority.ringBeltPersistence - 0.2) * 0.86 +
+        Math.max(0, context.authority.wirefieldDensityScore - 0.2) * 0.62 +
+        Math.max(0, context.authority.ringAuthority - 0.96) * 0.18,
       0,
-      0.6
+      0.72
     );
     const authorityWashoutSuppression = THREE.MathUtils.clamp(
-      context.authority.overbright * 0.32 +
-        authorityRingSuppression * 0.24 +
-        Math.max(0, context.authority.ringAuthority - 1.04) * 0.16,
+      context.authority.overbright * 0.42 +
+        authorityRingSuppression * 0.32 +
+        Math.max(0, context.authority.ringAuthority - 0.98) * 0.22,
       0,
-      0.46
+      0.58
     );
     const authorityProminence = THREE.MathUtils.clamp(
       authorityWorldLift * 0.42 +
@@ -243,8 +244,8 @@ export class ParticleSystem {
           context.familyWeights.portal * 0.12 +
           context.familyWeights.cathedral * 0.08 +
           context.events.portalOpen * 0.08 -
-          authorityRingSuppression * 0.04 -
-          authorityWashoutSuppression * 0.025 -
+          authorityRingSuppression * 0.06 -
+          authorityWashoutSuppression * 0.04 -
           context.familyWeights.eclipse * 0.05);
       const polar =
         point.phi +
@@ -377,11 +378,14 @@ export class ParticleSystem {
     this.material.opacity +=
       (authorityProminence * 0.028 +
         context.authority.worldDominanceDelivered * 0.018 -
-        authorityRingSuppression * 0.024 -
-        authorityWashoutSuppression * 0.018) *
+        authorityRingSuppression * 0.034 -
+        authorityWashoutSuppression * 0.03) *
       context.qualityProfile.particleOpacityMultiplier;
     this.material.opacity = THREE.MathUtils.clamp(
-      this.material.opacity * (1 - authorityWashoutSuppression * 0.24),
+      this.material.opacity *
+        (1 -
+          authorityWashoutSuppression * 0.36 -
+          authorityRingSuppression * 0.12),
       0,
       0.2 * context.qualityProfile.particleOpacityMultiplier
     );
@@ -390,8 +394,8 @@ export class ParticleSystem {
       context.director.spectacle * 0.028 +
       context.director.worldActivity * 0.012 +
       authorityProminence * 0.016 -
-      authorityRingSuppression * 0.01 -
-      authorityWashoutSuppression * 0.008 +
+      authorityRingSuppression * 0.014 -
+      authorityWashoutSuppression * 0.014 +
       context.atmosphere.gas * 0.01 +
       context.atmosphere.liquid * 0.014 +
       context.atmosphere.plasma * 0.012 +

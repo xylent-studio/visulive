@@ -595,8 +595,8 @@ export class VisualizerEngine {
         atmospherePostProfile.plasma * 0.012 -
         atmospherePostProfile.pressure * 0.018 -
         atmospherePostProfile.structureReveal * 0.01 -
-        authorityOverbrightFeedback * 0.08 -
-        ringOverdrawPressure * 0.025,
+        authorityOverbrightFeedback * 0.13 -
+        ringOverdrawPressure * 0.055,
       exposureFloor + 0.06,
       0.94
     );
@@ -609,10 +609,10 @@ export class VisualizerEngine {
         frame.sectionChange * 0.05 +
         frame.releaseTail * 0.024 -
         frame.ambienceConfidence * 0.04 -
-        additivePressure * (0.05 + washoutSuppression * 0.08) -
-        washoutSuppression * 0.04 -
-        authorityOverbrightFeedback * 0.12 -
-        ringOverdrawPressure * 0.035 +
+        additivePressure * (0.07 + washoutSuppression * 0.11) -
+        washoutSuppression * 0.056 -
+        authorityOverbrightFeedback * 0.18 -
+        ringOverdrawPressure * 0.07 +
         prismaticLift * 0.03 -
         structuralContrast * 0.06 +
         screenExposureBias +
@@ -695,10 +695,18 @@ export class VisualizerEngine {
       0,
       1
     );
+    const dynamicBloomCeiling = THREE.MathUtils.clamp(
+      bloomCeiling -
+        authorityOverbrightFeedback * 0.22 -
+        ringOverdrawPressure * 0.14 -
+        washoutSuppression * 0.08,
+      0.18,
+      bloomCeiling
+    );
     const suppression =
       washoutSuppression * (0.24 + additivePressure * 0.32 + peakSpend * 0.08) +
-      authorityOverbrightFeedback * 0.34 +
-      ringOverdrawPressure * 0.14;
+      authorityOverbrightFeedback * 0.48 +
+      ringOverdrawPressure * 0.22;
     const bloomFamilyLift =
       (screenEffectFamily === 'residue' ? 0.12 : 0) +
       (screenEffectFamily === 'stain' ? 0.16 : 0) +
@@ -716,15 +724,15 @@ export class VisualizerEngine {
         frame.releaseTail * 0.06 +
         sceneTelemetry.temporalWindows.beatStrike * 0.1 +
         sceneTelemetry.temporalWindows.phraseResolve * 0.14 -
-        suppression * 0.72 -
-        authorityOverbrightFeedback * 0.18 -
-        ringOverdrawPressure * 0.08 +
+        suppression * 0.9 -
+        authorityOverbrightFeedback * 0.28 -
+        ringOverdrawPressure * 0.14 +
         prismaticLift * 0.12 -
         structuralContrast * 0.18 +
         bloomFamilyLift * (0.28 + screenEffectIntensity * 0.42) +
         atmospherePostProfile.bloomStrengthBias,
       0.01,
-      bloomCeiling
+      dynamicBloomCeiling
     );
     const radiusTarget = THREE.MathUtils.clamp(
       0.1 +
@@ -737,8 +745,8 @@ export class VisualizerEngine {
         prismaticLift * 0.04 -
         structuralContrast * 0.04 +
         screenEffectIntensity * 0.04 -
-        suppression * 0.06 -
-        ringOverdrawPressure * 0.035 +
+        suppression * 0.09 -
+        ringOverdrawPressure * 0.065 +
         atmospherePostProfile.bloomRadiusBias,
       0.1,
       0.3
@@ -750,9 +758,9 @@ export class VisualizerEngine {
         sceneTelemetry.temporalWindows.phraseResolve * 0.03 +
         sceneTelemetry.ambientGlowBudget * 0.04 +
         frame.ambienceConfidence * 0.04 +
-        suppression * 0.14 +
-        authorityOverbrightFeedback * 0.08 +
-        ringOverdrawPressure * 0.04 +
+        suppression * 0.2 +
+        authorityOverbrightFeedback * 0.12 +
+        ringOverdrawPressure * 0.08 +
         structuralContrast * 0.08 -
         prismaticLift * 0.04 +
         carveBias * 0.08 +
