@@ -238,9 +238,9 @@ export const anthologyCatalog = [
     intendedOwnerLane: 'Consequence / Aftermath / Post',
     runtimeOwnershipStatus: 'owned-system',
     runtimeOwner:
-      'C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts plus C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts plus C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts',
+      'C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts plus C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts plus C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts plus C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts',
     blockingOwner:
-      'Fresh proof has not yet shown that the first signature moments are distinct, rare, and safe-tier viable.',
+      'Fresh proof has not yet shown that the first signature moments and authored playable scenes are distinct, rare, and safe-tier viable.',
     cueRole: 'aftermath-memory',
     quietBehavior: {
       summary:
@@ -265,6 +265,7 @@ export const anthologyCatalog = [
       proofSignals: [
         'major events visibly change the frame',
         'collapse scar, cathedral open, ghost residue, and silence constellation read differently',
+        'playable scene posture remains recognizable across scene transitions',
         'at least one moment is world/post-led with hero visibly demoted'
       ]
     },
@@ -328,11 +329,11 @@ export const anthologyCatalog = [
       }
     ],
     nextTarget:
-      'Proof-tune collapse scar, cathedral open, ghost residue, and silence constellation before adding more post families.',
+      'Proof-tune the 5 playable scenes x 4 signature moments matrix before adding more post families.',
     nextDependency:
-      'Fresh primary benchmark proof with signature moment coverage, overbright/ring impact, aftermath clearance, and moment distinctness reported.',
+      'Fresh primary benchmark proof with signature moment coverage, playable scene spread, scene-motif match, overbright/ring impact, aftermath clearance, and moment distinctness reported.',
     blockingDependency:
-      'The first post owner exists, but the moments are not yet proven by fresh capture evidence.',
+      'The first post and playable scene owners exist, but the moments and scenes are not yet proven by fresh capture evidence.',
     graduationTarget: {
       from: 'frontier',
       to: 'flagship',
@@ -340,11 +341,11 @@ export const anthologyCatalog = [
         'Promote only when consequence and aftermath stay selective, legible, and proof-backed in untouched runs.'
     },
     proofStatus:
-      'Signature moment telemetry, style spread, compositor, and perceptual analyzer coverage exist, but no fresh proof run has validated the four 3-style moments yet.',
+      'Signature moment telemetry, style spread, playable scene telemetry, compositor, and perceptual analyzer coverage exist, but no fresh proof run has validated the 5 scene x 4 moment matrix yet.',
     lastMeaningfulPass:
-      '2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded CompositorSystem, renderer post-profile inputs, and perceptual washout telemetry',
+      '2026-04-29 Authored Playable Motif System vertical slice with five scene postures, runtime sequencing, compositor influence, and analyzer coherence flags',
     currentBiggestFailureMode:
-      'Moments could still collapse into generic treatment, washout, ring overdraw, or permanent residue until proof-tuned.'
+      'Scenes and moments could still collapse into generic treatment, washout, ring overdraw, or permanent residue until proof-tuned.'
   },
   {
     id: 'lighting-cinematography',
@@ -573,7 +574,7 @@ export const anthologyCatalog = [
     intendedOwnerLane: 'Mixed Media / Compositor / Content',
     runtimeOwnershipStatus: 'partial-system',
     runtimeOwner:
-      'C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts owns the bounded signature-moment screen-space/post-profile slice; future content systems remain unbuilt.',
+      'C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts owns the bounded signature-moment and playable-scene screen-space/post-profile slice; future content systems remain unbuilt.',
     blockingOwner:
       'The first compositor owner exists, but mixed-media content packs, legality metadata, and reusable asset-backed families do not exist yet.',
     cueRole: 'aftermath-memory',
@@ -654,9 +655,9 @@ export const anthologyCatalog = [
       }
     ],
     nextTarget:
-      'Prove the bounded CompositorSystem signature slice before adding any asset-backed mask or mixed-media family.',
+      'Prove the bounded CompositorSystem signature and playable-scene slice before adding any asset-backed mask or mixed-media family.',
     nextDependency:
-      'Moment Lab receipts and fresh proof must show compositor masks, cuts, bands, and post-profile changes improve signature moments without collage or washout.',
+      'Moment Lab receipts and fresh proof must show compositor masks, cuts, bands, and post-profile changes improve signature moments and playable scenes without collage or washout.',
     blockingDependency:
       'There is still no runtime owner for reusable mixed-media content packs, asset legality metadata, or broader compositor language outside signature moments.',
     graduationTarget: {
@@ -666,9 +667,9 @@ export const anthologyCatalog = [
         'Promote only when the first compositor-backed family proves consequence or memory value without collage failure.'
     },
     proofStatus:
-      'A bounded runtime compositor slice now exists for signature moments, but no asset-backed mixed-media family has graduated.',
+      'A bounded runtime compositor slice now exists for signature moments and playable scene postures, but no asset-backed mixed-media family has graduated.',
     lastMeaningfulPass:
-      '2026-04-29 bounded CompositorSystem slice for signature moments',
+      '2026-04-29 bounded CompositorSystem slice for signature moments and playable scenes',
     currentBiggestFailureMode:
       'The family is at risk of becoming collage novelty if asset-backed work starts before the bounded compositor slice is proven tasteful and useful.'
   },

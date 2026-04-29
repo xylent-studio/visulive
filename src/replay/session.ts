@@ -45,6 +45,8 @@ import {
   type PaletteTransitionReason,
   type PerformanceRegime,
   type PhraseConfidence,
+  type PlayableMotifSceneKind,
+  type PlayableMotifSceneTransitionReason,
   type PostSpendIntent,
   type SectionIntent,
   type ResolvedSignatureMomentStyle,
@@ -695,6 +697,24 @@ const SIGNATURE_MOMENT_STYLE_KEYS: ResolvedSignatureMomentStyle[] = [
   'contrast-mythic',
   'maximal-neon',
   'ambient-premium'
+];
+const PLAYABLE_MOTIF_SCENE_KEYS: PlayableMotifSceneKind[] = [
+  'none',
+  'neon-cathedral',
+  'machine-tunnel',
+  'void-pressure',
+  'ghost-constellation',
+  'collapse-scar'
+];
+const PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS: PlayableMotifSceneTransitionReason[] = [
+  'hold',
+  'motif-change',
+  'section-turn',
+  'drop-rupture',
+  'release-residue',
+  'signature-moment',
+  'authority-shift',
+  'quiet-state'
 ];
 
 type AxisTracker = {
@@ -1737,6 +1757,9 @@ function summarizeVisualTelemetry(
   const heroFormReasonCounts = new Map<HeroFormSwitchReason, number>();
   const paletteTransitionReasonCounts = new Map<PaletteTransitionReason, number>();
   const paletteBaseStateCounts = new Map<PaletteState, number>();
+  const playableMotifSceneCounts = new Map<PlayableMotifSceneKind, number>();
+  const playableMotifSceneTransitionReasonCounts =
+    new Map<PlayableMotifSceneTransitionReason, number>();
   const stageWorldModeCounts = new Map<StageWorldMode, number>();
   const atmosphereMatterStateCounts = new Map<AtmosphereMatterState, number>();
   const paletteByActCounts = new Map<ShowAct, Map<PaletteState, number>>();
@@ -1876,6 +1899,15 @@ function summarizeVisualTelemetry(
   let heroWorldHueDivergenceSamples = 0;
   let unearnedChangeRiskSum = 0;
   let unearnedChangeRiskSamples = 0;
+  let playableMotifSceneMotifMatchFrames = 0;
+  let playableMotifSceneMotifMatchSamples = 0;
+  let playableMotifScenePaletteMatchFrames = 0;
+  let playableMotifScenePaletteMatchSamples = 0;
+  let playableMotifSceneDistinctnessSum = 0;
+  let playableMotifSceneDistinctnessSamples = 0;
+  let playableMotifSceneSilhouetteConfidenceSum = 0;
+  let playableMotifSceneSilhouetteConfidenceSamples = 0;
+  let heroFormSwitchCountMin = Number.POSITIVE_INFINITY;
   let heroFormSwitchCountPeak = 0;
   let qualityTransitionCount = 0;
   let firstQualityDowngradeMs: number | undefined;
@@ -2125,7 +2157,54 @@ function summarizeVisualTelemetry(
       unearnedChangeRiskSum += telemetry.unearnedChangeRisk;
     }
     if (typeof telemetry.heroFormSwitchCount === 'number') {
+      heroFormSwitchCountMin = Math.min(
+        heroFormSwitchCountMin,
+        telemetry.heroFormSwitchCount
+      );
       heroFormSwitchCountPeak = Math.max(heroFormSwitchCountPeak, telemetry.heroFormSwitchCount);
+    }
+    const activePlayableMotifScene =
+      telemetry.activePlayableMotifScene &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.activePlayableMotifScene)
+        ? telemetry.activePlayableMotifScene
+        : DEFAULT_VISUAL_TELEMETRY.activePlayableMotifScene ?? 'none';
+    playableMotifSceneCounts.set(
+      activePlayableMotifScene,
+      (playableMotifSceneCounts.get(activePlayableMotifScene) ?? 0) + 1
+    );
+    const playableMotifSceneTransitionReason =
+      telemetry.playableMotifSceneTransitionReason &&
+      PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.includes(
+        telemetry.playableMotifSceneTransitionReason
+      )
+        ? telemetry.playableMotifSceneTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneTransitionReason ?? 'hold';
+    playableMotifSceneTransitionReasonCounts.set(
+      playableMotifSceneTransitionReason,
+      (playableMotifSceneTransitionReasonCounts.get(
+        playableMotifSceneTransitionReason
+      ) ?? 0) + 1
+    );
+    if (typeof telemetry.playableMotifSceneMotifMatch === 'boolean') {
+      playableMotifSceneMotifMatchSamples += 1;
+      if (telemetry.playableMotifSceneMotifMatch) {
+        playableMotifSceneMotifMatchFrames += 1;
+      }
+    }
+    if (typeof telemetry.playableMotifScenePaletteMatch === 'boolean') {
+      playableMotifScenePaletteMatchSamples += 1;
+      if (telemetry.playableMotifScenePaletteMatch) {
+        playableMotifScenePaletteMatchFrames += 1;
+      }
+    }
+    if (typeof telemetry.playableMotifSceneDistinctness === 'number') {
+      playableMotifSceneDistinctnessSamples += 1;
+      playableMotifSceneDistinctnessSum += telemetry.playableMotifSceneDistinctness;
+    }
+    if (typeof telemetry.playableMotifSceneSilhouetteConfidence === 'number') {
+      playableMotifSceneSilhouetteConfidenceSamples += 1;
+      playableMotifSceneSilhouetteConfidenceSum +=
+        telemetry.playableMotifSceneSilhouetteConfidence;
     }
     incrementNestedCounter(
       paletteByFamilyCounts,
@@ -2521,6 +2600,14 @@ function summarizeVisualTelemetry(
   const dominantStageWorldMode =
     [...stageWorldModeCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
     'hold';
+  const dominantPlayableMotifScene =
+    [...playableMotifSceneCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const dominantPlayableMotifSceneTransitionReason =
+    [...playableMotifSceneTransitionReasonCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'hold';
   const dominantSpendProfile =
     [...spendProfileCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
     undefined;
@@ -2674,6 +2761,18 @@ function summarizeVisualTelemetry(
   const visualMotifSpread = Object.fromEntries(
     VISUAL_MOTIF_KEYS.map((key) => [key, (visualMotifCounts.get(key) ?? 0) / frames.length])
   ) as VisualTelemetrySummary['visualMotifSpread'];
+  const playableMotifSceneSpread = Object.fromEntries(
+    PLAYABLE_MOTIF_SCENE_KEYS.map((key) => [
+      key,
+      (playableMotifSceneCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneSpread'];
+  const playableMotifSceneTransitionReasonSpread = Object.fromEntries(
+    PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.map((key) => [
+      key,
+      (playableMotifSceneTransitionReasonCounts.get(key) ?? 0) / frames.length
+    ])
+  ) as VisualTelemetrySummary['playableMotifSceneTransitionReasonSpread'];
   const heroRoleSpread = Object.fromEntries(
     HERO_ROLE_KEYS.map((key) => [key, (heroRoleCounts.get(key) ?? 0) / frames.length])
   ) as VisualTelemetrySummary['heroRoleSpread'];
@@ -2778,6 +2877,10 @@ function summarizeVisualTelemetry(
   const stageWorldModeLongestRunMs = longestRunDurationMs(
     frames,
     (frame) => frame.visualTelemetry?.stageWorldMode
+  );
+  const playableMotifSceneLongestRunMs = longestRunDurationMs(
+    frames,
+    (frame) => frame.visualTelemetry?.activePlayableMotifScene
   );
 
   return {
@@ -2934,6 +3037,28 @@ function summarizeVisualTelemetry(
         : 'hold',
     visualMotifSpread,
     dominantVisualMotif,
+    playableMotifSceneSpread,
+    dominantPlayableMotifScene,
+    playableMotifSceneTransitionReasonSpread,
+    dominantPlayableMotifSceneTransitionReason,
+    playableMotifSceneLongestRunMs,
+    playableMotifSceneMotifMatchRate:
+      playableMotifSceneMotifMatchSamples > 0
+        ? playableMotifSceneMotifMatchFrames / playableMotifSceneMotifMatchSamples
+        : undefined,
+    playableMotifScenePaletteMatchRate:
+      playableMotifScenePaletteMatchSamples > 0
+        ? playableMotifScenePaletteMatchFrames / playableMotifScenePaletteMatchSamples
+        : undefined,
+    playableMotifSceneDistinctnessMean:
+      playableMotifSceneDistinctnessSamples > 0
+        ? playableMotifSceneDistinctnessSum / playableMotifSceneDistinctnessSamples
+        : undefined,
+    playableMotifSceneSilhouetteConfidenceMean:
+      playableMotifSceneSilhouetteConfidenceSamples > 0
+        ? playableMotifSceneSilhouetteConfidenceSum /
+          playableMotifSceneSilhouetteConfidenceSamples
+        : undefined,
     heroRoleSpread,
     dominantHeroRole,
     heroFormSpread,
@@ -2948,7 +3073,11 @@ function summarizeVisualTelemetry(
     heroFormLongestRunMs,
     heroFormSwitchesPerMinute:
       frames.length > 0
-        ? heroFormSwitchCountPeak /
+        ? Math.max(
+            0,
+            heroFormSwitchCountPeak -
+              (Number.isFinite(heroFormSwitchCountMin) ? heroFormSwitchCountMin : 0)
+          ) /
           Math.max(
             0.016,
             ((frames[frames.length - 1]?.timestampMs ?? 0) - (frames[0]?.timestampMs ?? 0)) /
@@ -3380,6 +3509,21 @@ function deriveCaptureQualityFlags(input: {
     (input.visualSummary.heroFormLongestRunMs ?? 0) < 1800
   ) {
     flags.add('ambiguousHeroSilhouette');
+  }
+
+  if (
+    (input.visualSummary.playableMotifSceneLongestRunMs ?? 0) > 0 &&
+    (input.visualSummary.playableMotifSceneLongestRunMs ?? 0) < 4200
+  ) {
+    flags.add('sceneChurn');
+  }
+
+  if ((input.visualSummary.playableMotifSceneMotifMatchRate ?? 1) < 0.72) {
+    flags.add('sceneMotifMismatch');
+  }
+
+  if ((input.visualSummary.playableMotifSceneSilhouetteConfidenceMean ?? 1) < 0.46) {
+    flags.add('sameySceneSilhouette');
   }
 
   return [...flags];
@@ -4692,6 +4836,42 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       typeof telemetry?.perceptualWashoutRisk === 'number'
         ? telemetry.perceptualWashoutRisk
         : DEFAULT_VISUAL_TELEMETRY.perceptualWashoutRisk,
+    activePlayableMotifScene:
+      telemetry?.activePlayableMotifScene &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(telemetry.activePlayableMotifScene)
+        ? telemetry.activePlayableMotifScene
+        : DEFAULT_VISUAL_TELEMETRY.activePlayableMotifScene,
+    playableMotifSceneAgeSeconds:
+      typeof telemetry?.playableMotifSceneAgeSeconds === 'number'
+        ? telemetry.playableMotifSceneAgeSeconds
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneAgeSeconds,
+    playableMotifSceneTransitionReason:
+      telemetry?.playableMotifSceneTransitionReason &&
+      PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.includes(
+        telemetry.playableMotifSceneTransitionReason
+      )
+        ? telemetry.playableMotifSceneTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneTransitionReason,
+    playableMotifSceneIntensity:
+      typeof telemetry?.playableMotifSceneIntensity === 'number'
+        ? telemetry.playableMotifSceneIntensity
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneIntensity,
+    playableMotifSceneMotifMatch:
+      typeof telemetry?.playableMotifSceneMotifMatch === 'boolean'
+        ? telemetry.playableMotifSceneMotifMatch
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneMotifMatch,
+    playableMotifScenePaletteMatch:
+      typeof telemetry?.playableMotifScenePaletteMatch === 'boolean'
+        ? telemetry.playableMotifScenePaletteMatch
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifScenePaletteMatch,
+    playableMotifSceneDistinctness:
+      typeof telemetry?.playableMotifSceneDistinctness === 'number'
+        ? telemetry.playableMotifSceneDistinctness
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneDistinctness,
+    playableMotifSceneSilhouetteConfidence:
+      typeof telemetry?.playableMotifSceneSilhouetteConfidence === 'number'
+        ? telemetry.playableMotifSceneSilhouetteConfidence
+        : DEFAULT_VISUAL_TELEMETRY.playableMotifSceneSilhouetteConfidence,
     atmosphereMatterState:
       telemetry?.atmosphereMatterState === 'gas' ||
       telemetry?.atmosphereMatterState === 'liquid' ||
@@ -5321,6 +5501,46 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       summary.dominantSectionIntent === 'recovery'
         ? summary.dominantSectionIntent
         : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSectionIntent,
+    playableMotifSceneSpread: normalizeFixedNumberRecord(
+      PLAYABLE_MOTIF_SCENE_KEYS,
+      summary.playableMotifSceneSpread
+    ),
+    dominantPlayableMotifScene:
+      summary.dominantPlayableMotifScene &&
+      PLAYABLE_MOTIF_SCENE_KEYS.includes(summary.dominantPlayableMotifScene)
+        ? summary.dominantPlayableMotifScene
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifScene,
+    playableMotifSceneTransitionReasonSpread: normalizeFixedNumberRecord(
+      PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS,
+      summary.playableMotifSceneTransitionReasonSpread
+    ),
+    dominantPlayableMotifSceneTransitionReason:
+      summary.dominantPlayableMotifSceneTransitionReason &&
+      PLAYABLE_MOTIF_SCENE_TRANSITION_REASON_KEYS.includes(
+        summary.dominantPlayableMotifSceneTransitionReason
+      )
+        ? summary.dominantPlayableMotifSceneTransitionReason
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantPlayableMotifSceneTransitionReason,
+    playableMotifSceneLongestRunMs:
+      typeof summary.playableMotifSceneLongestRunMs === 'number'
+        ? summary.playableMotifSceneLongestRunMs
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneLongestRunMs,
+    playableMotifSceneMotifMatchRate:
+      typeof summary.playableMotifSceneMotifMatchRate === 'number'
+        ? summary.playableMotifSceneMotifMatchRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneMotifMatchRate,
+    playableMotifScenePaletteMatchRate:
+      typeof summary.playableMotifScenePaletteMatchRate === 'number'
+        ? summary.playableMotifScenePaletteMatchRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifScenePaletteMatchRate,
+    playableMotifSceneDistinctnessMean:
+      typeof summary.playableMotifSceneDistinctnessMean === 'number'
+        ? summary.playableMotifSceneDistinctnessMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneDistinctnessMean,
+    playableMotifSceneSilhouetteConfidenceMean:
+      typeof summary.playableMotifSceneSilhouetteConfidenceMean === 'number'
+        ? summary.playableMotifSceneSilhouetteConfidenceMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.playableMotifSceneSilhouetteConfidenceMean,
     stageWorldModeSpread: {
       hold:
         typeof summary.stageWorldModeSpread?.hold === 'number'

@@ -270,6 +270,24 @@ export type VisualMotifSnapshot = {
   heroFormReason: HeroFormSwitchReason;
 };
 
+export type PlayableMotifSceneKind =
+  | 'none'
+  | 'neon-cathedral'
+  | 'machine-tunnel'
+  | 'void-pressure'
+  | 'ghost-constellation'
+  | 'collapse-scar';
+
+export type PlayableMotifSceneTransitionReason =
+  | 'hold'
+  | 'motif-change'
+  | 'section-turn'
+  | 'drop-rupture'
+  | 'release-residue'
+  | 'signature-moment'
+  | 'authority-shift'
+  | 'quiet-state';
+
 export type StageScreenEffectFamily =
   | 'none'
   | 'residue'
@@ -727,6 +745,14 @@ export type VisualTelemetryFrame = {
   perceptualContrastScore?: number;
   perceptualColorfulnessScore?: number;
   perceptualWashoutRisk?: number;
+  activePlayableMotifScene?: PlayableMotifSceneKind;
+  playableMotifSceneAgeSeconds?: number;
+  playableMotifSceneTransitionReason?: PlayableMotifSceneTransitionReason;
+  playableMotifSceneIntensity?: number;
+  playableMotifSceneMotifMatch?: boolean;
+  playableMotifScenePaletteMatch?: boolean;
+  playableMotifSceneDistinctness?: number;
+  playableMotifSceneSilhouetteConfidence?: number;
   atmosphereMatterState: AtmosphereMatterState;
   atmosphereGas: number;
   atmosphereLiquid: number;
@@ -816,6 +842,18 @@ export type VisualTelemetrySummary = {
   dominantSectionIntent?: SectionIntent;
   visualMotifSpread?: Record<VisualMotifKind, number>;
   dominantVisualMotif?: VisualMotifKind;
+  playableMotifSceneSpread?: Record<PlayableMotifSceneKind, number>;
+  dominantPlayableMotifScene?: PlayableMotifSceneKind;
+  playableMotifSceneTransitionReasonSpread?: Record<
+    PlayableMotifSceneTransitionReason,
+    number
+  >;
+  dominantPlayableMotifSceneTransitionReason?: PlayableMotifSceneTransitionReason;
+  playableMotifSceneLongestRunMs?: number;
+  playableMotifSceneMotifMatchRate?: number;
+  playableMotifScenePaletteMatchRate?: number;
+  playableMotifSceneDistinctnessMean?: number;
+  playableMotifSceneSilhouetteConfidenceMean?: number;
   heroRoleSpread?: Record<HeroSemanticRole, number>;
   dominantHeroRole?: HeroSemanticRole;
   heroFormSpread?: Record<StageHeroForm, number>;
@@ -962,6 +1000,9 @@ export type CaptureQualityFlag =
   | 'unearnedHeroFormSwitch'
   | 'heroWorldHueDivergence'
   | 'ambiguousHeroSilhouette'
+  | 'sceneChurn'
+  | 'sceneMotifMismatch'
+  | 'sameySceneSilhouette'
   | 'missedOpportunity';
 
 export const DEFAULT_VISUAL_TEMPORAL_WINDOWS: VisualTemporalWindows = {
@@ -1346,6 +1387,14 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   perceptualContrastScore: 0.62,
   perceptualColorfulnessScore: 0.52,
   perceptualWashoutRisk: 0,
+  activePlayableMotifScene: 'none',
+  playableMotifSceneAgeSeconds: 0,
+  playableMotifSceneTransitionReason: 'hold',
+  playableMotifSceneIntensity: 0,
+  playableMotifSceneMotifMatch: true,
+  playableMotifScenePaletteMatch: true,
+  playableMotifSceneDistinctness: 0,
+  playableMotifSceneSilhouetteConfidence: 0,
   atmosphereMatterState: 'gas',
   atmosphereGas: 1,
   atmosphereLiquid: 0,
@@ -1603,6 +1652,31 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
     'world-takeover': 0
   },
   dominantVisualMotif: 'void-anchor',
+  playableMotifSceneSpread: {
+    none: 0,
+    'neon-cathedral': 0,
+    'machine-tunnel': 0,
+    'void-pressure': 0,
+    'ghost-constellation': 0,
+    'collapse-scar': 0
+  },
+  dominantPlayableMotifScene: 'none',
+  playableMotifSceneTransitionReasonSpread: {
+    hold: 0,
+    'motif-change': 0,
+    'section-turn': 0,
+    'drop-rupture': 0,
+    'release-residue': 0,
+    'signature-moment': 0,
+    'authority-shift': 0,
+    'quiet-state': 0
+  },
+  dominantPlayableMotifSceneTransitionReason: 'hold',
+  playableMotifSceneLongestRunMs: 0,
+  playableMotifSceneMotifMatchRate: 1,
+  playableMotifScenePaletteMatchRate: 1,
+  playableMotifSceneDistinctnessMean: 0,
+  playableMotifSceneSilhouetteConfidenceMean: 0,
   heroRoleSpread: {
     dominant: 0,
     supporting: 0,

@@ -799,7 +799,65 @@ describe('capture analysis', () => {
     expect(summary.qualityFlags).toContain('unearnedHeroFormSwitch');
     expect(summary.qualityFlags).toContain('heroWorldHueDivergence');
     expect(summary.visualSummary?.plannedActiveHeroFormMatchRate).toBe(0);
-    expect(summary.visualSummary?.heroFormSwitchesPerMinute).toBeGreaterThan(0);
+    expect(summary.visualSummary?.heroFormSwitchesPerMinute).toBeCloseTo(20, 3);
+  });
+
+  it('reports playable motif scene coherence separately from signature moments', () => {
+    const summary = summarizeCapture(
+      {
+        metadata: {
+          label: 'scene-coherence',
+          captureMode: 'auto',
+          triggerKind: 'signature-moment-peak',
+          triggerReason: 'scene mismatch',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'balanced',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'neon-cathedral',
+              playableMotifSceneTransitionReason: 'signature-moment',
+              playableMotifSceneMotifMatch: false,
+              playableMotifScenePaletteMatch: true,
+              playableMotifSceneDistinctness: 0.84,
+              playableMotifSceneSilhouetteConfidence: 0.38,
+              visualMotif: 'rupture-scar',
+              activeSignatureMoment: 'cathedral-open',
+              signatureMomentStyle: 'maximal-neon'
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 3000,
+            visualTelemetry: {
+              activePlayableMotifScene: 'collapse-scar',
+              playableMotifSceneTransitionReason: 'drop-rupture',
+              playableMotifSceneMotifMatch: true,
+              playableMotifScenePaletteMatch: true,
+              playableMotifSceneDistinctness: 0.9,
+              playableMotifSceneSilhouetteConfidence: 0.52,
+              visualMotif: 'rupture-scar',
+              activeSignatureMoment: 'collapse-scar',
+              signatureMomentStyle: 'contrast-mythic'
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/scene-coherence.json'
+    );
+
+    expect(summary.visualSummary?.dominantPlayableMotifScene).toBe('neon-cathedral');
+    expect(summary.visualSummary?.playableMotifSceneMotifMatchRate).toBe(0.5);
+    expect(summary.visualSummary?.playableMotifSceneLongestRunMs).toBe(0);
+    expect(summary.qualityFlags).toContain('sceneMotifMismatch');
+    expect(summary.qualityFlags).toContain('sameySceneSilhouette');
   });
 
   it('classifies precharged timing separately and excludes it from lag averages', () => {

@@ -135,6 +135,37 @@ function heroRoleForMotif(
   return 'supporting';
 }
 
+function heroFormForMotif(
+  motif: VisualMotifKind,
+  plan: Pick<StageCuePlan, 'worldMode' | 'dominance' | 'family' | 'eventDensity'>
+): StageCuePlan['heroForm'] {
+  switch (motif) {
+    case 'machine-grid':
+      return 'cube';
+    case 'neon-portal':
+      return plan.worldMode === 'cathedral-rise' ? 'pyramid' : 'prism';
+    case 'rupture-scar':
+      return 'shard';
+    case 'ghost-residue':
+      return 'diamond';
+    case 'silence-constellation':
+      return (plan.family === 'haunt' || plan.worldMode === 'ghost-chamber') &&
+        plan.eventDensity < 0.24
+        ? 'mushroom'
+        : 'diamond';
+    case 'acoustic-transient':
+      return 'shard';
+    case 'world-takeover':
+      return plan.worldMode === 'cathedral-rise'
+        ? 'pyramid'
+        : plan.dominance === 'world'
+          ? 'orb'
+          : 'cube';
+    default:
+      return 'orb';
+  }
+}
+
 function heroFormReasonForMotif(
   motif: VisualMotifKind,
   plan: Pick<StageCuePlan, 'family' | 'dominance'>
@@ -156,6 +187,28 @@ function heroFormReasonForMotif(
         ? 'cue-family'
         : 'hold';
   }
+}
+
+function heroFormHoldSecondsForMotif(
+  motif: VisualMotifKind,
+  plan: Pick<StageCuePlan, 'worldMode' | 'family' | 'eventDensity'>
+): number {
+  const base =
+    motif === 'rupture-scar' || motif === 'acoustic-transient'
+      ? 5.8
+      : motif === 'neon-portal'
+        ? plan.worldMode === 'cathedral-rise'
+          ? 9.2
+          : 7.4
+        : motif === 'ghost-residue' || motif === 'silence-constellation'
+          ? 9.6
+          : motif === 'world-takeover'
+            ? 8.4
+            : motif === 'machine-grid'
+              ? 7.6
+              : 8.8;
+
+  return Math.max(5.6, base - (plan.eventDensity > 0.62 ? 0.8 : 0));
 }
 
 function normalizePaletteTargets(
@@ -2126,6 +2179,29 @@ export function deriveStageCuePlan(input: {
       targetPlan.paletteTargetDominance = paletteFrame.targetDominance;
       targetPlan.paletteTargetSpread = paletteFrame.targetSpread;
       targetPlan.heroRole = targetPlan.heroRole ?? heroRoleForMotif(visualMotif, targetPlan);
+      const semanticHeroForm = heroFormForMotif(visualMotif, targetPlan);
+      const priorHeroForm = targetPlan.heroForm;
+      targetPlan.heroForm = semanticHeroForm;
+      if (targetPlan.heroAccentForm === semanticHeroForm) {
+        targetPlan.heroAccentForm =
+          priorHeroForm !== semanticHeroForm
+            ? priorHeroForm
+            : semanticHeroForm === 'prism'
+              ? 'cube'
+              : semanticHeroForm === 'pyramid'
+                ? 'prism'
+                : semanticHeroForm === 'shard'
+                  ? 'pyramid'
+                  : semanticHeroForm === 'diamond'
+                    ? 'orb'
+                    : semanticHeroForm === 'mushroom'
+                      ? 'diamond'
+                      : 'prism';
+      }
+      targetPlan.heroFormHoldSeconds = Math.max(
+        targetPlan.heroFormHoldSeconds,
+        heroFormHoldSecondsForMotif(visualMotif, targetPlan)
+      );
       targetPlan.heroFormReason =
         targetPlan.heroFormReason ?? heroFormReasonForMotif(visualMotif, targetPlan);
 

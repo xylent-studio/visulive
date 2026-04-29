@@ -39,11 +39,12 @@ Read first:
 - the latest full primary signature run `run_20260429_004346_zsvdmx` is valid, no-touch, finalized, and artifact-integrity clean; it was archived after review as development evidence, not promoted to current-canonical proof
 - that run confirms strong chamber/world authority, low hero monopoly, natural signature moment firing, and low perceptual washout; the old high `overbright` read should be treated as legacy glow-spend telemetry unless perceptual washout/colorfulness also fail
 - strict proof remains blocked by incomplete scenario coverage, no current-canonical benchmark promotion, and missed-opportunity cleanup; the active inbox should be empty before the next proof pass
-- the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, and `updateCompositorSystem`
+- the Mythic Signature Moment Engine is now a fuller capability slice: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments with style routing and candidate precharge, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns style-matrix consequence rendering and telemetry, [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) turns moments and motifs into authored playable scenes, [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment`, `updatePostSystem`, `updatePlayableMotifSystem`, and `updateCompositorSystem`
 - the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; each now has contrast-mythic, maximal-neon, and ambient-premium postures plus a neon-portal hardening pass: risk-based safe-neon preservation, stronger thumbnail silhouettes, explicit decision traces, signature-aware ring decay, and kind-aware evidence coverage; they are still unproven until Moment Lab preview plus fresh capture review
 - color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
+- the Authored Playable Motif System vertical slice is now installed: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, and samey scene silhouettes
 
-This means the next agent should return to proof validation and signature-moment tuning, not release cleanup or another capability expansion.
+This means the next agent should return to proof validation and playable-scene/signature-moment tuning, not release cleanup or another capability expansion.
 
 ## Immediate Next Development Target
 
@@ -56,7 +57,7 @@ The highest-leverage move is:
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
 - use the archived `run_20260429_004346_zsvdmx` findings as diagnostic context only; the current code already targets its main gaps: legacy glow-spend language, ring persistence, governance-risk evidence coverage, safe-neon preservation, and natural style diversity
-- prove the authority split plus the first 4x3 signature moment matrix with Moment Lab preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
+- prove the authority split plus the first 5 scene x 4 signature moment matrix with Moment Lab/contact-sheet preview, live sanity, and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
 
@@ -64,6 +65,7 @@ The highest-leverage move is:
    - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts)
    - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts)
    - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
+   - [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts)
    - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts)
    - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts)
    - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts)
@@ -79,7 +81,7 @@ The highest-leverage move is:
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
    - analyzer review
    - proof-pack review
-   - require the analyzer to report signature moment coverage, style spread, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
+   - require the analyzer to report signature moment coverage, style spread, playable scene spread, scene-motif match, scene-palette match, scene silhouette confidence, legacy glow-spend versus perceptual washout/colorfulness, ring impact, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:refresh` for benchmark/analyzer/proof-pack refresh plus evidence indexing; `npm run proof:current` remains report refresh without indexing
 4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
@@ -139,4 +141,4 @@ If the pass touches release/evidence plumbing, also run:
 
 ## If You Need One Sentence
 
-Start from the now-owned signature moment capability slice: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `SignatureMomentGovernor -> World/Chamber/Hero -> AuthorityGovernor -> Stage -> PostSystem -> CompositorSystem` boundaries, and prove the four 3-style moments before adding more spectacle.
+Start from the now-owned playable scene plus signature moment capability slice: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `SignatureMomentGovernor -> World/Chamber/Hero -> AuthorityGovernor -> Stage -> PostSystem -> PlayableMotifSystem -> CompositorSystem` boundaries, and prove the five scenes plus four signature moments across styles before adding more spectacle.

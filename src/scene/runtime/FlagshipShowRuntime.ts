@@ -89,6 +89,7 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
     this.sceneRuntime.resolveAuthorityFrame();
     this.stageRuntimeRig.runStageFrame(stageIdleContext, preparedFrame.beatDrive);
     this.sceneRuntime.updatePostSystem(elapsedSeconds, deltaSeconds);
+    this.sceneRuntime.updatePlayableMotifSystem(elapsedSeconds, deltaSeconds);
     this.sceneRuntime.updateCompositorSystem(elapsedSeconds, deltaSeconds);
     this.sceneRuntime.finalizeFrame();
   }

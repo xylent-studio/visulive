@@ -40,6 +40,8 @@ function collectRunMetrics(summaries = []) {
   const heroFormSwitches = [];
   const plannedHeroFormMatches = [];
   const heroWorldHueDivergence = [];
+  const playableSceneMotifMatches = [];
+  const playableSceneSilhouettes = [];
   const cueClasses = [];
   const families = [];
   const quietCaptures = [];
@@ -99,6 +101,14 @@ function collectRunMetrics(summaries = []) {
       heroWorldHueDivergence.push(visual.heroWorldHueDivergenceMean);
     }
 
+    if (typeof visual.playableMotifSceneMotifMatchRate === 'number') {
+      playableSceneMotifMatches.push(visual.playableMotifSceneMotifMatchRate);
+    }
+
+    if (typeof visual.playableMotifSceneSilhouetteConfidenceMean === 'number') {
+      playableSceneSilhouettes.push(visual.playableMotifSceneSilhouetteConfidenceMean);
+    }
+
     if (typeof visual.dominantCanonicalCueClass === 'string') {
       cueClasses.push(visual.dominantCanonicalCueClass);
     } else if (typeof visual.dominantStageCueFamily === 'string') {
@@ -147,6 +157,8 @@ function collectRunMetrics(summaries = []) {
     averageHeroFormSwitchesPerMinute: average(heroFormSwitches),
     averagePlannedHeroFormMatchRate: average(plannedHeroFormMatches),
     averageHeroWorldHueDivergence: average(heroWorldHueDivergence),
+    averagePlayableSceneMotifMatchRate: average(playableSceneMotifMatches),
+    averagePlayableSceneSilhouetteConfidence: average(playableSceneSilhouettes),
     cueClassCount: uniqueCount(cueClasses),
     familyCount: uniqueCount(families),
     quietCaptureCount: quietCaptures.length,
@@ -535,6 +547,41 @@ export function buildRunRecommendationArtifact({
         ],
         recommendedNextProofScenario: 'coverage',
         confidence: 0.76
+      })
+    );
+  }
+
+  if (
+    metrics.flagCounts.get('sceneMotifMismatch') ||
+    metrics.flagCounts.get('sameySceneSilhouette') ||
+    metrics.flagCounts.get('sceneChurn') ||
+    metrics.averagePlayableSceneMotifMatchRate < 0.72 ||
+    metrics.averagePlayableSceneSilhouetteConfidence < 0.46
+  ) {
+    recommendations.push(
+      buildRecommendation({
+        runId,
+        clipFiles,
+        stillFiles,
+        issueId: 'playable-motif-scene-coherence',
+        severity:
+          metrics.averagePlayableSceneMotifMatchRate < 0.58 ||
+          metrics.averagePlayableSceneSilhouetteConfidence < 0.36
+            ? 'high'
+            : 'medium',
+        title: 'Playable motif scenes are not reading as stable authored scenes',
+        ownerLane: 'show-direction-cue-logic',
+        subsystem: 'PlayableMotifSystem scene routing + silhouette posture',
+        suspectedCause:
+          'Scene routing, palette base, or signature moment posture is drifting away from the locked motif instead of holding an authored scene long enough to read.',
+        impactedGates: ['taste', 'coverage'],
+        targetMetrics: [
+          'playableMotifSceneMotifMatchRate >= 0.78',
+          'playableMotifSceneSilhouetteConfidenceMean >= 0.55',
+          'playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes'
+        ],
+        recommendedNextProofScenario: 'primary-benchmark',
+        confidence: 0.78
       })
     );
   }

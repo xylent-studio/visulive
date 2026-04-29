@@ -102,6 +102,11 @@ import {
   type CompositorSystemUpdateContext
 } from './systems/compositor/CompositorSystem';
 import {
+  PlayableMotifSystem,
+  type PlayableMotifSystemTelemetry,
+  type PlayableMotifSystemUpdateContext
+} from './systems/motif/PlayableMotifSystem';
+import {
   MacroEventDirector,
   type MacroEventKind
 } from './governors/MacroEventDirector';
@@ -173,6 +178,7 @@ type CollectedFrameTelemetry = {
   lightingIntensities: LightingSystemIntensities;
   particleOpacity: number;
   postTelemetry: PostSystemTelemetry;
+  playableMotifTelemetry: PlayableMotifSystemTelemetry;
   compositorTelemetry: CompositorSystemTelemetry;
   satelliteActivity: number;
   pressureWaveAverage: number;
@@ -403,6 +409,7 @@ export class ObsidianBloomScene {
   private readonly authorityGovernor = new AuthorityGovernor();
   private readonly signatureMomentGovernor = new SignatureMomentGovernor();
   private readonly postSystem = new PostSystem();
+  private readonly playableMotifSystem = new PlayableMotifSystem();
   private readonly compositorSystem = new CompositorSystem();
   private lastAuthorityFrameContext: AuthorityGovernorFrameContext | null = null;
   private signatureMomentSnapshot: SignatureMomentSnapshot = {
@@ -471,6 +478,7 @@ export class ObsidianBloomScene {
     this.stageFrameSystem.group.position.z = -6.4;
     this.camera.add(this.stageFrameSystem.group);
     this.camera.add(this.postSystem.group);
+    this.camera.add(this.playableMotifSystem.group);
     this.camera.add(this.compositorSystem.group);
     this.chamberRig = new ChamberRig({
       system: this.chamberSystem,
@@ -557,6 +565,7 @@ export class ObsidianBloomScene {
     this.eventRig.build();
     this.stageFrameSystem.build();
     this.postSystem.build();
+    this.playableMotifSystem.build();
     this.compositorSystem.build();
     this.framingRig.build();
     this.particleSystem.build();
@@ -916,6 +925,12 @@ export class ObsidianBloomScene {
     );
   }
 
+  updatePlayableMotifSystem(elapsedSeconds: number, deltaSeconds: number): void {
+    this.playableMotifSystem.update(
+      this.createPlayableMotifSystemUpdateContext(elapsedSeconds, deltaSeconds)
+    );
+  }
+
   updateCompositorSystem(elapsedSeconds: number, deltaSeconds: number): void {
     this.compositorSystem.update(
       this.createCompositorSystemUpdateContext(elapsedSeconds, deltaSeconds)
@@ -933,6 +948,7 @@ export class ObsidianBloomScene {
     this.worldSystem.dispose();
     this.stageFrameSystem.dispose();
     this.postSystem.dispose();
+    this.playableMotifSystem.dispose();
     this.compositorSystem.dispose();
     this.accentOrbitSystem.dispose();
     this.pressureWaveSystem.dispose();
@@ -945,6 +961,7 @@ export class ObsidianBloomScene {
     this.chamberRig.applyQualityProfile(profile);
     this.heroSystem.applyQualityProfile(profile);
     this.postSystem.applyQualityProfile(profile);
+    this.playableMotifSystem.applyQualityProfile(profile);
     this.compositorSystem.applyQualityProfile(profile);
   }
 
@@ -1474,6 +1491,33 @@ export class ObsidianBloomScene {
     };
   }
 
+  private createPlayableMotifSystemUpdateContext(
+    elapsedSeconds: number,
+    deltaSeconds: number
+  ): PlayableMotifSystemUpdateContext {
+    return {
+      elapsedSeconds,
+      deltaSeconds,
+      qualityProfile: this.qualityProfile,
+      signatureMoment: this.signatureMomentSnapshot,
+      authority: this.authorityFrameSnapshot,
+      visualMotif: this.visualMotifSnapshot.kind,
+      paletteFrame: this.paletteFrame,
+      stageCuePlan: this.stageCuePlan,
+      postTelemetry: this.postSystem.collectTelemetryInputs(),
+      audio: {
+        preDropTension: this.preDropTension,
+        dropImpact: this.dropImpact,
+        sectionChange: this.sectionChange,
+        releaseTail: this.releaseTail,
+        musicConfidence: this.musicConfidence,
+        beatPhase: this.beatPhase,
+        phrasePhase: this.phrasePhase,
+        shimmer: this.shimmer
+      }
+    };
+  }
+
   private createCompositorSystemUpdateContext(
     elapsedSeconds: number,
     deltaSeconds: number
@@ -1484,6 +1528,7 @@ export class ObsidianBloomScene {
       qualityProfile: this.qualityProfile,
       signatureMoment: this.signatureMomentSnapshot,
       postTelemetry: this.postSystem.collectTelemetryInputs(),
+      playableMotif: this.playableMotifSystem.collectTelemetryInputs(),
       authority: this.authorityFrameSnapshot,
       paletteState: this.paletteState
     };
@@ -2625,6 +2670,7 @@ export class ObsidianBloomScene {
       lightingIntensities,
       particleOpacity,
       postTelemetry,
+      playableMotifTelemetry,
       compositorTelemetry,
       satelliteActivity,
       pressureWaveAverage
@@ -2902,6 +2948,22 @@ export class ObsidianBloomScene {
       perceptualContrastScore: compositorTelemetry.perceptualContrastScore,
       perceptualColorfulnessScore: compositorTelemetry.perceptualColorfulnessScore,
       perceptualWashoutRisk: compositorTelemetry.perceptualWashoutRisk,
+      activePlayableMotifScene:
+        playableMotifTelemetry.activePlayableMotifScene,
+      playableMotifSceneAgeSeconds:
+        playableMotifTelemetry.playableMotifSceneAgeSeconds,
+      playableMotifSceneTransitionReason:
+        playableMotifTelemetry.playableMotifSceneTransitionReason,
+      playableMotifSceneIntensity:
+        playableMotifTelemetry.playableMotifSceneIntensity,
+      playableMotifSceneMotifMatch:
+        playableMotifTelemetry.playableMotifSceneMotifMatch,
+      playableMotifScenePaletteMatch:
+        playableMotifTelemetry.playableMotifScenePaletteMatch,
+      playableMotifSceneDistinctness:
+        playableMotifTelemetry.playableMotifSceneDistinctness,
+      playableMotifSceneSilhouetteConfidence:
+        playableMotifTelemetry.playableMotifSceneSilhouetteConfidence,
       atmosphereMatterState: this.activeMatterState,
       atmosphereGas: this.atmosphereGas,
       atmosphereLiquid: this.atmosphereLiquid,
@@ -2970,6 +3032,7 @@ export class ObsidianBloomScene {
       lightingIntensities: this.lightingSystem.getIntensities(),
       particleOpacity: this.particleSystem.getOpacity(),
       postTelemetry: this.postSystem.collectTelemetryInputs(),
+      playableMotifTelemetry: this.playableMotifSystem.collectTelemetryInputs(),
       compositorTelemetry: this.compositorSystem.collectTelemetryInputs(),
       satelliteActivity: this.accentOrbitSystem.getSatelliteActivity(),
       pressureWaveAverage: this.pressureWaveSystem.getAverageOpacity()

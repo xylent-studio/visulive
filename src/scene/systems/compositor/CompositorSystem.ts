@@ -7,6 +7,7 @@ import type {
   SignatureMomentSnapshot
 } from '../../../types/visual';
 import type { PostSystemTelemetry } from '../post/PostSystem';
+import type { PlayableMotifSystemTelemetry } from '../motif/PlayableMotifSystem';
 
 export type CompositorSystemUpdateContext = {
   elapsedSeconds: number;
@@ -14,6 +15,7 @@ export type CompositorSystemUpdateContext = {
   qualityProfile: SceneQualityProfile;
   signatureMoment: SignatureMomentSnapshot;
   postTelemetry: PostSystemTelemetry;
+  playableMotif: PlayableMotifSystemTelemetry;
   authority: AuthorityFrameSnapshot;
   paletteState: PaletteState;
 };
@@ -180,6 +182,17 @@ export class CompositorSystem {
     const cathedral = moment.kind === 'cathedral-open' ? intensity : 0;
     const ghost = moment.kind === 'ghost-residue' ? intensity : 0;
     const quiet = moment.kind === 'silence-constellation' ? intensity : 0;
+    const sceneIntensity = clamp01(context.playableMotif.playableMotifSceneIntensity);
+    const sceneContrast =
+      context.playableMotif.activePlayableMotifScene === 'collapse-scar' ||
+      context.playableMotif.activePlayableMotifScene === 'void-pressure'
+        ? sceneIntensity * 0.18
+        : 0;
+    const sceneNeon =
+      context.playableMotif.activePlayableMotifScene === 'neon-cathedral' ||
+      context.playableMotif.activePlayableMotifScene === 'machine-tunnel'
+        ? sceneIntensity * 0.14
+        : 0;
     const contrastBias = styleContrast(style);
     const saturationBias = styleSaturation(style);
     const safetyDamp = clamp01(
@@ -195,12 +208,14 @@ export class CompositorSystem {
       collapse * 0.36 +
         ghost * 0.18 +
         quiet * 0.16 +
+        sceneContrast +
         (style === 'contrast-mythic' ? signatureMask * 0.12 : 0)
     );
     const chromaticAmount = clamp01(
       cathedral * 0.6 * saturationBias +
         collapse * 0.18 +
         ghost * 0.16 +
+        sceneNeon +
         (style === 'maximal-neon' ? signatureMask * 0.28 : 0)
     );
     const edgeWindowAmount = clamp01(
@@ -213,10 +228,10 @@ export class CompositorSystem {
     this.updateEdges(context, edgeWindowAmount, style, safetyDamp);
 
     const compositorContrastLift = clamp01(
-      cutAmount * 0.4 + vignetteAmount * 0.26 + edgeWindowAmount * 0.18
+      cutAmount * 0.4 + vignetteAmount * 0.26 + edgeWindowAmount * 0.18 + sceneContrast * 0.22
     );
     const compositorSaturationLift = clamp01(
-      chromaticAmount * 0.46 + quiet * 0.14 + cathedral * 0.22
+      chromaticAmount * 0.46 + quiet * 0.14 + cathedral * 0.22 + sceneNeon * 0.18
     );
     const perceptualContrastScore = clamp01(
       0.5 +

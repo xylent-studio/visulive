@@ -646,6 +646,8 @@ export class HeroSystem {
   private lastHeroColorRouteSignature = '';
   private lastHeroColorToneSignature = '';
   private lastHeroFormChangeSeconds = 0;
+  private heroFormCandidate: StageHeroForm = DEFAULT_STAGE_CUE_PLAN.heroForm;
+  private heroFormCandidateSinceSeconds = 0;
   private activeHeroRole: HeroSemanticRole = 'supporting';
   private heroFormSwitchReason: HeroFormSwitchReason = 'hold';
   private heroFormHoldElapsedSeconds = 0;
@@ -1340,6 +1342,14 @@ export class HeroSystem {
     );
     const plannedHeroForm = this.stageCuePlan.heroForm;
     const plannedHeroAccentForm = this.stageCuePlan.heroAccentForm;
+    if (plannedHeroForm !== this.heroFormCandidate) {
+      this.heroFormCandidate = plannedHeroForm;
+      this.heroFormCandidateSinceSeconds = elapsedSeconds;
+    }
+    const heroFormCandidateAgeSeconds = Math.max(
+      0,
+      elapsedSeconds - this.heroFormCandidateSinceSeconds
+    );
     const heroFormScores: Record<StageHeroForm, number> = {
       orb:
         0.12 +
@@ -1439,18 +1449,44 @@ export class HeroSystem {
         (withheldSpend ? 1.22 : peakSpend ? 0.96 : 1.08) *
         (this.stageCompositionPlan.eventScale === 'stage' ? 1 : 1.08) +
         semanticLock * 1.3 -
-        this.sectionChange * 0.28 -
-        this.dropImpact * 0.22,
-      2.6,
-      7.6
+        this.sectionChange * 0.12 -
+        this.dropImpact * 0.1,
+      5.6,
+      14
     );
     const secondsSinceHeroFormChange = elapsedSeconds - this.lastHeroFormChangeSeconds;
     this.heroFormHoldElapsedSeconds = Math.max(0, secondsSinceHeroFormChange);
+    const phraseBoundaryStrength = Math.max(
+      this.sectionChange,
+      this.dropImpact,
+      this.releaseTail,
+      this.phraseResolve
+    );
+    const urgentSemanticSwitch =
+      semanticSwitchReason === 'drop-rupture' ||
+      semanticSwitchReason === 'authority-demotion' ||
+      this.dropImpact > 0.74;
+    const candidateDwellSeconds = urgentSemanticSwitch
+      ? 0.55
+      : semanticSwitchReason === 'signature-moment'
+        ? 1.85
+        : semanticSwitchReason === 'motif-change' ||
+            semanticSwitchReason === 'cue-family' ||
+            semanticSwitchReason === 'release-residue'
+          ? 2.8
+          : 4.2;
+    const candidateIsStable =
+      heroFormCandidateAgeSeconds >= candidateDwellSeconds &&
+      this.heroFormCandidate === plannedHeroForm;
+    const candidateHasPhrasePermission =
+      urgentSemanticSwitch ||
+      phraseBoundaryStrength > 0.34 ||
+      heroFormCandidateAgeSeconds >= candidateDwellSeconds + 2.4;
     const semanticSwitchEligible =
-      semanticSwitchReason !== 'hold' ||
-      this.stageCuePlan.family === 'rupture' ||
-      this.stageCuePlan.family === 'release' ||
-      this.stageCuePlan.family === 'reveal';
+      plannedHeroForm !== this.activeHeroForm &&
+      candidateIsStable &&
+      candidateHasPhrasePermission &&
+      semanticSwitchReason !== 'hold';
     const formVarietyPressure = THREE.MathUtils.clamp(
       sceneVariation.noveltyDrive * 0.22 +
         paletteSpread * 0.28 +
@@ -1466,20 +1502,22 @@ export class HeroSystem {
     const plannedHeroFormScore = heroFormScores[plannedHeroForm] ?? currentHeroFormScore;
     const scorePlannedSwitchEligible =
       plannedHeroForm !== this.activeHeroForm &&
-      secondsSinceHeroFormChange >= heroFormHoldSeconds * 1.35 &&
-      plannedHeroFormScore >= currentHeroFormScore + 0.14 &&
-      plannedHeroFormScore >= topHeroFormScore - 0.04;
+      candidateIsStable &&
+      secondsSinceHeroFormChange >= heroFormHoldSeconds * 1.55 &&
+      plannedHeroFormScore >= currentHeroFormScore + 0.18 &&
+      plannedHeroFormScore >= topHeroFormScore - 0.025;
     const nextHeroFormCandidate =
       plannedHeroForm !== this.activeHeroForm &&
       (semanticSwitchEligible || scorePlannedSwitchEligible) &&
-      plannedHeroFormScore >= topHeroFormScore - (0.08 + formVarietyPressure * 0.08)
+      plannedHeroFormScore >= topHeroFormScore - (0.04 + formVarietyPressure * 0.035)
         ? plannedHeroForm
         : this.activeHeroForm;
     const nextHeroFormScore = heroFormScores[nextHeroFormCandidate] ?? currentHeroFormScore;
     const formRotationEligible =
       secondsSinceHeroFormChange >= heroFormHoldSeconds &&
       nextHeroFormCandidate !== this.activeHeroForm &&
-      nextHeroFormScore >= currentHeroFormScore - (0.02 + formVarietyPressure * 0.08);
+      candidateIsStable &&
+      nextHeroFormScore >= currentHeroFormScore - (0.01 + formVarietyPressure * 0.035);
     this.heroFormSwitchReason = 'hold';
     if (formRotationEligible) {
       this.previousHeroForm = this.activeHeroForm;

@@ -54,13 +54,13 @@ Internal anthology expansion is the ambition rule.
 
 The current blockers are:
 - current-proof-valid `Primary benchmark` evidence now exists after the authority/runtime and evidence changes: `run_20260428_192855_gnmlg1` and `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, but no run is current-canonical or release-ready yet
-- the Mythic Signature Moment Engine full-capability slice is implemented but unproven; the next serious move is local Moment Lab preview of all 4x3 variants, then a fresh `Primary benchmark` canary on that build, then a full primary run if the canary is valid
-- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now explicitly sequences signature moment, world, chamber, hero, authority, stage, and post work, but it is not the final runtime owner until compositor/memory extraction reduces the remaining scene compatibility shell
+- the Mythic Signature Moment Engine plus Authored Playable Motif System slice is implemented but unproven; the next serious move is local Moment Lab/contact-sheet preview of the 5 scene x 4 moment matrix, then a fresh `Primary benchmark` canary on that build, then a full primary run if the canary is valid
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now explicitly sequences signature moment, world, chamber, hero, authority, stage, post, playable motif, and compositor work, but it is not the final runtime owner until broader compositor/memory extraction reduces the remaining scene compatibility shell
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `modules/**` and `rigs/**`
 - the anthology families now named in canon are still ahead of the fully extracted runtime
 - valid April 28 `Primary benchmark` proof repeats the same actual visual issue: chamber/world authority is strong and hero monopoly is absent, but overbright/ring-overdraw risk is high enough to block strict proof and release readiness
-- [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now own rare moment eligibility/style routing, first-wave consequence rendering, and bounded screen-space/post-profile response, but collapse scar, cathedral open, ghost residue, and silence constellation still need Moment Lab preview and proof-tuning
-- color and hero shape changes must now be semantically motivated: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and analyzer output can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak silhouette evidence
+- [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) now own rare moment eligibility/style routing, first-wave consequence rendering, five authored playable scene postures, and bounded screen-space/post-profile response, but the scenes/moments still need Moment Lab preview and proof-tuning
+- color and hero shape changes must now be semantically motivated: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and analyzer output can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, weak silhouette evidence, scene churn, scene-motif mismatch, and samey scene silhouettes
 - conductor certainty still lags behind the strength of the visual event-spend we want
 - low-energy living-music states still need fresh proof that they stay readable, colorful, and stage-active in both `Music On This PC` and `Music In The Room`
 - safe-tier quality must stay authored, vivid, and premium
@@ -89,7 +89,7 @@ Read these before assuming the rewrite is cleaner than it is:
 
 Today that means:
 
-- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) prepares frame context, sequences signature moment resolution, [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts), authority resolution, stage work, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts); [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) remains a compatibility assembly shell
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) prepares frame context, sequences signature moment resolution, [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts), authority resolution, stage work, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts); [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) remains a compatibility assembly shell
 - some `systems/**` and `governors/**` files only re-export implementation from `modules/**` or `rigs/**`
 - [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) and [director.ts](C:/dev/GitHub/visulive/src/types/director.ts) are temporary integration hubs, not the final long-term homes of that responsibility
 - [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx) and [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx) are legacy shell debt unless a pass explicitly revives them
@@ -182,6 +182,7 @@ Do not redefine:
 Own:
 - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts)
 - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
+- [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts)
 - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts)
 - [visual.ts](C:/dev/GitHub/visulive/src/types/visual.ts)
 
@@ -189,6 +190,7 @@ Own specifically:
 - rare moment eligibility, cooldowns, phases, seeds, and suppression
 - collapse scar, cathedral open, ghost residue, and silence constellation post visuals
 - bounded memory traces, aftermath clearance, post telemetry, quality reset, and disposal
+- authored playable scene posture, scene dwell, motif/palette match telemetry, and scene silhouette confidence
 - bounded signature-moment compositor masks, cuts, bands, edge windows, and post-profile response
 - signature moment snapshot contracts consumed by world, chamber, hero, lighting, particles, stage, and motion
 
@@ -285,7 +287,7 @@ Parallel work is safe now only for these disjoint write scopes:
 Parallel work is not yet safe for multiple visual specialists around the remaining scene compatibility shell unless:
 - one agent owns [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts)
 - one agent owns [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), or authority-fed lighting/particles
-- one agent owns [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) and [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
+- one agent owns [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), and [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts)
 - one agent owns remaining motion/camera/event methods still routed through [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) or stage rigs
 
 If that separation is not explicit for a pass, sequence the work instead of parallelizing it.
@@ -298,6 +300,7 @@ These boundaries are non-negotiable:
 - [listeningInterpreter.ts](C:/dev/GitHub/visulive/src/audio/listeningInterpreter.ts) decides conductor certainty and audio-side state semantics
 - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) decides rare moment eligibility, style routing, candidate state, and suppression/conversion
 - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) renders consequence, aftermath, style postures, and bounded post memory
+- [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) renders authored playable scene posture and reports scene coherence
 - [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) renders bounded screen-space signature masks/cuts/bands and feeds renderer post-profile telemetry
 - [session.ts](C:/dev/GitHub/visulive/src/replay/session.ts) and [capture-analysis-core.mjs](C:/dev/GitHub/visulive/scripts/capture-analysis-core.mjs) decide evidence judgment and report truth
 
@@ -356,4 +359,4 @@ Before heavy parallel visual work, prove the current signature-moment build:
 - review `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`
 - if the canary is valid, run a full no-touch `Primary benchmark` pass before tuning
 
-The primary benchmark proof candidates are already valid enough to show the older visual correction target: overbright and ring persistence. The new signature-moment build must now prove whether collapse scar, cathedral open, ghost residue, and silence constellation are distinct and safe across contrast-mythic, maximal-neon, and ambient-premium styles. If proof fails, tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts), [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy without moving ownership back into the scene.
+The primary benchmark proof candidates are valid enough to show the older correction targets: overbright, ring persistence, palette churn, and unearned hero-form switching. The new authored playable motif build must now prove that the five scenes (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, and `collapse-scar`) and the four signature moments are distinct, rare, readable, and safe across contrast-mythic, maximal-neon, and ambient-premium styles. If proof fails, tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts), [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy without moving ownership back into the scene.

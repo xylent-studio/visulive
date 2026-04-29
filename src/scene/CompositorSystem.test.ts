@@ -9,6 +9,7 @@ import {
   type CompositorSystemUpdateContext
 } from './systems/compositor/CompositorSystem';
 import type { PostSystemTelemetry } from './systems/post/PostSystem';
+import type { PlayableMotifSystemTelemetry } from './systems/motif/PlayableMotifSystem';
 
 const QUALITY_PROFILE: SceneQualityProfile = {
   tier: 'premium',
@@ -39,6 +40,17 @@ const POST_TELEMETRY: PostSystemTelemetry = {
   postOverprocessRisk: 0.12
 };
 
+const PLAYABLE_MOTIF_TELEMETRY: PlayableMotifSystemTelemetry = {
+  activePlayableMotifScene: 'collapse-scar',
+  playableMotifSceneAgeSeconds: 1.2,
+  playableMotifSceneTransitionReason: 'signature-moment',
+  playableMotifSceneIntensity: 0.82,
+  playableMotifSceneMotifMatch: true,
+  playableMotifScenePaletteMatch: true,
+  playableMotifSceneDistinctness: 0.9,
+  playableMotifSceneSilhouetteConfidence: 0.88
+};
+
 function buildContext(): CompositorSystemUpdateContext {
   return {
     elapsedSeconds: 12,
@@ -58,6 +70,7 @@ function buildContext(): CompositorSystemUpdateContext {
       distinctnessHint: 'dark-cut'
     },
     postTelemetry: POST_TELEMETRY,
+    playableMotif: PLAYABLE_MOTIF_TELEMETRY,
     authority: {
       ...DEFAULT_AUTHORITY_FRAME_SNAPSHOT,
       frameHierarchyScore: 0.86,

@@ -115,6 +115,45 @@ describe('showDirection', () => {
     expect(frame.transitionReason).toBe('hold');
   });
 
+  it('lets motif grammar choose readable hero forms instead of palette jitter', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      showState: 'surge' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.82,
+      peakConfidence: 0.64,
+      beatConfidence: 0.76,
+      preDropTension: 0.7,
+      dropImpact: 0.18,
+      sectionChange: 0.34,
+      releaseTail: 0.04,
+      resonance: 0.34,
+      momentum: 0.78,
+      speechConfidence: 0.02,
+      transientConfidence: 0.42,
+      body: 0.62,
+      tonalStability: 0.58,
+      harmonicColor: 0.72,
+      brightness: 0.66,
+      shimmer: 0.84,
+      air: 0.58,
+      momentKind: 'lift' as const
+    };
+    const windows = deriveTemporalWindows(frame);
+    const cueState = deriveVisualCue(frame, 'matrix-storm', windows);
+    const plan = deriveStageCuePlan({
+      frame,
+      cueState,
+      showAct: 'matrix-storm'
+    });
+
+    expect(plan.visualMotif).toBe('neon-portal');
+    expect(['prism', 'pyramid']).toContain(plan.heroForm);
+    expect(plan.heroFormHoldSeconds).toBeGreaterThanOrEqual(7);
+    expect(plan.heroFormReason).toBe('motif-change');
+  });
+
   it('keeps palette changes deliberate until a strong new winner appears', () => {
     const frame: Parameters<typeof buildPaletteStateScores>[0] = {
       ...DEFAULT_LISTENING_FRAME,

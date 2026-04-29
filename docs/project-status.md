@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after the semantic motif routing pass:
+Latest local verification on `codex/full-version-foundation` after the semantic motif routing and playable motif scene pass:
 
 - `npm run anthology:validate` passes
 - `npm run test` passes
@@ -49,13 +49,13 @@ and canon.
 
 But it is still transitional in four important ways:
 
-- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, `PostSystem`, and bounded `CompositorSystem`; the scene still assembles compatibility context, but chamber/world authority math and first-wave signature moment eligibility no longer live there
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, `PostSystem`, `PlayableMotifSystem`, and bounded `CompositorSystem`; the scene still assembles compatibility context, but chamber/world authority math, first-wave signature moment eligibility, and playable scene posture no longer live there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark and operator-trust run packages, but strict release proof still needs clean scenario coverage, benchmark promotion, and no missed opportunities
 - The latest proof-pack now exposes the evidence-platform gap more honestly: stricter kind-aware matching reports 30 missed marker clusters across the current reviewed set, mostly governance-risk/authority moments that need explicit trigger clips or safety/authority stills rather than generic nearby evidence
-- The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the 4x3 variant matrix locally; and the analyzer can report signature moment coverage, style spread, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
-- The semantic motif pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell instead of hash/time-bucket variety rotation; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, and ambiguous silhouette risk
+- The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `PlayableMotifSystem` owns five authored scene postures; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the moment/style variants locally; and the analyzer can report signature moment coverage, style spread, playable scene coherence, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
+- The semantic motif and playable scene pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell instead of hash/time-bucket variety rotation; [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five authored scene postures; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, ambiguous silhouette risk, scene churn, scene-motif mismatch, and samey scene silhouettes
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -95,7 +95,7 @@ The next wave is:
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
-- next, commit/restart the signature-moment build, use local Moment Lab to preview the 4 moments across contrast/neon/ambient styles, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; refresh serious evidence with `npm run proof:refresh`; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
+- next, commit/restart the signature-moment/playable-scene build, use local Moment Lab/contact sheets to preview the 5 scene x 4 moment matrix, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; refresh serious evidence with `npm run proof:refresh`; `Operator trust` remains the next proof lane after signature moment distinctness and playable-scene stability have a clean primary run
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
@@ -148,7 +148,7 @@ The internal structure is also materially scaffolded even though the public prod
 - stage-frame, pressure-wave, lighting, particle, motion, macro-event, director-state, signature-moment, and post-consequence logic now have named module, governor, system, or rig homes
 - the public runtime vocabulary and folder layout now point toward orchestration-first ownership
 - [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) still assembles cross-system context directly, but chamber/world authority judgment now lives in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) instead of scene-local math
-- first-wave rare moment eligibility now lives in [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), and first-wave post consequence rendering now lives in [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
+- first-wave rare moment eligibility now lives in [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), first-wave post consequence rendering now lives in [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), and the first authored playable scene layer now lives in [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts)
 - `systems/**` and `governors/**` should currently be treated as API and namespace surfaces, not final proof that ownership is finished
 
 ### Tooling and release operations
@@ -191,6 +191,7 @@ These changes are real, but not yet proven against a fresh post-change capture c
 - whether untouched full-spectrum runs materially improve repertoire instead of just adding more named metadata
 - whether the new authority-driven chamber/world takeover reads more clearly across the room
 - whether collapse scar, cathedral open, ghost residue, and silence constellation read as distinct, rare, premium, safe-tier image classes instead of generic treatment
+- whether neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar read as stable authored playable scenes instead of short-lived overlays
 - whether quiet room-mic music floor remains vivid, readable, and mobile
 - whether the anthology intent layer maps cleanly onto future analyzer coverage
 - whether the new architecture pass preserves live feel while the remaining flagship hotspots are extracted
@@ -217,7 +218,7 @@ The next highest-leverage sequence is:
 1. make the baseline honest: keep docs, agent guidance, shell language, and proof expectations aligned with actual code ownership
 2. run live start/stop sanity and a fresh no-touch `PC Audio` benchmark batch on the new authority-driven chamber/world split
 3. use analyzer and proof-pack output to decide whether authority plus lighting/particle composition needs another pass or is ready to hold
-4. proof-tune the Mythic Signature Moment Engine until the four moments are distinct, rare, safe-tier viable, and not another overbright/ring-overdraw path
+4. proof-tune the Mythic Signature Moment Engine and Authored Playable Motif System until the four moments and five scenes are distinct, stable, rare, safe-tier viable, and not another overbright/ring-overdraw path
 5. formalize the stronger audio-to-regime-to-cue hierarchy and stop resolving similar situations into one house answer
 6. land the first real anthology capability wave: alternate hero species and world mutation verbs, only through owned systems
 7. extract compositor/memory/content once the signature-moment proof wave is stable

@@ -45,14 +45,14 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `Signature Moments / Consequence Memory` proof on top of the newly extracted authority split, style-aware `PostSystem`, and bounded `CompositorSystem`
+  - `Authored Playable Motif Scenes` proof on top of semantic motif routing, style-aware `PostSystem`, first `PlayableMotifSystem`, and bounded `CompositorSystem`
 - single highest-leverage next move:
-  - use local Moment Lab to preview all 4x3 moment/style variants, then run a fresh live and no-touch proof wave that shows collapse scar, cathedral open, ghost residue, and silence constellation as distinct whole-frame image classes
+  - use local Moment Lab/contact sheets to preview the 5 scene x 4 signature moment matrix, then run a fresh no-touch proof wave that shows neon cathedral, machine tunnel, void pressure, ghost constellation, and collapse scar as stable, readable scene silhouettes
 - single blocking extraction:
-  - chamber/world authority handoff, the first `PostSystem` vertical slice, and the bounded signature `CompositorSystem` slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then full memory and broader compositor/content ownership
+  - chamber/world authority handoff, the first `PostSystem` vertical slice, `PlayableMotifSystem`, and the bounded signature/playable-scene `CompositorSystem` slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then full memory and broader compositor/content ownership
 - proof scenario required next:
   - one fresh `Primary benchmark` canary, then a full no-touch `PC Audio` benchmark if the canary is valid
-  - the analyzer must report signature moment coverage, style spread, overbright/ring impact, perceptual washout/colorfulness, aftermath clearance, and whether the four moments are distinct enough to tune instead of merely present
+  - the analyzer must report signature moment coverage, style spread, playable scene spread, scene-motif match, scene-palette match, scene silhouette confidence, overbright/ring impact, perceptual washout/colorfulness, and aftermath clearance
 
 ## Do Not Drift Into
 
@@ -129,12 +129,13 @@ Short version:
 - graduation target:
   - `frontier -> flagship`
 - blocking dependency:
-  - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility/style/candidate state, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the style-matrix consequence lifecycle, and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice; the remaining blocker is fresh preview and proof that the moments are distinct, rare, safe-tier viable, and not washed out or overbright
+  - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility/style/candidate state, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the style-matrix consequence lifecycle, [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns the first authored scene posture layer, and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) owns the bounded screen-space/post-profile slice; the remaining blocker is fresh preview and proof that scenes and moments are distinct, rare, safe-tier viable, and not washed out or overbright
 - last meaningful pass:
   - 2026-04-29 Signature Moments full-capability hardening with style routing, candidate state, Moment Lab, bounded `CompositorSystem`, renderer post-profile inputs, and perceptual washout telemetry
   - 2026-04-29 neon-portal hardening with decision traces, risk-based safe-neon preservation, stronger moment silhouettes, signature-aware ring decay, kind-aware missed-opportunity matching, recomputed package integrity, and `proof:refresh`
+  - 2026-04-29 Authored Playable Motif System vertical slice with five owned playable scenes, scene dwell, compositor scene input, and analyzer metrics for scene coherence
 - current biggest failure mode:
-  - the four moments could still read as generic treatment, washed-out post, or ring overdraw until Moment Lab receipts and fresh proof show recognizable image classes and clean aftermath clearance
+  - the four moments and five scenes could still read as generic treatment, washed-out post, or scene churn until Moment Lab receipts and fresh proof show recognizable image classes, scene dwell, and clean aftermath clearance
 
 ### Lighting / Cinematography
 
@@ -180,7 +181,7 @@ Short version:
 - current owner lane: `Mixed Media / Compositor / Content`
 - runtime ownership status: `partial-system`
 - next target:
-  - prove the bounded `CompositorSystem` signature slice before adding asset-backed masks
+  - prove the bounded `CompositorSystem` signature/playable-scene slice before adding asset-backed masks
   - define disciplined asset and mask families only after proof says the post/compositor language is worth broadening
 - proof target:
   - mixed media strengthens consequence or memory instead of reading as collage
