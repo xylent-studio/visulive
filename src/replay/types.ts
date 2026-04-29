@@ -445,6 +445,7 @@ export type ReplayRunStillKind =
   | 'authority'
   | 'quiet'
   | 'trust'
+  | 'signature'
   | 'signature-preview';
 
 export type ReplayRunStillDescriptor = {

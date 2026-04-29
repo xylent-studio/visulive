@@ -198,7 +198,8 @@ const RUN_CHECKPOINT_STILL_PRIORITY: Record<ReplayRunStillKind, number> = {
   quiet: 2,
   authority: 3,
   trust: 4,
-  'signature-preview': 5
+  signature: 5,
+  'signature-preview': 6
 };
 
 const cloneReplayCaptureFrameSnapshot = (
@@ -2443,8 +2444,11 @@ export function App() {
               washout: nextFrame.visualTelemetry.perceptualWashoutRisk ?? 0
             }
           );
-          if (markerKind === 'signature-moment-peak') {
-            captureRunCheckpointStill(nextTimestampMs, nextFrame, 'authority');
+          if (
+            markerKind === 'signature-moment-peak' ||
+            markerKind === 'signature-moment-residue'
+          ) {
+            captureRunCheckpointStill(nextTimestampMs, nextFrame, 'signature');
           }
           runJournalState.lastSignatureMomentKey = signatureMomentKey;
         } else if (!signatureMomentKey) {
