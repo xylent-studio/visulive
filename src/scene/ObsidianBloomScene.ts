@@ -89,6 +89,11 @@ import {
   type StageFrameUpdateContext
 } from './systems/stage/StageFrameSystem';
 import {
+  PostSystem,
+  type PostSystemTelemetry,
+  type PostSystemUpdateContext
+} from './systems/post/PostSystem';
+import {
   MacroEventDirector,
   type MacroEventKind
 } from './governors/MacroEventDirector';
@@ -97,6 +102,10 @@ import {
   type AuthorityGovernorFrameContext
 } from './governors/AuthorityGovernor';
 import {
+  SignatureMomentGovernor,
+  type SignatureMomentGovernorInput
+} from './governors/SignatureMomentGovernor';
+import {
   type StageRuntimeFallbackState,
   type StageRuntimeUpdateInput
 } from './rigs/StageRuntimeRig';
@@ -104,6 +113,7 @@ import { TelemetryRig } from './governors/TelemetryRig';
 import type { StageIdleContext } from './rigs/types';
 import {
   DEFAULT_AUTHORITY_FRAME_SNAPSHOT,
+  DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
   DEFAULT_STAGE_COMPOSITION_PLAN,
   DEFAULT_STAGE_CUE_PLAN,
   DEFAULT_VISUAL_CUE_STATE,
@@ -118,6 +128,7 @@ import {
   type SectionIntent,
   type ShowAct,
   type SilenceState,
+  type SignatureMomentSnapshot,
   type StageCompositionPlan,
   type StageCuePlan,
   type StageHeroForm,
@@ -147,6 +158,7 @@ type CollectedFrameTelemetry = {
   stageSweepAverage: number;
   lightingIntensities: LightingSystemIntensities;
   particleOpacity: number;
+  postTelemetry: PostSystemTelemetry;
   satelliteActivity: number;
   pressureWaveAverage: number;
 };
@@ -365,7 +377,12 @@ export class ObsidianBloomScene {
   private readonly pressureWaveSystem: PressureWaveSystem;
   private readonly telemetryRig = new TelemetryRig();
   private readonly authorityGovernor = new AuthorityGovernor();
+  private readonly signatureMomentGovernor = new SignatureMomentGovernor();
+  private readonly postSystem = new PostSystem();
   private lastAuthorityFrameContext: AuthorityGovernorFrameContext | null = null;
+  private signatureMomentSnapshot: SignatureMomentSnapshot = {
+    ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT
+  };
 
   private get directorEnergy(): number { return this.directorStateRig.energy; }
   private set directorEnergy(value: number) { this.directorStateRig.energy = value; }
@@ -427,6 +444,7 @@ export class ObsidianBloomScene {
     this.motionSystem.initializeCamera(this.camera);
     this.stageFrameSystem.group.position.z = -6.4;
     this.camera.add(this.stageFrameSystem.group);
+    this.camera.add(this.postSystem.group);
     this.chamberRig = new ChamberRig({
       system: this.chamberSystem,
       updateLights: (context) => {
@@ -511,6 +529,7 @@ export class ObsidianBloomScene {
     this.chamberRig.build();
     this.eventRig.build();
     this.stageFrameSystem.build();
+    this.postSystem.build();
     this.framingRig.build();
     this.particleSystem.build();
     this.scene.add(this.camera);
@@ -786,6 +805,12 @@ export class ObsidianBloomScene {
     );
   }
 
+  resolveSignatureMoment(elapsedSeconds: number, deltaSeconds: number): void {
+    this.signatureMomentSnapshot = this.signatureMomentGovernor.resolveFrame(
+      this.createSignatureMomentGovernorInput(elapsedSeconds, deltaSeconds)
+    );
+  }
+
   updateHeroSystem(context: StageIdleContext): void {
     const heroUpdate = this.heroSystem.update(
       this.createHeroSystemUpdateContext(context)
@@ -849,6 +874,12 @@ export class ObsidianBloomScene {
     this.chamberRig.updateLighting(context);
   }
 
+  updatePostSystem(elapsedSeconds: number, deltaSeconds: number): void {
+    this.postSystem.update(
+      this.createPostSystemUpdateContext(elapsedSeconds, deltaSeconds)
+    );
+  }
+
   dispose(): void {
     this.framingRig.dispose();
     this.eventRig.dispose();
@@ -859,6 +890,7 @@ export class ObsidianBloomScene {
     this.lightingSystem.dispose();
     this.worldSystem.dispose();
     this.stageFrameSystem.dispose();
+    this.postSystem.dispose();
     this.accentOrbitSystem.dispose();
     this.pressureWaveSystem.dispose();
   }
@@ -869,6 +901,7 @@ export class ObsidianBloomScene {
     this.worldSystem.applyQualityProfile(profile);
     this.chamberRig.applyQualityProfile(profile);
     this.heroSystem.applyQualityProfile(profile);
+    this.postSystem.applyQualityProfile(profile);
   }
 
   private createWorldSystemUpdateContext(
@@ -938,6 +971,7 @@ export class ObsidianBloomScene {
         cuePlan: this.stageCuePlan,
         compositionPlan: this.stageCompositionPlan
       },
+      signatureMoment: this.signatureMomentSnapshot,
       stageAudioFeatures: this.stageAudioFeatures,
       motion: {
         chamberDrift: this.organicChamberDrift,
@@ -1047,6 +1081,7 @@ export class ObsidianBloomScene {
         cuePlan: this.stageCuePlan,
         compositionPlan: this.stageCompositionPlan
       },
+      signatureMoment: this.signatureMomentSnapshot,
       stageAudioFeatures: this.stageAudioFeatures,
       motion: {
         chamberDrift: this.organicChamberDrift,
@@ -1202,6 +1237,7 @@ export class ObsidianBloomScene {
         wirefieldDensityScoreCurrent:
           this.authorityFrameSnapshot.wirefieldDensityScore
       },
+      signatureMoment: this.signatureMomentSnapshot,
       tuning: {
         readableHeroFloor: this.tuning.readableHeroFloor
       }
@@ -1215,6 +1251,7 @@ export class ObsidianBloomScene {
       elapsedSeconds,
       qualityProfile: this.qualityProfile,
       authority: this.authorityFrameSnapshot,
+      signatureMoment: this.signatureMomentSnapshot,
       paletteState: this.paletteState,
       actWeights: {
         laser: this.actWeights['laser-bloom'],
@@ -1280,6 +1317,7 @@ export class ObsidianBloomScene {
     return {
       elapsedSeconds,
       authority: this.authorityFrameSnapshot,
+      signatureMoment: this.signatureMomentSnapshot,
       paletteState: this.paletteState,
       sceneVariation: {
         voidProfile: sceneVariation.voidProfile,
@@ -1346,6 +1384,45 @@ export class ObsidianBloomScene {
       motion: {
         cameraDrift: this.organicCameraDrift,
         gazeY: this.organicGazeDrift.y + this.pointerCurrent.y * 0.18
+      }
+    };
+  }
+
+  private createSignatureMomentGovernorInput(
+    elapsedSeconds: number,
+    deltaSeconds: number
+  ): SignatureMomentGovernorInput {
+    return {
+      frame: this.lastListeningFrame,
+      elapsedSeconds,
+      deltaSeconds,
+      stageCuePlan: this.stageCuePlan,
+      stageCompositionPlan: this.stageCompositionPlan,
+      authority: this.authorityFrameSnapshot,
+      qualityTier: this.qualityProfile.tier
+    };
+  }
+
+  private createPostSystemUpdateContext(
+    elapsedSeconds: number,
+    deltaSeconds: number
+  ): PostSystemUpdateContext {
+    return {
+      elapsedSeconds,
+      deltaSeconds,
+      qualityProfile: this.qualityProfile,
+      signatureMoment: this.signatureMomentSnapshot,
+      authority: this.authorityFrameSnapshot,
+      paletteState: this.paletteState,
+      stageCuePlan: this.stageCuePlan,
+      audio: {
+        beatPhase: this.beatPhase,
+        phrasePhase: this.phrasePhase,
+        dropImpact: this.dropImpact,
+        releaseTail: this.releaseTail,
+        shimmer: this.shimmer,
+        air: this.air,
+        musicConfidence: this.musicConfidence
       }
     };
   }
@@ -2266,6 +2343,7 @@ export class ObsidianBloomScene {
       beatPhase: this.beatPhase,
       stageCuePlan: this.stageCuePlan,
       stageCompositionPlan: this.stageCompositionPlan,
+      signatureMoment: this.signatureMomentSnapshot,
       matrixAct: this.actWeights['matrix-storm'],
       roomMusicVisualFloor: this.roomMusicVisualFloor,
       adaptiveMusicVisualFloor: this.adaptiveMusicVisualFloor,
@@ -2401,6 +2479,7 @@ export class ObsidianBloomScene {
       stageAudioFeatures: this.stageAudioFeatures,
       stageCuePlan: this.stageCuePlan,
       stageCompositionPlan: this.stageCompositionPlan,
+      signatureMoment: this.signatureMomentSnapshot,
       sceneVariation: this.createMotionSceneVariation(
         this.resolveSceneVariationProfile()
       )
@@ -2452,6 +2531,7 @@ export class ObsidianBloomScene {
       stageSweepAverage,
       lightingIntensities,
       particleOpacity,
+      postTelemetry,
       satelliteActivity,
       pressureWaveAverage
     } = frameTelemetry;
@@ -2655,6 +2735,20 @@ export class ObsidianBloomScene {
       stageFallbackOverbrightRisk: this.stageFallbackOverbrightRiskCurrent,
       stageFallbackWashoutRisk: this.stageFallbackWashoutRiskCurrent,
       afterImageDamp: this.visualTelemetry.afterImageDamp,
+      activeSignatureMoment: postTelemetry.activeSignatureMoment,
+      signatureMomentPhase: postTelemetry.signatureMomentPhase,
+      signatureMomentIntensity: postTelemetry.signatureMomentIntensity,
+      signatureMomentAgeSeconds: postTelemetry.signatureMomentAgeSeconds,
+      signatureMomentSuppressionReason:
+        postTelemetry.signatureMomentSuppressionReason,
+      collapseScarAmount: postTelemetry.collapseScarAmount,
+      cathedralOpenAmount: postTelemetry.cathedralOpenAmount,
+      ghostResidueAmount: postTelemetry.ghostResidueAmount,
+      silenceConstellationAmount: postTelemetry.silenceConstellationAmount,
+      memoryTraceCount: postTelemetry.memoryTraceCount,
+      aftermathClearance: postTelemetry.aftermathClearance,
+      postConsequenceIntensity: postTelemetry.postConsequenceIntensity,
+      postOverprocessRisk: postTelemetry.postOverprocessRisk,
       atmosphereMatterState: this.activeMatterState,
       atmosphereGas: this.atmosphereGas,
       atmosphereLiquid: this.atmosphereLiquid,
@@ -2722,6 +2816,7 @@ export class ObsidianBloomScene {
       stageSweepAverage: this.stageFrameSystem.getSweepAverageOpacity(),
       lightingIntensities: this.lightingSystem.getIntensities(),
       particleOpacity: this.particleSystem.getOpacity(),
+      postTelemetry: this.postSystem.collectTelemetryInputs(),
       satelliteActivity: this.accentOrbitSystem.getSatelliteActivity(),
       pressureWaveAverage: this.pressureWaveSystem.getAverageOpacity()
     };

@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after proof-run reliability hardening and the full `Primary benchmark` proof pass:
+Latest local verification on `codex/full-version-foundation` after the Mythic Signature Moment Engine vertical slice:
 
 - `npm run anthology:validate` passes
 - `npm run check` passes
@@ -23,12 +23,13 @@ Latest local verification on `codex/full-version-foundation` after proof-run rel
 - `npm run build` passes
 - `npm run proof:audit` passes
 - `npm run benchmark:validate` passes for manifest structure and historical baseline preservation
+- `npm run proof-pack -- --limit 1` passes and now includes a `Signature Moments` section
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run evidence:index` passes
 - `npm run evidence:query -- --runs --limit 5` passes
 - `npm run proof-pack -- --limit 3 --strict` intentionally fails because strict release proof still lacks operator-trust and full scenario coverage, and current primary proof still fails overbright/ring taste gates
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
-- `npm run proof:preflight` must pass after the current proof-capture fix is committed and before the next serious run
+- `npm run proof:preflight` must pass after the signature-moment build is committed and before the next serious run
 
 Current standing warning:
 
@@ -36,6 +37,7 @@ Current standing warning:
 - the invalid April 28 run is now archived as debugging evidence only: it had dirty build identity, no selected proof scenario, no-touch failure, and run-journal persistence failure before the retry/snapshot hardening pass
 - the later April 28 diagnostic run `run_20260428_165811_8gs5ht` showed strong chamber/world authority but invalid proof metadata: primary-benchmark manifest with room-floor route invalidation, null sample scenario, null clip declared scenario, and false `advanced:steer` contamination; it must remain diagnostic until the Mission Control pass is rerun cleanly
 - Linear is active in the `visulive` workspace through the direct `mcp__linear__` connector; the stale `mcp__codex_apps__linear_mcp_server` namespace still points at the older workspace and should not be used for VisuLive writes
+- current proof-pack output correctly reports zero signature-moment evidence from old captures; fresh proof must be collected on this build before tuning claims are made
 
 ## Start-Right Audit Snapshot
 
@@ -45,10 +47,11 @@ and canon.
 
 But it is still transitional in four important ways:
 
-- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, and stage-runtime orchestration; the scene still assembles compatibility context, but chamber/world authority math no longer lives there
+- [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, stage preparation, signature-moment resolution, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, stage-runtime orchestration, and `PostSystem`; the scene still assembles compatibility context, but chamber/world authority math and first-wave signature moment eligibility no longer live there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
 - Proof Mission Control has produced valid current-proof-eligible primary benchmark run packages, but operator-trust proof is still missing and the latest full run exposed one evidence-platform gap: `operator-trust-clear` was journaled but not captured as a supporting still/clip because authority still work was in flight
+- The Mythic Signature Moment Engine vertical slice is now implemented but unproven: `SignatureMomentGovernor` selects rare moments, `PostSystem` owns first-wave consequence rendering/telemetry/disposal, and the analyzer can report signature moment coverage and post risk from fresh captures
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -84,11 +87,11 @@ development.
 
 The next wave is:
 
-- `Proof / Authority Validation`
+- `Signature Moment Proof / Tuning`
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
 - `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
-- next, commit/restart the operator-trust-clear capture fix, then run `VIS-13` as the first clean `Operator trust` proof pass
+- next, commit/restart the signature-moment build, run a short `Primary benchmark` canary, then run a full primary benchmark if the canary is valid; `Operator trust` remains the next proof lane after signature moment distinctness and safety have a clean primary run
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start
@@ -138,9 +141,10 @@ Current public show count is unchanged, but the branch materially changes the in
 
 The internal structure is also materially scaffolded even though the public product stays simple:
 
-- stage-frame, pressure-wave, lighting, particle, motion, macro-event, and director-state logic now have named module or rig homes
+- stage-frame, pressure-wave, lighting, particle, motion, macro-event, director-state, signature-moment, and post-consequence logic now have named module, governor, system, or rig homes
 - the public runtime vocabulary and folder layout now point toward orchestration-first ownership
 - [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) still assembles cross-system context directly, but chamber/world authority judgment now lives in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) instead of scene-local math
+- first-wave rare moment eligibility now lives in [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), and first-wave post consequence rendering now lives in [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
 - `systems/**` and `governors/**` should currently be treated as API and namespace surfaces, not final proof that ownership is finished
 
 ### Tooling and release operations
@@ -169,7 +173,7 @@ Benchmark truth is now stricter:
 The anthology program is ahead of code in these ways:
 
 - the anthology runtime contracts now exist, but hero species, world mutation, compositor, and memory are still mostly intent-layer truth rather than fully delivered runtime behavior
-- the target runtime structure now includes post, compositor, memory, and content ownership, but those systems are not fully extracted yet
+- the target runtime structure now includes compositor, memory, and content ownership, but those systems are not fully extracted yet
 - the current runtime facade and namespaced system folders are still more structural promise than finished ownership
 - the mastery review system is installed, but its first golden review set is still provisional because fresh canonical captures have not yet replaced the older report-derived stills
 - `stable` is the only active public release lane today; a separate frontier host is future staging infrastructure and is not yet provisioned in production
@@ -182,6 +186,7 @@ These changes are real, but not yet proven against a fresh post-change capture c
 
 - whether untouched full-spectrum runs materially improve repertoire instead of just adding more named metadata
 - whether the new authority-driven chamber/world takeover reads more clearly across the room
+- whether collapse scar, cathedral open, ghost residue, and silence constellation read as distinct, rare, premium, safe-tier image classes instead of generic treatment
 - whether quiet room-mic music floor remains vivid, readable, and mobile
 - whether the anthology intent layer maps cleanly onto future analyzer coverage
 - whether the new architecture pass preserves live feel while the remaining flagship hotspots are extracted
@@ -194,7 +199,7 @@ The biggest remaining constraints are still:
 - [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) is still too large
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) is now a real frame orchestrator, but it is not the final runtime owner until later post/compositor/memory extraction lands
 - `src/scene/systems/**` and `src/scene/governors/**` still mask the real implementation hotspots in `modules/**` and `rigs/**`
-- the remaining flagship hotspot is now proof on the new authority split plus later post/compositor ownership and hero/world capability proof
+- the remaining flagship hotspot is now proof on the new authority split plus the new signature moments, then later compositor/memory ownership and hero/world capability proof
 - [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) and [director.ts](C:/dev/GitHub/visulive/src/types/director.ts) are still temporary integration hubs with too much responsibility
 - the show/audio routing stack is still flatter than the target regime hierarchy
 - proof-pack output still reflects an older capture library that predates the full anthology metadata set
@@ -208,11 +213,12 @@ The next highest-leverage sequence is:
 1. make the baseline honest: keep docs, agent guidance, shell language, and proof expectations aligned with actual code ownership
 2. run live start/stop sanity and a fresh no-touch `PC Audio` benchmark batch on the new authority-driven chamber/world split
 3. use analyzer and proof-pack output to decide whether authority plus lighting/particle composition needs another pass or is ready to hold
-4. formalize the stronger audio-to-regime-to-cue hierarchy and stop resolving similar situations into one house answer
-5. land the first real anthology capability wave: alternate hero species, world mutation verbs, and owned consequence / aftermath behavior
-6. extract `PostSystem`, then compositor/memory/content, once the authority proof wave is stable
-7. record fresh direct-audio, room-floor, combo, sparse/silence, and operator-trust proof packs on the new backbone
-8. only provision a separate frontier host and site later, once the rewrite is ready for real staging use and the extra environment is worth the complexity
+4. proof-tune the Mythic Signature Moment Engine until the four moments are distinct, rare, safe-tier viable, and not another overbright/ring-overdraw path
+5. formalize the stronger audio-to-regime-to-cue hierarchy and stop resolving similar situations into one house answer
+6. land the first real anthology capability wave: alternate hero species and world mutation verbs, only through owned systems
+7. extract compositor/memory/content once the signature-moment proof wave is stable
+8. record fresh direct-audio, room-floor, combo, sparse/silence, and operator-trust proof packs on the new backbone
+9. only provision a separate frontier host and site later, once the rewrite is ready for real staging use and the extra environment is worth the complexity
 
 ## Not Ready Yet
 

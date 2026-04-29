@@ -504,6 +504,17 @@ export type ReplayRunJournalSample = {
     performanceRegime?: VisualTelemetryFrame['performanceRegime'];
     stageWorldMode?: VisualTelemetryFrame['stageWorldMode'];
   };
+  signatureMoment: {
+    activeSignatureMoment?: VisualTelemetryFrame['activeSignatureMoment'];
+    signatureMomentPhase?: VisualTelemetryFrame['signatureMomentPhase'];
+    signatureMomentIntensity?: number;
+    collapseScarAmount?: number;
+    cathedralOpenAmount?: number;
+    ghostResidueAmount?: number;
+    silenceConstellationAmount?: number;
+    postConsequenceIntensity?: number;
+    postOverprocessRisk?: number;
+  };
   authority: {
     heroCoverageEstimate?: number;
     ringAuthority?: number;

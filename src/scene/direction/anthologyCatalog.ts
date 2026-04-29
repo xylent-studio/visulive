@@ -236,46 +236,49 @@ export const anthologyCatalog = [
     category: 'consequence',
     status: 'frontier',
     intendedOwnerLane: 'Consequence / Aftermath / Post',
-    runtimeOwnershipStatus: 'partial-system',
+    runtimeOwnershipStatus: 'owned-system',
     runtimeOwner:
-      'C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts plus runtime post logic',
+      'C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts plus C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts',
     blockingOwner:
-      'Dedicated PostSystem and aftermath ownership do not exist yet.',
+      'Fresh proof has not yet shown that the first signature moments are distinct, rare, and safe-tier viable.',
     cueRole: 'aftermath-memory',
     quietBehavior: {
       summary:
-        'Quiet frames should stay clean enough that later consequence feels earned.',
+        'Quiet frames should become premium space when silence constellation is earned, while staying clean enough that later consequence still matters.',
       authorityMode:
-        'Post remains withheld unless the cue or memory state actually earns a spend.',
+        'Post remains selective; silence constellation can lead quietly without turning into permanent haze.',
       roomRead:
-        'Dark value and untouched space remain visible before impact.',
+        'Low-energy structure, color, and constellation depth remain visible across the room before impact.',
       proofSignals: [
         'quiet states avoid permanent haze or residue',
+        'silence constellation reads as intentional quiet beauty',
         'baseline post spend remains selective'
       ]
     },
     impactBehavior: {
       summary:
-        'Consequence modes should scar, wipe, shock, or collapse the image itself.',
+        'Consequence modes should scar, open, haunt, or constellate the image itself.',
       authorityMode:
         'Impact spend is cue-bound and image-changing instead of uniform brightness gain.',
       roomRead:
-        'Major cues alter topology, framing, or screen-space treatment across the room.',
+        'Major cues alter topology, architecture, memory, or spatial field across the room.',
       proofSignals: [
         'major events visibly change the frame',
-        'at least two consequence modes read differently'
+        'collapse scar, cathedral open, ghost residue, and silence constellation read differently',
+        'at least one moment is world/post-led with hero visibly demoted'
       ]
     },
     aftermathBehavior: {
       summary:
-        'Aftermath states should leave memory, stain, void, or charged suspension and then resolve.',
+        'Aftermath states should leave bounded memory, scar, void, or charged suspension and then resolve.',
       authorityMode:
-        'Aftermath owns the frame only when the cue class calls for it.',
+        'Aftermath owns the frame only when the signature moment phase calls for it.',
       roomRead:
         'Residual image change remains readable without turning into permanent treatment.',
       proofSignals: [
         'aftermath remains distinct from the impact spend',
-        'post-event recovery states visibly differ'
+        'post-event recovery states visibly differ',
+        'memory traces expire and stay bounded'
       ]
     },
     absenceRules: [
@@ -325,11 +328,11 @@ export const anthologyCatalog = [
       }
     ],
     nextTarget:
-      'Add a dedicated PostSystem and split shock, scar, wipe, haunt, and recovery into explicit families.',
+      'Proof-tune collapse scar, cathedral open, ghost residue, and silence constellation before adding more post families.',
     nextDependency:
-      'PostSystem extraction and clear cue legality rules in direction/runtime.',
+      'Fresh primary benchmark proof with signature moment coverage, overbright/ring impact, aftermath clearance, and moment distinctness reported.',
     blockingDependency:
-      'Aftermath behavior is still distributed across scene logic rather than owned by a dedicated system.',
+      'The first post owner exists, but the moments are not yet proven by fresh capture evidence.',
     graduationTarget: {
       from: 'frontier',
       to: 'flagship',
@@ -337,11 +340,11 @@ export const anthologyCatalog = [
         'Promote only when consequence and aftermath stay selective, legible, and proof-backed in untouched runs.'
     },
     proofStatus:
-      'Consequence intent is stronger than before, but aftermath families are not yet fully extracted or analyzer-scored.',
+      'Signature moment telemetry and analyzer coverage exist, but no fresh proof run has validated the four moments yet.',
     lastMeaningfulPass:
-      '2026-04-22 anthology-engine runtime intent install and mastery operating system seeding',
+      '2026-04-28 Mythic Signature Moment Engine vertical slice with SignatureMomentGovernor, PostSystem, telemetry, and analyzer coverage',
     currentBiggestFailureMode:
-      'Aftermath can still collapse into overlong treatment or fail to differentiate itself clearly from the impact moment.'
+      'Moments could still collapse into generic treatment, washout, ring overdraw, or permanent residue until proof-tuned.'
   },
   {
     id: 'lighting-cinematography',

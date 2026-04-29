@@ -5,6 +5,7 @@ import type { RuntimeTuning } from '../../../types/tuning';
 import type {
   AtmosphereMatterState,
   PaletteState,
+  SignatureMomentSnapshot,
   StageCompositionPlan,
   StageCuePlan
 } from '../../../types/visual';
@@ -117,6 +118,7 @@ export type WorldSystemUpdateContext = {
     heroCoverageEstimateCurrent: number;
     ringBeltPersistenceCurrent: number;
   };
+  signatureMoment: SignatureMomentSnapshot;
 };
 
 export type WorldSystemTelemetry = {
@@ -532,6 +534,22 @@ export class WorldSystem {
     const ghostChamber =
       context.stage.cuePlan.worldMode === 'ghost-chamber' ? 1 : 0;
     const fieldBloom = context.stage.cuePlan.worldMode === 'field-bloom' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.intensity
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.intensity
+        : 0;
     const cueScreen = context.stage.cuePlan.screenWeight;
     const cueResidue = context.stage.cuePlan.residueWeight;
     const cueWorld = context.stage.cuePlan.worldWeight;
@@ -558,7 +576,10 @@ export class WorldSystem {
         chamberDominanceFloor * 0.3 +
         chamberWorldTakeoverBias * 0.28 +
         context.tuning.neonStageFloor * 0.22 +
-        context.tuning.worldBootFloor * 0.16,
+        context.tuning.worldBootFloor * 0.16 +
+        cathedralOpenMoment * 0.16 +
+        silenceConstellationMoment * 0.1 -
+        collapseScarMoment * 0.04,
       0,
       1
     );
@@ -740,6 +761,7 @@ export class WorldSystem {
             context.actWeights.eclipse * 0.08 +
             context.events.aftermath * 0.08 +
             context.audio.preDropTension * 0.1 +
+            collapseScarMoment * 0.2 +
             haunt * 0.1 +
             paletteVoid * 0.12 -
             context.sceneVariation.voidProfile * 0.06 +
@@ -816,6 +838,8 @@ export class WorldSystem {
         VOID_BACKGROUND,
         THREE.MathUtils.clamp(
           context.events.collapse * 0.16 +
+            collapseScarMoment * 0.14 +
+            ghostResidueMoment * 0.08 +
             context.atmosphere.pressure * 0.05 -
             stageColorLift * 0.14 -
             context.atmosphere.crystal * 0.04,
@@ -832,9 +856,12 @@ export class WorldSystem {
       context.director.worldActivity * 0.012 +
       context.familyWeights.plume * 0.01 +
       fieldBloom * 0.008 +
+      silenceConstellationMoment * 0.004 +
       spatialPresence * 0.008 +
       context.familyWeights.eclipse * 0.008 +
       collapseWell * 0.01 +
+      collapseScarMoment * 0.012 +
+      ghostResidueMoment * 0.008 +
       context.events.aftermath * 0.01 +
       context.sceneVariation.spectralProfile * 0.008 +
       context.sceneVariation.prismaticProfile * 0.004 +
@@ -970,7 +997,10 @@ export class WorldSystem {
             chamberPresenceFloor * 0.012 +
             chamberDominanceFloor * 0.012 +
             shotWorldTakeover * 0.014 +
-            shotPressure * 0.008),
+            shotPressure * 0.008) +
+        collapseScarMoment * 0.06 +
+        ghostResidueMoment * 0.026 +
+        silenceConstellationMoment * 0.018,
       0,
       0.42 + context.sceneVariation.prismaticProfile * 0.04
     );
@@ -986,6 +1016,7 @@ export class WorldSystem {
       context.elapsedSeconds * 0.05 +
       context.familyWeights.portal * 0.26 +
       context.events.worldStain * 0.3 +
+      collapseScarMoment * 0.34 +
       detonate * 0.22 +
       context.audio.sectionChange * 0.18 +
       chamberDrift.x * 0.14 +
@@ -1000,6 +1031,7 @@ export class WorldSystem {
         context.familyWeights.portal * 0.32 +
         context.events.worldStain * 0.6 +
         stageWipe * 0.22 +
+        collapseScarMoment * 0.5 +
         cueScreen * 0.18 +
         cueResidue * 0.28 +
         context.director.spectacle * 0.18 +
@@ -1013,6 +1045,8 @@ export class WorldSystem {
         apertureCage * 0.18 +
         cueResidue * 0.16 +
         context.events.collapse * 0.16 +
+        collapseScarMoment * 0.28 +
+        ghostResidueMoment * 0.18 +
         context.director.worldActivity * 0.18 +
         context.sceneVariation.spectralProfile * 0.18 +
         context.audio.sectionChange * 0.42,
@@ -1061,6 +1095,8 @@ export class WorldSystem {
         impactHit * 0.09 +
         context.events.portalOpen * 0.02 +
         context.events.collapse * 0.04 +
+        collapseScarMoment * 0.06 +
+        cathedralOpenMoment * 0.026 +
         context.audio.strikePulse * 0.022 +
         context.audio.dropImpact * (0.1 + beatPulse * 0.05) +
         context.audio.sectionChange * 0.04 +
@@ -1069,6 +1105,7 @@ export class WorldSystem {
         spectralPulse * 0.012);
     this.worldFlashMaterial.opacity *=
       1 - washoutSuppression * 0.34 - peakSpend * 0.08 - restraint * 0.06;
+    this.worldFlashMaterial.opacity *= 1 - collapseScarMoment * 0.18;
     this.worldFlashMaterial.opacity *= THREE.MathUtils.clamp(
       1 -
         shotPressure * 0.12 -
@@ -1088,6 +1125,8 @@ export class WorldSystem {
         cueRupture * 0.28 +
         cueWorld * 0.08 +
         context.events.collapse * 0.42 +
+        collapseScarMoment * 0.36 +
+        cathedralOpenMoment * 0.18 +
         context.idleBreath * 0.04 +
         context.director.worldActivity * 0.08 +
         musicPresence * 0.06 +

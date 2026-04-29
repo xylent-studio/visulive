@@ -3,6 +3,7 @@ import type { StageAudioFeatures } from '../../../audio/stageAudioFeatures';
 import type { RuntimeTuning } from '../../../types/tuning';
 import type {
   PaletteState,
+  SignatureMomentSnapshot,
   StageCompositionPlan,
   StageCuePlan
 } from '../../../types/visual';
@@ -147,6 +148,7 @@ export type ChamberSystemUpdateContext = {
     ringBeltPersistenceCurrent: number;
     wirefieldDensityScoreCurrent: number;
   };
+  signatureMoment: SignatureMomentSnapshot;
 };
 
 export type ChamberSystemTelemetry = {
@@ -430,6 +432,22 @@ export class ChamberSystem {
       context.stage.cuePlan.worldMode === 'ghost-chamber' ? 1 : 0;
     const fieldBloom =
       context.stage.cuePlan.worldMode === 'field-bloom' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.postConsequence
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
     const ringSuppression = context.sceneVariation.ringSuppression;
     const portalSuppression = context.sceneVariation.portalSuppression;
     const latticeBoost = context.sceneVariation.latticeBoost;
@@ -486,7 +504,11 @@ export class ChamberSystem {
         chamberDominanceFloor * 0.38 +
         chamberWorldTakeoverBias * 0.34 +
         context.tuning.neonStageFloor * 0.22 +
-        context.tuning.worldBootFloor * 0.18,
+        context.tuning.worldBootFloor * 0.18 +
+        cathedralOpenMoment * 0.26 +
+        silenceConstellationMoment * 0.18 +
+        ghostResidueMoment * 0.12 -
+        collapseScarMoment * 0.06,
       0,
       1
     );
@@ -804,7 +826,10 @@ export class ChamberSystem {
               ringEventPlatform * 0.08 +
               shotWorldTakeover * 0.12 +
               cueReveal * 0.08 +
-              cueGather * 0.04),
+              cueGather * 0.04) +
+          cathedralOpenMoment * 0.028 +
+          ghostResidueMoment * 0.014 +
+          silenceConstellationMoment * 0.018,
         0,
         Math.max(
           chamberRingOpacityCap,
@@ -820,6 +845,7 @@ export class ChamberSystem {
         0.18,
         1
       );
+      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.16;
       ring.mesh.material.opacity *=
         1 -
         peakSpend *
@@ -876,6 +902,7 @@ export class ChamberSystem {
         portal * 0.34 +
         portalOpen * 0.7 +
         apertureCage * 0.22 +
+        cathedralOpenMoment * 0.48 +
         eclipse * 0.22 +
         worldActivity * 0.16 +
         shellBloom * 0.12 +
@@ -984,7 +1011,9 @@ export class ChamberSystem {
             (0.42 +
               chamberWorldTakeoverBias * 0.14 +
               cueReveal * 0.12 +
-              shotWorldTakeover * 0.1),
+              shotWorldTakeover * 0.1) +
+          cathedralOpenMoment * 0.034 +
+          ghostResidueMoment * 0.016,
         0,
         Math.max(
           chamberRingOpacityCap + 0.08,
@@ -1002,6 +1031,7 @@ export class ChamberSystem {
         0.16,
         1
       );
+      ring.mesh.material.opacity *= 1 - collapseScarMoment * 0.12;
       ring.mesh.material.opacity *=
         1 -
         peakSpend *

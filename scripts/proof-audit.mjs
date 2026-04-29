@@ -128,7 +128,7 @@ expect(
 );
 
 expect(
-  agents.includes('now explicitly sequences world, chamber, hero, authority, and stage work') &&
+  agents.includes('now explicitly sequences signature moment, world, chamber, hero, authority, stage, and post work') &&
     !agents.includes('FlagshipShowRuntime` is a facade/forwarding layer'),
   'AGENTS must not describe FlagshipShowRuntime as a forwarding facade.'
 );

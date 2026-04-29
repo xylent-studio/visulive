@@ -61,7 +61,7 @@ April 28 proof-first override:
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
 - primary-benchmark proof now has reviewed-candidate evidence, but strict proof remains blocked by missing operator-trust coverage and repeated overbright/ring taste failures
-- no capability wave, staging host, public UX expansion, or major new extraction starts until operator-trust proof and the next governance correction are validated
+- the user-approved Mythic Signature Moment Engine vertical slice is now the active exception to the earlier proof-first hold; no further capability wave, staging host, public UX expansion, or major new extraction starts until this vertical slice is proof-tuned and operator-trust proof is restored
 
 ## Immediate Start-Right Gate
 
@@ -119,11 +119,12 @@ This is the canonical phase ordering for the current program:
 3. proof, capture, and analyzer hardening on the extracted backbone
 4. fresh authority/no-touch proof on the current branch
 5. proof-led governance correction, if the evidence shows authority, overbright, or ring failures
-6. `PostSystem` ownership extraction, only after authority/no-touch proof holds
-7. cue grammar, regime hierarchy, audio intelligence, and silence dignity
-8. first owned anthology repertoire and capability wave
-9. release, hosting, backup, and benchmarking discipline
-10. broader public expansion only after the anthology backbone clears proof
+6. Mythic Signature Moment Engine / `PostSystem` vertical slice
+7. proof-tune signature moments, then run operator-trust proof
+8. cue grammar, regime hierarchy, audio intelligence, and silence dignity
+9. first owned anthology repertoire and capability wave
+10. release, hosting, backup, and benchmarking discipline
+11. broader public expansion only after the anthology backbone clears proof
 
 Do not skip ahead by adding more visible product complexity or more frontier families into legacy ownership.
 
@@ -140,11 +141,12 @@ The next sequence is:
    - archive invalid inbox runs instead of letting stale current-looking artifacts pollute analysis
    - start serious proof from an empty active run inbox
    - treat invalid April 28 evidence as debugging context only
-3. continue the serious authority/no-touch proof wave
+3. continue the serious signature-moment proof wave
    - select one `Backstage -> Capture -> Proof Mission` per run
    - `Primary benchmark` canary and full primary run are done as reviewed-candidate packages
    - end every serious run with `Finish Proof Run` so pending clips close, journal/manifest finalization is written, and the receipt commands are shown
-   - `Operator trust`, no-touch, 6-8 minutes
+   - run a new short `Primary benchmark` canary on the signature-moment build, then a full primary if the canary is valid
+   - run `Operator trust`, no-touch, 6-8 minutes after the signature moment primary proof is usable
    - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid
 4. keep canon aligned around the anthology engine, runtime architecture, and graduation model
    - use [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md), [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md), and [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md) as the hard continuation layer
@@ -152,8 +154,9 @@ The next sequence is:
    - readiness or persistence failure: evidence/operator tooling only
    - start/stop failure: narrow runtime regression only
    - authority or overbright failure: `AuthorityGovernor`, `LightingSystem`, `ParticleSystem`, or stage cue policy only
+   - generic signature treatment, weak moment distinctness, permanent residue, or missing quiet beauty: `SignatureMomentGovernor`, `PostSystem`, signature-fed system consumers, or cue policy only
    - cue/silence/diversity failure: audio/show-direction governance only
-6. if authority plus no-touch proof holds, start `PostSystem` ownership extraction
+6. if signature proof plus no-touch proof holds, move to music semantics or compositor/memory based on evidence
 7. widen repertoire through owned systems only after proof and ownership are both real
 8. keep the active public host proof-backed and deliberate, and only provision `frontier` later when a true staging lane is worth the complexity
 

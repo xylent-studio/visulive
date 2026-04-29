@@ -45,6 +45,7 @@ import {
   type PostSpendIntent,
   type SectionIntent,
   type ShowAct,
+  type SignatureMomentKind,
   type StageCueFamily,
   type StageIntent,
   type StageShotClass,
@@ -584,6 +585,13 @@ const SHOW_ACT_KEYS: ShowAct[] = [
   'matrix-storm',
   'eclipse-rupture',
   'ghost-afterimage'
+];
+const SIGNATURE_MOMENT_KIND_KEYS: SignatureMomentKind[] = [
+  'none',
+  'collapse-scar',
+  'cathedral-open',
+  'ghost-residue',
+  'silence-constellation'
 ];
 
 type AxisTracker = {
@@ -1631,6 +1639,7 @@ function summarizeVisualTelemetry(
   const stageShotClassCounts = new Map<string, number>();
   const stageTransitionClassCounts = new Map<string, number>();
   const stageTempoCadenceModeCounts = new Map<string, number>();
+  const signatureMomentCounts = new Map<SignatureMomentKind, number>();
   const showFamilyCounts = new Map<string, number>();
   const macroEventCounts = new Map<string, number>();
   const assetLayerTotals = Object.fromEntries(
@@ -1717,6 +1726,25 @@ function summarizeVisualTelemetry(
   let wirefieldDensitySamples = 0;
   let worldDominanceDeliveredSum = 0;
   let worldDominanceDeliveredSamples = 0;
+  let signatureMomentActiveFrames = 0;
+  let signatureMomentIntensitySum = 0;
+  let signatureMomentIntensityPeak = 0;
+  let signatureMomentSamples = 0;
+  let collapseScarSum = 0;
+  let collapseScarPeak = 0;
+  let cathedralOpenSum = 0;
+  let cathedralOpenPeak = 0;
+  let ghostResidueSum = 0;
+  let ghostResiduePeak = 0;
+  let silenceConstellationSum = 0;
+  let silenceConstellationPeak = 0;
+  let aftermathClearanceSum = 0;
+  let aftermathClearanceSamples = 0;
+  let postConsequenceSum = 0;
+  let postConsequenceSamples = 0;
+  let postOverprocessRiskSum = 0;
+  let postOverprocessRiskPeak = 0;
+  let postOverprocessRiskSamples = 0;
   let qualityTransitionCount = 0;
   let firstQualityDowngradeMs: number | undefined;
   let previousQualityTier: string | null = null;
@@ -2083,6 +2111,61 @@ function summarizeVisualTelemetry(
       worldDominanceDeliveredSamples += 1;
       worldDominanceDeliveredSum += telemetry.worldDominanceDelivered;
     }
+    const activeSignatureMoment =
+      telemetry.activeSignatureMoment &&
+      SIGNATURE_MOMENT_KIND_KEYS.includes(telemetry.activeSignatureMoment)
+        ? telemetry.activeSignatureMoment
+        : DEFAULT_VISUAL_TELEMETRY.activeSignatureMoment ?? 'none';
+    signatureMomentCounts.set(
+      activeSignatureMoment,
+      (signatureMomentCounts.get(activeSignatureMoment) ?? 0) + 1
+    );
+    if (activeSignatureMoment !== 'none') {
+      signatureMomentActiveFrames += 1;
+    }
+    if (typeof telemetry.signatureMomentIntensity === 'number') {
+      signatureMomentSamples += 1;
+      signatureMomentIntensitySum += telemetry.signatureMomentIntensity;
+      signatureMomentIntensityPeak = Math.max(
+        signatureMomentIntensityPeak,
+        telemetry.signatureMomentIntensity
+      );
+    }
+    if (typeof telemetry.collapseScarAmount === 'number') {
+      collapseScarSum += telemetry.collapseScarAmount;
+      collapseScarPeak = Math.max(collapseScarPeak, telemetry.collapseScarAmount);
+    }
+    if (typeof telemetry.cathedralOpenAmount === 'number') {
+      cathedralOpenSum += telemetry.cathedralOpenAmount;
+      cathedralOpenPeak = Math.max(cathedralOpenPeak, telemetry.cathedralOpenAmount);
+    }
+    if (typeof telemetry.ghostResidueAmount === 'number') {
+      ghostResidueSum += telemetry.ghostResidueAmount;
+      ghostResiduePeak = Math.max(ghostResiduePeak, telemetry.ghostResidueAmount);
+    }
+    if (typeof telemetry.silenceConstellationAmount === 'number') {
+      silenceConstellationSum += telemetry.silenceConstellationAmount;
+      silenceConstellationPeak = Math.max(
+        silenceConstellationPeak,
+        telemetry.silenceConstellationAmount
+      );
+    }
+    if (typeof telemetry.aftermathClearance === 'number') {
+      aftermathClearanceSamples += 1;
+      aftermathClearanceSum += telemetry.aftermathClearance;
+    }
+    if (typeof telemetry.postConsequenceIntensity === 'number') {
+      postConsequenceSamples += 1;
+      postConsequenceSum += telemetry.postConsequenceIntensity;
+    }
+    if (typeof telemetry.postOverprocessRisk === 'number') {
+      postOverprocessRiskSamples += 1;
+      postOverprocessRiskSum += telemetry.postOverprocessRisk;
+      postOverprocessRiskPeak = Math.max(
+        postOverprocessRiskPeak,
+        telemetry.postOverprocessRisk
+      );
+    }
     updateAxisTracker(heroTranslateXTracker, telemetry.heroTranslateX);
     updateAxisTracker(heroTranslateYTracker, telemetry.heroTranslateY);
     updateAxisTracker(heroTranslateZTracker, telemetry.heroTranslateZ);
@@ -2208,6 +2291,21 @@ function summarizeVisualTelemetry(
     [...atmosphereMatterStateCounts.entries()].sort(
       (left, right) => right[1] - left[1]
     )[0]?.[0] ?? 'gas';
+  const dominantSignatureMoment =
+    [...signatureMomentCounts.entries()].sort(
+      (left, right) => right[1] - left[1]
+    )[0]?.[0] ?? 'none';
+  const signatureMomentSpread: VisualTelemetrySummary['signatureMomentSpread'] = {
+    none: (signatureMomentCounts.get('none') ?? 0) / frames.length,
+    'collapse-scar':
+      (signatureMomentCounts.get('collapse-scar') ?? 0) / frames.length,
+    'cathedral-open':
+      (signatureMomentCounts.get('cathedral-open') ?? 0) / frames.length,
+    'ghost-residue':
+      (signatureMomentCounts.get('ghost-residue') ?? 0) / frames.length,
+    'silence-constellation':
+      (signatureMomentCounts.get('silence-constellation') ?? 0) / frames.length
+  };
   const actSpread: VisualTelemetrySummary['actSpread'] = {
     'void-chamber': (actCounts.get('void-chamber') ?? 0) / frames.length,
     'laser-bloom': (actCounts.get('laser-bloom') ?? 0) / frames.length,
@@ -2723,6 +2821,37 @@ function summarizeVisualTelemetry(
       fallbackSamples > 0 ? washoutFallbackFrames / fallbackSamples : undefined,
     qualityTransitionCount,
     firstQualityDowngradeMs,
+    signatureMomentSpread,
+    dominantSignatureMoment,
+    signatureMomentActiveRate: signatureMomentActiveFrames / frames.length,
+    signatureMomentIntensityMean:
+      signatureMomentSamples > 0
+        ? signatureMomentIntensitySum / signatureMomentSamples
+        : undefined,
+    signatureMomentIntensityPeak:
+      signatureMomentSamples > 0 ? signatureMomentIntensityPeak : undefined,
+    collapseScarMean: collapseScarSum / frames.length,
+    collapseScarPeak,
+    cathedralOpenMean: cathedralOpenSum / frames.length,
+    cathedralOpenPeak,
+    ghostResidueMean: ghostResidueSum / frames.length,
+    ghostResiduePeak,
+    silenceConstellationMean: silenceConstellationSum / frames.length,
+    silenceConstellationPeak,
+    aftermathClearanceMean:
+      aftermathClearanceSamples > 0
+        ? aftermathClearanceSum / aftermathClearanceSamples
+        : undefined,
+    postConsequenceMean:
+      postConsequenceSamples > 0
+        ? postConsequenceSum / postConsequenceSamples
+        : undefined,
+    postOverprocessRiskMean:
+      postOverprocessRiskSamples > 0
+        ? postOverprocessRiskSum / postOverprocessRiskSamples
+        : undefined,
+    postOverprocessRiskPeak:
+      postOverprocessRiskSamples > 0 ? postOverprocessRiskPeak : undefined,
     assetLayerSummary: Object.fromEntries(
       VISUAL_ASSET_LAYERS.map((layer) => [
         layer,
@@ -3923,6 +4052,71 @@ function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {
       typeof telemetry?.afterImageDamp === 'number'
         ? telemetry.afterImageDamp
         : DEFAULT_VISUAL_TELEMETRY.afterImageDamp,
+    activeSignatureMoment:
+      telemetry?.activeSignatureMoment &&
+      SIGNATURE_MOMENT_KIND_KEYS.includes(telemetry.activeSignatureMoment)
+        ? telemetry.activeSignatureMoment
+        : DEFAULT_VISUAL_TELEMETRY.activeSignatureMoment,
+    signatureMomentPhase:
+      telemetry?.signatureMomentPhase === 'idle' ||
+      telemetry?.signatureMomentPhase === 'eligible' ||
+      telemetry?.signatureMomentPhase === 'precharge' ||
+      telemetry?.signatureMomentPhase === 'strike' ||
+      telemetry?.signatureMomentPhase === 'hold' ||
+      telemetry?.signatureMomentPhase === 'residue' ||
+      telemetry?.signatureMomentPhase === 'clear'
+        ? telemetry.signatureMomentPhase
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentPhase,
+    signatureMomentIntensity:
+      typeof telemetry?.signatureMomentIntensity === 'number'
+        ? telemetry.signatureMomentIntensity
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentIntensity,
+    signatureMomentAgeSeconds:
+      typeof telemetry?.signatureMomentAgeSeconds === 'number'
+        ? telemetry.signatureMomentAgeSeconds
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentAgeSeconds,
+    signatureMomentSuppressionReason:
+      telemetry?.signatureMomentSuppressionReason === 'none' ||
+      telemetry?.signatureMomentSuppressionReason === 'cooldown' ||
+      telemetry?.signatureMomentSuppressionReason === 'low-confidence' ||
+      telemetry?.signatureMomentSuppressionReason === 'safety-risk' ||
+      telemetry?.signatureMomentSuppressionReason === 'overbright-risk' ||
+      telemetry?.signatureMomentSuppressionReason === 'insufficient-cue' ||
+      telemetry?.signatureMomentSuppressionReason === 'memory-empty'
+        ? telemetry.signatureMomentSuppressionReason
+        : DEFAULT_VISUAL_TELEMETRY.signatureMomentSuppressionReason,
+    collapseScarAmount:
+      typeof telemetry?.collapseScarAmount === 'number'
+        ? telemetry.collapseScarAmount
+        : DEFAULT_VISUAL_TELEMETRY.collapseScarAmount,
+    cathedralOpenAmount:
+      typeof telemetry?.cathedralOpenAmount === 'number'
+        ? telemetry.cathedralOpenAmount
+        : DEFAULT_VISUAL_TELEMETRY.cathedralOpenAmount,
+    ghostResidueAmount:
+      typeof telemetry?.ghostResidueAmount === 'number'
+        ? telemetry.ghostResidueAmount
+        : DEFAULT_VISUAL_TELEMETRY.ghostResidueAmount,
+    silenceConstellationAmount:
+      typeof telemetry?.silenceConstellationAmount === 'number'
+        ? telemetry.silenceConstellationAmount
+        : DEFAULT_VISUAL_TELEMETRY.silenceConstellationAmount,
+    memoryTraceCount:
+      typeof telemetry?.memoryTraceCount === 'number'
+        ? telemetry.memoryTraceCount
+        : DEFAULT_VISUAL_TELEMETRY.memoryTraceCount,
+    aftermathClearance:
+      typeof telemetry?.aftermathClearance === 'number'
+        ? telemetry.aftermathClearance
+        : DEFAULT_VISUAL_TELEMETRY.aftermathClearance,
+    postConsequenceIntensity:
+      typeof telemetry?.postConsequenceIntensity === 'number'
+        ? telemetry.postConsequenceIntensity
+        : DEFAULT_VISUAL_TELEMETRY.postConsequenceIntensity,
+    postOverprocessRisk:
+      typeof telemetry?.postOverprocessRisk === 'number'
+        ? telemetry.postOverprocessRisk
+        : DEFAULT_VISUAL_TELEMETRY.postOverprocessRisk,
     atmosphereMatterState:
       telemetry?.atmosphereMatterState === 'gas' ||
       telemetry?.atmosphereMatterState === 'liquid' ||
@@ -4911,6 +5105,75 @@ function normalizeVisualTelemetrySummary(value: unknown): VisualTelemetrySummary
       typeof summary.firstQualityDowngradeMs === 'number'
         ? summary.firstQualityDowngradeMs
         : undefined,
+    signatureMomentSpread: normalizeFixedNumberRecord(
+      SIGNATURE_MOMENT_KIND_KEYS,
+      summary.signatureMomentSpread
+    ),
+    dominantSignatureMoment:
+      summary.dominantSignatureMoment &&
+      SIGNATURE_MOMENT_KIND_KEYS.includes(summary.dominantSignatureMoment)
+        ? summary.dominantSignatureMoment
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.dominantSignatureMoment,
+    signatureMomentActiveRate:
+      typeof summary.signatureMomentActiveRate === 'number'
+        ? summary.signatureMomentActiveRate
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentActiveRate,
+    signatureMomentIntensityMean:
+      typeof summary.signatureMomentIntensityMean === 'number'
+        ? summary.signatureMomentIntensityMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentIntensityMean,
+    signatureMomentIntensityPeak:
+      typeof summary.signatureMomentIntensityPeak === 'number'
+        ? summary.signatureMomentIntensityPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.signatureMomentIntensityPeak,
+    collapseScarMean:
+      typeof summary.collapseScarMean === 'number'
+        ? summary.collapseScarMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.collapseScarMean,
+    collapseScarPeak:
+      typeof summary.collapseScarPeak === 'number'
+        ? summary.collapseScarPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.collapseScarPeak,
+    cathedralOpenMean:
+      typeof summary.cathedralOpenMean === 'number'
+        ? summary.cathedralOpenMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.cathedralOpenMean,
+    cathedralOpenPeak:
+      typeof summary.cathedralOpenPeak === 'number'
+        ? summary.cathedralOpenPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.cathedralOpenPeak,
+    ghostResidueMean:
+      typeof summary.ghostResidueMean === 'number'
+        ? summary.ghostResidueMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.ghostResidueMean,
+    ghostResiduePeak:
+      typeof summary.ghostResiduePeak === 'number'
+        ? summary.ghostResiduePeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.ghostResiduePeak,
+    silenceConstellationMean:
+      typeof summary.silenceConstellationMean === 'number'
+        ? summary.silenceConstellationMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.silenceConstellationMean,
+    silenceConstellationPeak:
+      typeof summary.silenceConstellationPeak === 'number'
+        ? summary.silenceConstellationPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.silenceConstellationPeak,
+    aftermathClearanceMean:
+      typeof summary.aftermathClearanceMean === 'number'
+        ? summary.aftermathClearanceMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.aftermathClearanceMean,
+    postConsequenceMean:
+      typeof summary.postConsequenceMean === 'number'
+        ? summary.postConsequenceMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.postConsequenceMean,
+    postOverprocessRiskMean:
+      typeof summary.postOverprocessRiskMean === 'number'
+        ? summary.postOverprocessRiskMean
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.postOverprocessRiskMean,
+    postOverprocessRiskPeak:
+      typeof summary.postOverprocessRiskPeak === 'number'
+        ? summary.postOverprocessRiskPeak
+        : DEFAULT_VISUAL_TELEMETRY_SUMMARY.postOverprocessRiskPeak,
     assetLayerSummary: Object.fromEntries(
       VISUAL_ASSET_LAYERS.map((layer) => {
         const entry = summary.assetLayerSummary?.[layer];

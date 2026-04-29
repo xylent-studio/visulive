@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { StageAudioFeatures } from '../../audio/stageAudioFeatures';
 import type {
+  SignatureMomentSnapshot,
   StageCompositionPlan,
   StageCuePlan
 } from '../../types/visual';
@@ -108,6 +109,7 @@ export type MotionCameraContext = {
   stageAudioFeatures: StageAudioFeatures;
   stageCuePlan: StageCuePlan;
   stageCompositionPlan: StageCompositionPlan;
+  signatureMoment: SignatureMomentSnapshot;
   sceneVariation: MotionSceneVariation;
 };
 
@@ -858,6 +860,22 @@ export class MotionSystem {
     const cueReveal = context.stageCuePlan.family === 'reveal' ? 1 : 0;
     const cueHaunt = context.stageCuePlan.family === 'haunt' ? 1 : 0;
     const cueReset = context.stageCuePlan.family === 'reset' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.worldLead
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.intensity
+        : 0;
     const largeHeroBias = Math.max(0, heroScaleBias);
     const smallHeroBias = Math.max(0, -heroScaleBias);
     const framingLeadX = heroStageX * (0.9 + heroMotionBias * 0.3);
@@ -932,6 +950,10 @@ export class MotionSystem {
         shotWorldTakeover * (lowEnergyReadableFloorActive ? 2.6 : 4.4) +
         shotAftermath * (lowEnergyReadableFloorActive ? 2.2 : 3.2) +
         shotIsolate * (lowEnergyReadableFloorActive ? 3 : 5) +
+        collapseScarMoment * 2.4 +
+        cathedralOpenMoment * 2.2 +
+        ghostResidueMoment * 1.4 +
+        silenceConstellationMoment * 2.8 +
         fallbackWidenShot * 2.8 +
         cadenceAftermath * 1.4 -
         cadenceSurge * 1.2 -
@@ -969,6 +991,7 @@ export class MotionSystem {
       Math.sin(context.elapsedSeconds * 0.08 + context.barPhase * Math.PI * 2) *
         (0.18 +
           context.cathedralWeight * 0.28 +
+          cathedralOpenMoment * 0.22 +
           context.preDropTension * 0.18 +
           heroMotionBias * 0.18 +
           tempoDensity * 0.14 +
@@ -978,6 +1001,8 @@ export class MotionSystem {
           cadenceSurge * 0.1 -
           cadenceAftermath * 0.06) +
       context.cameraDrift.x * 1.4 +
+      cathedralOpenMoment * Math.sin(context.elapsedSeconds * 0.11) * 0.28 -
+      collapseScarMoment * Math.sign(framingLeadX || context.gazeX || 1) * 0.16 +
       cameraMotion.position.x;
     const targetY =
       framingLeadY *
@@ -1000,12 +1025,16 @@ export class MotionSystem {
         (0.12 +
           context.plumeWeight * 0.2 +
           context.sectionChange * 0.18 +
+          silenceConstellationMoment * 0.16 +
+          ghostResidueMoment * 0.12 +
           heroMotionBias * 0.12 +
           spatialPresence * 0.12 +
           sceneVariation.cameraSpreadBoost * 0.12 +
           cadenceDriving * 0.04 -
           cadenceAftermath * 0.04) +
       context.cameraDrift.y * 1.26 +
+      cathedralOpenMoment * 0.12 -
+      collapseScarMoment * 0.1 +
       cameraMotion.position.y;
     const targetZ =
       9.8 +
@@ -1037,6 +1066,10 @@ export class MotionSystem {
       overfillPressure * 1.56 +
       fallbackWidenShot * 1.12 +
       sceneVariation.cameraSpreadBoost * 0.84 +
+      cathedralOpenMoment * 0.8 +
+      silenceConstellationMoment * 0.7 +
+      ghostResidueMoment * 0.42 -
+      collapseScarMoment * 0.32 +
       fallbackDemoteHero * 0.56 -
       cadenceSurge * 0.22 -
       coverageDeficit *
@@ -1069,6 +1102,8 @@ export class MotionSystem {
         shotPressure * 0.68 +
         cueReveal * 0.28 +
         cueRupture * 0.18 +
+        context.signatureMoment.worldLead * 0.52 +
+        context.signatureMoment.chamberArchitecture * 0.28 +
         sceneVariation.cameraSpreadBoost * 0.18,
       0,
       1.4
@@ -1079,7 +1114,8 @@ export class MotionSystem {
         shotPressure * 0.03 -
         shotIsolate * 0.02 -
         overfillPressure * 0.04 -
-        worldLedLookBias * 0.04,
+        worldLedLookBias * 0.04 -
+        context.signatureMoment.heroSuppression * 0.04,
       0.02,
       0.11
     );

@@ -1,5 +1,9 @@
 import * as THREE from 'three';
-import type { AuthorityFrameSnapshot, PaletteState } from '../../types/visual';
+import type {
+  AuthorityFrameSnapshot,
+  PaletteState,
+  SignatureMomentSnapshot
+} from '../../types/visual';
 import type { SceneQualityProfile } from '../runtime';
 
 type ParticlePoint = {
@@ -14,6 +18,7 @@ export type ParticleSystemUpdateContext = {
   elapsedSeconds: number;
   qualityProfile: SceneQualityProfile;
   authority: AuthorityFrameSnapshot;
+  signatureMoment: SignatureMomentSnapshot;
   paletteState: PaletteState;
   actWeights: {
     laser: number;
@@ -161,6 +166,22 @@ export class ParticleSystem {
     const paletteAcid = context.paletteState === 'acid-lime' ? 1 : 0;
     const paletteSolar = context.paletteState === 'solar-magenta' ? 1 : 0;
     const paletteGhost = context.paletteState === 'ghost-white' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.worldLead
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.intensity
+        : 0;
     const warmBias = Math.max(0, (context.director.colorBias - 0.5) * 2);
     const coolBias = Math.max(0, (0.5 - context.director.colorBias) * 2);
     const chromaPulse =
@@ -225,12 +246,17 @@ export class ParticleSystem {
             context.familyWeights.storm * 0.6 +
             context.director.energy * 0.22 +
             context.director.laserDrive * 0.12 +
-            context.director.worldActivity * 0.26);
+            context.director.worldActivity * 0.26 +
+            cathedralOpenMoment * 0.12 -
+            silenceConstellationMoment * 0.08 -
+            collapseScarMoment * 0.1);
       const lift =
         context.familyWeights.plume * (0.8 + point.bias * 0.4) +
         context.audio.air * 0.12 +
         context.atmosphere.gas * 0.2 +
-        context.atmosphere.residue * 0.08;
+        context.atmosphere.residue * 0.08 +
+        silenceConstellationMoment * 0.18 +
+        ghostResidueMoment * 0.1;
       const radius =
         point.radius *
         (1 +
@@ -244,6 +270,10 @@ export class ParticleSystem {
           context.familyWeights.portal * 0.12 +
           context.familyWeights.cathedral * 0.08 +
           context.events.portalOpen * 0.08 -
+          collapseScarMoment * 0.16 +
+          cathedralOpenMoment * 0.1 +
+          silenceConstellationMoment * 0.08 +
+          ghostResidueMoment * 0.04 -
           authorityRingSuppression * 0.06 -
           authorityWashoutSuppression * 0.04 -
           context.familyWeights.eclipse * 0.05);
@@ -346,7 +376,10 @@ export class ParticleSystem {
             context.atmosphere.liquid * 0.04 +
             context.actWeights.matrix * 0.14 +
             paletteAcid * 0.18
-        );
+        )
+        .lerp(TRON_BLUE, silenceConstellationMoment * 0.12)
+        .lerp(VOLT_VIOLET, ghostResidueMoment * 0.12 + collapseScarMoment * 0.08)
+        .lerp(ELECTRIC_WHITE, cathedralOpenMoment * 0.08);
 
       colorArray[baseIndex] = baseColor.r;
       colorArray[baseIndex + 1] = baseColor.g;
@@ -379,7 +412,11 @@ export class ParticleSystem {
       (authorityProminence * 0.028 +
         context.authority.worldDominanceDelivered * 0.018 -
         authorityRingSuppression * 0.034 -
-        authorityWashoutSuppression * 0.03) *
+        authorityWashoutSuppression * 0.03 +
+        silenceConstellationMoment * 0.026 +
+        ghostResidueMoment * 0.018 +
+        cathedralOpenMoment * 0.012 -
+        collapseScarMoment * 0.02) *
       context.qualityProfile.particleOpacityMultiplier;
     this.material.opacity = THREE.MathUtils.clamp(
       this.material.opacity *
@@ -403,7 +440,10 @@ export class ParticleSystem {
       context.familyWeights.plume * 0.02 +
       context.events.portalOpen * 0.018 +
       context.audio.dropImpact * 0.016 +
-      context.director.colorWarp * 0.014;
+      context.director.colorWarp * 0.014 +
+      silenceConstellationMoment * 0.012 +
+      cathedralOpenMoment * 0.008 -
+      collapseScarMoment * 0.006;
     this.cloud.rotation.y =
       context.elapsedSeconds *
       (0.03 +
@@ -411,7 +451,9 @@ export class ParticleSystem {
         context.atmosphere.liquid * 0.03 +
         context.familyWeights.portal * 0.05 +
         context.familyWeights.plume * 0.04 +
-        context.director.worldActivity * 0.04);
+        context.director.worldActivity * 0.04 +
+        cathedralOpenMoment * 0.02 -
+        silenceConstellationMoment * 0.01);
     this.cloud.rotation.x =
       Math.sin(context.elapsedSeconds * 0.09) *
       (0.04 + context.atmosphere.gas * 0.03);

@@ -12,6 +12,14 @@ const STAGE_WORLD_MODES = [
 
 const ATMOSPHERE_MATTER_STATES = ['gas', 'liquid', 'plasma', 'crystal'];
 
+const SIGNATURE_MOMENT_KINDS = [
+  'none',
+  'collapse-scar',
+  'cathedral-open',
+  'ghost-residue',
+  'silence-constellation'
+];
+
 const VISUAL_ASSET_LAYERS = [
   'worldSphere',
   'worldStain',
@@ -90,6 +98,11 @@ const COVERAGE_POLICY = {
     ],
     supporting: [],
     rare: ['ghost-chamber']
+  },
+  'signature moments': {
+    core: ['collapse-scar', 'cathedral-open', 'ghost-residue', 'silence-constellation'],
+    supporting: [],
+    rare: []
   },
   'macro events': {
     core: ['pressure-wave', 'portal-open', 'halo-ignition', 'twin-split', 'world-stain'],
@@ -861,6 +874,60 @@ function mergeVisualSummaryEnhancements(metadata = {}, visualSummary = {}) {
       Object.fromEntries(STAGE_WORLD_MODES.map((value) => [value, 0])),
     dominantStageWorldMode:
       visualSummary.dominantStageWorldMode ?? metadataVisual.dominantStageWorldMode ?? 'hold',
+    signatureMomentSpread:
+      visualSummary.signatureMomentSpread ??
+      metadataVisual.signatureMomentSpread ??
+      Object.fromEntries(SIGNATURE_MOMENT_KINDS.map((value) => [value, 0])),
+    dominantSignatureMoment:
+      visualSummary.dominantSignatureMoment ??
+      metadataVisual.dominantSignatureMoment ??
+      'none',
+    signatureMomentActiveRate:
+      visualSummary.signatureMomentActiveRate ??
+      metadataVisual.signatureMomentActiveRate ??
+      0,
+    signatureMomentIntensityMean:
+      visualSummary.signatureMomentIntensityMean ??
+      metadataVisual.signatureMomentIntensityMean ??
+      0,
+    signatureMomentIntensityPeak:
+      visualSummary.signatureMomentIntensityPeak ??
+      metadataVisual.signatureMomentIntensityPeak ??
+      0,
+    collapseScarMean:
+      visualSummary.collapseScarMean ?? metadataVisual.collapseScarMean ?? 0,
+    collapseScarPeak:
+      visualSummary.collapseScarPeak ?? metadataVisual.collapseScarPeak ?? 0,
+    cathedralOpenMean:
+      visualSummary.cathedralOpenMean ?? metadataVisual.cathedralOpenMean ?? 0,
+    cathedralOpenPeak:
+      visualSummary.cathedralOpenPeak ?? metadataVisual.cathedralOpenPeak ?? 0,
+    ghostResidueMean:
+      visualSummary.ghostResidueMean ?? metadataVisual.ghostResidueMean ?? 0,
+    ghostResiduePeak:
+      visualSummary.ghostResiduePeak ?? metadataVisual.ghostResiduePeak ?? 0,
+    silenceConstellationMean:
+      visualSummary.silenceConstellationMean ??
+      metadataVisual.silenceConstellationMean ??
+      0,
+    silenceConstellationPeak:
+      visualSummary.silenceConstellationPeak ??
+      metadataVisual.silenceConstellationPeak ??
+      0,
+    aftermathClearanceMean:
+      visualSummary.aftermathClearanceMean ??
+      metadataVisual.aftermathClearanceMean ??
+      1,
+    postConsequenceMean:
+      visualSummary.postConsequenceMean ?? metadataVisual.postConsequenceMean ?? 0,
+    postOverprocessRiskMean:
+      visualSummary.postOverprocessRiskMean ??
+      metadataVisual.postOverprocessRiskMean ??
+      0,
+    postOverprocessRiskPeak:
+      visualSummary.postOverprocessRiskPeak ??
+      metadataVisual.postOverprocessRiskPeak ??
+      0,
     qualityTransitionCount:
       visualSummary.qualityTransitionCount ?? metadataVisual.qualityTransitionCount ?? 0,
     firstQualityDowngradeMs:
@@ -1576,6 +1643,26 @@ export function summarizeCapture(capture, filePath) {
   let wirefieldDensityPeak = 0;
   let worldDominanceDeliveredSamples = 0;
   let worldDominanceDeliveredSum = 0;
+  const signatureMomentCounts = new Map();
+  let signatureMomentActiveFrames = 0;
+  let signatureMomentIntensitySamples = 0;
+  let signatureMomentIntensitySum = 0;
+  let signatureMomentIntensityPeak = 0;
+  let collapseScarSum = 0;
+  let collapseScarPeak = 0;
+  let cathedralOpenSum = 0;
+  let cathedralOpenPeak = 0;
+  let ghostResidueSum = 0;
+  let ghostResiduePeak = 0;
+  let silenceConstellationSum = 0;
+  let silenceConstellationPeak = 0;
+  let aftermathClearanceSamples = 0;
+  let aftermathClearanceSum = 0;
+  let postConsequenceSamples = 0;
+  let postConsequenceSum = 0;
+  let postOverprocessRiskSamples = 0;
+  let postOverprocessRiskSum = 0;
+  let postOverprocessRiskPeak = 0;
 
   for (const frame of frames) {
     const listening = frame.listeningFrame ?? {};
@@ -1779,6 +1866,58 @@ export function summarizeCapture(capture, filePath) {
       worldDominanceDeliveredSamples += 1;
       worldDominanceDeliveredSum += visual.worldDominanceDelivered;
     }
+    const activeSignatureMoment = SIGNATURE_MOMENT_KINDS.includes(
+      visual.activeSignatureMoment
+    )
+      ? visual.activeSignatureMoment
+      : 'none';
+    incrementCounter(signatureMomentCounts, activeSignatureMoment);
+    if (activeSignatureMoment !== 'none') {
+      signatureMomentActiveFrames += 1;
+    }
+    if (typeof visual.signatureMomentIntensity === 'number') {
+      signatureMomentIntensitySamples += 1;
+      signatureMomentIntensitySum += visual.signatureMomentIntensity;
+      signatureMomentIntensityPeak = Math.max(
+        signatureMomentIntensityPeak,
+        visual.signatureMomentIntensity
+      );
+    }
+    if (typeof visual.collapseScarAmount === 'number') {
+      collapseScarSum += visual.collapseScarAmount;
+      collapseScarPeak = Math.max(collapseScarPeak, visual.collapseScarAmount);
+    }
+    if (typeof visual.cathedralOpenAmount === 'number') {
+      cathedralOpenSum += visual.cathedralOpenAmount;
+      cathedralOpenPeak = Math.max(cathedralOpenPeak, visual.cathedralOpenAmount);
+    }
+    if (typeof visual.ghostResidueAmount === 'number') {
+      ghostResidueSum += visual.ghostResidueAmount;
+      ghostResiduePeak = Math.max(ghostResiduePeak, visual.ghostResidueAmount);
+    }
+    if (typeof visual.silenceConstellationAmount === 'number') {
+      silenceConstellationSum += visual.silenceConstellationAmount;
+      silenceConstellationPeak = Math.max(
+        silenceConstellationPeak,
+        visual.silenceConstellationAmount
+      );
+    }
+    if (typeof visual.aftermathClearance === 'number') {
+      aftermathClearanceSamples += 1;
+      aftermathClearanceSum += visual.aftermathClearance;
+    }
+    if (typeof visual.postConsequenceIntensity === 'number') {
+      postConsequenceSamples += 1;
+      postConsequenceSum += visual.postConsequenceIntensity;
+    }
+    if (typeof visual.postOverprocessRisk === 'number') {
+      postOverprocessRiskSamples += 1;
+      postOverprocessRiskSum += visual.postOverprocessRisk;
+      postOverprocessRiskPeak = Math.max(
+        postOverprocessRiskPeak,
+        visual.postOverprocessRisk
+      );
+    }
 
     updateMetricTracker(metrics.subPressure, listening.subPressure ?? 0);
     updateMetricTracker(metrics.bassBody, listening.bassBody ?? 0);
@@ -1898,6 +2037,9 @@ export function summarizeCapture(capture, filePath) {
     [...atmosphereMatterStateCounts.entries()].sort(
       (left, right) => right[1] - left[1]
     )[0]?.[0] ?? 'gas';
+  const dominantSignatureMoment =
+    [...signatureMomentCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+    'none';
   const heroHueRange =
     Number.isFinite(heroHueMin) && Number.isFinite(heroHueMax)
       ? heroHueMax - heroHueMin
@@ -1944,6 +2086,40 @@ export function summarizeCapture(capture, filePath) {
     atmosphereResiduePeak,
     atmosphereStructureRevealMean: atmosphereStructureRevealSum / frames.length,
     atmosphereStructureRevealPeak,
+    signatureMomentSpread: Object.fromEntries(
+      SIGNATURE_MOMENT_KINDS.map((kind) => [
+        kind,
+        (signatureMomentCounts.get(kind) ?? 0) / frames.length
+      ])
+    ),
+    dominantSignatureMoment,
+    signatureMomentActiveRate: signatureMomentActiveFrames / frames.length,
+    signatureMomentIntensityMean:
+      signatureMomentIntensitySamples > 0
+        ? signatureMomentIntensitySum / signatureMomentIntensitySamples
+        : undefined,
+    signatureMomentIntensityPeak:
+      signatureMomentIntensitySamples > 0 ? signatureMomentIntensityPeak : undefined,
+    collapseScarMean: collapseScarSum / frames.length,
+    collapseScarPeak,
+    cathedralOpenMean: cathedralOpenSum / frames.length,
+    cathedralOpenPeak,
+    ghostResidueMean: ghostResidueSum / frames.length,
+    ghostResiduePeak,
+    silenceConstellationMean: silenceConstellationSum / frames.length,
+    silenceConstellationPeak,
+    aftermathClearanceMean:
+      aftermathClearanceSamples > 0
+        ? aftermathClearanceSum / aftermathClearanceSamples
+        : undefined,
+    postConsequenceMean:
+      postConsequenceSamples > 0 ? postConsequenceSum / postConsequenceSamples : undefined,
+    postOverprocessRiskMean:
+      postOverprocessRiskSamples > 0
+        ? postOverprocessRiskSum / postOverprocessRiskSamples
+        : undefined,
+    postOverprocessRiskPeak:
+      postOverprocessRiskSamples > 0 ? postOverprocessRiskPeak : undefined,
     dominantSpendProfile:
       [...spendProfileCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
       undefined,
@@ -2729,6 +2905,7 @@ function buildAggregateStats(summaries) {
   const atmosphereMatterStateSpread = new Map();
   const spendProfileSpread = new Map();
   const stageRingAuthoritySpread = new Map();
+  const signatureMomentSpread = new Map();
   const eventTimingDispositionSpread = new Map();
   const qualityFlagCounts = new Map();
   let customizedFromLaunchCount = 0;
@@ -2786,6 +2963,10 @@ function buildAggregateStats(summaries) {
   let stageHeroScaleMinMeanSum = 0;
   let stageHeroScaleMaxMeanSum = 0;
   let stageHeroScaleSamples = 0;
+  let signatureMomentActiveRateSum = 0;
+  let signatureMomentActiveRateSamples = 0;
+  let postOverprocessRiskMeanSum = 0;
+  let postOverprocessRiskMeanSamples = 0;
   let eventLatencySum = 0;
   let eventLatencyCount = 0;
   let qualityTransitionSum = 0;
@@ -2849,6 +3030,10 @@ function buildAggregateStats(summaries) {
     incrementCounter(
       stageRingAuthoritySpread,
       summary.visualSummary?.dominantStageRingAuthority ?? 'unknown'
+    );
+    incrementCounter(
+      signatureMomentSpread,
+      summary.visualSummary?.dominantSignatureMoment ?? 'none'
     );
     incrementCounter(
       eventTimingDispositionSpread,
@@ -2961,6 +3146,14 @@ function buildAggregateStats(summaries) {
       stageHeroScaleSamples += 1;
       stageHeroScaleMinMeanSum += summary.visualSummary.stageHeroScaleMinMean;
       stageHeroScaleMaxMeanSum += summary.visualSummary.stageHeroScaleMaxMean;
+    }
+    if (typeof summary.visualSummary?.signatureMomentActiveRate === 'number') {
+      signatureMomentActiveRateSamples += 1;
+      signatureMomentActiveRateSum += summary.visualSummary.signatureMomentActiveRate;
+    }
+    if (typeof summary.visualSummary?.postOverprocessRiskMean === 'number') {
+      postOverprocessRiskMeanSamples += 1;
+      postOverprocessRiskMeanSum += summary.visualSummary.postOverprocessRiskMean;
     }
     if (
       typeof summary.eventLatencyMs === 'number' &&
@@ -3166,6 +3359,14 @@ function buildAggregateStats(summaries) {
       stageHeroScaleSamples > 0 ? stageHeroScaleMinMeanSum / stageHeroScaleSamples : 0,
     averageStageHeroScaleMaxMean:
       stageHeroScaleSamples > 0 ? stageHeroScaleMaxMeanSum / stageHeroScaleSamples : 0,
+    averageSignatureMomentActiveRate:
+      signatureMomentActiveRateSamples > 0
+        ? signatureMomentActiveRateSum / signatureMomentActiveRateSamples
+        : 0,
+    averagePostOverprocessRiskMean:
+      postOverprocessRiskMeanSamples > 0
+        ? postOverprocessRiskMeanSum / postOverprocessRiskMeanSamples
+        : 0,
     averageEventLatencyMs:
       eventLatencyCount > 0 ? eventLatencySum / eventLatencyCount : null,
     averageQualityTransitionCount:
@@ -3315,6 +3516,9 @@ function buildAggregateStats(summaries) {
     stageRingAuthorityLines: [...stageRingAuthoritySpread.entries()]
       .sort((left, right) => right[1] - left[1])
       .map(([value, count]) => `- ${value} (${count})`),
+    signatureMomentLines: [...signatureMomentSpread.entries()]
+      .sort((left, right) => right[1] - left[1])
+      .map(([value, count]) => `- ${value} (${count})`),
     paletteStateSpreadByActLines,
     paletteStateSpreadByFamilyLines,
     stageShotClassSpreadByFamilyLines,
@@ -3398,6 +3602,23 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     dominantStageRingAuthority: 'unknown',
     stageWorldModeSpread: {},
     dominantStageWorldMode: 'hold',
+    signatureMomentSpread: {},
+    dominantSignatureMoment: 'none',
+    signatureMomentActiveRate: 0,
+    signatureMomentIntensityMean: 0,
+    signatureMomentIntensityPeak: 0,
+    collapseScarMean: 0,
+    collapseScarPeak: 0,
+    cathedralOpenMean: 0,
+    cathedralOpenPeak: 0,
+    ghostResidueMean: 0,
+    ghostResiduePeak: 0,
+    silenceConstellationMean: 0,
+    silenceConstellationPeak: 0,
+    aftermathClearanceMean: 1,
+    postConsequenceMean: 0,
+    postOverprocessRiskMean: 0,
+    postOverprocessRiskPeak: 0,
     stageShotClassSpread: {},
     dominantStageShotClass: 'unknown',
     stageTransitionClassSpread: {},
@@ -3424,6 +3645,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
   const stageShotClassSpread = visual.stageShotClassSpread ?? {};
   const stageTransitionClassSpread = visual.stageTransitionClassSpread ?? {};
   const stageTempoCadenceModeSpread = visual.stageTempoCadenceModeSpread ?? {};
+  const signatureMomentSpread = visual.signatureMomentSpread ?? {};
   const paletteStateSpreadByAct = visual.paletteStateSpreadByAct ?? {};
   const paletteStateSpreadByFamily = visual.paletteStateSpreadByFamily ?? {};
   const stageShotClassSpreadByFamily = visual.stageShotClassSpreadByFamily ?? {};
@@ -3544,6 +3766,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Dominant spend profile: ${visual.dominantSpendProfile ?? 'unknown'}`,
     `- Dominant world mode: ${visual.dominantStageWorldMode ?? 'unknown'}`,
     `- Dominant atmosphere matter state: ${visual.dominantAtmosphereMatterState ?? 'gas'}`,
+    `- Dominant signature moment: ${visual.dominantSignatureMoment ?? 'none'}`,
     '',
     '### Compositor summary',
     `- Exposure mean / peak: ${formatNumber(visual.exposureMean)} / ${formatNumber(visual.exposurePeak)}`,
@@ -3554,6 +3777,15 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Ambient glow mean / peak: ${formatNumber(visual.ambientGlowMean)} / ${formatNumber(visual.ambientGlowPeak)}`,
     `- Event glow mean / peak: ${formatNumber(visual.eventGlowMean)} / ${formatNumber(visual.eventGlowPeak)}`,
     `- World / hero / shell glow mean: ${formatNumber(visual.worldGlowMean)} / ${formatNumber(visual.heroGlowMean)} / ${formatNumber(visual.shellGlowMean)}`,
+    '',
+    '### Signature moments',
+    `- Signature moment spread: ${Object.keys(signatureMomentSpread).length > 0 ? Object.entries(signatureMomentSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
+    `- Active rate / intensity mean / peak: ${formatPercent(visual.signatureMomentActiveRate)} / ${formatNumber(visual.signatureMomentIntensityMean)} / ${formatNumber(visual.signatureMomentIntensityPeak)}`,
+    `- Collapse scar mean / peak: ${formatNumber(visual.collapseScarMean)} / ${formatNumber(visual.collapseScarPeak)}`,
+    `- Cathedral open mean / peak: ${formatNumber(visual.cathedralOpenMean)} / ${formatNumber(visual.cathedralOpenPeak)}`,
+    `- Ghost residue mean / peak: ${formatNumber(visual.ghostResidueMean)} / ${formatNumber(visual.ghostResiduePeak)}`,
+    `- Silence constellation mean / peak: ${formatNumber(visual.silenceConstellationMean)} / ${formatNumber(visual.silenceConstellationPeak)}`,
+    `- Aftermath clearance / post consequence / post risk: ${formatNumber(visual.aftermathClearanceMean)} / ${formatNumber(visual.postConsequenceMean)} / ${formatNumber(visual.postOverprocessRiskMean)} peak ${formatNumber(visual.postOverprocessRiskPeak)}`,
     '',
     '### Atmosphere summary',
     `- Matter-state spread: ${Object.keys(visual.atmosphereMatterStateSpread ?? {}).length > 0 ? Object.entries(visual.atmosphereMatterStateSpread).map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ') : 'n/a'}`,
@@ -3807,6 +4039,7 @@ export function buildAggregateSection(summaries, options = {}) {
     `- Average stage exposure / bloom ceiling mean: ${formatNumber(aggregateStats.averageStageExposureCeilingMean)} / ${formatNumber(aggregateStats.averageStageBloomCeilingMean)}`,
     `- Average stage washout suppression mean: ${formatNumber(aggregateStats.averageStageWashoutSuppressionMean)}`,
     `- Average stage hero scale min / max mean: ${formatNumber(aggregateStats.averageStageHeroScaleMinMean)} / ${formatNumber(aggregateStats.averageStageHeroScaleMaxMean)}`,
+    `- Average signature-moment active rate / post risk: ${formatPercent(aggregateStats.averageSignatureMomentActiveRate)} / ${formatNumber(aggregateStats.averagePostOverprocessRiskMean)}`,
     `- Average event latency (non-precharged): ${aggregateStats.averageEventLatencyMs === null ? 'n/a' : `${aggregateStats.averageEventLatencyMs.toFixed(0)}ms`}`,
     `- Average quality transitions per capture: ${formatNumber(aggregateStats.averageQualityTransitionCount)}`,
     `- Source provenance mismatches: ${aggregateStats.provenanceMismatchCount}`,
@@ -3822,6 +4055,11 @@ export function buildAggregateSection(summaries, options = {}) {
       ...(aggregateStats.stageRingAuthorityLines.length > 0
         ? aggregateStats.stageRingAuthorityLines
         : ['- No stage ring authority values were recorded.']),
+      '',
+      '### Signature moment spread',
+      ...(aggregateStats.signatureMomentLines.length > 0
+        ? aggregateStats.signatureMomentLines
+        : ['- No signature moments were recorded.']),
       '',
       '### Coverage debt and monopolies',
       ...buildCoverageDebtLines(summaries),

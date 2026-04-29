@@ -217,6 +217,49 @@ export type StageScreenEffectIntent = {
   carveBias: number;
 };
 
+export type SignatureMomentKind =
+  | 'none'
+  | 'collapse-scar'
+  | 'cathedral-open'
+  | 'ghost-residue'
+  | 'silence-constellation';
+
+export type SignatureMomentPhase =
+  | 'idle'
+  | 'eligible'
+  | 'precharge'
+  | 'strike'
+  | 'hold'
+  | 'residue'
+  | 'clear';
+
+export type SignatureMomentSuppressionReason =
+  | 'none'
+  | 'cooldown'
+  | 'low-confidence'
+  | 'safety-risk'
+  | 'overbright-risk'
+  | 'insufficient-cue'
+  | 'memory-empty';
+
+export type SignatureMomentSnapshot = {
+  kind: SignatureMomentKind;
+  phase: SignatureMomentPhase;
+  intensity: number;
+  ageSeconds: number;
+  seed: number;
+  startedAtSeconds: number | null;
+  suppressionReason: SignatureMomentSuppressionReason;
+  worldLead: number;
+  heroSuppression: number;
+  chamberArchitecture: number;
+  postConsequence: number;
+  memoryStrength: number;
+  safetyRisk: number;
+};
+
+export type SignatureMomentSpread = Record<SignatureMomentKind, number>;
+
 export type StagePaletteTargets = Record<PaletteState, number>;
 
 export type StageShotClass =
@@ -492,6 +535,19 @@ export type VisualTelemetryFrame = {
   stageFallbackOverbrightRisk?: boolean;
   stageFallbackWashoutRisk?: boolean;
   afterImageDamp?: number;
+  activeSignatureMoment?: SignatureMomentKind;
+  signatureMomentPhase?: SignatureMomentPhase;
+  signatureMomentIntensity?: number;
+  signatureMomentAgeSeconds?: number;
+  signatureMomentSuppressionReason?: SignatureMomentSuppressionReason;
+  collapseScarAmount?: number;
+  cathedralOpenAmount?: number;
+  ghostResidueAmount?: number;
+  silenceConstellationAmount?: number;
+  memoryTraceCount?: number;
+  aftermathClearance?: number;
+  postConsequenceIntensity?: number;
+  postOverprocessRisk?: number;
   atmosphereMatterState: AtmosphereMatterState;
   atmosphereGas: number;
   atmosphereLiquid: number;
@@ -657,6 +713,23 @@ export type VisualTelemetrySummary = {
   washoutFallbackRate?: number;
   qualityTransitionCount?: number;
   firstQualityDowngradeMs?: number;
+  signatureMomentSpread?: SignatureMomentSpread;
+  dominantSignatureMoment?: SignatureMomentKind;
+  signatureMomentActiveRate?: number;
+  signatureMomentIntensityMean?: number;
+  signatureMomentIntensityPeak?: number;
+  collapseScarMean?: number;
+  collapseScarPeak?: number;
+  cathedralOpenMean?: number;
+  cathedralOpenPeak?: number;
+  ghostResidueMean?: number;
+  ghostResiduePeak?: number;
+  silenceConstellationMean?: number;
+  silenceConstellationPeak?: number;
+  aftermathClearanceMean?: number;
+  postConsequenceMean?: number;
+  postOverprocessRiskMean?: number;
+  postOverprocessRiskPeak?: number;
   assetLayerSummary: VisualAssetLayerSummary;
 };
 
@@ -804,6 +877,22 @@ export const DEFAULT_AUTHORITY_FRAME_SNAPSHOT: AuthorityFrameSnapshot = {
   overbright: 0
 };
 
+export const DEFAULT_SIGNATURE_MOMENT_SNAPSHOT: SignatureMomentSnapshot = {
+  kind: 'none',
+  phase: 'idle',
+  intensity: 0,
+  ageSeconds: 0,
+  seed: 0,
+  startedAtSeconds: null,
+  suppressionReason: 'none',
+  worldLead: 0,
+  heroSuppression: 0,
+  chamberArchitecture: 0,
+  postConsequence: 0,
+  memoryStrength: 0,
+  safetyRisk: 0
+};
+
 export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   qualityTier: 'unknown',
   exposure: 1,
@@ -921,6 +1010,20 @@ export const DEFAULT_VISUAL_TELEMETRY: VisualTelemetryFrame = {
   stageFallbackOverbrightRisk: false,
   stageFallbackWashoutRisk: false,
   afterImageDamp: 0.78,
+  activeSignatureMoment: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.kind,
+  signatureMomentPhase: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.phase,
+  signatureMomentIntensity: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.intensity,
+  signatureMomentAgeSeconds: DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.ageSeconds,
+  signatureMomentSuppressionReason:
+    DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.suppressionReason,
+  collapseScarAmount: 0,
+  cathedralOpenAmount: 0,
+  ghostResidueAmount: 0,
+  silenceConstellationAmount: 0,
+  memoryTraceCount: 0,
+  aftermathClearance: 1,
+  postConsequenceIntensity: 0,
+  postOverprocessRisk: 0,
   atmosphereMatterState: 'gas',
   atmosphereGas: 1,
   atmosphereLiquid: 0,
@@ -1379,6 +1482,29 @@ export const DEFAULT_VISUAL_TELEMETRY_SUMMARY: VisualTelemetrySummary = {
   washoutFallbackRate: 0,
   qualityTransitionCount: 0,
   firstQualityDowngradeMs: undefined,
+  signatureMomentSpread: {
+    none: 1,
+    'collapse-scar': 0,
+    'cathedral-open': 0,
+    'ghost-residue': 0,
+    'silence-constellation': 0
+  },
+  dominantSignatureMoment: 'none',
+  signatureMomentActiveRate: 0,
+  signatureMomentIntensityMean: 0,
+  signatureMomentIntensityPeak: 0,
+  collapseScarMean: 0,
+  collapseScarPeak: 0,
+  cathedralOpenMean: 0,
+  cathedralOpenPeak: 0,
+  ghostResidueMean: 0,
+  ghostResiduePeak: 0,
+  silenceConstellationMean: 0,
+  silenceConstellationPeak: 0,
+  aftermathClearanceMean: 1,
+  postConsequenceMean: 0,
+  postOverprocessRiskMean: 0,
+  postOverprocessRiskPeak: 0,
   assetLayerSummary: Object.fromEntries(
     VISUAL_ASSET_LAYERS.map((layer) => [
       layer,

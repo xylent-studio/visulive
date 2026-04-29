@@ -45,14 +45,14 @@ Short version:
 ## Current Wave
 
 - active family or bottleneck:
-  - `World Grammar / Mutation` proof on top of the newly extracted authority split
+  - `Signature Moments / Consequence Memory` proof on top of the newly extracted authority split and new `PostSystem`
 - single highest-leverage next move:
-  - run a fresh live and no-touch proof wave on the new authority split before starting another structural rewrite
+  - run a fresh live and no-touch proof wave that shows collapse scar, cathedral open, ghost residue, and silence constellation as distinct whole-frame image classes
 - single blocking extraction:
-  - chamber/world authority handoff is no longer the blocker; the next structural owner after proof is `PostSystem`
+  - chamber/world authority handoff and the first `PostSystem` vertical slice are no longer scene-local ownership blockers; the next blockers are proof-tuning, then compositor and full memory ownership
 - proof scenario required next:
-  - one fresh no-touch `PC Audio` benchmark batch plus live start/stop sanity on the new authority-driven chamber/world split
-  - the batch must clear the proof-pack `authority split validation` and `primary authority proof` gates before the split is treated as stable
+  - one fresh `Primary benchmark` canary, then a full no-touch `PC Audio` benchmark if the canary is valid
+  - the analyzer must report signature moment coverage, overbright/ring impact, aftermath clearance, and whether the four moments are distinct enough to tune instead of merely present
 
 ## Do Not Drift Into
 
@@ -116,21 +116,23 @@ Short version:
 
 - current maturity: `frontier`
 - current owner lane: `Consequence / Aftermath / Post`
-- runtime ownership status: `partial-system`
+- runtime ownership status: `owned-system` for the first signature-moment vertical slice
 - next target:
-  - add a dedicated `PostSystem`
-  - split shock, scar, wipe, haunt, and recovery into explicit families
+  - proof-tune the Mythic Signature Moment Engine
+  - keep the first wave focused on collapse scar, cathedral open, ghost residue, and silence constellation before adding more post families
 - proof target:
   - major cues alter the image itself
   - aftermath remains visible and distinct without becoming permanent treatment
+  - at least one moment is visibly world/post-led with hero demoted
+  - quiet passages produce premium color and spatial life instead of empty holding states
 - graduation target:
   - `frontier -> flagship`
 - blocking dependency:
-  - lasting post and aftermath behavior is still distributed across scene/runtime instead of owned by a dedicated system
+  - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) now owns moment eligibility and [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns the first render lifecycle; the remaining blocker is fresh proof that the moments are distinct, rare, safe-tier viable, and not overbright
 - last meaningful pass:
-  - 2026-04-22 anthology runtime intent install plus mastery operating system seeding
+  - 2026-04-28 Mythic Signature Moment Engine vertical slice with `SignatureMomentGovernor`, `PostSystem`, runtime sequencing, system consumers, telemetry, and analyzer coverage
 - current biggest failure mode:
-  - aftermath still risks collapsing into overlong treatment or weak differentiation from impact
+  - the four moments could still read as generic treatment, washout, or ring overdraw until fresh proof shows recognizable image classes and clean aftermath clearance
 
 ### Lighting / Cinematography
 
@@ -204,11 +206,11 @@ Short version:
 - graduation target:
   - `lab -> frontier`
 - blocking dependency:
-  - there is no runtime owner yet for motif recall, recurrence bias, or scar persistence
+  - `PostSystem` now owns bounded ghost-residue memory traces for signature moments, but there is still no full `MemorySystem` owner for motif recall, recurrence bias, or long-form scar persistence
 - last meaningful pass:
-  - 2026-04-22 anthology runtime intent install plus mastery operating system seeding
+  - 2026-04-28 `PostSystem` memory-trace seed inside the Mythic Signature Moment Engine
 - current biggest failure mode:
-  - memory is currently metadata and doctrine, not yet visible runtime behavior
+  - memory is now visible only as short post-owned residue, not yet as a long-form motif system
 
 ### Music Semantics
 

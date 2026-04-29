@@ -37,47 +37,50 @@ Read first:
 - invalid April 28 runs are debugging evidence only; active `captures/inbox/runs` should be empty before the next proof pass
 - `Primary benchmark` canary `run_20260428_192855_gnmlg1` and full run `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, not current-canonical release proof
 - the full primary run confirms strong chamber/world authority and no hero monopoly, but strict proof is blocked by overbright/ring taste failures and one missed `operator-trust-clear` evidence opportunity
+- the first Mythic Signature Moment Engine vertical slice is implemented: [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) selects rare moments, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) owns consequence rendering and telemetry, and [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) explicitly sequences `resolveSignatureMoment` and `updatePostSystem`
+- the first four signature moments are `collapse-scar`, `cathedral-open`, `ghost-residue`, and `silence-constellation`; they are implemented but unproven until fresh capture review
 
-This means the next agent should return to proof validation work, not release cleanup or capability expansion.
+This means the next agent should return to proof validation and signature-moment tuning, not release cleanup or another capability expansion.
 
 ## Immediate Next Development Target
 
 The next serious wave is:
 
-- `Proof / Authority Validation`
+- `Signature Moment Proof / Tuning`
 
 The highest-leverage move is:
 
 - keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator now that it explicitly sequences `resolveAuthorityFrame()`
 - preserve the new split where [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts) and [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts) expose system-local telemetry, [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts) owns cross-system authority judgment, and [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts) plus [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts) consume typed authority
-- prove that split with live and no-touch evidence before starting another major extraction
+- prove the authority split plus the first signature moments with live and no-touch evidence before starting another major extraction or new visual family
 
 ## First Task Sequence
 
-1. review the new authority split:
+1. review the new signature-moment path:
    - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts)
+   - [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts)
+   - [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts)
    - [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts)
    - [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts)
    - [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts)
 2. run the live sanity pass:
-   - confirm start/stop, chamber presence, world takeover, disposal, and authority-driven lighting still read correctly
+   - confirm start/stop, chamber presence, world takeover, signature moments, aftermath clearance, disposal, and authority-driven lighting still read correctly
 3. run the proof wave:
    - launch with `npm run dev:proof`
    - select the mission under `Backstage -> Capture -> Proof Mission`
-   - use `Operator trust` next; the canary and full primary benchmark already have reviewed-candidate packages
+   - use a short `Primary benchmark` canary first for the new signature-moment build, then a full `Primary benchmark` if the canary is valid
    - start only when the launch surface reports serious proof is ready
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
-   - fresh no-touch `Operator trust` batch
    - analyzer review
    - proof-pack review
-   - require operator trust to pass before moving from proof plumbing into governance correction
+   - require the analyzer to report signature moment coverage, overbright/ring impact, aftermath clearance, and distinctness before tuning from the run
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
-4. if proof still shows decorative chamber, weak world takeover, or overbright spend:
-   - iterate authority plus lighting/particle composition without moving the ownership back into the scene
-5. if proof holds:
-   - deepen the audio-to-regime-to-cue hierarchy next
-   - keep alternate hero species and world mutation work on the capability side, not as another scene-local extraction
+4. if proof shows generic treatment, weak distinction, overbright spend, ring overdraw, weak world/post leadership, or poor quiet beauty:
+   - tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), authority-fed lighting/particles, or stage cue policy without moving ownership back into the scene
+5. if signature proof holds:
+   - run `Operator trust`
+   - then deepen the audio-to-regime-to-cue hierarchy or move to compositor/memory based on evidence
 6. keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) responsible for orchestration/context assembly instead of scene-local sequencing
 7. update:
    - [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
@@ -93,14 +96,16 @@ The highest-leverage move is:
 - do not treat `systems/**` or `governors/**` folder names as proof that extraction is done
 - do not spend time on legacy V1 work unless explicitly asked
 - do not promote a run to `current-canonical` until it has a review note, zero invalidations, no missed capture opportunities, validated scenario assessment, screenshot/still refs, and relevant strict gates passing
+- do not add a fifth signature moment before the first four are proof-tuned and distinct
 
 ## Success Criteria
 
 The pass is successful only if at least one of these becomes more true in code, not just in docs:
 
-- the new authority split survives live start/stop and no-touch capture review
-- chamber/world-led frames read intentionally instead of decoratively
-- the next agent does not need to reopen scene-local authority math to keep tuning
+- the signature moments survive live start/stop and no-touch capture review
+- collapse scar, cathedral open, ghost residue, and silence constellation read as distinct image classes
+- at least one proof moment is world/post-led with hero visibly demoted
+- aftermath clears instead of becoming permanent treatment
 
 ## Verification Expectation
 
@@ -127,4 +132,4 @@ If the pass touches release/evidence plumbing, also run:
 
 ## If You Need One Sentence
 
-Start from the now-honest authority split: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `WorldSystem -> ChamberSystem -> HeroSystem -> AuthorityGovernor -> Lighting/Particles` boundaries, and prove the new chamber/world authority behavior before starting the next major system extraction.
+Start from the now-owned signature moment vertical slice: keep [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the orchestrator, preserve `SignatureMomentGovernor -> World/Chamber/Hero -> AuthorityGovernor -> Stage -> PostSystem` boundaries, and prove the four moments before adding more spectacle.

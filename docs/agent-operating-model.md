@@ -135,20 +135,20 @@ For the current repo state, the lead integrator should sequence work like this:
 2. Operator UX
 3. Governance correction only if fresh proof shows authority, overbright, or ring failures
 4. Show Direction / Conductor only if fresh proof shows cue, silence, or diversity failures
-5. `PostSystem` extraction only after authority plus no-touch proof holds
+5. Signature Moment proof-tuning now that the `PostSystem` vertical slice exists
 6. Later visual capability work after proof and ownership are both real
 
 Why this order:
 - architecture progress is not enough to justify more creative work
 - the active blocker is a valid Proof Mission lifecycle on the current authority/runtime backbone: armed setup, successful audio start, live journal, `Finish Proof Run`, final mission eligibility, and artifact integrity
 - the invalid April 28 run is debugging evidence only, not current proof
-- broad visual or capability work before proof risks optimizing from stale or invalid evidence
+- broad visual or capability work before proof risks optimizing from stale or invalid evidence; the current user-approved exception is the Mythic Signature Moment Engine vertical slice, which must now be proven before another capability swing
 
 ## Immediate Structural Upgrade
 
-The best structural move after authority plus no-touch proof holds is:
+The best structural move after signature-moment proof holds is:
 - preserve [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the explicit orchestrator
-- extract `PostSystem` ownership before adding new consequence families
+- tune [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts) and [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts) from fresh proof before adding new consequence families
 - continue splitting compositor, memory, motion/event/camera, and remaining compatibility context out of [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts)
 
 Until then, use the operating model above as the control system for any specialist work.

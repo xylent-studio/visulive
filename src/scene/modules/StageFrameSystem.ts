@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { StageAudioFeatures } from '../../audio/stageAudioFeatures';
 import type {
+  SignatureMomentSnapshot,
   StageCompositionPlan,
   StageCuePlan
 } from '../../types/visual';
@@ -34,6 +35,7 @@ export type StageFrameUpdateContext = {
   beatPhase: number;
   stageCuePlan: StageCuePlan;
   stageCompositionPlan: StageCompositionPlan;
+  signatureMoment: SignatureMomentSnapshot;
   matrixAct: number;
   roomMusicVisualFloor: number;
   adaptiveMusicVisualFloor: number;
@@ -170,6 +172,22 @@ export class StageFrameSystem {
       context.stageCuePlan.worldMode === 'ghost-chamber' ? 1 : 0;
     const fieldBloom =
       context.stageCuePlan.worldMode === 'field-bloom' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.postConsequence
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.intensity
+        : 0;
     const matrixRevealFlow =
       context.matrixAct * (cueReveal * 0.82 + cueGather * 0.48);
     const cueScreen = context.stageCuePlan.screenWeight;
@@ -214,16 +232,18 @@ export class StageFrameSystem {
       .copy(BASE_BACKGROUND)
       .lerp(
         COOL_BACKGROUND,
-        0.42 +
+          0.42 +
           fieldBloom * 0.12 +
+          silenceConstellationMoment * 0.1 +
           cueHaunt * 0.08 +
           spatialPresence * 0.08 +
           chamberStageLift * 0.16
       )
       .lerp(
         TRON_BLUE,
-        0.04 +
+          0.04 +
           cueReveal * 0.08 +
+          cathedralOpenMoment * 0.12 +
           chamberStageLift * 0.18 +
           shotWorldTakeover * 0.08
       )
@@ -238,7 +258,11 @@ export class StageFrameSystem {
       )
       .lerp(
         STAIN_VIOLET,
-        cueHaunt * 0.08 + cueResidue * 0.06 + memoryAfterglow * 0.08
+        cueHaunt * 0.08 +
+          cueResidue * 0.06 +
+          memoryAfterglow * 0.08 +
+          collapseScarMoment * 0.14 +
+          ghostResidueMoment * 0.08
       );
 
     this.group.rotation.z =
@@ -264,10 +288,12 @@ export class StageFrameSystem {
         shotIsolate * 0.18 -
         restraint * 0.16 -
         cueRelease * 0.38 -
-        cueReset * 0.3;
+        cueReset * 0.3 +
+        collapseScarMoment * 0.42;
       const sweepBias =
         fanSweep * 0.82 +
         cathedralFrame * 0.68 +
+        cathedralOpenMoment * 0.64 +
         cueReveal * 0.44 +
         transitionWipe * 0.2 +
         subtractivePolicy.wipeBias * 0.36 -
@@ -317,7 +343,11 @@ export class StageFrameSystem {
               subtractivePolicy.blackoutBias * 0.04 +
               bladeBoost * 0.05 +
               shotWorldTakeover * 0.03 +
-              shotIsolate * 0.02) -
+              shotIsolate * 0.02) +
+          collapseScarMoment * 0.04 +
+          cathedralOpenMoment * 0.026 +
+          ghostResidueMoment * 0.018 +
+          silenceConstellationMoment * 0.014 -
           matrixRevealFlow * 0.04 -
           cueRelease * 0.05 -
           cueReset * 0.06 -
@@ -375,6 +405,7 @@ export class StageFrameSystem {
       const sweepTravel =
         fanSweep * 3.6 +
         cueReveal * 2.2 +
+        cathedralOpenMoment * 2.4 +
         stageWipe * 1.8 +
         cueRupture * 0.4 +
         transitionWipe * 0.8 +
@@ -411,6 +442,9 @@ export class StageFrameSystem {
           chamberWorldTakeoverBias * 0.01 +
           cueReveal * 0.026 +
           fanSweep * 0.036 +
+          cathedralOpenMoment * 0.034 +
+          ghostResidueMoment * 0.012 +
+          silenceConstellationMoment * 0.012 +
           stageWipe * 0.026 +
           cueRupture * 0.008 +
           cueHaunt * 0.01 +

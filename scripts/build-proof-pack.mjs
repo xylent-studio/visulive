@@ -500,6 +500,7 @@ function summarizeCoverage(summaries) {
   const cueCounts = new Map();
   const chamberCounts = new Map();
   const compositorCounts = new Map();
+  const signatureMomentCounts = new Map();
   const spendProfileCounts = new Map();
   const worldAuthorityStateCounts = new Map();
   let safeCount = 0;
@@ -522,6 +523,18 @@ function summarizeCoverage(summaries) {
   let largeHeroCount = 0;
   let ringAuthoritySum = 0;
   let ringAuthoritySamples = 0;
+  let signatureMomentEvidenceCount = 0;
+  let signatureMomentActiveRateSum = 0;
+  let signatureMomentActiveRateSamples = 0;
+  let signatureMomentIntensitySum = 0;
+  let signatureMomentIntensitySamples = 0;
+  let signatureMomentIntensityPeak = 0;
+  let aftermathClearanceSum = 0;
+  let aftermathClearanceSamples = 0;
+  let postConsequenceSum = 0;
+  let postConsequenceSamples = 0;
+  let postOverprocessRiskSum = 0;
+  let postOverprocessRiskSamples = 0;
 
   for (const summary of summaries) {
     const visual = summary.visualSummary ?? {};
@@ -543,6 +556,41 @@ function summarizeCoverage(summaries) {
         visual.dominantWorldAuthorityState,
         (worldAuthorityStateCounts.get(visual.dominantWorldAuthorityState) ?? 0) + 1
       );
+    }
+    for (const [kind, ratio] of Object.entries(visual.signatureMomentSpread ?? {})) {
+      signatureMomentCounts.set(
+        kind,
+        (signatureMomentCounts.get(kind) ?? 0) + ratio
+      );
+    }
+    if ((visual.signatureMomentActiveRate ?? 0) > 0.02) {
+      signatureMomentEvidenceCount += 1;
+    }
+    if (isNumber(visual.signatureMomentActiveRate)) {
+      signatureMomentActiveRateSum += visual.signatureMomentActiveRate;
+      signatureMomentActiveRateSamples += 1;
+    }
+    if (isNumber(visual.signatureMomentIntensityMean)) {
+      signatureMomentIntensitySum += visual.signatureMomentIntensityMean;
+      signatureMomentIntensitySamples += 1;
+    }
+    if (isNumber(visual.signatureMomentIntensityPeak)) {
+      signatureMomentIntensityPeak = Math.max(
+        signatureMomentIntensityPeak,
+        visual.signatureMomentIntensityPeak
+      );
+    }
+    if (isNumber(visual.aftermathClearanceMean)) {
+      aftermathClearanceSum += visual.aftermathClearanceMean;
+      aftermathClearanceSamples += 1;
+    }
+    if (isNumber(visual.postConsequenceMean)) {
+      postConsequenceSum += visual.postConsequenceMean;
+      postConsequenceSamples += 1;
+    }
+    if (isNumber(visual.postOverprocessRiskMean)) {
+      postOverprocessRiskSum += visual.postOverprocessRiskMean;
+      postOverprocessRiskSamples += 1;
     }
     if (isNumber(visual.chamberPresenceMean)) {
       chamberPresenceSum += visual.chamberPresenceMean;
@@ -608,6 +656,7 @@ function summarizeCoverage(summaries) {
     cueCounts,
     chamberCounts,
     compositorCounts,
+    signatureMomentCounts,
     spendProfileCounts,
     worldAuthorityStateCounts,
     safeCount,
@@ -617,6 +666,27 @@ function summarizeCoverage(summaries) {
     weakWorldAuthorityCount,
     overbrightRiskCount,
     worldAuthorityEvidenceCount,
+    signatureMomentEvidenceCount,
+    averageSignatureMomentActiveRate:
+      signatureMomentActiveRateSamples > 0
+        ? signatureMomentActiveRateSum / signatureMomentActiveRateSamples
+        : null,
+    averageSignatureMomentIntensity:
+      signatureMomentIntensitySamples > 0
+        ? signatureMomentIntensitySum / signatureMomentIntensitySamples
+        : null,
+    signatureMomentIntensityPeak:
+      signatureMomentIntensityPeak > 0 ? signatureMomentIntensityPeak : null,
+    averageAftermathClearance:
+      aftermathClearanceSamples > 0
+        ? aftermathClearanceSum / aftermathClearanceSamples
+        : null,
+    averagePostConsequence:
+      postConsequenceSamples > 0 ? postConsequenceSum / postConsequenceSamples : null,
+    averagePostOverprocessRisk:
+      postOverprocessRiskSamples > 0
+        ? postOverprocessRiskSum / postOverprocessRiskSamples
+        : null,
     averageChamberPresence:
       chamberPresenceSamples > 0 ? chamberPresenceSum / chamberPresenceSamples : null,
     averageFrameHierarchy:
@@ -805,6 +875,9 @@ function buildMarkdown({
   const compositorLines = [...aggregate.compositorCounts.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(([value, count]) => `- \`${value}\`: ${count} capture(s)`);
+  const signatureMomentLines = [...aggregate.signatureMomentCounts.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([value, weight]) => `- \`${value}\`: weighted presence ${formatNumber(weight, 2)}`);
   const spendLines = [...aggregate.spendProfileCounts.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(
@@ -967,6 +1040,24 @@ function buildMarkdown({
     ...(compositorLines.length > 0
       ? compositorLines
       : ['- No compositor consequence spread available.']),
+    '',
+    '## Signature Moments',
+    ...(signatureMomentLines.length > 0
+      ? signatureMomentLines
+      : ['- No signature moment spread available.']),
+    `- Signature moment evidence: ${aggregate.signatureMomentEvidenceCount}/${proofEligibleCount || 0} capture(s)`,
+    `- Active rate / intensity mean / peak: ${
+      aggregate.averageSignatureMomentActiveRate == null
+        ? 'unavailable'
+        : formatPercent(aggregate.averageSignatureMomentActiveRate)
+    } / ${formatNumber(aggregate.averageSignatureMomentIntensity)} / ${formatNumber(
+      aggregate.signatureMomentIntensityPeak
+    )}`,
+    `- Aftermath clearance / post consequence / post overprocess risk: ${formatNumber(
+      aggregate.averageAftermathClearance
+    )} / ${formatNumber(aggregate.averagePostConsequence)} / ${formatNumber(
+      aggregate.averagePostOverprocessRisk
+    )}`,
     '',
     '## Spend Governance',
     ...(spendLines.length > 0

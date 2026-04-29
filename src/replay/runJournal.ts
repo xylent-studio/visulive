@@ -934,6 +934,17 @@ export function buildReplayRunJournalSample(
       performanceRegime: telemetry.performanceRegime,
       stageWorldMode: telemetry.stageWorldMode
     },
+    signatureMoment: {
+      activeSignatureMoment: telemetry.activeSignatureMoment,
+      signatureMomentPhase: telemetry.signatureMomentPhase,
+      signatureMomentIntensity: telemetry.signatureMomentIntensity,
+      collapseScarAmount: telemetry.collapseScarAmount,
+      cathedralOpenAmount: telemetry.cathedralOpenAmount,
+      ghostResidueAmount: telemetry.ghostResidueAmount,
+      silenceConstellationAmount: telemetry.silenceConstellationAmount,
+      postConsequenceIntensity: telemetry.postConsequenceIntensity,
+      postOverprocessRisk: telemetry.postOverprocessRisk
+    },
     authority: {
       heroCoverageEstimate: telemetry.heroCoverageEstimate,
       ringAuthority: telemetry.ringAuthority,

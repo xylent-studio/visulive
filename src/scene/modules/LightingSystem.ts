@@ -1,9 +1,14 @@
 import * as THREE from 'three';
-import type { AuthorityFrameSnapshot, PaletteState } from '../../types/visual';
+import type {
+  AuthorityFrameSnapshot,
+  PaletteState,
+  SignatureMomentSnapshot
+} from '../../types/visual';
 
 export type LightingSystemUpdateContext = {
   elapsedSeconds: number;
   authority: AuthorityFrameSnapshot;
+  signatureMoment: SignatureMomentSnapshot;
   paletteState: PaletteState;
   sceneVariation: {
     voidProfile: number;
@@ -120,6 +125,22 @@ export class LightingSystem {
     const paletteAcid = context.paletteState === 'acid-lime' ? 1 : 0;
     const paletteSolar = context.paletteState === 'solar-magenta' ? 1 : 0;
     const paletteGhost = context.paletteState === 'ghost-white' ? 1 : 0;
+    const collapseScarMoment =
+      context.signatureMoment.kind === 'collapse-scar'
+        ? context.signatureMoment.postConsequence
+        : 0;
+    const cathedralOpenMoment =
+      context.signatureMoment.kind === 'cathedral-open'
+        ? context.signatureMoment.chamberArchitecture
+        : 0;
+    const ghostResidueMoment =
+      context.signatureMoment.kind === 'ghost-residue'
+        ? context.signatureMoment.memoryStrength
+        : 0;
+    const silenceConstellationMoment =
+      context.signatureMoment.kind === 'silence-constellation'
+        ? context.signatureMoment.intensity
+        : 0;
     const warmBias = Math.max(0, (context.director.colorBias - 0.5) * 2);
     const coolBias = Math.max(0, (0.5 - context.director.colorBias) * 2);
     const chromaPulse =
@@ -155,7 +176,8 @@ export class LightingSystem {
     const authorityWashoutSuppression = THREE.MathUtils.clamp(
       context.authority.overbright * 0.34 +
         Math.max(0, context.authority.ringBeltPersistence - 0.26) * 0.2 +
-        Math.max(0, context.authority.shellGlowSpend - 0.82) * 0.16,
+        Math.max(0, context.authority.shellGlowSpend - 0.82) * 0.16 +
+        context.signatureMoment.safetyRisk * 0.12,
       0,
       0.52
     );
@@ -189,7 +211,11 @@ export class LightingSystem {
         authorityChamberLift * 0.18 +
         authorityWorldLift * 0.14 -
         authorityRingSuppression * 0.12 -
-        authorityWashoutSuppression * 0.08,
+        authorityWashoutSuppression * 0.08 +
+        cathedralOpenMoment * 0.16 +
+        ghostResidueMoment * 0.08 +
+        silenceConstellationMoment * 0.1 -
+        collapseScarMoment * 0.08,
       0,
       1
     );
@@ -203,7 +229,11 @@ export class LightingSystem {
         authorityChamberLift * 0.24 +
         authorityWorldLift * 0.2 -
         authorityRingSuppression * 0.18 -
-        authorityWashoutSuppression * 0.1,
+        authorityWashoutSuppression * 0.1 +
+        cathedralOpenMoment * 0.2 +
+        silenceConstellationMoment * 0.12 +
+        ghostResidueMoment * 0.08 -
+        collapseScarMoment * 0.08,
       0,
       1.2
     );
@@ -213,6 +243,10 @@ export class LightingSystem {
         chamberStageLift * 0.05 +
         musicStageFloor * 0.04 +
         authorityWorldLift * 0.028 +
+        cathedralOpenMoment * 0.018 +
+        silenceConstellationMoment * 0.014 +
+        ghostResidueMoment * 0.012 -
+        collapseScarMoment * 0.018 +
         authoritySafetyFloor -
         authorityRingSuppression * 0.034 -
         authorityWashoutSuppression * 0.046,
@@ -523,6 +557,17 @@ export class LightingSystem {
         context.motion.cameraDrift.z * 0.48 -
         context.sceneVariation.postContrastBoost * 0.18
     );
+
+    const collapseCut = 1 - collapseScarMoment * 0.28;
+    this.ambientLight.intensity *=
+      collapseCut * (1 + silenceConstellationMoment * 0.14 + ghostResidueMoment * 0.06);
+    this.fillLight.intensity *=
+      collapseCut * (1 + cathedralOpenMoment * 0.1 + silenceConstellationMoment * 0.08);
+    this.warmLight.intensity *=
+      (1 - collapseScarMoment * 0.22) * (1 + cathedralOpenMoment * 0.12);
+    this.coolLight.intensity *=
+      (1 - collapseScarMoment * 0.18) *
+      (1 + cathedralOpenMoment * 0.16 + ghostResidueMoment * 0.08);
   }
 
   getIntensities(): LightingSystemIntensities {

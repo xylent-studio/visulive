@@ -76,6 +76,7 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
       ...preparedFrame
     });
 
+    this.sceneRuntime.resolveSignatureMoment(elapsedSeconds, deltaSeconds);
     this.sceneRuntime.updateWorldSystem(elapsedSeconds, preparedFrame.idleBreath);
     this.sceneRuntime.updateChamberSystem(
       elapsedSeconds,
@@ -84,6 +85,7 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
     this.sceneRuntime.updateHeroSystem(stageIdleContext);
     this.sceneRuntime.resolveAuthorityFrame();
     this.stageRuntimeRig.runStageFrame(stageIdleContext, preparedFrame.beatDrive);
+    this.sceneRuntime.updatePostSystem(elapsedSeconds, deltaSeconds);
     this.sceneRuntime.finalizeFrame();
   }
 

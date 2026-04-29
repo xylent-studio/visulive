@@ -8,9 +8,11 @@ import type { SceneQualityProfile } from '../../runtime';
 import type { SceneVariationProfile } from '../../direction/sceneVariation';
 import type { MotionPoseState } from '../motion/MotionSystem';
 import {
+  DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
   DEFAULT_STAGE_COMPOSITION_PLAN,
   DEFAULT_STAGE_CUE_PLAN,
   type PaletteState,
+  type SignatureMomentSnapshot,
   type ShowAct,
   type StageCompositionPlan,
   type StageCuePlan,
@@ -268,6 +270,7 @@ export type HeroSystemUpdateContext = {
     ringBeltPersistenceCurrent: number;
     wirefieldDensityScoreCurrent: number;
   };
+  signatureMoment: SignatureMomentSnapshot;
   tuning: {
     readableHeroFloor: number;
   };
@@ -571,6 +574,9 @@ export class HeroSystem {
   private heroCoverageEstimateCurrent = 0.12;
   private ringBeltPersistenceCurrent = 0.08;
   private wirefieldDensityScoreCurrent = 0.16;
+  private signatureMoment: SignatureMomentSnapshot = {
+    ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT
+  };
   private stageCuePlan: StageCuePlan = { ...DEFAULT_STAGE_CUE_PLAN };
   private stageCompositionPlan: StageCompositionPlan = {
     ...DEFAULT_STAGE_COMPOSITION_PLAN,
@@ -849,6 +855,7 @@ export class HeroSystem {
     this.heroCoverageEstimateCurrent = context.metrics.heroCoverageEstimateCurrent;
     this.ringBeltPersistenceCurrent = context.metrics.ringBeltPersistenceCurrent;
     this.wirefieldDensityScoreCurrent = context.metrics.wirefieldDensityScoreCurrent;
+    this.signatureMoment = context.signatureMoment;
     this.stageCuePlan = context.stage.cuePlan;
     this.stageCompositionPlan = context.stage.compositionPlan;
     this.stageAudioFeatures = context.stage.audioFeatures;
@@ -1160,6 +1167,19 @@ export class HeroSystem {
     const chamberDominance = this.stageCuePlan.dominance === 'chamber' ? 1 : 0;
     const worldDominance = this.stageCuePlan.dominance === 'world' ? 1 : 0;
     const hybridDominance = this.stageCuePlan.dominance === 'hybrid' ? 1 : 0;
+    const signatureHeroSuppression = this.signatureMoment.heroSuppression;
+    const signatureWorldLead = this.signatureMoment.worldLead;
+    const signatureMemoryStrength = this.signatureMoment.memoryStrength;
+    const signatureCollapse =
+      this.signatureMoment.kind === 'collapse-scar' ? this.signatureMoment.postConsequence : 0;
+    const signatureCathedral =
+      this.signatureMoment.kind === 'cathedral-open'
+        ? this.signatureMoment.chamberArchitecture
+        : 0;
+    const signatureSilence =
+      this.signatureMoment.kind === 'silence-constellation'
+        ? this.signatureMoment.intensity
+        : 0;
     const broodFamily = this.stageCuePlan.family === 'brood' ? 1 : 0;
     const gatherFamily = this.stageCuePlan.family === 'gather' ? 1 : 0;
     const revealFamily = this.stageCuePlan.family === 'reveal' ? 1 : 0;
@@ -1831,7 +1851,13 @@ export class HeroSystem {
         heroMorphBias * 0.16);
     const finalHeroScaleCeiling = Math.max(
       heroScaleMin + 0.08,
-      Math.min(heroScaleMax, heroEnvelope.scaleCeiling)
+      Math.min(heroScaleMax, heroEnvelope.scaleCeiling) *
+        (1 -
+          signatureHeroSuppression * 0.18 -
+          signatureWorldLead * 0.08 +
+          signatureCollapse * 0.06 -
+          signatureCathedral * 0.04 +
+          signatureSilence * 0.04)
     );
     const unclampedHeroMax = Math.max(heroScaleX, heroScaleY, heroScaleZ);
     if (unclampedHeroMax > finalHeroScaleCeiling) {
@@ -1895,7 +1921,10 @@ export class HeroSystem {
         washoutSuppression * (0.34 + largeHeroFraction * 0.42 + peakSpend * 0.08) +
         peakSpend * 0.06 -
         fallbackDemoteHero * 0.08 -
-        fallbackForceWorldTakeover * 0.06,
+        fallbackForceWorldTakeover * 0.06 -
+        signatureHeroSuppression * 0.16 -
+        signatureWorldLead * 0.08 +
+        signatureMemoryStrength * 0.04,
       0.38,
       1
     );
@@ -1904,6 +1933,8 @@ export class HeroSystem {
         largeHeroFraction * 0.46 -
         shotPressure * 0.22 -
         shotWorldTakeover * 0.18 -
+        signatureWorldLead * 0.18 -
+        signatureHeroSuppression * 0.12 -
         openIntent * 0.1 -
         gatherFamily * 0.06 -
         ringBeltOverfill * 0.28 -
@@ -1921,6 +1952,8 @@ export class HeroSystem {
         wirefieldOverfill * 0.34 -
         coverageOverfill * 0.24 -
         shotPressure * 0.22 -
+        signatureHeroSuppression * 0.14 -
+        signatureWorldLead * 0.12 -
         laserAct * 0.08 +
         shotWorldTakeover * 0.04 +
         shotIsolate * 0.06,
