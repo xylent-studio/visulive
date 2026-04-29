@@ -60,7 +60,8 @@ April 28 proof-first override:
 - `npm run proof:current` refreshes reports; it is not a hard pass/fail release gate
 - Proof Mission Control is the required serious-run setup path; manual capture toggles and remembered browser settings are not proof truth
 - `Finish Proof Run` is the required serious-run end path; `currentProofEligible` is finalization-derived from mission gates plus artifact integrity, not a live boolean
-- no capability wave, staging host, public UX expansion, or major new extraction starts until the current proof path is valid
+- primary-benchmark proof now has reviewed-candidate evidence, but strict proof remains blocked by missing operator-trust coverage and repeated overbright/ring taste failures
+- no capability wave, staging host, public UX expansion, or major new extraction starts until operator-trust proof and the next governance correction are validated
 
 ## Immediate Start-Right Gate
 
@@ -139,11 +140,10 @@ The next sequence is:
    - archive invalid inbox runs instead of letting stale current-looking artifacts pollute analysis
    - start serious proof from an empty active run inbox
    - treat invalid April 28 evidence as debugging context only
-3. run the proof canary and then the serious authority/no-touch proof wave
+3. continue the serious authority/no-touch proof wave
    - select one `Backstage -> Capture -> Proof Mission` per run
-   - `Primary benchmark` canary, PC Audio, no-touch, 60-90 seconds
+   - `Primary benchmark` canary and full primary run are done as reviewed-candidate packages
    - end every serious run with `Finish Proof Run` so pending clips close, journal/manifest finalization is written, and the receipt commands are shown
-   - full `Primary benchmark`, PC Audio, no-touch, 6-8 minutes
    - `Operator trust`, no-touch, 6-8 minutes
    - keep acoustic/drums stress, room floor, sparse/silence, and coverage as separate missions after primary authority proof is valid
 4. keep canon aligned around the anthology engine, runtime architecture, and graduation model

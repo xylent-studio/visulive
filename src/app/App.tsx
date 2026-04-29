@@ -163,6 +163,30 @@ type RendererHandle = {
   setTuning(tuning: RuntimeTuning): void;
 };
 
+type PendingRunCheckpointStill = {
+  runId: string;
+  timestampMs: number;
+  frame: ReplayCaptureFrame;
+  kind: ReplayRunStillKind;
+};
+
+const RUN_CHECKPOINT_STILL_PRIORITY: Record<ReplayRunStillKind, number> = {
+  checkpoint: 1,
+  quiet: 2,
+  authority: 3,
+  trust: 4
+};
+
+const cloneReplayCaptureFrameSnapshot = (
+  frame: ReplayCaptureFrame
+): ReplayCaptureFrame => ({
+  timestampMs: frame.timestampMs,
+  listeningFrame: { ...frame.listeningFrame },
+  analysisFrame: { ...frame.analysisFrame },
+  diagnostics: { ...frame.diagnostics },
+  visualTelemetry: { ...frame.visualTelemetry }
+});
+
 const CONTROL_STORAGE_KEY = 'visulive-user-controls';
 const DIRECTOR_INTENT_STORAGE_KEY = 'visulive-director-intent-v1';
 const SHOW_START_ROUTE_STORAGE_KEY = 'visulive-show-start-route-v1';
@@ -452,6 +476,7 @@ export function App() {
     persistQueued: boolean;
     lastCheckpointStillTimestampMs: number;
     checkpointStillCaptureInFlight: boolean;
+    queuedCheckpointStill: PendingRunCheckpointStill | null;
     lastWorldAuthorityState: string | null;
     lastQualityTier: string | null;
     lastShowState: string | null;
@@ -470,6 +495,7 @@ export function App() {
     persistQueued: false,
     lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
     checkpointStillCaptureInFlight: false,
+    queuedCheckpointStill: null,
     lastWorldAuthorityState: null,
     lastQualityTier: null,
     lastShowState: null,
@@ -1200,6 +1226,64 @@ export function App() {
     setStartError('This run is now exploratory only.');
   };
 
+  const queueRunCheckpointStill = (
+    journal: ReplayRunJournal,
+    timestampMs: number,
+    frameForStill: ReplayCaptureFrame,
+    kind: ReplayRunStillKind
+  ) => {
+    const nextQueuedStill: PendingRunCheckpointStill = {
+      runId: journal.metadata.runId,
+      timestampMs,
+      frame: cloneReplayCaptureFrameSnapshot(frameForStill),
+      kind
+    };
+    const currentQueuedStill = runJournalRef.current.queuedCheckpointStill;
+
+    if (
+      !currentQueuedStill ||
+      RUN_CHECKPOINT_STILL_PRIORITY[kind] >
+        RUN_CHECKPOINT_STILL_PRIORITY[currentQueuedStill.kind] ||
+      (RUN_CHECKPOINT_STILL_PRIORITY[kind] ===
+        RUN_CHECKPOINT_STILL_PRIORITY[currentQueuedStill.kind] &&
+        timestampMs >= currentQueuedStill.timestampMs)
+    ) {
+      runJournalRef.current.queuedCheckpointStill = nextQueuedStill;
+    }
+  };
+
+  const flushQueuedRunCheckpointStill = () => {
+    const queuedStill = runJournalRef.current.queuedCheckpointStill;
+
+    if (!queuedStill) {
+      return;
+    }
+
+    const activeJournal = runJournalRef.current.journal;
+    runJournalRef.current.queuedCheckpointStill = null;
+
+    if (
+      !activeJournal ||
+      activeJournal.metadata.runId !== queuedStill.runId ||
+      !proofWaveArmedRef.current
+    ) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      captureRunCheckpointStill(
+        queuedStill.timestampMs,
+        queuedStill.frame,
+        queuedStill.kind
+      );
+    }, 0);
+  };
+
+  const finishRunCheckpointStillCapture = () => {
+    runJournalRef.current.checkpointStillCaptureInFlight = false;
+    flushQueuedRunCheckpointStill();
+  };
+
   const captureRunCheckpointStill = (
     timestampMs: number,
     frameForStill: ReplayCaptureFrame,
@@ -1211,17 +1295,19 @@ export function App() {
     if (
       !journal ||
       !proofWaveArmedRef.current ||
-      !canvas ||
-      runJournalRef.current.checkpointStillCaptureInFlight
+      !canvas
     ) {
+      return;
+    }
+
+    if (runJournalRef.current.checkpointStillCaptureInFlight) {
+      queueRunCheckpointStill(journal, timestampMs, frameForStill, kind);
       return;
     }
 
     runJournalRef.current.checkpointStillCaptureInFlight = true;
 
     canvas.toBlob((blob) => {
-      runJournalRef.current.checkpointStillCaptureInFlight = false;
-
       if (!blob) {
         invalidateActiveProofRun(
           'capture-save-failed',
@@ -1229,11 +1315,14 @@ export function App() {
           `Checkpoint still capture returned no image data for ${kind}.`,
           'restart-run'
         );
-        void persistRunJournalArtifacts(true);
+        void persistRunJournalArtifacts(true).finally(
+          finishRunCheckpointStillCapture
+        );
         return;
       }
 
       if (!runJournalRef.current.journal) {
+        finishRunCheckpointStillCapture();
         return;
       }
 
@@ -1243,51 +1332,55 @@ export function App() {
       )}.png`;
 
       void (async () => {
-        const handle = captureDirectoryRef.current;
-        const folderReady =
-          handle !== null &&
-          captureFolderStatusRef.current.autoSave &&
-          captureFolderStatusRef.current.ready &&
-          (await ensureCaptureDirectoryPermission(handle, false));
+        try {
+          const handle = captureDirectoryRef.current;
+          const folderReady =
+            handle !== null &&
+            captureFolderStatusRef.current.autoSave &&
+            captureFolderStatusRef.current.ready &&
+            (await ensureCaptureDirectoryPermission(handle, false));
 
-        if (!handle || !folderReady) {
-          invalidateActiveProofRun(
-            'capture-save-failed',
-            timestampMs,
-            `Checkpoint still ${stillFileName} could not save because the proof capture folder is not writable.`,
-            'restart-run'
-          );
-          await persistRunJournalArtifacts(true);
-          return;
-        }
-
-        const stillSaveResult = await saveCaptureBlobsToDirectory(
-          handle,
-          [{ fileName: stillFileName, blob }],
-          {
-            subdirectories: getRunSubdirectories(['stills'])
+          if (!handle || !folderReady) {
+            invalidateActiveProofRun(
+              'capture-save-failed',
+              timestampMs,
+              `Checkpoint still ${stillFileName} could not save because the proof capture folder is not writable.`,
+              'restart-run'
+            );
+            await persistRunJournalArtifacts(true);
+            return;
           }
-        );
 
-        if (!stillSaveResult.savedFileNames.includes(stillFileName)) {
-          invalidateActiveProofRun(
-            'capture-save-failed',
-            timestampMs,
-            stillSaveResult.warning ??
-              `Checkpoint still ${stillFileName} failed to save into the run package.`,
-            'restart-run'
+          const stillSaveResult = await saveCaptureBlobsToDirectory(
+            handle,
+            [{ fileName: stillFileName, blob }],
+            {
+              subdirectories: getRunSubdirectories(['stills'])
+            }
           );
-          await persistRunJournalArtifacts(true);
-          return;
-        }
 
-        registerReplayRunStill(activeJournal, {
-          kind,
-          timestampMs,
-          fileName: stillFileName
-        });
-        updateRunJournalStatusFromJournal(activeJournal);
-        await persistRunJournalArtifacts(true);
+          if (!stillSaveResult.savedFileNames.includes(stillFileName)) {
+            invalidateActiveProofRun(
+              'capture-save-failed',
+              timestampMs,
+              stillSaveResult.warning ??
+                `Checkpoint still ${stillFileName} failed to save into the run package.`,
+              'restart-run'
+            );
+            await persistRunJournalArtifacts(true);
+            return;
+          }
+
+          registerReplayRunStill(activeJournal, {
+            kind,
+            timestampMs,
+            fileName: stillFileName
+          });
+          updateRunJournalStatusFromJournal(activeJournal);
+          await persistRunJournalArtifacts(true);
+        } finally {
+          finishRunCheckpointStillCapture();
+        }
       })();
     }, 'image/png');
   };
@@ -1314,6 +1407,7 @@ export function App() {
     autoCaptureState.lastProofStillSampleMs = Number.NEGATIVE_INFINITY;
     autoCaptureState.proofStillCaptureInFlight = false;
     autoCaptureState.captureCountsByKind = {};
+    runJournalRef.current.queuedCheckpointStill = null;
     const proofReadiness = deriveReplayProofReadiness({
       proofWaveArmed: proofWaveArmedRef.current,
       captureFolderLabel: captureFolderStatusRef.current.folderName,
@@ -1373,6 +1467,7 @@ export function App() {
       persistQueued: false,
       lastCheckpointStillTimestampMs: Number.NEGATIVE_INFINITY,
       checkpointStillCaptureInFlight: false,
+      queuedCheckpointStill: null,
       lastWorldAuthorityState: null,
       lastQualityTier: null,
       lastShowState: null,
@@ -2194,15 +2289,23 @@ export function App() {
       if (
         liveAutoCaptureStatus.enabled &&
         !autoCaptureState.pending &&
-        trigger &&
-        nextTimestampMs >= autoCaptureState.cooldownUntilMs
+        trigger
       ) {
         const timingProfile = resolveAutoCaptureTimingProfile(trigger.kind);
         const currentRunTriggerCount =
           autoCaptureState.captureCountsByKind[trigger.kind] ?? 0;
+        const firstOperatorTrustClear =
+          trigger.kind === 'operator-trust-clear' && currentRunTriggerCount === 0;
+        const cooldownReady =
+          nextTimestampMs >= autoCaptureState.cooldownUntilMs ||
+          firstOperatorTrustClear;
         const underRunCaptureLimit =
           timingProfile.maxCapturesPerRun === undefined ||
           currentRunTriggerCount < timingProfile.maxCapturesPerRun;
+
+        if (!cooldownReady) {
+          return;
+        }
 
         if (!underRunCaptureLimit) {
           autoCaptureState.cooldownUntilMs =

@@ -15,7 +15,7 @@ If this file and the code disagree, the code wins.
 
 ## Verification Status
 
-Latest local verification on `codex/full-version-foundation` after proof-run reliability hardening:
+Latest local verification on `codex/full-version-foundation` after proof-run reliability hardening and the full `Primary benchmark` proof pass:
 
 - `npm run anthology:validate` passes
 - `npm run check` passes
@@ -26,9 +26,9 @@ Latest local verification on `codex/full-version-foundation` after proof-run rel
 - `npm run benchmark:validate -- --require-current` intentionally fails until a current-canonical benchmark exists
 - `npm run evidence:index` passes
 - `npm run evidence:query -- --runs --limit 5` passes
-- `npm run proof-pack -- --limit 1 --strict` intentionally fails because no current-proof-eligible run exists yet
+- `npm run proof-pack -- --limit 3 --strict` intentionally fails because strict release proof still lacks operator-trust and full scenario coverage, and current primary proof still fails overbright/ring taste gates
 - `npm run release:verify` is now intentionally strict and must fail until a current-canonical benchmark plus fresh proof-pack gates exist
-- `npm run proof:preflight` intentionally fails while this implementation is uncommitted; it should pass after commit and before the next serious run
+- `npm run proof:preflight` must pass after the current proof-capture fix is committed and before the next serious run
 
 Current standing warning:
 
@@ -48,7 +48,7 @@ But it is still transitional in four important ways:
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now sequences frame preparation, `WorldSystem`, `ChamberSystem`, the owned `HeroSystem` pass, explicit authority resolution, and stage-runtime orchestration; the scene still assembles compatibility context, but chamber/world authority math no longer lives there
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `src/scene/modules/**` and `src/scene/rigs/**`, not a finished ownership split
 - the new shell is directionally correct, but [ShowLaunchSurface.tsx](C:/dev/GitHub/visulive/src/ui/ShowLaunchSurface.tsx), [BackstagePanel.tsx](C:/dev/GitHub/visulive/src/ui/BackstagePanel.tsx), and [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) still carry overlap and transition debt
-- Proof Mission Control is now the serious-run setup and finalization layer, but it still needs a fresh canary to prove audio-start-gated journaling, mission propagation, `Finish Proof Run`, artifact-integrity validation, clip/still save integrity, and no invalidations on this exact build
+- Proof Mission Control has produced valid current-proof-eligible primary benchmark run packages, but operator-trust proof is still missing and the latest full run exposed one evidence-platform gap: `operator-trust-clear` was journaled but not captured as a supporting still/clip because authority still work was in flight
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -87,7 +87,8 @@ The next wave is:
 - `Proof / Authority Validation`
 - run it only after launching through `npm run dev:proof`, selecting a Proof Mission in `Backstage -> Capture`, arming `Proof Wave`, and confirming the launch surface says serious proof is ready
 - end it only through `Finish Proof Run`, then use the receipt commands to refresh reports, index evidence, and review the run package
-- start with the 60-90 second `Primary benchmark` canary tracked by `VIS-12`, then run the 6-8 minute primary benchmark tracked by `VIS-14`
+- `VIS-12` canary is done and `VIS-14` has a reviewed-candidate full primary benchmark: `run_20260428_194808_ot6j46`
+- next, commit/restart the operator-trust-clear capture fix, then run `VIS-13` as the first clean `Operator trust` proof pass
 - do not mix acoustic/drums, operator trust, room floor, and primary benchmark in one run; choose one mission per run and let the app lock the route/source/scenario snapshot
 
 Use [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) for the immediate cold-start

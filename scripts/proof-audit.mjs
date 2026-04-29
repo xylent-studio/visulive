@@ -73,11 +73,19 @@ expect(
 
 const saveIndex = app.indexOf('const stillSaveResult = await saveCaptureBlobsToDirectory');
 const registerIndex = app.indexOf('registerReplayRunStill(activeJournal');
+const stillSaveFailureIndex = app.indexOf(
+  'if (!stillSaveResult.savedFileNames.includes(stillFileName))'
+);
+const stillSaveFailureBlock =
+  stillSaveFailureIndex >= 0
+    ? app.slice(stillSaveFailureIndex, stillSaveFailureIndex + 700)
+    : '';
 expect(
   saveIndex >= 0 &&
     registerIndex > saveIndex &&
-    app.includes('if (!stillSaveResult.savedFileNames.includes(stillFileName))') &&
-    app.includes("invalidateActiveProofRun(\n            'capture-save-failed'"),
+    stillSaveFailureIndex >= 0 &&
+    stillSaveFailureBlock.includes('invalidateActiveProofRun(') &&
+    stillSaveFailureBlock.includes("'capture-save-failed'"),
   'checkpoint stills must register only after successful save and invalidate on failure.'
 );
 

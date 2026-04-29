@@ -53,11 +53,12 @@ Public simplicity is a product rule.
 Internal anthology expansion is the ambition rule.
 
 The current blockers are:
-- no current-proof-valid run exists after the authority/runtime and evidence changes; the next serious move is a valid `Primary benchmark` canary through Proof Mission Control
+- current-proof-valid `Primary benchmark` evidence now exists after the authority/runtime and evidence changes: `run_20260428_192855_gnmlg1` and `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, but no run is current-canonical or release-ready yet
+- the next serious move is `Operator trust` proof through Proof Mission Control after the operator-trust-clear capture fix is committed and the proof server is restarted
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) now explicitly sequences world, chamber, hero, authority, and stage work, but it is not the final runtime owner until post/compositor/memory extraction reduces the remaining scene compatibility shell
 - `src/scene/systems/**` and `src/scene/governors/**` are partly namespace shims over `modules/**` and `rigs/**`
 - the anthology families now named in canon are still ahead of the fully extracted runtime
-- visual proof from the April 28 diagnostic run suggests overbright/ring-overdraw risk, but that run is not promotable because mission/scenario evidence was invalid before the Mission Control pass
+- valid April 28 `Primary benchmark` proof repeats the same actual visual issue: chamber/world authority is strong and hero monopoly is absent, but overbright/ring-overdraw risk is high enough to block strict proof and release readiness
 - conductor certainty still lags behind the strength of the visual event-spend we want
 - low-energy living-music states still need fresh proof that they stay readable, colorful, and stage-active in both `Music On This PC` and `Music In The Room`
 - safe-tier quality must stay authored, vivid, and premium
@@ -318,15 +319,13 @@ For audio/evidence passes, use:
 
 ## Current Best Next Structural Move
 
-Before heavy parallel visual work, prove the current backbone:
+Before heavy parallel visual work, finish the current proof wave:
 
 - launch with `npm run dev:proof`
-- choose `Backstage -> Capture -> Proof Mission -> Primary benchmark`
+- choose `Backstage -> Capture -> Proof Mission -> Operator trust`
 - arm `Proof Wave`
-- run a 60-90 second PC Audio no-touch canary
+- run a 6-8 minute no-touch operator-trust pass
 - end with `Finish Proof Run`; do not rely on closing the tab or stopping audio informally
 - review `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`
 
-If the canary is valid, run the full `Primary benchmark` and then `Operator trust`.
-
-If authority proof fails, do a narrow governance correction in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy. If authority plus no-touch proof holds, the next structural extraction is `PostSystem`, not more scene-local creative work.
+The primary benchmark proof candidates are already valid enough to show the next visual correction: overbright and ring persistence. If operator-trust proof also holds, do a narrow governance correction in [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy. If governance proof holds after that correction, the next structural extraction is `PostSystem`, not more scene-local creative work.

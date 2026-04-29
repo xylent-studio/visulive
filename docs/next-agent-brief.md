@@ -34,7 +34,9 @@ Read first:
 - `Finish Proof Run` is now the canonical end path: it stops audio, closes pending auto clips, writes finish/finalized markers, derives final mission eligibility, checks artifact integrity, disarms Proof Wave, and shows review commands
 - the public launch surface now shows serious-proof ready/blocked state when `Proof Wave` is armed, so missing mission/build/folder/replay readiness is visible before `Start Show`
 - the live HUD now shows proof mission, elapsed/target time, no-touch state, clip/still counts, last persistence state, and a `Finish Proof Run` action
-- invalid April 28 runs are debugging evidence only and should be archived before the next proof pass
+- invalid April 28 runs are debugging evidence only; active `captures/inbox/runs` should be empty before the next proof pass
+- `Primary benchmark` canary `run_20260428_192855_gnmlg1` and full run `run_20260428_194808_ot6j46` are reviewed-candidate proof packages, not current-canonical release proof
+- the full primary run confirms strong chamber/world authority and no hero monopoly, but strict proof is blocked by overbright/ring taste failures and one missed `operator-trust-clear` evidence opportunity
 
 This means the next agent should return to proof validation work, not release cleanup or capability expansion.
 
@@ -62,14 +64,13 @@ The highest-leverage move is:
 3. run the proof wave:
    - launch with `npm run dev:proof`
    - select the mission under `Backstage -> Capture -> Proof Mission`
-   - use `Primary benchmark` for the first canary and real primary proof
+   - use `Operator trust` next; the canary and full primary benchmark already have reviewed-candidate packages
    - start only when the launch surface reports serious proof is ready
-   - first run `Primary benchmark` as a 60-90 second canary to prove folder write, journal, clips, stills, no-touch tracking, and zero invalidations
    - use `Finish Proof Run`; do not close the tab or rely on stopping audio informally
-   - fresh no-touch `PC Audio` benchmark batch
+   - fresh no-touch `Operator trust` batch
    - analyzer review
    - proof-pack review
-   - require the proof-pack `authority split validation` and `primary authority proof` gates to pass before treating the authority split as stable
+   - require operator trust to pass before moving from proof plumbing into governance correction
    - do not manually change scenario tags in diagnostics; the mission snapshot is the source of truth
    - prefer `npm run proof:current` for the serial benchmark/analyzer/proof-pack refresh
 4. if proof still shows decorative chamber, weak world takeover, or overbright spend:

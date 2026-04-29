@@ -122,7 +122,8 @@ export const AUTO_CAPTURE_TIMING_PROFILES: Record<
     retriggerGapMs: 1200,
     cooldownMs: 12000,
     maxExtensions: 0,
-    maxTriggerCount: 1
+    maxTriggerCount: 1,
+    maxCapturesPerRun: 1
   },
   'quality-downgrade': {
     preRollMs: 1800,
@@ -164,7 +165,7 @@ export function getAutoCaptureTriggerPriority(
     case 'quality-downgrade':
       return 5;
     case 'operator-trust-clear':
-      return 2;
+      return 6;
     case 'quiet-beauty':
       return 1;
     default:
@@ -377,6 +378,16 @@ export function detectAutoCaptureTrigger(
     return qualityDowngradeTrigger;
   }
 
+  const operatorTrustTrigger = detectOperatorTrustClearTrigger(
+    frame,
+    visual,
+    context?.noTouchWindowPassed === true,
+    context?.previousNoTouchWindowPassed === true
+  );
+  if (operatorTrustTrigger) {
+    return operatorTrustTrigger;
+  }
+
   const authorityTurnTrigger = detectAuthorityTurnTrigger(
     frame,
     visual,
@@ -424,16 +435,6 @@ export function detectAutoCaptureTrigger(
       reason: `release=${frame.releaseTail.toFixed(3)} resonance=${frame.resonance.toFixed(3)}`,
       timestampMs: frame.timestampMs
     };
-  }
-
-  const operatorTrustTrigger = detectOperatorTrustClearTrigger(
-    frame,
-    visual,
-    context?.noTouchWindowPassed === true,
-    context?.previousNoTouchWindowPassed === true
-  );
-  if (operatorTrustTrigger) {
-    return operatorTrustTrigger;
   }
 
   const quietBeautyTrigger = detectQuietBeautyTrigger(frame, visual);

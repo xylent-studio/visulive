@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   detectAutoCaptureTrigger,
+  getAutoCaptureTriggerPriority,
   resolveAutoCaptureTimingProfile
 } from './autoCapture';
 import {
@@ -67,6 +68,10 @@ describe('auto capture helpers', () => {
     expect(resolveAutoCaptureTimingProfile('floor').cooldownMs).toBe(4000);
     expect(resolveAutoCaptureTimingProfile('governance-risk').maxCapturesPerRun).toBe(3);
     expect(resolveAutoCaptureTimingProfile('governance-risk').cooldownMs).toBe(18000);
+    expect(resolveAutoCaptureTimingProfile('operator-trust-clear').maxCapturesPerRun).toBe(1);
+    expect(getAutoCaptureTriggerPriority('operator-trust-clear')).toBeGreaterThan(
+      getAutoCaptureTriggerPriority('authority-turn')
+    );
   });
 
   it('does not let persistent governance risk starve musical event captures', () => {
@@ -91,5 +96,34 @@ describe('auto capture helpers', () => {
     );
 
     expect(trigger?.kind).toBe('drop');
+  });
+
+  it('prioritizes operator trust evidence when no-touch clears during an authority turn', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 36000,
+        mode: 'system-audio',
+        musicConfidence: 0.72,
+        beatConfidence: 0.5,
+        dropImpact: 0.1,
+        sectionChange: 0.08
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        noTouchWindowPassed: true,
+        previousNoTouchWindowPassed: false,
+        previousWorldAuthorityState: 'support',
+        visualTelemetry: {
+          worldAuthorityState: 'shared',
+          worldDominanceDelivered: 0.46,
+          chamberPresenceScore: 0.66,
+          compositionSafetyScore: 0.92,
+          overbright: 0.08
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).toBe('operator-trust-clear');
   });
 });
