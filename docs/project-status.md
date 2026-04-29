@@ -216,7 +216,7 @@ The biggest remaining constraints are still:
 - the show/audio routing stack is still flatter than the target regime hierarchy
 - proof-pack output still reflects an older capture library that predates the full anthology metadata set
 - benchmark truth is stricter now, but the full graduation workflow is not complete yet
-- legacy [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx) and [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx) still remain in the repo as shell debt even though they are no longer the active product path
+- legacy `ActivationOverlay`, `SettingsPanel`, quick-dock, and old top-chrome shell surfaces have been removed; `npm run legacy:audit` now guards the current `ShowLaunchSurface` + `ShowHud` + `BackstagePanel` + `DiagnosticsOverlay` surface contract
 
 ## Next Execution Order
 

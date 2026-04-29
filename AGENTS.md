@@ -86,14 +86,14 @@ Read these before assuming the rewrite is cleaner than it is:
 - a facade is not an owner
 - a namespace shim is not an extraction
 - a named runtime folder does not mean orchestration moved there
-- an unmounted legacy shell file is still transition debt if it remains in the repo
+- a retired public shell surface must stay deleted unless the product doctrine explicitly revives it
 
 Today that means:
 
 - [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) prepares frame context, sequences signature moment resolution, [WorldSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/world/WorldSystem.ts), [ChamberSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/chamber/ChamberSystem.ts), [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts), authority resolution, stage work, [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), and [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts); [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) remains a compatibility assembly shell
 - some `systems/**` and `governors/**` files only re-export implementation from `modules/**` or `rigs/**`
 - [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx) and [director.ts](C:/dev/GitHub/visulive/src/types/director.ts) are temporary integration hubs, not the final long-term homes of that responsibility
-- [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx) and [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx) are legacy shell debt unless a pass explicitly revives them
+- the old `ActivationOverlay` / `SettingsPanel` / quick-dock shell has been removed; `npm run legacy:audit` protects the current `ShowLaunchSurface` + `ShowHud` + `BackstagePanel` + `DiagnosticsOverlay` contract
 
 ## Specialist Lanes
 
@@ -259,9 +259,8 @@ Own specifically:
 - diagnostics presentation
 - fullscreen/operator experience
 
-Legacy debt in this lane:
-- [ActivationOverlay.tsx](C:/dev/GitHub/visulive/src/ui/ActivationOverlay.tsx)
-- [SettingsPanel.tsx](C:/dev/GitHub/visulive/src/ui/SettingsPanel.tsx)
+Legacy guardrail in this lane:
+- `npm run legacy:audit` must pass; do not reintroduce the retired `ActivationOverlay`, `SettingsPanel`, quick-dock, or old top-chrome public shell.
 
 ### 9. Renderer / Safe-Tier / Quality Policy
 

@@ -82,7 +82,7 @@ Current reality:
 - the build/test path passes, while release verification is now intentionally blocked until fresh current proof exists
 - the runtime split now has explicit world/chamber/hero/authority/stage sequencing, but the scene remains a compatibility shell
 - the system/governor folders are still partly namespace shims
-- the public shell is improved but still carries transition debt
+- the retired launch/settings shell files are removed, and `npm run legacy:audit` now guards against reintroducing old quick-start/settings/top-chrome surfaces
 - the proof surface is mission-based, and strict release/proof gates now need fresh evidence to clear
 
 So the immediate gate is:
@@ -144,7 +144,7 @@ The next sequence is:
 1. make the branch honest before building further on it
    - treat [FlagshipShowRuntime.ts](C:/dev/GitHub/visulive/src/scene/runtime/FlagshipShowRuntime.ts) as the real orchestrator, but keep reducing [ObsidianBloomScene.ts](C:/dev/GitHub/visulive/src/scene/ObsidianBloomScene.ts) compatibility ownership
    - treat `src/scene/systems/**` and `src/scene/governors/**` as namespace shims unless their implementation is actually there
-   - demote legacy shell files and language that still imply the old quick-start/settings product
+   - keep legacy shell files and language deleted so the old quick-start/settings product cannot quietly return
    - keep proof-pack and release gates strict so the expanded mission/scenario taxonomy is actually required
 2. keep active evidence surfaces clean before the next proof pass
    - archive invalid inbox runs instead of letting stale current-looking artifacts pollute analysis

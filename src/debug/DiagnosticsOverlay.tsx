@@ -800,7 +800,7 @@ export function DiagnosticsOverlay({
         </div>
         {lowerConfidenceEvidence ? (
           <div className="diagnostics-code">
-            warning: this session is lower-confidence tuning evidence because it did not stay on an authored quick-start path.
+            warning: this session is lower-confidence tuning evidence because it did not stay on a locked Proof Mission / launch profile path.
           </div>
         ) : null}
       </div>

@@ -719,8 +719,8 @@ export function deriveSettingsHealthSummary(
   ) {
     pathHealthItems.push({
       tone: 'info',
-      title: 'Use Live Shaping before deeper tuning',
-      body: 'If the quick start feels close, steer with Wake, Intensity, Show Scale, and World Activity before opening the repair or advanced sections.'
+      title: 'Use Advanced steering before deeper tuning',
+      body: 'If the launch profile feels close, steer with World Takeover, Motion Appetite, Depth, Contrast, Palette Heat, Saturation, Impact Appetite, and Aftermath before opening repair or diagnostics.'
     });
   }
 

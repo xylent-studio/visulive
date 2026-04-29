@@ -184,7 +184,7 @@ Use for:
 
 - public control labels
 - quick-start truth
-- quick-dock versus backstage control boundaries
+- retired-shell guardrails versus current `Advanced > Backstage` control boundaries
 
 Update it when exposed operator behavior changes.
 

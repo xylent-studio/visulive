@@ -53,12 +53,12 @@ This is why the next phase must include repeatable tuning.
 Right now the intended loop is:
 
 1. run locally
-2. choose the correct quick start
-3. calibrate cleanly
-4. let auto capture save evidence during real musical moments
-5. review the rolling or manual analysis report
-6. replay captures when needed
-7. retune against saved evidence instead of memory alone
+2. choose one Proof Mission and the correct audio route
+3. arm Proof Wave and verify the readiness state is green
+4. let the mission auto-configure capture, journal, stills, and no-touch expectations
+5. end with `Finish Proof Run`
+6. refresh proof and index evidence with `npm run proof:refresh`
+7. review the run package and retune against saved evidence instead of memory alone
 
 This is now a real tuning system, not just a nicer live-only loop.
 

@@ -189,7 +189,7 @@ describe('tuning controls', () => {
     expect(summary.pathHealthItems[0]?.tone).toBe('ok');
     expect(
       summary.pathHealthItems.some((item) =>
-        item.title.includes('Use Live Shaping before deeper tuning')
+        item.title.includes('Use Advanced steering before deeper tuning')
       )
     ).toBe(true);
   });

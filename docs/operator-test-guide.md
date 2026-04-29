@@ -139,20 +139,16 @@ Current route truth:
 - the app may recommend a stronger route later
 - it does not switch routes for you mid-show
 
-## Current Branch Compatibility Note
+## Current Surface Note
 
-The current branch may still expose older UI language while the surface rewrite catches up.
+The current branch should expose the new operator language:
 
-Map it like this:
+- `Start Show` chooses `PC Audio`, `Microphone`, or `Combo`
+- `Advanced > Style` owns optional worlds, looks, stances, and anchors
+- `Advanced > Steer` owns semantic director biases
+- `Advanced > Backstage` owns route repair, Proof Mission, capture, replay, and diagnostics
 
-- quick starts -> temporary route helpers for `Auto Show`
-- `Manual Input Setup` -> temporary compatibility path to `Advanced > Backstage`
-- `Explore` -> temporary compatibility path to `Advanced > Style`
-- `Director Deck` -> temporary compatibility path to `Advanced > Steer`
-- older settings panel -> temporary compatibility path to the unified `Advanced` drawer
-- legacy preset labels -> temporary compatibility labels, not long-term product language
-
-Do not treat older slider names as the canonical product model.
+If an old quick-start/settings-panel/top-chrome surface reappears, treat that as a regression and run `npm run legacy:audit`.
 
 ## Steering Pass
 

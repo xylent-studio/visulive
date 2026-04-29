@@ -1,6 +1,6 @@
 # VisuLive Surface Doctrine
 
-Date: 2026-04-22
+Date: 2026-04-29
 Status: Active front-of-house and backstage doctrine
 
 This file defines the current public surface truth.
@@ -101,7 +101,10 @@ Examples of correct advanced steering semantics:
 
 - `World Takeover`
 - `Motion Appetite`
+- `Depth`
+- `Contrast`
 - `Palette Heat`
+- `Saturation`
 - `Impact Appetite`
 - `Aftermath`
 
@@ -122,7 +125,7 @@ It should mean:
 
 ## Compatibility Rule
 
-Current builds may still expose:
+The current code path must not expose:
 
 - quick starts
 - legacy preset labels
@@ -130,8 +133,11 @@ Current builds may still expose:
 - older `Explore` / `Director Deck` / `Backstage` naming
 - one broad settings surface instead of the new single `Advanced` drawer
 
-Treat those as compatibility UI only.
-They are not the next-version product language.
+The old `ActivationOverlay`, `SettingsPanel`, quick-dock, and top-chrome surfaces have been removed from source.
+`npm run legacy:audit` is the regression guard for this rule.
+
+Old quick-start and preset concepts may remain as internal compatibility data or migration helpers.
+They should not reappear as mounted public UI.
 
 ## Decision Standard
 
