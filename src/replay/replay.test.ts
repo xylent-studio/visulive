@@ -163,6 +163,57 @@ describe('replay workflow', () => {
     expect(sample.direction.showStartRoute).toBe('pc-audio');
   });
 
+  it('preserves an explicit mission scenario assessment on capture clips', () => {
+    const proofMission = buildReplayProofMissionSnapshot('operator-trust', {
+      lockedAt: '2026-04-23T13:00:59.000Z'
+    });
+    const capture = buildReplayCapture(
+      [
+        cloneReplayCaptureFrame(
+          { ...DEFAULT_LISTENING_FRAME, timestampMs: 1000 },
+          DEFAULT_ANALYSIS_FRAME,
+          DEFAULT_AUDIO_DIAGNOSTICS,
+          DEFAULT_VISUAL_TELEMETRY
+        )
+      ],
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        backend: 'webgpu',
+        ready: true,
+        qualityTier: 'balanced',
+        devicePixelRatio: 1,
+        cappedPixelRatio: 1,
+        fps: 60,
+        frameTimeMs: 16.7,
+        warnings: [],
+        visualTelemetry: DEFAULT_VISUAL_TELEMETRY
+      },
+      DEFAULT_USER_CONTROL_STATE,
+      {
+        captureMode: 'auto',
+        sourceMode: 'system-audio',
+        showStartRoute: proofMission.expectedRoute,
+        proofScenarioKind: proofMission.scenarioKind,
+        proofMission,
+        noTouchWindowPassed: false,
+        interventionCount: 0,
+        scenarioAssessment: {
+          declaredScenario: proofMission.scenarioKind,
+          derivedScenario: proofMission.scenarioKind,
+          confidence: 1,
+          mismatchReasons: [],
+          validated: true
+        }
+      }
+    );
+
+    expect(capture.metadata.proofScenarioKind).toBe('operator-trust');
+    expect(capture.metadata.scenarioAssessment?.validated).toBe(true);
+    expect(capture.metadata.scenarioAssessment?.derivedScenario).toBe(
+      'operator-trust'
+    );
+  });
+
   it('detects replay proof invalidations and transient file-system write errors', () => {
     const buildInfo = createReplayBuildInfo({
       version: '1.0.0-test',

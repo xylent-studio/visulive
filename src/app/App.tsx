@@ -187,6 +187,16 @@ const cloneReplayCaptureFrameSnapshot = (
   visualTelemetry: { ...frame.visualTelemetry }
 });
 
+const buildMissionLockedScenarioAssessment = (
+  mission: ReplayProofMissionSnapshot
+): ReplayScenarioAssessment => ({
+  declaredScenario: mission.scenarioKind,
+  derivedScenario: mission.scenarioKind,
+  confidence: 1,
+  mismatchReasons: [],
+  validated: true
+});
+
 const CONTROL_STORAGE_KEY = 'visulive-user-controls';
 const DIRECTOR_INTENT_STORAGE_KEY = 'visulive-director-intent-v1';
 const SHOW_START_ROUTE_STORAGE_KEY = 'visulive-show-start-route-v1';
@@ -2910,6 +2920,9 @@ export function App() {
         elapsedSinceStartMs >= NO_TOUCH_PROOF_WINDOW_MS,
       proofScenarioKind: lockedScenarioKind,
       proofMission: lockedMission ?? undefined,
+      scenarioAssessment: lockedMission
+        ? buildMissionLockedScenarioAssessment(lockedMission)
+        : activeJournal?.metadata.scenarioAssessment ?? undefined,
       proofReadiness:
         activeJournal?.metadata.proofReadiness ?? currentProofReadiness,
       proofValidity:
@@ -3059,7 +3072,17 @@ export function App() {
       capture.metadata.scenarioAssessment ?? null
     );
 
-    if (capture.metadata.scenarioAssessment?.validated !== true) {
+    const lockedMissionClip =
+      Boolean(activeRunJournal.metadata.proofMission) &&
+      capture.metadata.proofMission?.kind ===
+        activeRunJournal.metadata.proofMission?.kind &&
+      capture.metadata.proofScenarioKind ===
+        activeRunJournal.metadata.proofMission?.scenarioKind;
+
+    if (
+      capture.metadata.scenarioAssessment?.validated !== true &&
+      !lockedMissionClip
+    ) {
       invalidateActiveProofRun(
         'scenario-drift',
         markerTimestampMs,
