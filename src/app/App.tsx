@@ -267,6 +267,7 @@ const RUN_JOURNAL_PERSIST_INTERVAL_MS = 3_000;
 const RUN_JOURNAL_PERSIST_RETRY_ATTEMPTS = 3;
 const RUN_JOURNAL_PERSIST_RETRY_DELAY_MS = 140;
 const RUN_CHECKPOINT_STILL_INTERVAL_MS = 12_000;
+const RUN_CHECKPOINT_STILL_DEDUP_WINDOW_MS = 3_500;
 const MAX_AUTO_CAPTURE_PRE_ROLL_MS = Math.max(
   ...Object.values(AUTO_CAPTURE_TIMING_PROFILES).map((profile) => profile.preRollMs)
 );
@@ -1424,7 +1425,9 @@ export function App() {
       (still) =>
         still.runId === nextQueuedStill.runId &&
         still.kind === nextQueuedStill.kind &&
-        still.exploratory === nextQueuedStill.exploratory
+        still.exploratory === nextQueuedStill.exploratory &&
+        Math.abs(still.timestampMs - nextQueuedStill.timestampMs) <=
+          RUN_CHECKPOINT_STILL_DEDUP_WINDOW_MS
     );
 
     if (existingIndex >= 0) {
@@ -2574,9 +2577,13 @@ export function App() {
               washout: nextFrame.visualTelemetry.perceptualWashoutRisk ?? 0
             }
           );
+          const signatureMomentIntensity =
+            nextFrame.visualTelemetry.signatureMomentIntensity ?? 0;
           if (
             markerKind === 'signature-moment-peak' ||
-            markerKind === 'signature-moment-residue'
+            markerKind === 'signature-moment-residue' ||
+            (markerKind === 'signature-moment-precharge' &&
+              signatureMomentIntensity >= 0.1)
           ) {
             captureRunCheckpointStill(nextTimestampMs, nextFrame, 'signature');
           }

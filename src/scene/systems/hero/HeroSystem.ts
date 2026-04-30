@@ -1362,7 +1362,7 @@ export class HeroSystem {
         sceneSpectral * 0.08 +
         worldDominance * 0.08 +
         restraint * 0.08 +
-        (plannedHeroForm === 'orb' ? 0.42 : 0) +
+        (plannedHeroForm === 'orb' ? 0.56 : 0) +
         (plannedHeroAccentForm === 'orb' ? 0.12 : 0),
       cube:
         0.08 +
@@ -1372,7 +1372,7 @@ export class HeroSystem {
         compressIntent * 0.18 +
         gatherFamily * 0.08 +
         cadenceDriving * 0.08 +
-        (plannedHeroForm === 'cube' ? 0.46 : 0) +
+        (plannedHeroForm === 'cube' ? 0.62 : 0) +
         (plannedHeroAccentForm === 'cube' ? 0.16 : 0),
       pyramid:
         0.04 +
@@ -1382,7 +1382,7 @@ export class HeroSystem {
         sceneSolar * 0.1 +
         laserAct * 0.08 +
         openIntent * 0.08 +
-        (plannedHeroForm === 'pyramid' ? 0.42 : 0) +
+        (plannedHeroForm === 'pyramid' ? 0.58 : 0) +
         (plannedHeroAccentForm === 'pyramid' ? 0.16 : 0),
       diamond:
         0.06 +
@@ -1393,7 +1393,7 @@ export class HeroSystem {
         paletteVoidTarget * 0.08 +
         sceneSpectral * 0.14 +
         clearIntent * 0.08 +
-        (plannedHeroForm === 'diamond' ? 0.44 : 0) +
+        (plannedHeroForm === 'diamond' ? 0.6 : 0) +
         (plannedHeroAccentForm === 'diamond' ? 0.16 : 0),
       prism:
         0.08 +
@@ -1405,7 +1405,7 @@ export class HeroSystem {
         paletteSpread * 0.18 +
         scenePrismatic * 0.18 +
         openIntent * 0.06 +
-        (plannedHeroForm === 'prism' ? 0.44 : 0) +
+        (plannedHeroForm === 'prism' ? 0.6 : 0) +
         (plannedHeroAccentForm === 'prism' ? 0.16 : 0),
       shard:
         0.04 +
@@ -1418,7 +1418,7 @@ export class HeroSystem {
         sceneSolar * 0.1 +
         scenePrismatic * 0.06 +
         sweepIntent * 0.08 +
-        (plannedHeroForm === 'shard' ? 0.48 : 0) +
+        (plannedHeroForm === 'shard' ? 0.64 : 0) +
         (plannedHeroAccentForm === 'shard' ? 0.16 : 0),
       mushroom:
         broodFamily * 0.02 +
@@ -1428,7 +1428,7 @@ export class HeroSystem {
         paletteGhostTarget * 0.1 +
         sceneSpectral * 0.12 +
         exhaleIntent * 0.05 +
-        (plannedHeroForm === 'mushroom' ? 0.24 : 0) +
+        (plannedHeroForm === 'mushroom' ? 0.46 : 0) +
         (plannedHeroAccentForm === 'mushroom' ? 0.08 : 0)
     };
     const rankedHeroForms = HERO_FORMS.map((form) => ({
@@ -1490,10 +1490,10 @@ export class HeroSystem {
       candidateHasPhrasePermission &&
       semanticSwitchReason !== 'hold';
     const formVarietyPressure = THREE.MathUtils.clamp(
-      sceneVariation.noveltyDrive * 0.22 +
-        paletteSpread * 0.28 +
-        heroMorphBias * 0.18 +
-        prismaticDrive * 0.14 +
+      sceneVariation.noveltyDrive * 0.08 +
+        paletteSpread * 0.12 +
+        heroMorphBias * 0.08 +
+        prismaticDrive * 0.06 +
         this.sectionChange * 0.16 +
         this.dropImpact * 0.12,
       0,

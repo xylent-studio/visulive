@@ -250,6 +250,41 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneTransitionReason).not.toBe('drop-rupture');
   });
 
+  it('does not let weak collapse precharge steal a non-rupture scene', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        signatureMoment: signatureMoment({
+          kind: 'collapse-scar',
+          phase: 'precharge',
+          intensity: 0.24,
+          style: 'contrast-mythic',
+          postConsequence: 0.18,
+          worldLead: 0.42,
+          safetyRisk: 0.18
+        }),
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'reveal',
+          worldMode: 'cathedral-rise',
+          transformIntent: 'open'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.12,
+          sectionChange: 0.22
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneTransitionReason).not.toBe('signature-moment');
+  });
+
   it('lets collapse residue yield back to the current motif once rupture no longer owns it', () => {
     const system = new PlayableMotifSystem();
     system.build();

@@ -471,14 +471,14 @@ export class ChamberSystem {
       0.34
     );
     const signatureRingDemotion = THREE.MathUtils.clamp(
-      collapseScarMoment * 0.38 +
-        ghostResidueMoment * 0.24 +
-        silenceConstellationMoment * 0.28 +
-        signatureResidueOrClear * 0.34 +
-        Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.24) * 0.24 -
-        signaturePortalArchitectureLift * 0.72,
+      collapseScarMoment * 0.44 +
+        ghostResidueMoment * 0.32 +
+        silenceConstellationMoment * 0.34 +
+        signatureResidueOrClear * 0.42 +
+        Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.24) * 0.34 -
+        signaturePortalArchitectureLift * 0.58,
       0,
-      0.68
+      0.76
     );
     const ringSuppression = context.sceneVariation.ringSuppression;
     const portalSuppression = context.sceneVariation.portalSuppression;
@@ -567,12 +567,12 @@ export class ChamberSystem {
       context.tuning.neonStageFloor * 0.012 +
       context.tuning.worldBootFloor * 0.01;
     const ringPostureSuppression = THREE.MathUtils.clamp(
-      ringSuppressed * 0.62 +
-        ringResidueTrace * 0.38 +
-        ringEventStrike * 0.16 -
-        ringCathedralArchitecture * 0.34,
+      ringSuppressed * 0.72 +
+        ringResidueTrace * 0.52 +
+        ringEventStrike * 0.22 -
+        ringCathedralArchitecture * 0.24,
       0,
-      0.72
+      0.82
     );
     const ringPersistencePressure = THREE.MathUtils.clamp(
       Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.18) * 1.65 +

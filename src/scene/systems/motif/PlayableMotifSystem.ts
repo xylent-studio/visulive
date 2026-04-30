@@ -105,15 +105,24 @@ function resolveSceneFromSignature(
     return 'neon-cathedral';
   }
 
-  if (
-    moment.kind === 'collapse-scar' &&
-    (moment.phase === 'precharge' ||
-      moment.phase === 'strike' ||
-      moment.phase === 'hold' ||
-      (moment.phase === 'residue' &&
-        (motif === 'rupture-scar' || moment.postConsequence > 0.48)))
-  ) {
-    return 'collapse-scar';
+  if (moment.kind === 'collapse-scar') {
+    const collapseIsEarned =
+      motif === 'rupture-scar' ||
+      moment.postConsequence > 0.52 ||
+      moment.worldLead > 0.68 ||
+      moment.safetyRisk > 0.55;
+    const collapseResidueStillOwnsScene =
+      motif === 'rupture-scar' || moment.postConsequence > 0.58;
+
+    if (
+      ((moment.phase === 'precharge' ||
+        moment.phase === 'strike' ||
+        moment.phase === 'hold') &&
+        collapseIsEarned) ||
+      (moment.phase === 'residue' && collapseResidueStillOwnsScene)
+    ) {
+      return 'collapse-scar';
+    }
   }
 
   if (
