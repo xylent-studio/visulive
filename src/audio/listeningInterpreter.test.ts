@@ -387,6 +387,60 @@ describe('ListeningInterpreter', () => {
     expect(systemFrame.performanceIntent).not.toBe('hold');
   });
 
+  it('lets the first strong system-audio peak enter surge and detonate', () => {
+    const interpreter = new ListeningInterpreter();
+    const build = repeatFrame(
+      {
+        rms: 0.052,
+        peak: 0.084,
+        envelopeFast: 0.058,
+        envelopeSlow: 0.046,
+        lowEnergy: 0.04,
+        midEnergy: 0.036,
+        highEnergy: 0.02,
+        brightness: 0.24,
+        lowFlux: 0.012,
+        midFlux: 0.012,
+        highFlux: 0.006,
+        modulation: 0.18,
+        transient: 0.028,
+        crestFactor: 2.5,
+        lowStability: 0.5
+      },
+      32
+    );
+    const peak = repeatFrame(
+      {
+        rms: 0.09,
+        peak: 0.17,
+        envelopeFast: 0.13,
+        envelopeSlow: 0.062,
+        lowEnergy: 0.078,
+        midEnergy: 0.048,
+        highEnergy: 0.026,
+        brightness: 0.3,
+        lowFlux: 0.038,
+        midFlux: 0.026,
+        highFlux: 0.012,
+        modulation: 0.24,
+        transient: 0.095,
+        crestFactor: 3.2,
+        lowStability: 0.36
+      },
+      8
+    );
+    const frame = stepInterpreter(
+      interpreter,
+      [...build, ...peak],
+      1000,
+      'system-audio'
+    );
+
+    expect(frame.showState).toBe('surge');
+    expect(frame.performanceIntent).toBe('detonate');
+    expect(frame.dropImpact).toBeGreaterThan(0.24);
+  });
+
   it('lets a long electronic drop tail fall out of surge instead of staying pinned to ghost-state resonance', () => {
     const interpreter = new ListeningInterpreter();
     const surged = stepInterpreter(

@@ -1243,7 +1243,7 @@ export function App() {
 
   const proofRunLocksControls = () =>
     proofWaveArmedRef.current &&
-    status.phase === 'live' &&
+    (status.phase === 'live' || audioRef.current?.getStatus().phase === 'live') &&
     (runJournalRef.current.journal?.metadata.proofMission?.lockAdvancedControls ??
       proofMissionProfile.lockAdvancedControls);
 
@@ -3182,12 +3182,16 @@ export function App() {
   }, [audioTuning, runtimeTuning]);
 
   const handleStart = async () => {
+    const proofArmedAtStart = proofWaveArmedRef.current || proofWaveArmed;
+    if (proofArmedAtStart) {
+      proofWaveArmedRef.current = true;
+    }
     const activeMission = getReplayProofMissionProfile(proofMissionKind);
-    const startRoute = proofWaveArmed ? activeMission.expectedRoute : showStartRoute;
+    const startRoute = proofArmedAtStart ? activeMission.expectedRoute : showStartRoute;
     const nextSourceMode = resolveListeningModeFromShowStartRoute(startRoute);
     const diagnostics = audioRef.current?.getDiagnostics() ?? audioDiagnostics;
     const proofStartReadiness = deriveReplayProofReadiness({
-      proofWaveArmed,
+      proofWaveArmed: proofArmedAtStart,
       captureFolderLabel: captureFolderStatus.folderName,
       captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
       showStartRoute: startRoute,
@@ -3198,7 +3202,7 @@ export function App() {
       routeCapabilities
     });
 
-    if (proofWaveArmed && !proofStartReadiness.ready) {
+    if (proofArmedAtStart && !proofStartReadiness.ready) {
       const blockingReasons = proofStartReadiness.checks
         .filter((check) => check.blocking && !check.passed)
         .map((check) => check.reason);
@@ -3217,7 +3221,7 @@ export function App() {
       getCompatibilityQuickStartProfileIdFromShowStartRoute(startRoute)
     );
     setStartError(null);
-    if (proofWaveArmed) {
+    if (proofArmedAtStart) {
       const corrections = [...runJournalRef.current.proofMissionCorrections];
       const addCorrection = (message: string) => {
         if (!corrections.includes(message)) {
@@ -3268,9 +3272,9 @@ export function App() {
       }
 
       const startedDiagnostics = audioRef.current?.getDiagnostics() ?? diagnostics;
-      if (proofWaveArmed) {
+      if (proofArmedAtStart) {
         const postStartReadiness = deriveReplayProofReadiness({
-          proofWaveArmed,
+          proofWaveArmed: proofArmedAtStart,
           captureFolderLabel: captureFolderStatus.folderName,
           captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
           showStartRoute: startRoute,
@@ -3301,6 +3305,9 @@ export function App() {
       }
 
       beginNoTouchSession();
+      if (proofArmedAtStart) {
+        proofWaveArmedRef.current = true;
+      }
       startRunJournal(
         nextSourceMode,
         startedDiagnostics
@@ -3764,7 +3771,11 @@ export function App() {
 
     if (!journal) {
       await audioRef.current?.stop();
+      proofWaveArmedRef.current = false;
       setProofWaveArmed(false);
+      setStartError(
+        'Stopped the armed proof attempt. No run journal was active, so no proof package was finalized.'
+      );
       return;
     }
 
@@ -3872,6 +3883,7 @@ export function App() {
     }
 
     updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
+    proofWaveArmedRef.current = false;
     setProofWaveArmed(false);
     setStartError(
       `Proof run ${journal.metadata.runId} finalized as ${eligibility.verdict}. Review: npm run proof:current && npm run evidence:index && npm run run:review -- --run-id ${journal.metadata.runId}`
@@ -4182,6 +4194,14 @@ export function App() {
   };
 
   const handleArmProofWave = async () => {
+    if (runtimeActive) {
+      setStartError(
+        'Finish or stop the current show before arming Proof Wave. Serious proof starts from Start Show so the run journal can be created cleanly.'
+      );
+      setReplayError(null);
+      return;
+    }
+
     try {
       clearMomentLabPreview('Moment Lab stopped before arming Proof Wave.');
       const mission = getReplayProofMissionProfile(proofMissionKind);
@@ -4271,6 +4291,7 @@ export function App() {
         autoCaptureStatusRef.current = nextStatus;
         return nextStatus;
       });
+      proofWaveArmedRef.current = true;
       setProofWaveArmed(true);
       setStartError(null);
       setReplayError(null);
@@ -4686,11 +4707,15 @@ export function App() {
       latestAutoCapture?.triggerReason ?? autoCaptureStatus.latestTriggerReason
   };
   const advancedDrawerOpen = advancedDrawerTab !== null;
+  const proofControlActive =
+    runJournalStatus.active ||
+    ((proofWaveArmed || proofWaveArmedRef.current) && runtimeActive);
   const immersiveView =
     fullscreen &&
     runtimeActive &&
     !advancedDrawerOpen &&
-    !diagnosticsVisible;
+    !diagnosticsVisible &&
+    !proofControlActive;
   const launchSurfaceVisible = activationVisible;
   const backstagePanelOpen = advancedDrawerOpen;
   const topStatusLabel = replayActive
@@ -4723,6 +4748,19 @@ export function App() {
           runJournalStatus.proofValidity?.verdict ??
           runJournalStatus.proofRunState
       }
+    : proofControlActive
+      ? {
+          active: true,
+          missionLabel: proofMissionProfile.label ?? null,
+          runId: null,
+          elapsedSeconds: proofElapsedMs / 1000,
+          targetSeconds: proofMissionProfile.expectedDurationSeconds.min ?? null,
+          noTouchPassed: false,
+          clipCount: 0,
+          stillCount: 0,
+          lastPersistedAt: null,
+          validityLabel: 'armed'
+        }
     : undefined;
   const momentLabDisabledReason = !isMomentLabAvailable
     ? 'Localhost/dev only'
@@ -4772,7 +4810,7 @@ export function App() {
         routeRecommendation={routeRecommendation}
         showCapabilityMode={appliedShowIntent.showCapabilityMode}
         statusLabel={topStatusLabel}
-        visible={runtimeActive && !activationVisible && !immersiveView}
+        visible={runtimeActive && !activationVisible && (!immersiveView || proofControlActive)}
       />
 
       <ShowLaunchSurface

@@ -531,6 +531,10 @@ export function buildShowActScores(
     | 'tonalStability'
     | 'speechConfidence'
     | 'harmonicColor'
+    | 'sourceHintConfidence'
+    | 'percussionEvidence'
+    | 'bassSourceEvidence'
+    | 'airMotionEvidence'
   >,
   tuning?: Partial<OperatorShowBias>
 ): Record<ShowAct, number> {
@@ -589,6 +593,32 @@ export function buildShowActScores(
             frame.sectionChange * 0.08 -
             frame.dropImpact * 0.12 -
             frame.releaseTail * 0.04
+        )
+      : 0;
+  const systemSourceRhythmBias =
+    frame.mode === 'system-audio'
+      ? clamp01(
+          frame.sourceHintConfidence * 0.16 +
+            frame.percussionEvidence * 0.36 +
+            frame.bassSourceEvidence * 0.28 +
+            frame.beatConfidence * 0.16 +
+            frame.momentum * 0.12 +
+            frame.preDropTension * 0.1 -
+            frame.releaseTail * 0.08
+        )
+      : 0;
+  const systemLongformMotionBias =
+    frame.mode === 'system-audio'
+      ? clamp01(
+          frame.musicConfidence * 0.24 +
+            frame.beatConfidence * 0.18 +
+            frame.momentum * 0.16 +
+            frame.tonalStability * 0.12 +
+            frame.bassBody * 0.12 +
+            frame.shimmer * 0.08 +
+            systemSourceRhythmBias * 0.16 -
+            frame.speechConfidence * 0.18 -
+            frame.releaseTail * 0.06
         )
       : 0;
   const violentBias = clamp01(
@@ -778,8 +808,8 @@ export function buildShowActScores(
         livingMusicFloor * 0.22 +
         adaptiveNeonBias * 0.18 +
         systemOpenVarietyBias * 0.24 +
-        systemBloomRecoveryBias * 0.22 +
-        systemPrismaticBloomBias * 0.3 +
+        systemBloomRecoveryBias * 0.14 +
+        systemPrismaticBloomBias * 0.18 +
         lowImpactMatrixRecoveryBias * -0.08 +
         quietRoomMusicBias * 0.4 +
         quietRoomNeonBias * 0.34 +
@@ -816,16 +846,18 @@ export function buildShowActScores(
         (frame.sectionChange < 0.2 ? 0.06 : 0) +
         livingMusicFloor * 0.12 +
         adaptiveNeonBias * 0.12 +
-        lowImpactMatrixRecoveryBias * 0.02 +
+        lowImpactMatrixRecoveryBias * 0.08 +
+        systemSourceRhythmBias * 0.24 +
+        systemLongformMotionBias * 0.24 +
         ((frame.performanceIntent === 'detonate' ? -0.12 : 0) +
           (frame.dropImpact > 0.42 ? -0.12 : 0)) +
         (frame.momentKind === 'release' ? 0.04 : 0) +
         (frame.dropImpact < 0.28 ? 0.06 : 0) -
-        systemOpenVarietyBias * 0.32 -
-        systemBloomRecoveryBias * 0.18 -
+        systemOpenVarietyBias * 0.1 -
+        systemBloomRecoveryBias * 0.06 -
         systemStructuredVoidBias * 0.26 -
-        systemPrismaticBloomBias * 0.24 -
-        systemSpectralAfterimageBias * 0.2 -
+        systemPrismaticBloomBias * 0.08 -
+        systemSpectralAfterimageBias * 0.12 -
         spectralBias * 0.12 -
         (frame.showState === 'aftermath' ? 0.26 : 0) -
         (frame.showState === 'generative' && frame.dropImpact < 0.14 ? 0.12 : 0) -

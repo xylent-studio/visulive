@@ -106,39 +106,85 @@ export class SourceHintInterpreter {
     const midReliability = weighted([body.reliability, 0.28], [presence.reliability, 0.32], [snap.reliability, 0.2], [crack.reliability, 0.2]);
     const highReliability = weighted([sheen.reliability, 0.28], [air.reliability, 0.32], [fizz.reliability, 0.18], [crack.reliability, 0.22]);
     const dynamicRange = clamp01((analysis.peak - analysis.rms) * 1.8 + Math.min(1, analysis.crestFactor / 8) * 0.28);
+    const systemMusicFloor =
+      input.mode === 'system-audio'
+        ? clamp01(
+            (analysis.lowEnergy + analysis.midEnergy) * 2.4 +
+              analysis.lowFlux * 2.2 +
+              analysis.midFlux * 1.5 +
+              analysis.modulation * 0.5 +
+              analysis.lowStability * 0.08 +
+              Math.max(0, analysis.peak - analysis.rms) * 0.8
+          )
+        : 0;
+    const systemImpactAssist =
+      input.mode === 'system-audio'
+        ? clamp01(
+            analysis.lowFlux * 4.4 +
+              analysis.midFlux * 2.6 +
+              analysis.transient * 1.8 +
+              Math.max(0, analysis.lowEnergy - analysis.highEnergy) *
+                1.4 *
+                clamp01(analysis.transient * 4 + analysis.lowFlux * 8 + analysis.midFlux * 5)
+          )
+        : 0;
+    const systemBassAssist =
+      input.mode === 'system-audio'
+        ? clamp01(
+            analysis.lowEnergy * 2.6 +
+              analysis.midEnergy * 1.2 +
+              lowSustain * 0.6 +
+              systemMusicFloor * 0.28
+          )
+        : 0;
     const clipped = analysis.clipped || (analysis.peak > 0.96 && analysis.crestFactor < 2.2);
     const steadyLow = lowSustain > 0.55 && lowOnset < 0.16 && analysis.modulation < 0.08;
     const speechLike = midVoice > 0.36 && analysis.modulation > 0.1 && lowOnset < 0.26 && broadOnset < 0.34;
     const hissLike = highSustain > 0.45 && highMotion < 0.16 && dynamicRange < 0.3;
     const denseNoise = (analysis.highEnergy > 0.48 && analysis.lowStability < 0.22) || (analysis.brightness > 0.72 && highSustain > 0.38 && dynamicRange < 0.38);
-    const quiet = analysis.rms < 0.038 && analysis.transient < 0.055;
+    const quiet =
+      analysis.rms < (input.mode === 'system-audio' ? 0.024 : 0.038) &&
+      analysis.transient < (input.mode === 'system-audio' ? 0.032 : 0.055) &&
+      systemMusicFloor < 0.1;
 
     return [
       {
         id: 'lowImpactCandidate',
-        value: clamp01(lowOnset * 1.35 + Math.max(0, analysis.lowEnergy - analysis.highEnergy) * 0.24),
-        confidence: lowReliability * (input.mode === 'system-audio' ? 1 : input.mode === 'hybrid' ? 0.72 : 0.52),
+        value: clamp01(lowOnset * 1.35 + Math.max(0, analysis.lowEnergy - analysis.highEnergy) * 0.24 + systemImpactAssist * 0.16),
+        confidence: Math.max(
+          lowReliability * (input.mode === 'system-audio' ? 1 : input.mode === 'hybrid' ? 0.72 : 0.52),
+          input.mode === 'system-audio' ? systemImpactAssist * 0.5 : 0
+        ),
         reasonCodes: codes(['low-onset', lowOnset], ['low-energy', analysis.lowEnergy], ['transient', analysis.transient]),
         suppressionCodes: codes(['steady-low', steadyLow ? 1 : 0], ['speech-like', speechLike ? 1 : 0], ['clip-risk', clipped ? 1 : 0]),
       },
       {
         id: 'subSustain',
-        value: clamp01(lowSustain * 1.16),
-        confidence: weighted([sub.reliability, 0.28], [kick.reliability, 0.2], [bass.reliability, 0.28], [input.mode === 'system-audio' ? 1 : 0.58, 0.24]),
+        value: clamp01(lowSustain * 1.16 + systemBassAssist * 0.1),
+        confidence: Math.max(
+          weighted([sub.reliability, 0.28], [kick.reliability, 0.2], [bass.reliability, 0.28], [input.mode === 'system-audio' ? 1 : 0.58, 0.24]),
+          input.mode === 'system-audio' ? systemBassAssist * 0.36 : 0
+        ),
         reasonCodes: codes(['sub-sustain', sub.sustain], ['bass-sustain', bass.sustain], ['low-energy', analysis.lowEnergy]),
         suppressionCodes: codes(['steady-low-hum-risk', steadyLow ? 1 : 0], ['clip-risk', clipped ? 1 : 0]),
       },
       {
         id: 'bassBodySupport',
-        value: clamp01(weighted([punch.sustain, 0.2], [bass.sustain, 0.38], [lowMid.sustain, 0.2], [analysis.lowEnergy, 0.22]) * 1.12),
-        confidence: weighted([punch.reliability, 0.16], [bass.reliability, 0.34], [lowMid.reliability, 0.22], [input.mode === 'system-audio' ? 1 : 0.64, 0.28]),
+        value: clamp01(weighted([punch.sustain, 0.2], [bass.sustain, 0.38], [lowMid.sustain, 0.2], [analysis.lowEnergy, 0.22]) * 1.12 + systemBassAssist * 0.12),
+        confidence: Math.max(
+          weighted([punch.reliability, 0.16], [bass.reliability, 0.34], [lowMid.reliability, 0.22], [input.mode === 'system-audio' ? 1 : 0.64, 0.28]),
+          input.mode === 'system-audio' ? systemBassAssist * 0.4 : 0
+        ),
         reasonCodes: codes(['bass-body', bass.sustain], ['low-mid-body', lowMid.sustain], ['low-energy', analysis.lowEnergy]),
         suppressionCodes: codes(['hum-risk', steadyLow ? 1 : 0], ['room-source', input.mode === 'room-mic' ? 1 : 0]),
       },
       {
         id: 'percussiveSnap',
-        value: clamp01(weighted([snap.onset, 0.32], [crack.onset, 0.24], [body.onset, 0.16], [analysis.transient, 0.28]) * 1.18),
-        confidence: weighted([midReliability, 0.46], [dynamicRange, 0.18], [input.mode === 'system-audio' ? 1 : input.mode === 'hybrid' ? 0.62 : 0.42, 0.36]),
+        value: clamp01(weighted([snap.onset, 0.32], [crack.onset, 0.24], [body.onset, 0.16], [analysis.transient, 0.28]) * 1.18 + systemImpactAssist * 0.1),
+        confidence: Math.max(
+          weighted([midReliability, 0.46], [dynamicRange, 0.18], [input.mode === 'system-audio' ? 1 : input.mode === 'hybrid' ? 0.62 : 0.42, 0.36]),
+          input.mode === 'system-audio' ? systemImpactAssist * 0.42 : 0
+        ),
         reasonCodes: codes(['snap-onset', snap.onset], ['crack-onset', crack.onset], ['transient', analysis.transient]),
         suppressionCodes: codes(['speech-like', speechLike ? 1 : 0], ['hiss-like', hissLike ? 1 : 0], ['dense-noise', denseNoise ? 1 : 0], ['clip-risk', clipped ? 1 : 0]),
       },
@@ -165,14 +211,14 @@ export class SourceHintInterpreter {
       },
       {
         id: 'tonalLift',
-        value: clamp01(weighted([body.tonal, 0.18], [presence.tonal, 0.22], [sheen.tonal, 0.22], [air.tonal, 0.16], [analysis.lowStability, 0.22]) * 1.08),
+        value: clamp01(weighted([body.tonal, 0.18], [presence.tonal, 0.22], [sheen.tonal, 0.22], [air.tonal, 0.16], [analysis.lowStability, 0.22]) * 1.08 + systemMusicFloor * 0.06),
         confidence: weighted([midReliability, 0.32], [highReliability, 0.22], [analysis.lowStability, 0.2], [input.mode === 'system-audio' ? 1 : 0.7, 0.26]),
         reasonCodes: codes(['tonal-stability', analysis.lowStability], ['presence-tonal', presence.tonal], ['air-tonal', air.tonal]),
         suppressionCodes: codes(['dense-noise', denseNoise ? 1 : 0], ['clip-risk', clipped ? 1 : 0]),
       },
       {
         id: 'silenceAir',
-        value: clamp01((quiet ? 0.42 : 0) + (1 - clamp01(analysis.rms * 18)) * 0.26 + weighted([air.sustain, 0.18], [sheen.sustain, 0.14])),
+        value: clamp01(((quiet ? 0.42 : 0) + (1 - clamp01(analysis.rms * 18)) * 0.26 + weighted([air.sustain, 0.18], [sheen.sustain, 0.14])) * (input.mode === 'system-audio' ? 1 - systemMusicFloor * 0.72 : 1)),
         confidence: weighted([highReliability, 0.32], [quiet ? 1 : 0, 0.34], [input.mode === 'system-audio' ? 1 : 0.68, 0.34]),
         reasonCodes: codes(['quiet', quiet ? 1 : 0], ['air-tail', air.sustain], ['low-rms', 1 - clamp01(analysis.rms * 18)]),
         suppressionCodes: codes(['active-hit', broadOnset > 0.36 ? 1 : 0], ['speech-like', speechLike ? 1 : 0]),

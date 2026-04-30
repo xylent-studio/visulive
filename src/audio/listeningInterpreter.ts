@@ -1269,15 +1269,19 @@ export class ListeningInterpreter {
       input.recentQualifiedSectionAgeMs > 2200;
     const releaseCarrySuppression =
       input.showState !== 'surge' &&
+      Number.isFinite(input.surgeAgeMs) &&
       input.surgeAgeMs > 900 &&
-      (input.releaseEvidence > 0.08 ||
-        input.releaseTail > 0.08 ||
-        input.sectionChange < 0.74);
+      (input.releaseEvidence > 0.14 || input.releaseTail > 0.16) &&
+      input.sectionChange < 0.42;
+    const detonateImpact =
+      input.dropImpact > 0.42 - input.sourceAggression * 0.04 ||
+      input.sectionChange > 0.46 - input.sourceAggression * 0.04;
 
     if (
       !releaseCarrySuppression &&
-      (input.dropImpact > 0.42 - input.sourceAggression * 0.04 ||
-        input.sectionChange > 0.46 - input.sourceAggression * 0.04 ||
+      ((input.showState === 'surge' && detonateImpact) ||
+        input.dropImpact > 0.58 - input.sourceAggression * 0.04 ||
+        input.sectionChange > 0.58 - input.sourceAggression * 0.04 ||
         (input.showState === 'surge' &&
           input.surgeAgeMs < 2200 &&
           input.beatConfidence > 0.3 - input.sourceAggression * 0.03 &&
@@ -1317,6 +1321,24 @@ export class ListeningInterpreter {
           input.beatConfidence > 0.34 || input.musicConfidence > 0.36 ? 'gather' : 'hold',
         reason:
           'Ghost-state linger has gone stale without fresh release evidence, so it should demote.'
+      };
+    }
+
+    if (
+      input.mode === 'system-audio' &&
+      input.showState === 'aftermath' &&
+      input.aftermathDwellMs > 1800 &&
+      input.musicConfidence > 0.34 &&
+      (input.beatConfidence > 0.24 || input.phraseTension > 0.28) &&
+      input.dropImpact < 0.42
+    ) {
+      return {
+        performanceIntent:
+          input.beatConfidence > 0.38 || input.phraseTension > 0.36
+            ? 'ignite'
+            : 'gather',
+        reason:
+          'Direct system audio is still musically structured after the release, so recovery should stay active instead of settling into haunt.'
       };
     }
 
@@ -1596,6 +1618,19 @@ export class ListeningInterpreter {
     const surgePeakThreshold = 0.72 - input.sourceAggression * 0.08;
     const surgeMusicThreshold = 0.6 - input.sourceAggression * 0.05;
     const surgePhraseThreshold = 0.68 - input.sourceAggression * 0.05;
+    const freshSurgeWindowOpen =
+      input.previousShowState === 'surge'
+        ? input.surgeAgeMs < surgeHoldWindowMs * 1.05
+        : input.surgeAgeMs > 900 || !Number.isFinite(input.surgeAgeMs);
+    const freshSurgeRhythmGate =
+      input.beatConfidence > 0.38 - input.sourceAggression * 0.03 ||
+      input.peakConfidence > 0.68 - input.sourceAggression * 0.04;
+    const freshSurgeImpactGate =
+      freshSurgeRhythmGate &&
+      (input.transientConfidence > 0.6 - input.sourceAggression * 0.04 ||
+        input.sectionChange > 0.52 - input.sourceAggression * 0.04 ||
+        (input.peakConfidence > 0.7 - input.sourceAggression * 0.04 &&
+          input.sectionChange > 0.28 - input.sourceAggression * 0.03));
     const freshSurgeEvidence =
       input.peakConfidence > surgePeakThreshold ||
       (input.musicConfidence > surgeMusicThreshold + 0.04 &&
@@ -1614,13 +1649,15 @@ export class ListeningInterpreter {
 
     if (
       (freshSurgeEvidence &&
-        input.surgeAgeMs < surgeHoldWindowMs * 1.05 &&
+        freshSurgeWindowOpen &&
+        freshSurgeImpactGate &&
         (input.transientConfidence > 0.2 - input.sourceAggression * 0.03 ||
           input.resonance > 0.36)) ||
       (input.musicConfidence > surgeMusicThreshold &&
         input.phraseTension > surgePhraseThreshold &&
         input.transientConfidence > 0.2 - input.sourceAggression * 0.03 &&
-        input.surgeAgeMs < surgeHoldWindowMs)
+        freshSurgeWindowOpen &&
+        freshSurgeImpactGate)
     ) {
       return {
         showState: 'surge',
@@ -1632,6 +1669,9 @@ export class ListeningInterpreter {
       input.previousShowState === 'surge' &&
       input.surgeAgeMs < surgeHoldWindowMs &&
       surgeSustainEvidence > 0.42 - input.sourceAggression * 0.04 &&
+      (input.beatConfidence > 0.38 - input.sourceAggression * 0.03 ||
+        input.transientConfidence > 0.52 - input.sourceAggression * 0.04 ||
+        input.peakConfidence > 0.74 - input.sourceAggression * 0.04) &&
       ((input.peakConfidence > 0.6 - input.sourceAggression * 0.04 &&
         input.phraseTension > 0.44 - input.sourceAggression * 0.04 &&
         input.transientConfidence > 0.18) ||

@@ -179,6 +179,34 @@ describe('SourceHintInterpreter', () => {
     expect(getSourceHint(frame, 'silenceAir')?.value).toBeGreaterThan(0.45);
   });
 
+  it('does not classify low-level system music as silence air when musical structure is present', () => {
+    const interpreter = new SourceHintInterpreter();
+    const frame = update(interpreter, spectrumFrame({
+      body: { tonal: 0.62, sustain: 0.2 },
+      presence: { tonal: 0.7, sustain: 0.22 },
+      sheen: { tonal: 0.58, sustain: 0.06 },
+      air: { tonal: 0.58, sustain: 0.04 },
+      bass: { sustain: 0.16 },
+      lowMid: { sustain: 0.18 },
+    }), {
+      rms: 0.022,
+      peak: 0.052,
+      transient: 0.012,
+      lowEnergy: 0.018,
+      midEnergy: 0.02,
+      highEnergy: 0.01,
+      lowFlux: 0.003,
+      midFlux: 0.005,
+      modulation: 0.018,
+      lowStability: 0.72,
+    }, 'system-audio');
+
+    expect(getSourceHint(frame, 'tonalLift')?.value ?? 0).toBeGreaterThan(
+      getSourceHint(frame, 'silenceAir')?.value ?? 1
+    );
+    expect(frame.topHintId).not.toBe('silenceAir');
+  });
+
   it('suppresses clipped broadband events instead of overtrusting them', () => {
     const interpreter = new SourceHintInterpreter();
     const frame = update(interpreter, spectrumFrame({
