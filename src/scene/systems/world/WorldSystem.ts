@@ -613,6 +613,44 @@ export class WorldSystem {
       context.audio.barPhase,
       context.elapsedSeconds * 0.42 + 0.8
     );
+    const worldPanDrive = THREE.MathUtils.clamp(
+      cueWorld * 0.28 +
+        cueScreen * 0.18 +
+        cueReveal * 0.22 +
+        cueRupture * 0.18 +
+        shotWorldTakeover * 0.32 +
+        shotPressure * 0.14 +
+        chamberWorldTakeoverBias * 0.22 +
+        musicStageFloor * 0.14 +
+        context.audio.sectionChange * 0.16 +
+        context.audio.dropImpact * 0.18 +
+        spatialPresence * 0.12 -
+        restraint * 0.08,
+      0,
+      1
+    );
+    const worldPanClock =
+      context.elapsedSeconds *
+        (0.045 + tempoDensity * 0.024 + worldPanDrive * 0.028) +
+      context.audio.phrasePhase * Math.PI * 2;
+    const worldRuptureSign =
+      Math.sign(
+        Math.sin(context.audio.barPhase * Math.PI * 2 + context.elapsedSeconds * 0.1)
+      ) || 1;
+    const worldPanX = THREE.MathUtils.clamp(
+      Math.sin(worldPanClock) * worldPanDrive * 0.72 +
+        worldRuptureSign * cueRupture * (0.2 + context.audio.dropImpact * 0.22),
+      -0.9,
+      0.9
+    );
+    const worldPanY = THREE.MathUtils.clamp(
+      Math.cos(worldPanClock * 0.68 + context.audio.barPhase * Math.PI * 2) *
+        worldPanDrive *
+        0.38 -
+        worldRuptureSign * cueRupture * (0.1 + context.audio.dropImpact * 0.14),
+      -0.46,
+      0.46
+    );
     const chromaDrive = THREE.MathUtils.clamp(
       context.director.radiance * 0.56 +
         context.director.spectacle * 0.34 +
@@ -1022,8 +1060,8 @@ export class WorldSystem {
       chamberDrift.x * 0.14 +
       chamberMotion.euler.z * 0.42;
     this.worldStainPlane.position.set(
-      chamberDrift.x * 0.36 + chamberMotion.position.x * 0.42,
-      chamberDrift.y * 0.28 + chamberMotion.position.y * 0.34,
+      chamberDrift.x * 0.36 + chamberMotion.position.x * 0.42 + worldPanX * 0.72,
+      chamberDrift.y * 0.28 + chamberMotion.position.y * 0.34 + worldPanY * 0.46,
       -8 + chamberDrift.z * 0.42 + chamberMotion.position.z * 0.38
     );
     this.worldStainPlane.scale.set(
@@ -1134,12 +1172,12 @@ export class WorldSystem {
         context.audio.sectionChange * 0.38
     );
     this.worldFlashPlane.position.set(
-      -chamberDrift.x * 0.24 - chamberMotion.position.x * 0.28,
-      chamberDrift.y * 0.18 + chamberMotion.position.y * 0.22,
+      -chamberDrift.x * 0.24 - chamberMotion.position.x * 0.28 - worldPanX * 0.44,
+      chamberDrift.y * 0.18 + chamberMotion.position.y * 0.22 + worldPanY * 0.34,
       -7.8 + chamberDrift.z * 0.28 + chamberMotion.position.z * 0.24
     );
 
-    this.updateAtmosphereLayers(context, background, stageColorLift);
+    this.updateAtmosphereLayers(context, background, stageColorLift, worldPanX, worldPanY);
   }
 
   collectTelemetryInputs(): WorldSystemTelemetry {
@@ -1192,7 +1230,9 @@ export class WorldSystem {
   private updateAtmosphereLayers(
     context: WorldSystemUpdateContext,
     background: THREE.Color,
-    stageColorLift: number
+    stageColorLift: number,
+    worldPanX = 0,
+    worldPanY = 0
   ): void {
     const cueReveal = context.stage.cuePlan.family === 'reveal' ? 1 : 0;
     const cueRupture = context.stage.cuePlan.family === 'rupture' ? 1 : 0;
@@ -1237,8 +1277,8 @@ export class WorldSystem {
     );
 
     this.atmosphereGroup.position.set(
-      chamberDrift.x * 0.46 + chamberMotion.position.x * 0.22,
-      chamberDrift.y * 0.36 + chamberMotion.position.y * 0.12,
+      chamberDrift.x * 0.46 + chamberMotion.position.x * 0.22 + worldPanX * 0.38,
+      chamberDrift.y * 0.36 + chamberMotion.position.y * 0.12 + worldPanY * 0.28,
       -0.5 +
         chamberDrift.z * 0.44 +
         chamberMotion.position.z * 0.14 -
@@ -1367,10 +1407,12 @@ export class WorldSystem {
           (0.5 +
             index * 0.26 +
             wave * (0.8 + context.atmosphere.liquid * 0.8) +
-            context.atmosphere.pressure * 0.18),
+            context.atmosphere.pressure * 0.18) +
+          worldPanX * (0.44 + index * 0.04),
         tide * (0.4 + mistBias * 0.5 + veilBias * 0.32) +
           chamberDrift.y * 0.24 +
-          (musicPresence - 0.5) * 0.24,
+          (musicPresence - 0.5) * 0.24 +
+          worldPanY * (0.26 + veilBias * 0.08),
         veil.depth +
           context.atmosphere.pressure * index * -0.22 +
           cueReveal * 0.18 -
@@ -1447,11 +1489,13 @@ export class WorldSystem {
           (3.4 +
             index * 1.8 +
             columnPulse * 0.4 +
-            context.atmosphere.pressure * 0.26),
+            context.atmosphere.pressure * 0.26) +
+          worldPanX * (0.32 + index * 0.05),
         0.24 +
           Math.sin(context.elapsedSeconds * 0.14 + column.offset * 2.8) *
             (0.28 + spatialPresence * 0.22) +
-          cueReveal * 0.26,
+          cueReveal * 0.26 +
+          worldPanY * 0.22,
         column.depth -
           context.atmosphere.pressure * 0.3 +
           cueReveal * 0.2 +

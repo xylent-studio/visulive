@@ -1287,16 +1287,65 @@ export class HeroSystem {
       0.28,
       0.92
     );
-    const heroTravelStageX = THREE.MathUtils.lerp(
-      heroStageX,
-      laneStageX,
-      stageTourBlend
-    ) * (1 + heroRoamBoost * 0.18);
-    const heroTravelStageY = THREE.MathUtils.lerp(
-      heroStageY,
-      laneStageY,
-      stageTourBlend
-    ) * (1 + heroRoamBoost * 0.12);
+    const stageTourDrive = THREE.MathUtils.clamp(
+      heroEnvelope.driftAllowance * 0.9 +
+        heroRoamBoost * 0.36 +
+        heroMotionBias * 0.3 +
+        (this.stageCompositionPlan.eventScale === 'stage' ? 0.24 : 0.08) +
+        revealFamily * 0.18 +
+        gatherFamily * 0.14 +
+        ruptureFamily * 0.24 +
+        releaseFamily * 0.1 +
+        shotWorldTakeover * 0.18 +
+        shotPressure * 0.14 +
+        this.adaptiveMusicVisualFloor * 0.22 +
+        this.roomMusicVisualFloor * 0.18 -
+        shotIsolate * 0.38 -
+        fallbackDemoteHero * 0.48,
+      0,
+      1
+    );
+    const stageTourClock =
+      elapsedSeconds *
+        (0.055 +
+          heroMotionBias * 0.036 +
+          heroRoamBoost * 0.026 +
+          this.sectionChange * 0.018) +
+      this.phrasePhase * Math.PI * 2;
+    const ruptureTourSign =
+      Math.sign(
+        Math.sin(
+          this.barPhase * Math.PI * 2 +
+            elapsedSeconds * (0.11 + this.dropImpact * 0.08)
+        )
+      ) || 1;
+    const stageTourX =
+      Math.sin(stageTourClock) *
+        stageTourDrive *
+        (0.14 + heroEnvelope.offCenterMax * 0.22) +
+      ruptureTourSign * ruptureFamily * (0.16 + this.dropImpact * 0.18);
+    const stageTourY =
+      Math.cos(stageTourClock * 0.72 + this.barPhase * Math.PI * 2) *
+        stageTourDrive *
+        (0.08 + heroEnvelope.offCenterMax * 0.14) -
+      ruptureTourSign * ruptureFamily * (0.08 + this.dropImpact * 0.12) +
+      releaseFamily * this.releaseTail * 0.12;
+    const heroTravelStageX =
+      THREE.MathUtils.clamp(
+        THREE.MathUtils.lerp(heroStageX, laneStageX, stageTourBlend) *
+          (1 + heroRoamBoost * 0.18) +
+          stageTourX,
+        -1,
+        1
+      );
+    const heroTravelStageY =
+      THREE.MathUtils.clamp(
+        THREE.MathUtils.lerp(heroStageY, laneStageY, stageTourBlend) *
+          (1 + heroRoamBoost * 0.12) +
+          stageTourY,
+        -1,
+        1
+      );
     const withheldSpend = this.stageCuePlan.spendProfile === 'withheld' ? 1 : 0;
     const earnedSpend = this.stageCuePlan.spendProfile === 'earned' ? 1 : 0;
     const peakSpend = this.stageCuePlan.spendProfile === 'peak' ? 1 : 0;

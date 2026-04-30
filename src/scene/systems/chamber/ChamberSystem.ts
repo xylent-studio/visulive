@@ -645,6 +645,75 @@ export class ChamberSystem {
       context.audio.barTurn,
       phasePulse(context.audio.barPhase, context.elapsedSeconds * 0.32)
     );
+    const frameTravelDrive = THREE.MathUtils.clamp(
+      cueReveal * 0.32 +
+        cueRupture * 0.44 +
+        cueGather * 0.18 +
+        cueWorld * 0.24 +
+        shotPressure * 0.2 +
+        shotWorldTakeover * 0.34 +
+        ringEventPlatform * 0.18 +
+        ringFrameArchitecture * 0.16 +
+        ringCathedralArchitecture * 0.22 +
+        signaturePortalArchitectureLift * 0.28 +
+        context.audio.sectionChange * 0.18 +
+        context.audio.dropImpact * 0.26 +
+        spatialPresence * 0.14 +
+        textureShimmer * 0.08 -
+        ringBackground * 0.22 -
+        ringSuppressed * 0.72 -
+        shotIsolate * 0.32,
+      0,
+      1
+    );
+    const frameTravelClock =
+      context.elapsedSeconds *
+        (0.075 +
+          tempoDensity * 0.035 +
+          context.audio.beatConfidence * 0.025 +
+          frameTravelDrive * 0.04) +
+      context.audio.phrasePhase * Math.PI * 2;
+    const ruptureTravelSign =
+      Math.sign(
+        Math.sin(
+          context.audio.barPhase * Math.PI * 2 +
+            context.elapsedSeconds * (0.13 + context.audio.dropImpact * 0.06)
+        )
+      ) || 1;
+    const ruptureTravelX =
+      ruptureTravelSign *
+      cueRupture *
+      (0.34 + context.audio.dropImpact * 0.46 + impactHit * 0.16);
+    const ruptureTravelY =
+      -ruptureTravelSign *
+      cueRupture *
+      (0.18 + context.audio.dropImpact * 0.28 + impactHit * 0.08);
+    const portalTravelX =
+      Math.sin(frameTravelClock) *
+      frameTravelDrive *
+      (0.34 + ringCathedralArchitecture * 0.2 + shotWorldTakeover * 0.14);
+    const portalTravelY =
+      Math.cos(frameTravelClock * 0.72 + context.audio.barPhase * Math.PI * 2) *
+      frameTravelDrive *
+      (0.18 + ringCathedralArchitecture * 0.12 + shotPressure * 0.08);
+    const ghostTravelX =
+      Math.sin(context.elapsedSeconds * 0.052 + silenceConstellationMoment * 1.7) *
+      (ghostResidueMoment + silenceConstellationMoment + cueRelease) *
+      0.28;
+    const ghostTravelY =
+      Math.cos(context.elapsedSeconds * 0.047 + context.audio.phrasePhase * Math.PI * 2) *
+      (ghostResidueMoment + silenceConstellationMoment + cueRelease) *
+      0.18;
+    const frameTravelX = THREE.MathUtils.clamp(
+      portalTravelX + ruptureTravelX + ghostTravelX + chamberDrift.x * 0.18,
+      -0.82,
+      0.82
+    );
+    const frameTravelY = THREE.MathUtils.clamp(
+      portalTravelY + ruptureTravelY + ghostTravelY + chamberDrift.y * 0.14,
+      -0.44,
+      0.44
+    );
 
     const chamberBaseYaw =
       context.elapsedSeconds *
@@ -691,9 +760,14 @@ export class ChamberSystem {
       .multiply(chamberMotion.quaternion);
     this.chamberGroup.quaternion.copy(this.motionCompositeQuaternion);
     this.chamberGroup.position.x =
-      chamberDrift.x * 0.9 + chamberMotion.position.x;
+      chamberDrift.x * 0.9 +
+      chamberMotion.position.x +
+      frameTravelX * (0.28 + frameTravelDrive * 0.12);
     this.chamberGroup.position.y =
-      chamberDrift.y * 0.66 + shellDrift.y * 0.16 + chamberMotion.position.y;
+      chamberDrift.y * 0.66 +
+      shellDrift.y * 0.16 +
+      chamberMotion.position.y +
+      frameTravelY * (0.22 + frameTravelDrive * 0.1);
     this.chamberGroup.position.z =
       -shellTension * 0.18 +
       atmospherePressure * -0.08 +
@@ -817,12 +891,22 @@ export class ChamberSystem {
         Math.sin(ringClock * 0.38) *
         shellOrbit *
         0.18 *
-        (0.6 + index * 0.08);
+        (0.6 + index * 0.08) +
+        frameTravelX *
+          (0.7 +
+            index * 0.1 +
+            ringCathedralArchitecture * 0.14 +
+            ringEventStrike * 0.18);
       ring.mesh.position.y =
         Math.cos(ringClock * 0.46) *
         shellBloom *
         0.12 *
-        (0.5 + index * 0.06);
+        (0.5 + index * 0.06) +
+        frameTravelY *
+          (0.58 +
+            index * 0.07 +
+            ringCathedralArchitecture * 0.12 +
+            ringEventStrike * 0.16);
       ring.mesh.position.z =
         -0.5 -
         index * 0.4 -
@@ -1032,13 +1116,23 @@ export class ChamberSystem {
           shellOrbit *
           0.16 *
           (0.7 + index * 0.12) +
-        shellDrift.x * (0.24 + index * 0.05);
+        shellDrift.x * (0.24 + index * 0.05) +
+        frameTravelX *
+          (0.86 +
+            index * 0.12 +
+            ringCathedralArchitecture * 0.14 +
+            ringEventStrike * 0.22);
       ring.mesh.position.y =
         Math.cos(irisClock * 0.28) *
           shellBloom *
           0.1 *
           (0.5 + index * 0.08) +
-        shellDrift.y * (0.18 + index * 0.04);
+        shellDrift.y * (0.18 + index * 0.04) +
+        frameTravelY *
+          (0.72 +
+            index * 0.09 +
+            ringCathedralArchitecture * 0.12 +
+            ringEventStrike * 0.18);
       ring.mesh.material.color
         .copy(LASER_CYAN)
         .lerp(
@@ -1603,11 +1697,13 @@ export class ChamberSystem {
 
     this.chamberGroup.position.x +=
       Math.sin(context.elapsedSeconds * (0.16 + sweepBoost * 0.08)) *
-      (0.06 + bladeBoost * 0.08 + sweepBoost * 0.06);
+      (0.06 + bladeBoost * 0.08 + sweepBoost * 0.06) +
+      frameTravelX * (0.16 + sweepBoost * 0.04);
     this.chamberGroup.position.y +=
       Math.sin(context.elapsedSeconds * (0.2 + sweepBoost * 0.06)) *
       (0.08 + haloBoost * 0.06) *
-      context.idleBreath;
+      context.idleBreath +
+      frameTravelY * (0.12 + haloBoost * 0.04);
     this.chamberGroup.position.z +=
       -storm * 0.04 -
       apertureCage * 0.06 -
