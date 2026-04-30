@@ -66,6 +66,9 @@ describe('auto capture helpers', () => {
     expect(resolveAutoCaptureTimingProfile('release').maxTriggerCount).toBe(4);
     expect(resolveAutoCaptureTimingProfile('floor').postRollMs).toBe(5500);
     expect(resolveAutoCaptureTimingProfile('floor').cooldownMs).toBe(4000);
+    expect(resolveAutoCaptureTimingProfile('authority-turn').postRollMs).toBe(3200);
+    expect(resolveAutoCaptureTimingProfile('authority-turn').maxTriggerCount).toBe(8);
+    expect(resolveAutoCaptureTimingProfile('authority-turn').maxCapturesPerRun).toBe(8);
     expect(resolveAutoCaptureTimingProfile('governance-risk').maxCapturesPerRun).toBe(3);
     expect(resolveAutoCaptureTimingProfile('governance-risk').cooldownMs).toBe(18000);
     expect(resolveAutoCaptureTimingProfile('operator-trust-clear').maxCapturesPerRun).toBe(1);
@@ -157,5 +160,33 @@ describe('auto capture helpers', () => {
     expect(getAutoCaptureTriggerPriority('quiet-beauty')).toBeGreaterThan(
       getAutoCaptureTriggerPriority('authority-turn')
     );
+  });
+
+  it('captures sustained authority landmarks during long no-touch spans', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 464000,
+        mode: 'system-audio',
+        musicConfidence: 0.78,
+        beatConfidence: 0.46,
+        dropImpact: 0.08,
+        sectionChange: 0.1
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        previousWorldAuthorityState: 'dominant',
+        visualTelemetry: {
+          worldAuthorityState: 'dominant',
+          worldDominanceDelivered: 0.74,
+          chamberPresenceScore: 0.62,
+          compositionSafetyScore: 0.9,
+          overbright: 0.08
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).toBe('authority-turn');
+    expect(trigger?.label).toBe('Authority Landmark');
   });
 });

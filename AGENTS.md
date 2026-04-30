@@ -19,14 +19,15 @@ If the local helper is unavailable, fall back to `C:\dev\_intel\scripts\Resolve-
 
 Before changing code, load only the minimum current spine:
 
-1. [README.md](C:/dev/GitHub/visulive/README.md)
-2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-3. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-4. [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
-5. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
-6. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
-7. [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
-8. [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) if you need the immediate post-V1 cold-start target
+1. [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md)
+2. [README.md](C:/dev/GitHub/visulive/README.md)
+3. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+4. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+5. [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
+6. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+7. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+8. [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
+9. [next-agent-brief.md](C:/dev/GitHub/visulive/docs/next-agent-brief.md) if you need the immediate post-V1 cold-start target
 
 Then load only the task-relevant reference:
 - [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md) for golden references, failure patterns, and review cadence
@@ -39,6 +40,8 @@ Then load only the task-relevant reference:
 - [documentation-operations.md](C:/dev/GitHub/visulive/docs/documentation-operations.md) only when changing doc structure or canon
 
 ## Current Truth
+
+Read [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md) first. The section below is a lane/ownership reference and may intentionally retain older proof history for context.
 
 VisuLive is a single public portal with:
 - one public `Start Show` path

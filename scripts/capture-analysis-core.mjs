@@ -1582,6 +1582,16 @@ function formatSpread(spread = {}) {
     : 'n/a';
 }
 
+function formatActiveSpread(spread = {}) {
+  const entries = Object.entries(spread)
+    .filter((entry) => typeof entry[1] === 'number' && entry[1] > 0)
+    .sort((left, right) => right[1] - left[1]);
+
+  return entries.length > 0
+    ? entries.map(([key, value]) => `${key}=${formatPercent(value)}`).join(', ')
+    : 'n/a';
+}
+
 function formatTopValues(values = {}, digits = 3, maxEntries = 5) {
   const entries = Object.entries(values)
     .filter((entry) => typeof entry[1] === 'number' && Number.isFinite(entry[1]) && entry[1] > 0)
@@ -1597,6 +1607,29 @@ function formatNestedSpreadLines(nestedSpread = {}) {
   return Object.entries(nestedSpread)
     .filter((entry) => entry[1] && typeof entry[1] === 'object')
     .map(([outerKey, innerSpread]) => `- ${outerKey}: ${formatSpread(innerSpread)}`);
+}
+
+function buildOrchestrationUtilizationLines(summaries = []) {
+  if (summaries.length === 0) {
+    return ['- No captures were available for orchestration utilization analysis.'];
+  }
+
+  return [
+    `- Acts: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.actSpread))}`,
+    `- Cue classes: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.canonicalCueClassSpread))}`,
+    `- Stage cue families: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.stageCueFamilySpread))}`,
+    `- Visual motifs: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.visualMotifSpread))}`,
+    `- Palette bases: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.paletteBaseStateSpread))}`,
+    `- Palette states: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.paletteStateSpread))}`,
+    `- Hero roles: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.heroRoleSpread))}`,
+    `- Hero forms: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.heroFormSpread))}`,
+    `- Ring postures: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.ringPostureSpread))}`,
+    `- World modes: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.stageWorldModeSpread))}`,
+    `- Signature moments: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.signatureMomentSpread))}`,
+    `- Playable scenes: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.playableMotifSceneSpread))}`,
+    `- Compositor masks: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.compositorMaskFamilySpread))}`,
+    `- Particle jobs: ${formatActiveSpread(averageSpreadAcrossBatch(summaries, (summary) => summary.visualSummary?.particleFieldJobSpread))}`
+  ];
 }
 
 function addSpreadToMap(map, spread = {}) {
@@ -2215,6 +2248,11 @@ export function summarizeCapture(capture, filePath) {
   const spendProfileCounts = new Map();
   const stageRingAuthorityCounts = new Map();
   const stageCueFamilyCounts = new Map();
+  const canonicalCueClassCounts = new Map();
+  const canonicalCueClasses = COVERAGE_POLICY['canonical cue classes'].core
+    .concat(COVERAGE_POLICY['canonical cue classes'].supporting)
+    .concat(COVERAGE_POLICY['canonical cue classes'].rare);
+  const stageWorldModeCounts = new Map();
   const stageShotClassCounts = new Map();
   const stageTransitionClassCounts = new Map();
   const stageTempoCadenceModeCounts = new Map();
@@ -2539,6 +2577,17 @@ export function summarizeCapture(capture, filePath) {
       visual.stageCueFamily === 'reset'
     ) {
       incrementCounter(stageCueFamilyCounts, visual.stageCueFamily);
+    }
+    if (canonicalCueClasses.includes(visual.canonicalCueClass)) {
+      incrementCounter(canonicalCueClassCounts, visual.canonicalCueClass);
+    } else {
+      incrementCounter(
+        canonicalCueClassCounts,
+        inferCanonicalCueClassFromStageFamily(visual.stageCueFamily)
+      );
+    }
+    if (STAGE_WORLD_MODES.includes(visual.stageWorldMode)) {
+      incrementCounter(stageWorldModeCounts, visual.stageWorldMode);
     }
     if (
       visual.stageRingAuthority === 'background-scaffold' ||
@@ -3285,6 +3334,15 @@ export function summarizeCapture(capture, filePath) {
     dominantStageCueFamily:
       [...stageCueFamilyCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
       undefined,
+    canonicalCueClassSpread: Object.fromEntries(
+      canonicalCueClasses.map((key) => [
+        key,
+        (canonicalCueClassCounts.get(key) ?? 0) / frames.length
+      ])
+    ),
+    dominantCanonicalCueClass:
+      [...canonicalCueClassCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      undefined,
     spendProfileSpread: Object.fromEntries(
       [...spendProfileCounts.entries()].map(([key, count]) => [key, count / frames.length])
     ),
@@ -3322,6 +3380,15 @@ export function summarizeCapture(capture, filePath) {
     dominantStageTempoCadenceMode:
       [...stageTempoCadenceModeCounts.entries()]
         .sort((left, right) => right[1] - left[1])[0]?.[0] ?? undefined,
+    stageWorldModeSpread: Object.fromEntries(
+      STAGE_WORLD_MODES.map((key) => [
+        key,
+        (stageWorldModeCounts.get(key) ?? 0) / frames.length
+      ])
+    ),
+    dominantStageWorldMode:
+      [...stageWorldModeCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      undefined,
     stageCompositionSafetyMean:
       stageCompositionSafetySamples > 0
         ? stageCompositionSafetySum / stageCompositionSafetySamples
@@ -5061,6 +5128,7 @@ function buildAggregateStats(summaries) {
     ]
       .sort((left, right) => right[1] - left[1])
       .map(([value, count]) => `- ${value} (${count})`),
+    orchestrationUtilizationLines: buildOrchestrationUtilizationLines(safeSummaries),
     paletteStateSpreadByActLines,
     paletteStateSpreadByFamilyLines,
     stageShotClassSpreadByFamilyLines,
@@ -5684,6 +5752,9 @@ export function buildAggregateSection(summaries, options = {}) {
         ]
       : ['- Source-hint diagnostics were not recorded in this batch.']),
     '',
+    '### Orchestration utilization',
+    ...aggregateStats.orchestrationUtilizationLines,
+    '',
     '### Review gates',
     ...reviewGateLines,
     '',
@@ -5844,6 +5915,9 @@ export function buildAggregateSection(summaries, options = {}) {
           ...(freshStats.playableMotifSceneTransitionReasonLines.length > 0
             ? freshStats.playableMotifSceneTransitionReasonLines
             : ['- No playable motif scene transition reasons were recorded.']),
+          '',
+          '### Fresh orchestration utilization',
+          ...freshStats.orchestrationUtilizationLines,
           '',
           '### Fresh cause spread',
           ...(freshStats.paletteStateSpreadByActLines.length > 0

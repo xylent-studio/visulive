@@ -567,22 +567,22 @@ export class ChamberSystem {
       context.tuning.neonStageFloor * 0.012 +
       context.tuning.worldBootFloor * 0.01;
     const ringPostureSuppression = THREE.MathUtils.clamp(
-      ringSuppressed * 0.72 +
-        ringResidueTrace * 0.52 +
-        ringEventStrike * 0.22 -
+      ringSuppressed * 0.78 +
+        ringResidueTrace * 0.58 +
+        ringEventStrike * 0.32 -
         ringCathedralArchitecture * 0.24,
       0,
-      0.82
+      0.86
     );
     const ringPersistencePressure = THREE.MathUtils.clamp(
-      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.16) * 2.05 +
+      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.12) * 2.35 +
         Math.max(
           0,
           context.metrics.wirefieldDensityScoreCurrent - chamberWireDensityCap
         ) *
-          0.46,
+          0.54,
       0,
-      0.72
+      0.78
     );
     const chamberColorIntegrityGuard = THREE.MathUtils.clamp(
       1 - ringPersistencePressure * 0.54 - washoutSuppression * 0.18,

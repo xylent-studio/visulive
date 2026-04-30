@@ -1,7 +1,9 @@
 # VisuLive Current Program
 
-Date: 2026-04-29
+Date: 2026-04-30
 Status: Active canonical program brief
+
+For the latest compact current truth, start with [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md). This program document defines durable priorities and retains earlier proof history where it explains the current direction.
 
 This file is the repo's active marching order.
 

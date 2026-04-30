@@ -88,13 +88,14 @@ export const AUTO_CAPTURE_TIMING_PROFILES: Record<
   },
   'authority-turn': {
     preRollMs: 2200,
-    postRollMs: 2600,
-    maxDurationMs: 7200,
-    extensionWindowMs: 800,
+    postRollMs: 3200,
+    maxDurationMs: 8600,
+    extensionWindowMs: 950,
     retriggerGapMs: 520,
-    cooldownMs: 5200,
+    cooldownMs: 14000,
     maxExtensions: 1,
-    maxTriggerCount: 3
+    maxTriggerCount: 8,
+    maxCapturesPerRun: 8
   },
   'governance-risk': {
     preRollMs: 1800,
@@ -264,24 +265,37 @@ function detectAuthorityTurnTrigger(
   }
 
   const currentWorldAuthority = visual.worldAuthorityState;
+  const isAuthorityState =
+    currentWorldAuthority === 'shared' || currentWorldAuthority === 'dominant';
   if (
-    (currentWorldAuthority !== 'shared' && currentWorldAuthority !== 'dominant') ||
-    currentWorldAuthority === previousWorldAuthorityState
+    !isAuthorityState
   ) {
     return null;
   }
 
+  const dominanceDelivered = visual.worldDominanceDelivered ?? 0;
+  const chamberPresence = visual.chamberPresenceScore ?? 0;
+  const authorityLandmark =
+    currentWorldAuthority === previousWorldAuthorityState &&
+    (dominanceDelivered >= 0.7 ||
+      chamberPresence >= 0.68 ||
+      (dominanceDelivered >= 0.54 && chamberPresence >= 0.5));
+
+  if (currentWorldAuthority === previousWorldAuthorityState && !authorityLandmark) {
+    return null;
+  }
+
   if (
-    (visual.worldDominanceDelivered ?? 0) < 0.22 &&
-    (visual.chamberPresenceScore ?? 0) < 0.18
+    dominanceDelivered < 0.22 &&
+    chamberPresence < 0.18
   ) {
     return null;
   }
 
   return {
     kind: 'authority-turn',
-    label: 'Authority Turn',
-    reason: `world=${currentWorldAuthority} dominance=${(visual.worldDominanceDelivered ?? 0).toFixed(3)} chamber=${(visual.chamberPresenceScore ?? 0).toFixed(3)}`,
+    label: authorityLandmark ? 'Authority Landmark' : 'Authority Turn',
+    reason: `world=${currentWorldAuthority} dominance=${dominanceDelivered.toFixed(3)} chamber=${chamberPresence.toFixed(3)}`,
     timestampMs: frame.timestampMs
   };
 }

@@ -477,9 +477,9 @@ export class PlayableMotifSystem {
     const distinctness = profile?.distinctness ?? 0;
     const silhouetteConfidence =
       (profile?.silhouetteConfidence ?? 0) *
-      (motifMatch ? 1 : 0.72) *
-      (paletteMatch ? 1 : 0.84) *
-      (profileMatch ? 1 : 0.88);
+      (motifMatch ? 1 : 0.78) *
+      (paletteMatch ? 1 : 0.88) *
+      (profileMatch ? 1 : 0.92);
 
     this.updatePortal(context, this.activeScene === 'neon-cathedral' ? intensity : 0);
     this.updateTunnel(context, this.activeScene === 'machine-tunnel' ? intensity : 0);
@@ -508,7 +508,7 @@ export class PlayableMotifSystem {
       playableMotifScenePaletteMatch: paletteMatch,
       playableMotifSceneDistinctness: distinctness,
       playableMotifSceneSilhouetteConfidence: clamp01(
-        silhouetteConfidence * (sceneIntentMatch ? 1 : 0.8)
+        silhouetteConfidence * (sceneIntentMatch ? 1 : 0.84)
       )
     };
   }

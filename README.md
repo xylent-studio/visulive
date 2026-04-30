@@ -76,6 +76,7 @@ Use:
 
 - `.\scripts\rehydrate-agent.ps1`
 
+- [Current truth](C:/dev/GitHub/visulive/docs/current-truth.md) for the latest commit/run/blocker/next-proof surface
 - [Docs index](C:/dev/GitHub/visulive/docs/README.md)
 - [Agent guide](C:/dev/GitHub/visulive/AGENTS.md)
 - [Project status](C:/dev/GitHub/visulive/docs/project-status.md)
@@ -156,6 +157,7 @@ npm run anthology:validate
 - Turn on `Auto Save To Folder` if you want captures written directly into that folder while the music plays
 - Run `npm run watch:captures` in another terminal if you want the rolling analysis report to stay current while new captures arrive
 - Run `npm run analyze:captures` if you want a one-shot developer-facing tuning report from the recorded evidence; it now also refreshes [capture-analysis_latest.md](C:/dev/GitHub/visulive/captures/reports/capture-analysis_latest.md)
+- For fresh proof tuning, prefer the run-level review package for the latest valid run before using the aggregate latest report.
 - If you want the practical first-pass guide, use:
   - [operator-test-guide.md](C:/dev/GitHub/visulive/docs/operator-test-guide.md)
 - Run the target-machine review pass from the review rubric:

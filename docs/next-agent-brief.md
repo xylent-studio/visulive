@@ -1,18 +1,19 @@
 # VisuLive Next Agent Brief
 
-Date: 2026-04-29  
+Date: 2026-04-30
 Status: Active cold-start handoff
 
-Use this if you are the next agent starting development work after the V1 preservation pass.
+Use this after [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md) if you need broader handoff context. Current-truth is the first stop for latest commit/run/blocker status.
 
 Read first:
 
-1. [README.md](C:/dev/GitHub/visulive/README.md)
-2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-3. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-4. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
-5. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
-6. [AGENTS.md](C:/dev/GitHub/visulive/AGENTS.md)
+1. [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md)
+2. [README.md](C:/dev/GitHub/visulive/README.md)
+3. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+4. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+5. [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
+6. [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
+7. [AGENTS.md](C:/dev/GitHub/visulive/AGENTS.md)
 
 ## Current Branch Truth
 

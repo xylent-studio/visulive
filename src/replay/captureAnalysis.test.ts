@@ -1702,6 +1702,89 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('Captures with source hints: 1');
   });
 
+  it('reports orchestration utilization across authored systems', () => {
+    const capture = {
+      metadata: {
+        label: 'orchestration-utilization-test',
+        captureMode: 'auto',
+        triggerKind: 'section',
+        triggerReason: 'utilization proof',
+        sourceLabel: 'PC Audio',
+        sourceMode: 'system-audio',
+        rendererBackend: 'webgpu',
+        qualityTier: 'balanced',
+        rawPathGranted: true,
+        controls: DEFAULT_USER_CONTROL_STATE
+      },
+      frames: [
+        createCaptureFrame({
+          timestampMs: 1000,
+          visualTelemetry: {
+            activeAct: 'matrix-storm',
+            paletteState: 'tron-blue',
+            canonicalCueClass: 'gather',
+            stageCueFamily: 'gather',
+            visualMotif: 'machine-grid',
+            paletteBaseState: 'tron-blue',
+            heroRole: 'supporting',
+            activeHeroForm: 'cube',
+            ringPosture: 'event-strike',
+            stageWorldMode: 'aperture-cage',
+            activeSignatureMoment: 'cathedral-open',
+            signatureMomentPhase: 'hold',
+            activePlayableMotifScene: 'machine-tunnel',
+            playableMotifSceneProfileId: 'machine-tunnel',
+            playableMotifSceneSilhouetteFamily: 'perspective-tunnel',
+            playableMotifSceneSurfaceRole: 'shutter-lanes',
+            compositorMaskFamily: 'shutter',
+            particleFieldJob: 'pressure-dust'
+          }
+        }),
+        createCaptureFrame({
+          timestampMs: 1600,
+          visualTelemetry: {
+            activeAct: 'ghost-afterimage',
+            paletteState: 'ghost-white',
+            canonicalCueClass: 'haunt',
+            stageCueFamily: 'haunt',
+            visualMotif: 'ghost-residue',
+            paletteBaseState: 'ghost-white',
+            heroRole: 'ghost',
+            activeHeroForm: 'diamond',
+            ringPosture: 'residue-trace',
+            stageWorldMode: 'ghost-chamber',
+            activeSignatureMoment: 'ghost-residue',
+            signatureMomentPhase: 'residue',
+            activePlayableMotifScene: 'ghost-constellation',
+            playableMotifSceneProfileId: 'ghost-constellation',
+            playableMotifSceneSilhouetteFamily: 'wide-constellation',
+            playableMotifSceneSurfaceRole: 'celestial-field',
+            compositorMaskFamily: 'ghost-veil',
+            particleFieldJob: 'memory-echo'
+          }
+        })
+      ]
+    };
+
+    const summary = summarizeCapture(
+      capture,
+      'C:/dev/GitHub/visulive/captures/orchestration-utilization-test.json'
+    );
+    const aggregate = buildAggregateSection([summary]);
+
+    expect(aggregate).toContain('### Orchestration utilization');
+    expect(aggregate).toContain('Cue classes: gather=50.0%, haunt=50.0%');
+    expect(aggregate).toContain('Playable scenes:');
+    expect(aggregate).toContain('machine-tunnel=50.0%');
+    expect(aggregate).toContain('ghost-constellation=50.0%');
+    expect(aggregate).toContain('Compositor masks:');
+    expect(aggregate).toContain('shutter=50.0%');
+    expect(aggregate).toContain('ghost-veil=50.0%');
+    expect(aggregate).toContain('Particle jobs:');
+    expect(aggregate).toContain('pressure-dust=50.0%');
+    expect(aggregate).toContain('memory-echo=50.0%');
+  });
+
   it('does not count quiet texture source hints as missed source events', () => {
     const frame = createCaptureFrame({
       timestampMs: 1000,

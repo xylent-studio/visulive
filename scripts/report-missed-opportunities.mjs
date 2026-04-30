@@ -29,6 +29,9 @@ const MATCH_WINDOW_MS = 2_500;
 const CLUSTER_GAP_MS = 5_000;
 const DEFAULT_STILL_MATCH_WINDOW_MS = 1_500;
 const SIGNATURE_STILL_MATCH_WINDOW_MS = 5_000;
+const AUTHORITY_STILL_MATCH_WINDOW_MS = 10_000;
+const SIGNATURE_CONTEXT_MATCH_WINDOW_MS = 6_000;
+const AUTHORITY_CONTEXT_MATCH_WINDOW_MS = 10_000;
 
 function parseArgs(argv) {
   const args = {
@@ -122,7 +125,7 @@ async function resolveClipCoverageByRunId(summaries = []) {
   return clipsByRunId;
 }
 
-function clusterMissableMarkers(markers = []) {
+export function clusterMissableMarkers(markers = []) {
   const clusters = [];
   const markersByKind = new Map();
 
@@ -166,7 +169,7 @@ function clusterMissableMarkers(markers = []) {
   return clusters.sort((left, right) => left.timestampMs - right.timestampMs);
 }
 
-function resolveExpectedEvidence(cluster) {
+export function resolveExpectedEvidence(cluster) {
   switch (cluster.markerKind) {
     case 'governance-risk':
       return {
@@ -201,24 +204,60 @@ function resolveExpectedEvidence(cluster) {
     case 'signature-moment-residue':
       return {
         severity: cluster.markerKind === 'signature-moment-peak' ? 'high' : 'medium',
-        clipKinds: new Set([cluster.markerKind]),
+        clipKinds: new Set([
+          'signature-moment-precharge',
+          'signature-moment-peak',
+          'signature-moment-residue'
+        ]),
         stillKinds: new Set(['signature', 'signature-preview']),
-        label: `${cluster.markerKind} clip or signature still`
+        label: 'signature-moment clip or signature still spanning the moment'
       };
     case 'authority-turn':
     default:
       return {
         severity: 'medium',
-        clipKinds: new Set(['authority-turn']),
-        stillKinds: new Set(['authority']),
-        label: 'authority-turn clip or authority still'
+        clipKinds: new Set([
+          'authority-turn',
+          'governance-risk',
+          'signature-moment-precharge',
+          'signature-moment-peak',
+          'signature-moment-residue',
+          'operator-trust-clear'
+        ]),
+        stillKinds: new Set(['authority', 'safety', 'signature', 'signature-preview', 'trust']),
+        label: 'authority/context clip or authority still spanning the turn'
       };
   }
 }
 
-function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
-  const clusterStart = cluster.timestampMs - MATCH_WINDOW_MS;
-  const clusterEnd = cluster.endTimestampMs + MATCH_WINDOW_MS;
+function resolveClipMatchWindowMs(markerKind) {
+  if (markerKind === 'authority-turn') {
+    return AUTHORITY_CONTEXT_MATCH_WINDOW_MS;
+  }
+
+  if (SIGNATURE_MARKER_KINDS.has(markerKind)) {
+    return SIGNATURE_CONTEXT_MATCH_WINDOW_MS;
+  }
+
+  return MATCH_WINDOW_MS;
+}
+
+function resolveStillMatchWindowMs(markerKind) {
+  if (markerKind === 'authority-turn') {
+    return AUTHORITY_STILL_MATCH_WINDOW_MS;
+  }
+
+  if (SIGNATURE_MARKER_KINDS.has(markerKind)) {
+    return SIGNATURE_STILL_MATCH_WINDOW_MS;
+  }
+
+  return DEFAULT_STILL_MATCH_WINDOW_MS;
+}
+
+export function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
+  const clipMatchWindowMs = resolveClipMatchWindowMs(cluster.markerKind);
+  const clusterStart = cluster.timestampMs - clipMatchWindowMs;
+  const clusterEnd = cluster.endTimestampMs + clipMatchWindowMs;
   const expectedEvidence = resolveExpectedEvidence(cluster);
   const matchedExpectedClip = runClips.some(
     (clip) =>
@@ -229,8 +268,8 @@ function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
   );
   const matchedContextClip = runClips.some(
     (clip) =>
-      clip.endMs >= cluster.timestampMs &&
-      clip.startMs <= cluster.endTimestampMs &&
+      clip.endMs >= clusterStart &&
+      clip.startMs <= clusterEnd &&
       (clip.version ?? 0) >= 3
   );
 
@@ -241,9 +280,7 @@ function clusterHasSavedEvidence(cluster, runClips = [], runStills = []) {
     };
   }
 
-  const stillMatchWindowMs = SIGNATURE_MARKER_KINDS.has(cluster.markerKind)
-    ? SIGNATURE_STILL_MATCH_WINDOW_MS
-    : DEFAULT_STILL_MATCH_WINDOW_MS;
+  const stillMatchWindowMs = resolveStillMatchWindowMs(cluster.markerKind);
 
   const matchedStill = runStills.some((still) => {
     const timestampMs = still?.timestampMs;

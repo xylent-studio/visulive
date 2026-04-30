@@ -923,28 +923,28 @@ export function chooseShowAct(input: {
     secondsSinceLastChange: input.secondsSinceLastChange,
     scores: input.scores,
     states: SHOW_ACTS,
-    minimumHoldSeconds: input.minimumHoldSeconds ?? 4.2,
-    switchThreshold: input.switchThreshold ?? 0.09,
+    minimumHoldSeconds: input.minimumHoldSeconds ?? 5.2,
+    switchThreshold: input.switchThreshold ?? 0.11,
     fatigueProfiles: {
       'matrix-storm': {
-        afterSeconds: 4,
-        thresholdReduction: 0.24
+        afterSeconds: 8,
+        thresholdReduction: 0.07
       },
       'laser-bloom': {
-        afterSeconds: 4.2,
-        thresholdReduction: 0.18
-      },
-      'eclipse-rupture': {
-        afterSeconds: 3.8,
-        thresholdReduction: 0.1
-      },
-      'ghost-afterimage': {
-        afterSeconds: 5.4,
-        thresholdReduction: 0.12
-      },
-      'void-chamber': {
         afterSeconds: 7.2,
         thresholdReduction: 0.06
+      },
+      'eclipse-rupture': {
+        afterSeconds: 5.2,
+        thresholdReduction: 0.04
+      },
+      'ghost-afterimage': {
+        afterSeconds: 9,
+        thresholdReduction: 0.05
+      },
+      'void-chamber': {
+        afterSeconds: 10,
+        thresholdReduction: 0.04
       }
     }
   });
@@ -1240,24 +1240,24 @@ export function choosePaletteState(input: {
     secondsSinceLastChange: input.secondsSinceLastChange,
     scores: input.scores,
     states: PALETTE_STATES,
-    minimumHoldSeconds: input.minimumHoldSeconds ?? 2.8,
-    switchThreshold: input.switchThreshold ?? 0.09,
-    earlySwitchThresholdMultiplier: 3.25,
+    minimumHoldSeconds: input.minimumHoldSeconds ?? 4.6,
+    switchThreshold: input.switchThreshold ?? 0.12,
+    earlySwitchThresholdMultiplier: 3.75,
     fatigueProfiles: {
       'tron-blue': {
-        afterSeconds: 3.8,
-        thresholdReduction: 0.12
+        afterSeconds: 5,
+        thresholdReduction: 0.05
       },
       'acid-lime': {
-        afterSeconds: 3.2,
-        thresholdReduction: 0.16
+        afterSeconds: 5.2,
+        thresholdReduction: 0.06
       },
       'solar-magenta': {
-        afterSeconds: 3.4,
-        thresholdReduction: 0.1
+        afterSeconds: 5,
+        thresholdReduction: 0.05
       },
       'ghost-white': {
-        afterSeconds: 6.4,
+        afterSeconds: 8.2,
         thresholdReduction: 0.04
       }
     }
@@ -1394,12 +1394,12 @@ export function chooseVisualMotifKind(input: {
     (input.cuePlan.dominance === 'world' || input.cuePlan.worldWeight > 0.78);
   const minHoldSeconds =
     currentMotif === 'rupture-scar'
-      ? 1.6
+      ? 2
       : currentMotif === 'ghost-residue' || currentMotif === 'silence-constellation'
-        ? 2.2
+        ? 3.2
         : currentMotif === 'neon-portal' || currentMotif === 'world-takeover'
-          ? 1.35
-          : 0.9;
+          ? 2.4
+          : 1.8;
   const canInterrupt =
     hardRupture ||
     releaseInterrupt ||

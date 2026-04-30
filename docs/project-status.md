@@ -1,7 +1,9 @@
 # VisuLive Project Status
 
-Date: 2026-04-29
+Date: 2026-04-30
 Status: Active implementation snapshot
+
+For the newest commit/run/blocker truth, read [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md) before this longer status file. This document retains historical proof context by design.
 
 This file answers five practical questions quickly:
 

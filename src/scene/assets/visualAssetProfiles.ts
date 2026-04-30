@@ -50,9 +50,9 @@ export const SCENE_VISUAL_PROFILES: Record<
     particleJob: 'punctuation',
     compositorMask: 'portal-aperture',
     motionBias: 'cathedral-precession',
-    minimumDwellSeconds: 7.4,
-    distinctness: 0.9,
-    silhouetteConfidence: 0.86
+    minimumDwellSeconds: 9.4,
+    distinctness: 0.92,
+    silhouetteConfidence: 0.89
   },
   'machine-tunnel': {
     id: 'machine-tunnel',
@@ -86,9 +86,9 @@ export const SCENE_VISUAL_PROFILES: Record<
     particleJob: 'pressure-dust',
     compositorMask: 'shutter',
     motionBias: 'arc-handoff',
-    minimumDwellSeconds: 6.8,
-    distinctness: 0.82,
-    silhouetteConfidence: 0.8
+    minimumDwellSeconds: 8.6,
+    distinctness: 0.86,
+    silhouetteConfidence: 0.84
   },
   'void-pressure': {
     id: 'void-pressure',
@@ -122,9 +122,9 @@ export const SCENE_VISUAL_PROFILES: Record<
     particleJob: 'pressure-dust',
     compositorMask: 'iris',
     motionBias: 'recoil-dive',
-    minimumDwellSeconds: 8.2,
-    distinctness: 0.86,
-    silhouetteConfidence: 0.84
+    minimumDwellSeconds: 10.5,
+    distinctness: 0.88,
+    silhouetteConfidence: 0.86
   },
   'ghost-constellation': {
     id: 'ghost-constellation',
@@ -158,9 +158,9 @@ export const SCENE_VISUAL_PROFILES: Record<
     particleJob: 'memory-echo',
     compositorMask: 'ghost-veil',
     motionBias: 'drift-orbit',
-    minimumDwellSeconds: 9.2,
-    distinctness: 0.78,
-    silhouetteConfidence: 0.74
+    minimumDwellSeconds: 11.5,
+    distinctness: 0.84,
+    silhouetteConfidence: 0.82
   },
   'collapse-scar': {
     id: 'collapse-scar',
@@ -194,9 +194,9 @@ export const SCENE_VISUAL_PROFILES: Record<
     particleJob: 'punctuation',
     compositorMask: 'scar-matte',
     motionBias: 'recoil-dive',
-    minimumDwellSeconds: 5.6,
-    distinctness: 0.94,
-    silhouetteConfidence: 0.91
+    minimumDwellSeconds: 6.4,
+    distinctness: 0.95,
+    silhouetteConfidence: 0.93
   }
 };
 

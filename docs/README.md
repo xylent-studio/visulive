@@ -11,14 +11,15 @@ Do not load everything by default.
 
 If you are entering the repo fresh, start with:
 
-1. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
-2. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
-3. the mastery spine:
+1. [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md)
+2. [project-status.md](C:/dev/GitHub/visulive/docs/project-status.md)
+3. [current-program.md](C:/dev/GitHub/visulive/docs/current-program.md)
+4. the mastery spine:
    - [anthology-mastery-charter.md](C:/dev/GitHub/visulive/docs/anthology-mastery-charter.md)
    - [anthology-capability-map.md](C:/dev/GitHub/visulive/docs/anthology-capability-map.md)
    - [runtime-extraction-scoreboard.md](C:/dev/GitHub/visulive/docs/runtime-extraction-scoreboard.md)
    - [graduation-rubric.md](C:/dev/GitHub/visulive/docs/graduation-rubric.md)
-4. one task-specific reference:
+5. one task-specific reference:
    - [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md) for golden references, failure patterns, and review cadence
    - [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
    - [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
@@ -32,6 +33,9 @@ If you are entering the repo fresh, start with:
 Load everything else on demand.
 
 ## Active Canon
+
+### [current-truth.md](C:/dev/GitHub/visulive/docs/current-truth.md)
+Compact current commit, run, blocker, proof, stale-surface, and forbidden-work truth.
 
 ### [product-charter.md](C:/dev/GitHub/visulive/docs/product-charter.md)
 Stable product principles and non-goals.
