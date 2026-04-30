@@ -285,6 +285,32 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneTransitionReason).not.toBe('signature-moment');
   });
 
+  it('does not let armed ghost candidates steal playable scene ownership', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        signatureMoment: signatureMoment({
+          kind: 'ghost-residue',
+          phase: 'armed',
+          intensity: 0.28,
+          style: 'ambient-premium'
+        }),
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'reveal',
+          worldMode: 'cathedral-rise'
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneTransitionReason).not.toBe('signature-moment');
+  });
+
   it('does not treat a bright non-rupture drop as collapse scar scene ownership', () => {
     const system = new PlayableMotifSystem();
     system.build();
@@ -357,6 +383,40 @@ describe('PlayableMotifSystem', () => {
     const telemetry = system.collectTelemetryInputs();
     expect(telemetry.activePlayableMotifScene).toBe('collapse-scar');
     expect(telemetry.playableMotifSceneTransitionReason).toBe('drop-rupture');
+  });
+
+  it('lets hard rupture context override lingering cathedral signatures', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        signatureMoment: signatureMoment({
+          kind: 'cathedral-open',
+          phase: 'hold',
+          intensity: 0.72,
+          style: 'maximal-neon'
+        }),
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'rupture',
+          worldMode: 'collapse-well',
+          transformIntent: 'collapse'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.51,
+          sectionChange: 0.42,
+          releaseTail: 0.04
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('collapse-scar');
+    expect(telemetry.playableMotifSceneTransitionReason).toBe('drop-rupture');
+    expect(telemetry.playableMotifSceneDriver).not.toBe('signature');
   });
 
   it('resets scene age and stale scene ownership for a new show start', () => {

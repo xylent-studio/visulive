@@ -62,19 +62,23 @@ function resolveCompositorMaskFamily(
   context: CompositorSystemUpdateContext
 ): CompositorMaskFamily {
   const moment = context.signatureMoment;
+  const signatureOwnsMask =
+    moment.phase === 'precharge' ||
+    moment.phase === 'strike' ||
+    moment.phase === 'hold' ||
+    moment.phase === 'residue';
 
-  if (moment.kind === 'collapse-scar' && moment.phase !== 'idle' && moment.phase !== 'clear') {
+  if (moment.kind === 'collapse-scar' && signatureOwnsMask) {
     return 'scar-matte';
   }
 
-  if (moment.kind === 'cathedral-open' && moment.phase !== 'idle' && moment.phase !== 'clear') {
+  if (moment.kind === 'cathedral-open' && signatureOwnsMask) {
     return 'portal-aperture';
   }
 
   if (
     (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') &&
-    moment.phase !== 'idle' &&
-    moment.phase !== 'clear'
+    signatureOwnsMask
   ) {
     return 'ghost-veil';
   }

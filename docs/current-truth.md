@@ -10,11 +10,12 @@ Use this page before reading the longer history docs. It is intentionally compac
 - Current base commit before this wave: `7b25338`
 - Current committed wave: run `git rev-parse --short HEAD`; this page is part of that commit.
 - Current implementation wave: `Current Truth + Orchestration Coherence`
-- Latest local checkpoint: `C:\dev\_intel\ops\local-machine-ops\checkpoints\visulive\checkpoint-20260430-114505.md`
+- Latest local checkpoint: run `C:\dev\_intel\scripts\Write-AgentCheckpoint.ps1` after meaningful passes; use `_intel` latest as machine memory.
 - Latest valid/current-proof-eligible runs:
   - `run_20260430_091448_xmm6a6`: PC Audio proof with `deadmau5 - Strobe`; valid, useful, not release-grade.
   - `run_20260430_100305_os4do2`: fullscreen/watch-mode proof; valid/current-proof-eligible, but not release-grade.
   - `run_20260430_114858_ctx3di`: PC Audio proof with `Madeon - Technicolor`; valid/current-proof-eligible, but underwhelming. The run exposed stale pre-proof visual age at show start, overly polite PC-audio lift routing, and ghost-constellation over-holding through a real progressive lift.
+  - `run_20260430_122217_tlpxp2`: PC Audio proof with `Justice - Genesis`; valid/current-proof-eligible and no-touch clean, but still underwhelming. The run proved source readiness was not the blocker; it exposed detonate frames being routed as gather/reveal, hard rupture being visually converted back into cathedral/neon, double-dampened post consequence, weak collapse-scar ownership, and ring posture staying in event language too long.
 - Diagnostic-only run:
   - `run_20260430_093649_52bpjn`: invalid proof/operator-trust run; useful only for failure diagnosis.
 
@@ -41,6 +42,7 @@ Use this page before reading the longer history docs. It is intentionally compac
 - Ring posture can still read as wallpaper after authority turns unless a cathedral/architecture scene truly owns it.
 - A fresh proof can begin with visual/director state aged during setup unless the runtime resets its show clock at the actual proof/live start.
 - Progressive PC-audio lifts can carry enough drop/section evidence to deserve a stronger authored cue even when the conductor does not classify the passage as a full surge.
+- Hard detonate passages can still feel soft if signature, playable motif, post, and ring posture do not all agree on rupture ownership.
 
 ## Current Best Next Move
 
@@ -49,7 +51,7 @@ Finish the `Current Truth + Orchestration Coherence` wave:
 1. Keep run-level reports as primary tuning truth for fresh proof.
 2. Add/maintain `npm run truth:audit` as a non-blocking stale-surface check.
 3. Tune the existing authored engine for stronger semantic holds, broader valid utilization, richer playable scene silhouettes, and faster non-architectural ring decay.
-4. Preserve the show-start reset and PC-audio progressive-lift repair before the next canary.
+4. Preserve the show-start reset, PC-audio progressive/detonate lift repair, collapse signature preemption, post consequence intensity fix, and phase-ownership alignment before the next canary.
 5. Run a fresh 90-120 second PC Audio primary canary, fullscreen, no-touch, using `Finish Proof Run`.
 5. Review with `npm run proof:current`, `npm run evidence:index`, `npm run run:review -- --run-id <runId>`, and `npm run moment:sheet -- --run-id <runId>` when stills exist.
 

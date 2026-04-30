@@ -97,4 +97,29 @@ describe('PostSystem', () => {
     expect(system.collectTelemetryInputs().memoryTraceCount).toBeLessThanOrEqual(5);
     system.dispose();
   });
+
+  it('does not damp governor-shaped precharge intensity a second time', () => {
+    const system = new PostSystem();
+    system.build();
+
+    system.update(
+      buildContext({
+        ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
+        kind: 'cathedral-open',
+        phase: 'precharge',
+        intensity: 0.42,
+        ageSeconds: 0.64,
+        seed: 44,
+        startedAtSeconds: 10,
+        chamberArchitecture: 0.42,
+        postConsequence: 0.42,
+        safetyRisk: 0.04
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.cathedralOpenAmount).toBeCloseTo(0.42, 3);
+    expect(telemetry.postConsequenceIntensity).toBeGreaterThan(0.28);
+    system.dispose();
+  });
 });

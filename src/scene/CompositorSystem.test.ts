@@ -141,4 +141,31 @@ describe('CompositorSystem', () => {
     expect(telemetry.perceptualColorfulnessScore).toBeGreaterThan(0.45);
     system.dispose();
   });
+
+  it('lets playable scene masks own the frame until a signature reaches precharge', () => {
+    const system = new CompositorSystem();
+    const context = buildContext();
+
+    system.build();
+    system.update({
+      ...context,
+      signatureMoment: {
+        ...context.signatureMoment,
+        kind: 'ghost-residue',
+        phase: 'armed',
+        intensity: 0.24,
+        style: 'ambient-premium'
+      },
+      playableMotif: {
+        ...PLAYABLE_MOTIF_TELEMETRY,
+        activePlayableMotifScene: 'neon-cathedral',
+        playableMotifSceneProfileId: 'neon-cathedral',
+        compositorMaskFamily: 'portal-aperture'
+      }
+    });
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.compositorMaskFamily).toBe('portal-aperture');
+    system.dispose();
+  });
 });

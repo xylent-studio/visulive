@@ -1156,6 +1156,47 @@ describe('showDirection', () => {
     expect(plan.eventDensity).toBeGreaterThan(0.58);
   });
 
+  it('spends strong PC-audio detonation evidence as rupture even outside the rupture act', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      showState: 'surge' as const,
+      performanceIntent: 'detonate' as const,
+      mode: 'system-audio' as const,
+      musicConfidence: 0.68,
+      peakConfidence: 0.61,
+      beatConfidence: 0.45,
+      preDropTension: 0.62,
+      transientConfidence: 0.39,
+      dropImpact: 0.51,
+      sectionChange: 0.44,
+      releaseTail: 0.04,
+      phraseTension: 0.58,
+      momentum: 0.48,
+      harmonicColor: 0.62,
+      shimmer: 0.44
+    };
+    const cueState = deriveVisualCue(frame, 'matrix-storm', {
+      preBeatLift: 0.42,
+      beatStrike: 0.58,
+      postBeatRelease: 0.04,
+      interBeatFloat: 0.18,
+      barTurn: 0.24,
+      phraseResolve: 0.08
+    });
+    const plan = deriveStageCuePlan({
+      frame,
+      cueState,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 0.6
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.worldMode).toBe('collapse-well');
+    expect(plan.compositorMode).toBe('flash');
+    expect(plan.transformIntent).toBe('collapse');
+    expect(plan.stageWeight).toBeGreaterThan(0.64);
+  });
+
   it('keeps matrix-storm reveal in a lighter hybrid world mode instead of cathedral lock', () => {
     const frame = {
       ...DEFAULT_LISTENING_FRAME,

@@ -1501,13 +1501,18 @@ function deriveRingPosture(input: {
     input.signatureMomentKind !== 'none' &&
     input.signatureMomentPhase !== 'idle' &&
     input.signatureMomentPhase !== 'clear';
-
-  if (
-    input.motif === 'rupture-scar' ||
+  const hardRuptureActive =
     input.cuePlan.family === 'rupture' ||
-    input.signatureMomentKind === 'collapse-scar'
-  ) {
+    input.cuePlan.worldMode === 'collapse-well' ||
+    input.cuePlan.residueMode === 'scar' ||
+    input.signatureMomentKind === 'collapse-scar';
+
+  if (hardRuptureActive) {
     return 'event-strike';
+  }
+
+  if (input.motif === 'rupture-scar') {
+    return 'residue-trace';
   }
 
   if (
@@ -2721,9 +2726,20 @@ export function deriveStageCuePlan(input: {
     frame.dropImpact >= 0.38 &&
     frame.sectionChange >= 0.26 &&
     frame.releaseTail < 0.26;
+  const systemAudioDetonateImpact =
+    frame.mode === 'system-audio' &&
+    frame.performanceIntent === 'detonate' &&
+    frame.musicConfidence >= 0.5 &&
+    frame.peakConfidence >= 0.46 &&
+    frame.preDropTension >= 0.42 &&
+    frame.transientConfidence >= 0.28 &&
+    frame.dropImpact >= 0.38 &&
+    frame.sectionChange >= 0.28 &&
+    frame.releaseTail < 0.22;
   const ruptureLike =
     cueState.cueClass === 'rupture' ||
     systemAudioProgressiveImpact ||
+    systemAudioDetonateImpact ||
     (showAct === 'eclipse-rupture' &&
       ruptureAuthority >= 0.5 &&
       frame.dropImpact >= 0.38 &&

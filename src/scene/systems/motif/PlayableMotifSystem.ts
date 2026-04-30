@@ -95,13 +95,13 @@ function resolveSceneFromSignature(
   moment: SignatureMomentSnapshot,
   motif?: VisualMotifKind
 ): PlayableMotifSceneKind | null {
-  if (
-    moment.kind === 'cathedral-open' &&
-    (moment.phase === 'precharge' ||
-      moment.phase === 'strike' ||
-      moment.phase === 'hold' ||
-      moment.phase === 'residue')
-  ) {
+  const ownsPlayableScene =
+    moment.phase === 'precharge' ||
+    moment.phase === 'strike' ||
+    moment.phase === 'hold' ||
+    moment.phase === 'residue';
+
+  if (moment.kind === 'cathedral-open' && ownsPlayableScene) {
     return 'neon-cathedral';
   }
 
@@ -128,8 +128,7 @@ function resolveSceneFromSignature(
 
   if (
     (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') &&
-    moment.phase !== 'idle' &&
-    moment.phase !== 'clear'
+    ownsPlayableScene
   ) {
     return 'ghost-constellation';
   }
@@ -175,20 +174,20 @@ function isHardRuptureContext(context: PlayableMotifSystemUpdateContext): boolea
 function resolveSceneFromContext(
   context: PlayableMotifSystemUpdateContext
 ): PlayableMotifSceneKind {
-  const signatureScene = resolveSceneFromSignature(
-    context.signatureMoment,
-    context.visualMotif
-  );
-  if (signatureScene) {
-    return signatureScene;
-  }
-
   if (
     isHardRuptureContext(context) &&
     context.audio.dropImpact >= 0.34 &&
     context.audio.releaseTail < 0.34
   ) {
     return 'collapse-scar';
+  }
+
+  const signatureScene = resolveSceneFromSignature(
+    context.signatureMoment,
+    context.visualMotif
+  );
+  if (signatureScene) {
+    return signatureScene;
   }
 
   if (context.visualMotif === 'rupture-scar' && !isHardRuptureContext(context)) {
@@ -626,8 +625,8 @@ export class PlayableMotifSystem {
           ? 1.2
           : yieldingFromCollapse
             ? collapseIsResidueOnly && !isHardRuptureContext(context)
-              ? 1.1
-              : 2.2
+              ? 3
+              : 4.6
             : posture?.minimumDwellSeconds ?? 7;
 
     if (ageSeconds >= minimumDwellSeconds) {

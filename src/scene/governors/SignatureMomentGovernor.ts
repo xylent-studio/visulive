@@ -296,6 +296,28 @@ export class SignatureMomentGovernor {
       this.activeMoment = null;
     }
 
+    if (this.shouldPreemptWithCollapse(input, candidateScores)) {
+      const rarityBudget = this.resolveRarityBudget(
+        'collapse-scar',
+        input.elapsedSeconds
+      );
+      this.activeMoment = this.startMoment(
+        'collapse-scar',
+        deriveSignatureMomentStyleForKind('collapse-scar', input),
+        input,
+        Math.max(candidateScores['collapse-scar'], 0.62),
+        rarityBudget,
+        false
+      );
+      this.armedCandidate = null;
+      this.latestSnapshot = this.resolveActiveSnapshot(
+        input,
+        safetyRisk,
+        candidateScores
+      );
+      return this.latestSnapshot;
+    }
+
     if (this.activeMoment) {
       const snapshot = this.resolveActiveSnapshot(input, safetyRisk, candidateScores);
 
@@ -560,6 +582,33 @@ export class SignatureMomentGovernor {
       prechargeProgress: phase === 'precharge' ? clamp01(ageSeconds / 1.1) : 1,
       forcedPreview: this.activeMoment.forcedPreview
     });
+  }
+
+  private shouldPreemptWithCollapse(
+    input: SignatureMomentGovernorInput,
+    candidateScores: SignatureMomentCandidateScores
+  ): boolean {
+    if (!this.activeMoment || this.activeMoment.kind === 'collapse-scar') {
+      return false;
+    }
+
+    const activeAgeSeconds = Math.max(
+      0,
+      input.elapsedSeconds - this.activeMoment.startedAtSeconds
+    );
+
+    return (
+      activeAgeSeconds >= 0.24 &&
+      hasRuptureStructure(input.stageCuePlan) &&
+      candidateScores['collapse-scar'] >= 0.56 &&
+      input.frame.musicConfidence >= 0.48 &&
+      input.frame.dropImpact >= 0.38 &&
+      input.frame.sectionChange >= 0.28 &&
+      input.frame.releaseTail < 0.24 &&
+      (input.frame.performanceIntent === 'detonate' ||
+        input.frame.showState === 'surge' ||
+        input.frame.dropImpact >= 0.48)
+    );
   }
 
   private buildNoneSnapshot(

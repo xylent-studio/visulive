@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-30T16:18:47.726Z",
+  "generatedAt": "2026-04-30T16:56:45.897Z",
   "sourceProofManifestPath": "C:\\dev\\GitHub\\visulive\\docs\\proof-pack_latest.json",
   "runCount": 3,
   "totalRecommendationCount": 12,
@@ -11,7 +11,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-30T16:18:47.725Z",
+        "generatedAt": "2026-04-30T16:56:45.897Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -583,7 +583,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-30T16:18:47.725Z",
+        "generatedAt": "2026-04-30T16:56:45.897Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1290,7 +1290,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-30T16:18:47.725Z",
+        "generatedAt": "2026-04-30T16:56:45.897Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",

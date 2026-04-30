@@ -185,6 +185,68 @@ describe('SignatureMomentGovernor', () => {
     expect(snapshot.kind).toBe('cathedral-open');
   });
 
+  it('lets hard rupture preempt a lingering cathedral moment', () => {
+    const governor = new SignatureMomentGovernor();
+    const cathedral = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 10,
+        frame: {
+          preDropTension: 0.66,
+          sectionChange: 0.46,
+          tonalStability: 0.84,
+          musicConfidence: 0.78,
+          dropImpact: 0.18
+        },
+        stage: {
+          family: 'reveal',
+          worldMode: 'cathedral-rise',
+          transformIntent: 'open'
+        },
+        composition: { transitionClass: 'iris' },
+        authority: {
+          chamberPresenceScore: 0.72,
+          compositionSafetyScore: 0.92,
+          overbright: 0.03
+        }
+      })
+    );
+
+    expect(cathedral.kind).toBe('cathedral-open');
+
+    const collapse = governor.resolveFrame(
+      buildInput({
+        elapsedSeconds: 10.8,
+        frame: {
+          showState: 'surge',
+          performanceIntent: 'detonate',
+          musicConfidence: 0.68,
+          peakConfidence: 0.62,
+          preDropTension: 0.62,
+          transientConfidence: 0.42,
+          dropImpact: 0.54,
+          sectionChange: 0.44,
+          releaseTail: 0.04
+        },
+        stage: {
+          family: 'rupture',
+          worldMode: 'collapse-well',
+          compositorMode: 'scar',
+          transformIntent: 'collapse'
+        },
+        composition: { shotClass: 'worldTakeover' },
+        authority: {
+          worldDominanceDelivered: 0.72,
+          compositionSafetyScore: 0.84,
+          overbright: 0.08
+        }
+      })
+    );
+
+    expect(collapse.kind).toBe('collapse-scar');
+    expect(collapse.phase).not.toBe('idle');
+    expect(collapse.worldLead).toBeGreaterThan(cathedral.worldLead);
+  });
+
   it('suppresses bright cathedral moments while still allowing darker collapse moments', () => {
     const governor = new SignatureMomentGovernor();
     const cathedral = governor.resolveFrame(

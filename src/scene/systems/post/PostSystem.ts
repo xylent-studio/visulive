@@ -118,27 +118,6 @@ function clamp01(value: number): number {
   return THREE.MathUtils.clamp(value, 0, 1);
 }
 
-function phaseEnvelope(phase: SignatureMomentPhase): number {
-  switch (phase) {
-    case 'armed':
-      return 0.2;
-    case 'eligible':
-      return 0.22;
-    case 'precharge':
-      return 0.5;
-    case 'strike':
-      return 1;
-    case 'hold':
-      return 0.82;
-    case 'residue':
-      return 0.48;
-    case 'clear':
-      return 0.18;
-    default:
-      return 0;
-  }
-}
-
 function onsetPulse(phase: number): number {
   const clamped = THREE.MathUtils.clamp(phase, 0, 1);
   return Math.exp(-clamped * 7);
@@ -322,8 +301,7 @@ export class PostSystem {
     this.updateMemoryTraces(context);
 
     const moment = context.signatureMoment;
-    const envelope = phaseEnvelope(moment.phase);
-    const momentIntensity = clamp01(moment.intensity * envelope);
+    const momentIntensity = clamp01(moment.intensity);
     const stylePosture = STYLE_POSTURES[moment.style];
     const collapseScarAmount =
       moment.kind === 'collapse-scar' ? momentIntensity : 0;
