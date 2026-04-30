@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ListeningInterpreter } from './listeningInterpreter';
-import { DEFAULT_ANALYSIS_FRAME, type ListeningMode } from '../types/audio';
+import {
+  DEFAULT_ANALYSIS_FRAME,
+  DEFAULT_LISTENING_FRAME,
+  type ListeningMode,
+  type SourceHintFrame
+} from '../types/audio';
 import {
   DEFAULT_RUNTIME_TUNING,
   DEFAULT_USER_CONTROL_STATE,
@@ -54,6 +59,45 @@ function repeatFrame(
   count: number
 ): Array<Partial<typeof DEFAULT_ANALYSIS_FRAME>> {
   return Array.from({ length: count }, () => frame);
+}
+
+function sourceHintFrame(
+  values: Partial<Record<SourceHintFrame['hints'][number]['id'], number>>,
+  confidence = 0.8,
+  suppressionCodes: string[] = []
+): SourceHintFrame {
+  const ids: Array<SourceHintFrame['hints'][number]['id']> = [
+    'lowImpactCandidate',
+    'subSustain',
+    'bassBodySupport',
+    'percussiveSnap',
+    'airMotion',
+    'speechPresenceCandidate',
+    'highSweepCandidate',
+    'tonalLift',
+    'silenceAir',
+    'broadbandHit'
+  ];
+  const hints = ids.map((id) => ({
+    id,
+    value: values[id] ?? 0,
+    confidence,
+    density: values[id] ?? 0,
+    reasonCodes: values[id] ? [`${id}-test`] : [],
+    suppressionCodes: id === 'speechPresenceCandidate' ? suppressionCodes : []
+  }));
+
+  return {
+    schemaVersion: 1,
+    timestampMs: 1000,
+    sourceMode: 'system-audio',
+    runtimeMode: 'active',
+    confidence,
+    hints,
+    topHintId: null,
+    reasonCodes: [],
+    suppressionCodes
+  };
 }
 
 describe('ListeningInterpreter', () => {
@@ -849,5 +893,162 @@ describe('ListeningInterpreter', () => {
     expect(frame.musicConfidence).toBeGreaterThan(0.12);
     expect(frame.body).toBeGreaterThan(0.12);
     expect(['gather', 'hold']).toContain(frame.performanceIntent);
+  });
+
+  it('keeps low-confidence source hints as a no-op', () => {
+    const interpreter = new ListeningInterpreter();
+    const baseline = stepInterpreter(interpreter, repeatFrame({
+      rms: 0.08,
+      peak: 0.16,
+      envelopeFast: 0.1,
+      envelopeSlow: 0.08,
+      lowEnergy: 0.08,
+      midEnergy: 0.08,
+      highEnergy: 0.05,
+      transient: 0.04,
+      lowFlux: 0.002,
+      midFlux: 0.002,
+      highFlux: 0.002
+    }, 4), 1000, 'system-audio');
+
+    const withWeakHint = new ListeningInterpreter().update({
+      analysis: {
+        ...DEFAULT_ANALYSIS_FRAME,
+        timestampMs: 1250,
+        rms: 0.08,
+        peak: 0.16,
+        envelopeFast: 0.1,
+        envelopeSlow: 0.08,
+        lowEnergy: 0.08,
+        midEnergy: 0.08,
+        highEnergy: 0.05,
+        transient: 0.04
+      },
+      mode: 'system-audio',
+      calibrated: true,
+      noiseFloor: 0.01,
+      adaptiveCeiling: 0.1,
+      rawPathGranted: true,
+      tuning: DEFAULT_RUNTIME_TUNING,
+      sourceHints: sourceHintFrame({ lowImpactCandidate: 0.9 }, 0.04),
+      sourceHintMode: 'active'
+    }).frame;
+
+    expect(withWeakHint.sourceHintConfidence).toBeLessThan(0.06);
+    expect(withWeakHint.dropImpact).toBeLessThan(0.1);
+    expect(withWeakHint.accent).toBeLessThanOrEqual(baseline.accent + 0.08);
+  });
+
+  it('lets active source hints nudge conductor evidence without detonating alone', () => {
+    const interpreter = new ListeningInterpreter();
+    let frame = DEFAULT_LISTENING_FRAME;
+
+    for (let index = 0; index < 8; index += 1) {
+      frame = interpreter.update({
+        analysis: {
+          ...DEFAULT_ANALYSIS_FRAME,
+          timestampMs: 1000 + index * 220,
+          rms: 0.08,
+          peak: 0.18,
+          envelopeFast: 0.1,
+          envelopeSlow: 0.08,
+          lowEnergy: 0.1,
+          midEnergy: 0.08,
+          highEnergy: 0.05,
+          transient: 0.05,
+          lowFlux: 0.003,
+          midFlux: 0.003,
+          highFlux: 0.002,
+          modulation: 0.08,
+          lowStability: 0.32
+        },
+        mode: 'system-audio',
+        calibrated: true,
+        noiseFloor: 0.01,
+        adaptiveCeiling: 0.8,
+        rawPathGranted: true,
+        tuning: DEFAULT_RUNTIME_TUNING,
+        sourceHints: sourceHintFrame({
+          lowImpactCandidate: 0.85,
+          bassBodySupport: 0.62,
+          highSweepCandidate: 0.54
+        }, 0.82),
+        sourceHintMode: 'active'
+      }).frame;
+    }
+
+    expect(frame.sourceHintConfidence).toBeGreaterThan(0.4);
+    expect(frame.percussionEvidence).toBeGreaterThan(0.3);
+    expect(frame.bassSourceEvidence).toBeGreaterThan(0.2);
+    expect(frame.accent).toBeGreaterThan(0.08);
+    expect(frame.dropImpact).toBeLessThan(0.2);
+    expect(frame.performanceIntent).not.toBe('detonate');
+  });
+
+  it('keeps shadow source hints out of the listening frame', () => {
+    const interpreter = new ListeningInterpreter();
+    const frame = interpreter.update({
+      analysis: {
+        ...DEFAULT_ANALYSIS_FRAME,
+        timestampMs: 1000,
+        rms: 0.12,
+        peak: 0.24,
+        envelopeFast: 0.16,
+        envelopeSlow: 0.1,
+        lowEnergy: 0.12,
+        midEnergy: 0.08,
+        highEnergy: 0.04,
+        transient: 0.14
+      },
+      mode: 'system-audio',
+      calibrated: true,
+      noiseFloor: 0.01,
+      adaptiveCeiling: 0.1,
+      rawPathGranted: true,
+      tuning: DEFAULT_RUNTIME_TUNING,
+      sourceHints: sourceHintFrame({ lowImpactCandidate: 1, broadbandHit: 1 }, 0.92),
+      sourceHintMode: 'shadow'
+    }).frame;
+
+    expect(frame.sourceHintConfidence).toBe(0);
+    expect(frame.percussionEvidence).toBe(0);
+  });
+
+  it('suppresses room speech and hum from percussion authority', () => {
+    const interpreter = new ListeningInterpreter();
+    let frame = DEFAULT_LISTENING_FRAME;
+    for (let index = 0; index < 8; index += 1) {
+      frame = interpreter.update({
+        analysis: {
+          ...DEFAULT_ANALYSIS_FRAME,
+          timestampMs: 1000 + index * 80,
+          rms: 0.06,
+          peak: 0.08,
+          envelopeFast: 0.062,
+          envelopeSlow: 0.064,
+          lowEnergy: 0.07,
+          midEnergy: 0.12,
+          highEnergy: 0.04,
+          transient: 0.02,
+          modulation: 0.18,
+          lowStability: 0.92
+        },
+        mode: 'room-mic',
+        calibrated: true,
+        noiseFloor: 0.01,
+        adaptiveCeiling: 0.12,
+        rawPathGranted: true,
+        tuning: DEFAULT_RUNTIME_TUNING,
+        sourceHints: sourceHintFrame({
+          lowImpactCandidate: 0.72,
+          speechPresenceCandidate: 0.9
+        }, 0.82, ['speech-like', 'steady-low-hum-risk']),
+        sourceHintMode: 'active'
+      }).frame;
+    }
+
+    expect(frame.speechConfidence).toBeGreaterThan(0.2);
+    expect(frame.percussionEvidence).toBeLessThan(0.18);
+    expect(frame.dropImpact).toBeLessThan(0.1);
   });
 });

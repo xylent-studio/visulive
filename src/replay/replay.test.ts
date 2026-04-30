@@ -514,6 +514,54 @@ describe('replay workflow', () => {
         musicTrend: 0.44,
         silenceGate: 0.33,
         beatIntervalMs: 480,
+        spectrumFrame: {
+          schemaVersion: 1,
+          timestampMs: 1160,
+          sampleRate: 48000,
+          fftSize: 2048,
+          binWidth: 23.4375,
+          legacyLow: 0.42,
+          legacyMid: 0.18,
+          legacyHigh: 0.12,
+          coverageConfidence: 0.72,
+          bands: [
+            {
+              id: 'kick',
+              hzLow: 45,
+              hzHigh: 90,
+              energy: 0.68,
+              peak: 0.74,
+              flux: 0.32,
+              onset: 0.7,
+              sustain: 0.28,
+              noise: 0.1,
+              tonal: 0.22,
+              confidence: 0.71,
+              reliability: 0.52,
+              binCount: 2
+            }
+          ]
+        },
+        sourceHintFrame: {
+          schemaVersion: 1,
+          timestampMs: 1160,
+          sourceMode: 'system-audio',
+          runtimeMode: 'active',
+          confidence: 0.64,
+          topHintId: 'lowImpactCandidate',
+          reasonCodes: ['low-onset'],
+          suppressionCodes: [],
+          hints: [
+            {
+              id: 'lowImpactCandidate',
+              value: 0.82,
+              confidence: 0.78,
+              density: 0.44,
+              reasonCodes: ['low-onset'],
+              suppressionCodes: []
+            }
+          ]
+        },
         stateReason: 'Phrase tension is lifting.',
         showStateReason: 'Surge posture is active.',
         momentReason: 'Lift moment triggered.',
@@ -659,7 +707,44 @@ describe('replay workflow', () => {
     expect(parsed.frames[1]?.diagnostics.momentReason).toBe('Lift moment triggered.');
     expect(parsed.frames[1]?.diagnostics.beatIntervalMs).toBe(480);
     expect(parsed.frames[1]?.diagnostics.conductorReason).toBe('Drop tension is climbing.');
+    expect(parsed.frames[1]?.diagnostics.spectrumFrame?.bands[0]?.id).toBe('kick');
+    expect(parsed.frames[1]?.diagnostics.sourceHintFrame?.topHintId).toBe(
+      'lowImpactCandidate'
+    );
     expect(parsed.frames[1]?.listeningFrame.momentKind).toBe('lift');
+  });
+
+  it('keeps old replay captures valid without source hint diagnostics', () => {
+    const capture = buildReplayCapture(
+      [
+        cloneReplayCaptureFrame(
+          { ...DEFAULT_LISTENING_FRAME, timestampMs: 1000 },
+          { ...DEFAULT_ANALYSIS_FRAME, timestampMs: 1000 },
+          DEFAULT_AUDIO_DIAGNOSTICS,
+          DEFAULT_VISUAL_TELEMETRY
+        )
+      ],
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        backend: 'webgpu',
+        ready: true,
+        qualityTier: 'balanced',
+        devicePixelRatio: 1,
+        cappedPixelRatio: 1,
+        fps: 60,
+        frameTimeMs: 16.7,
+        warnings: [],
+        visualTelemetry: DEFAULT_VISUAL_TELEMETRY
+      },
+      DEFAULT_USER_CONTROL_STATE
+    );
+    delete capture.frames[0]!.diagnostics.spectrumFrame;
+    delete capture.frames[0]!.diagnostics.sourceHintFrame;
+
+    const parsed = parseReplayCapture(JSON.stringify(capture));
+
+    expect(parsed.frames[0]?.diagnostics.spectrumFrame).toBeUndefined();
+    expect(parsed.frames[0]?.diagnostics.sourceHintFrame).toBeUndefined();
   });
 
   it('suppresses the Advanced keyboard shortcut during live proof missions', () => {

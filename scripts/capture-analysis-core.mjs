@@ -66,6 +66,34 @@ const PLAYABLE_MOTIF_SCENE_DRIVERS = [
   'hold'
 ];
 
+const SPECTRUM_BAND_IDS = [
+  'sub',
+  'kick',
+  'punch',
+  'bass',
+  'lowMid',
+  'body',
+  'presence',
+  'snap',
+  'crack',
+  'sheen',
+  'air',
+  'fizz'
+];
+
+const SOURCE_HINT_IDS = [
+  'lowImpactCandidate',
+  'subSustain',
+  'bassBodySupport',
+  'percussiveSnap',
+  'airMotion',
+  'speechPresenceCandidate',
+  'highSweepCandidate',
+  'tonalLift',
+  'silenceAir',
+  'broadbandHit'
+];
+
 const SCENE_SILHOUETTE_FAMILIES = [
   'none',
   'vertical-vault',
@@ -633,6 +661,175 @@ function finalizeMetricTracker(tracker, count) {
     mean: count > 0 ? tracker.sum / count : 0,
     peak: Number.isFinite(tracker.peak) ? tracker.peak : 0
   };
+}
+
+function summarizeSourceHintEvidence(frames) {
+  const bandTrackers = Object.fromEntries(
+    SPECTRUM_BAND_IDS.map((id) => [id, buildMetricTracker()])
+  );
+  const bandCounts = Object.fromEntries(SPECTRUM_BAND_IDS.map((id) => [id, 0]));
+  const hintTrackers = Object.fromEntries(
+    SOURCE_HINT_IDS.map((id) => [id, buildMetricTracker()])
+  );
+  const hintCounts = Object.fromEntries(SOURCE_HINT_IDS.map((id) => [id, 0]));
+  const topHintCounts = new Map();
+  const reasonCounts = new Map();
+  const suppressionCounts = new Map();
+  const sourceModeCounts = new Map();
+  let spectrumFrameCount = 0;
+  let sourceHintFrameCount = 0;
+  let unsupportedMajorVisualSpend = 0;
+  let missedHighConfidenceSourceEvents = 0;
+  let falsePositiveSuppressionFrames = 0;
+
+  for (const frame of frames) {
+    const diagnostics = frame.diagnostics ?? {};
+    const listening = frame.listeningFrame ?? {};
+    const visual = frame.visualTelemetry ?? {};
+    const spectrumFrame = diagnostics.spectrumFrame;
+    const sourceHintFrame = diagnostics.sourceHintFrame;
+
+    if (spectrumFrame && Array.isArray(spectrumFrame.bands)) {
+      spectrumFrameCount += 1;
+      for (const band of spectrumFrame.bands) {
+        if (!SPECTRUM_BAND_IDS.includes(band?.id)) {
+          continue;
+        }
+        updateMetricTracker(bandTrackers[band.id], finiteNumber(band.energy));
+        bandCounts[band.id] += 1;
+      }
+    }
+
+    if (!sourceHintFrame || !Array.isArray(sourceHintFrame.hints)) {
+      continue;
+    }
+
+    sourceHintFrameCount += 1;
+    incrementCounter(sourceModeCounts, sourceHintFrame.sourceMode ?? 'unknown');
+    if (SOURCE_HINT_IDS.includes(sourceHintFrame.topHintId)) {
+      incrementCounter(topHintCounts, sourceHintFrame.topHintId);
+    }
+    for (const code of sourceHintFrame.reasonCodes ?? []) {
+      if (typeof code === 'string') {
+        incrementCounter(reasonCounts, code);
+      }
+    }
+    for (const code of sourceHintFrame.suppressionCodes ?? []) {
+      if (typeof code === 'string') {
+        incrementCounter(suppressionCounts, code);
+      }
+    }
+
+    let topSignal = 0;
+    let percussionSignal = 0;
+    let falsePositiveRisk = false;
+    for (const hint of sourceHintFrame.hints) {
+      if (!SOURCE_HINT_IDS.includes(hint?.id)) {
+        continue;
+      }
+      const signal = finiteNumber(hint.value) * finiteNumber(hint.confidence);
+      updateMetricTracker(hintTrackers[hint.id], signal);
+      hintCounts[hint.id] += 1;
+      topSignal = Math.max(topSignal, signal);
+      if (
+        hint.id === 'lowImpactCandidate' ||
+        hint.id === 'percussiveSnap' ||
+        hint.id === 'broadbandHit'
+      ) {
+        percussionSignal = Math.max(percussionSignal, signal);
+      }
+      falsePositiveRisk =
+        falsePositiveRisk ||
+        (hint.id === 'speechPresenceCandidate' && signal > 0.36) ||
+        (Array.isArray(hint.suppressionCodes) &&
+          hint.suppressionCodes.some((code) =>
+            ['speech-like', 'hiss-like', 'steady-low-hum-risk', 'hum-risk'].includes(code)
+          ));
+    }
+
+    const majorVisualSpend =
+      finiteNumber(listening.dropImpact) > 0.22 ||
+      finiteNumber(listening.sectionChange) > 0.24 ||
+      finiteNumber(visual.eventGlowBudget) > 0.22 ||
+      finiteNumber(visual.signatureMomentIntensity) > 0.38;
+    const conductorSupport =
+      Math.max(
+        finiteNumber(listening.peakConfidence),
+        finiteNumber(listening.beatConfidence),
+        finiteNumber(listening.transientConfidence),
+        finiteNumber(listening.musicConfidence)
+      );
+    if (majorVisualSpend && conductorSupport < 0.28 && topSignal < 0.34) {
+      unsupportedMajorVisualSpend += 1;
+    }
+    if (
+      topSignal > 0.46 &&
+      finiteNumber(listening.accent) < 0.12 &&
+      finiteNumber(listening.dropImpact) < 0.12 &&
+      finiteNumber(listening.sectionChange) < 0.12
+    ) {
+      missedHighConfidenceSourceEvents += 1;
+    }
+    if (falsePositiveRisk && percussionSignal > 0.28) {
+      falsePositiveSuppressionFrames += 1;
+    }
+  }
+
+  return {
+    recorded: sourceHintFrameCount > 0 || spectrumFrameCount > 0,
+    frameCount: frames.length,
+    spectrumFrameCount,
+    sourceHintFrameCount,
+    spectrumCoverageRate: frames.length > 0 ? spectrumFrameCount / frames.length : 0,
+    sourceHintCoverageRate: frames.length > 0 ? sourceHintFrameCount / frames.length : 0,
+    bandMeans: Object.fromEntries(
+      SPECTRUM_BAND_IDS.map((id) => [
+        id,
+        finalizeMetricTracker(bandTrackers[id], bandCounts[id]).mean
+      ])
+    ),
+    bandPeaks: Object.fromEntries(
+      SPECTRUM_BAND_IDS.map((id) => [
+        id,
+        finalizeMetricTracker(bandTrackers[id], bandCounts[id]).peak
+      ])
+    ),
+    hintMeans: Object.fromEntries(
+      SOURCE_HINT_IDS.map((id) => [
+        id,
+        finalizeMetricTracker(hintTrackers[id], hintCounts[id]).mean
+      ])
+    ),
+    hintPeaks: Object.fromEntries(
+      SOURCE_HINT_IDS.map((id) => [
+        id,
+        finalizeMetricTracker(hintTrackers[id], hintCounts[id]).peak
+      ])
+    ),
+    topHintSpread: mapToSpreadObject(topHintCounts, Math.max(1, sourceHintFrameCount)),
+    sourceModeSpread: mapToSpreadObject(sourceModeCounts, Math.max(1, sourceHintFrameCount)),
+    reasonCodeSpread: mapToSpreadObject(reasonCounts, Math.max(1, sourceHintFrameCount)),
+    suppressionCodeSpread: mapToSpreadObject(
+      suppressionCounts,
+      Math.max(1, sourceHintFrameCount)
+    ),
+    unsupportedMajorVisualSpend,
+    missedHighConfidenceSourceEvents,
+    falsePositiveSuppressionFrames
+  };
+}
+
+function mapToSpreadObject(map, total) {
+  return Object.fromEntries(
+    [...map.entries()].sort((left, right) => right[1] - left[1]).map(([key, count]) => [
+      key,
+      total > 0 ? count / total : 0
+    ])
+  );
+}
+
+function finiteNumber(value) {
+  return Number.isFinite(value) ? value : 0;
 }
 
 function summarizeLongestRun(frames, selector) {
@@ -1374,10 +1571,35 @@ function formatSpread(spread = {}) {
     : 'n/a';
 }
 
+function formatTopValues(values = {}, digits = 3, maxEntries = 5) {
+  const entries = Object.entries(values)
+    .filter((entry) => typeof entry[1] === 'number' && Number.isFinite(entry[1]) && entry[1] > 0)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, maxEntries);
+
+  return entries.length > 0
+    ? entries.map(([key, value]) => `${key}=${formatNumber(value, digits)}`).join(', ')
+    : 'n/a';
+}
+
 function formatNestedSpreadLines(nestedSpread = {}) {
   return Object.entries(nestedSpread)
     .filter((entry) => entry[1] && typeof entry[1] === 'object')
     .map(([outerKey, innerSpread]) => `- ${outerKey}: ${formatSpread(innerSpread)}`);
+}
+
+function addSpreadToMap(map, spread = {}) {
+  for (const [key, value] of Object.entries(spread)) {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      map.set(key, (map.get(key) ?? 0) + value);
+    }
+  }
+}
+
+function averageSpreadLinesFromMap(map, samples) {
+  return [...map.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([key, value]) => `- ${key}: ${formatPercent(samples > 0 ? value / samples : 0)}`);
 }
 
 function buildCoverageCategoryLines(label, occupancy, policy, batchCount) {
@@ -3107,6 +3329,7 @@ export function summarizeCapture(capture, filePath) {
       ])
     )
   });
+  const sourceHintSummary = summarizeSourceHintEvidence(frames);
   const eventTimingSummary = deriveEventTimingSummary({
     metadata,
     frames
@@ -3417,6 +3640,24 @@ export function summarizeCapture(capture, filePath) {
     findings.push(`Runtime warnings were present: ${Array.from(warnings).join(' | ')}`);
   }
 
+  if (sourceHintSummary.recorded) {
+    if (sourceHintSummary.unsupportedMajorVisualSpend > 0) {
+      findings.push(
+        `Source-hint audit found ${sourceHintSummary.unsupportedMajorVisualSpend} major visual-spend frame(s) without enough conductor or source-hint support.`
+      );
+    }
+    if (sourceHintSummary.missedHighConfidenceSourceEvents > 0) {
+      findings.push(
+        `Source-hint audit found ${sourceHintSummary.missedHighConfidenceSourceEvents} high-confidence source event frame(s) that stayed visually/conductor silent.`
+      );
+    }
+    if (sourceHintSummary.falsePositiveSuppressionFrames > 0) {
+      findings.push(
+        `Source-hint audit suppressed ${sourceHintSummary.falsePositiveSuppressionFrames} speech/hum/hiss-risk frame(s) from percussion authority.`
+      );
+    }
+  }
+
   if (
     typeof metadata.launchQuickStartProfileLabel === 'string' &&
     typeof metadata.controls?.preset === 'string'
@@ -3451,6 +3692,7 @@ export function summarizeCapture(capture, filePath) {
     peaks: metricPeaks,
       means: metricMeans,
       visualSummary,
+      sourceHintSummary,
       longestRuns,
       qualityFlags,
       eventTimingDisposition: eventTimingSummary.disposition,
@@ -3925,8 +4167,18 @@ function buildAggregateStats(summaries) {
   const playableMotifSceneTransitionReasonSpread = new Map();
   const eventTimingDispositionSpread = new Map();
   const qualityFlagCounts = new Map();
+  const sourceHintTopSpread = new Map();
+  const sourceHintReasonSpread = new Map();
+  const sourceHintSuppressionSpread = new Map();
+  const sourceHintSourceModeSpread = new Map();
   let customizedFromLaunchCount = 0;
   let launchedFromQuickStartCount = 0;
+  let sourceHintRecordedCount = 0;
+  let sourceHintSpectrumCoverageSum = 0;
+  let sourceHintCoverageSum = 0;
+  let sourceHintUnsupportedMajorVisualSpend = 0;
+  let sourceHintMissedHighConfidenceSourceEvents = 0;
+  let sourceHintFalsePositiveSuppressionFrames = 0;
   let exposureMeanSum = 0;
   let exposurePeakSum = 0;
   let bloomStrengthMeanSum = 0;
@@ -4076,6 +4328,24 @@ function buildAggregateStats(summaries) {
     );
     for (const flag of summary.qualityFlags ?? []) {
       incrementCounter(qualityFlagCounts, flag);
+    }
+    if (summary.sourceHintSummary?.recorded) {
+      sourceHintRecordedCount += 1;
+      sourceHintSpectrumCoverageSum += summary.sourceHintSummary.spectrumCoverageRate ?? 0;
+      sourceHintCoverageSum += summary.sourceHintSummary.sourceHintCoverageRate ?? 0;
+      sourceHintUnsupportedMajorVisualSpend +=
+        summary.sourceHintSummary.unsupportedMajorVisualSpend ?? 0;
+      sourceHintMissedHighConfidenceSourceEvents +=
+        summary.sourceHintSummary.missedHighConfidenceSourceEvents ?? 0;
+      sourceHintFalsePositiveSuppressionFrames +=
+        summary.sourceHintSummary.falsePositiveSuppressionFrames ?? 0;
+      addSpreadToMap(sourceHintTopSpread, summary.sourceHintSummary.topHintSpread);
+      addSpreadToMap(sourceHintReasonSpread, summary.sourceHintSummary.reasonCodeSpread);
+      addSpreadToMap(
+        sourceHintSuppressionSpread,
+        summary.sourceHintSummary.suppressionCodeSpread
+      );
+      addSpreadToMap(sourceHintSourceModeSpread, summary.sourceHintSummary.sourceModeSpread);
     }
     exposureMeanSum += summary.visualSummary?.exposureMean ?? 0;
     exposurePeakSum += summary.visualSummary?.exposurePeak ?? 0;
@@ -4588,6 +4858,32 @@ function buildAggregateStats(summaries) {
     ),
     oversizedWindowCount,
     multiEventWindowCount,
+    sourceHintRecordedCount,
+    averageSourceHintSpectrumCoverage:
+      sourceHintRecordedCount > 0
+        ? sourceHintSpectrumCoverageSum / sourceHintRecordedCount
+        : 0,
+    averageSourceHintCoverage:
+      sourceHintRecordedCount > 0 ? sourceHintCoverageSum / sourceHintRecordedCount : 0,
+    sourceHintUnsupportedMajorVisualSpend,
+    sourceHintMissedHighConfidenceSourceEvents,
+    sourceHintFalsePositiveSuppressionFrames,
+    sourceHintTopHintLines: averageSpreadLinesFromMap(
+      sourceHintTopSpread,
+      sourceHintRecordedCount
+    ),
+    sourceHintReasonLines: averageSpreadLinesFromMap(
+      sourceHintReasonSpread,
+      sourceHintRecordedCount
+    ),
+    sourceHintSuppressionLines: averageSpreadLinesFromMap(
+      sourceHintSuppressionSpread,
+      sourceHintRecordedCount
+    ),
+    sourceHintSourceModeLines: averageSpreadLinesFromMap(
+      sourceHintSourceModeSpread,
+      sourceHintRecordedCount
+    ),
     triggerLines,
     sourceLines,
     activeQuickStartLines,
@@ -4876,6 +5172,22 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Peak ambience confidence: ${formatNumber(peaks.ambienceConfidence)}`,
     `- Peak speech confidence: ${formatNumber(peaks.speechConfidence)}`,
     `- Beat interval mean / stdev: ${summary.beatInterval.sampleCount > 0 ? `${formatNumber(summary.beatInterval.mean, 1)}ms / ${formatNumber(summary.beatInterval.stdev, 1)}ms` : 'n/a'}`,
+    '',
+    '### Spectrum source hints',
+    ...(summary.sourceHintSummary?.recorded
+      ? [
+          `- Coverage spectrum / hints: ${formatPercent(summary.sourceHintSummary.spectrumCoverageRate)} / ${formatPercent(summary.sourceHintSummary.sourceHintCoverageRate)}`,
+          `- Source-mode split: ${formatSpread(summary.sourceHintSummary.sourceModeSpread)}`,
+          `- Band mean leaders: ${formatTopValues(summary.sourceHintSummary.bandMeans)}`,
+          `- Band peak leaders: ${formatTopValues(summary.sourceHintSummary.bandPeaks)}`,
+          `- Hint mean leaders: ${formatTopValues(summary.sourceHintSummary.hintMeans)}`,
+          `- Hint peak leaders: ${formatTopValues(summary.sourceHintSummary.hintPeaks)}`,
+          `- Top-hint spread: ${formatSpread(summary.sourceHintSummary.topHintSpread)}`,
+          `- Reason-code spread: ${formatSpread(summary.sourceHintSummary.reasonCodeSpread)}`,
+          `- Suppression-code spread: ${formatSpread(summary.sourceHintSummary.suppressionCodeSpread)}`,
+          `- Unsupported major visual spend / missed source events / false-positive suppressions: ${summary.sourceHintSummary.unsupportedMajorVisualSpend} / ${summary.sourceHintSummary.missedHighConfidenceSourceEvents} / ${summary.sourceHintSummary.falsePositiveSuppressionFrames}`
+        ]
+      : ['- Spectrum source hints: not recorded in this capture.']),
     '',
     '### Visual summary',
     `- Dominant quality tier: ${visual.dominantQualityTier}`,
@@ -5198,6 +5510,23 @@ export function buildAggregateSection(summaries, options = {}) {
     `- Average quality transitions per capture: ${formatNumber(aggregateStats.averageQualityTransitionCount)}`,
     `- Source provenance mismatches: ${aggregateStats.provenanceMismatchCount}`,
     `- Saved proof still files: ${aggregateStats.proofStillSavedCount}`,
+    '',
+    '### Source-hint evidence',
+    ...(aggregateStats.sourceHintRecordedCount > 0
+      ? [
+          `- Captures with source hints: ${aggregateStats.sourceHintRecordedCount}`,
+          `- Average spectrum / hint coverage: ${formatPercent(aggregateStats.averageSourceHintSpectrumCoverage)} / ${formatPercent(aggregateStats.averageSourceHintCoverage)}`,
+          `- Unsupported major visual spend / missed source events / false-positive suppressions: ${aggregateStats.sourceHintUnsupportedMajorVisualSpend} / ${aggregateStats.sourceHintMissedHighConfidenceSourceEvents} / ${aggregateStats.sourceHintFalsePositiveSuppressionFrames}`,
+          '- Source mode split:',
+          ...aggregateStats.sourceHintSourceModeLines,
+          '- Top hint spread:',
+          ...aggregateStats.sourceHintTopHintLines,
+          '- Reason-code spread:',
+          ...aggregateStats.sourceHintReasonLines,
+          '- Suppression-code spread:',
+          ...aggregateStats.sourceHintSuppressionLines
+        ]
+      : ['- Source-hint diagnostics were not recorded in this batch.']),
     '',
     '### Review gates',
     ...reviewGateLines,

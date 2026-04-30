@@ -34,6 +34,8 @@ describe('deriveStageAudioFeatures', () => {
     expect(features.impact.hit).toBeGreaterThan(0.5);
     expect(features.presence.music).toBeGreaterThan(0.65);
     expect(features.presence.sourceBias).toBe(1);
+    expect(features.impact.percussion).toBe(0);
+    expect(features.stability.sourceHintConfidence).toBe(0);
   });
 
   it('keeps aftermath frames spatial and restrained instead of over-accelerating them', () => {
@@ -62,5 +64,31 @@ describe('deriveStageAudioFeatures', () => {
     expect(features.presence.spatial).toBeGreaterThan(0.35);
     expect(features.stability.restraint).toBeGreaterThan(0.55);
     expect(features.impact.hit).toBeLessThan(0.25);
+  });
+
+  it('exposes source hints without turning hats or bass sustain into major hits', () => {
+    const features = deriveStageAudioFeatures({
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio',
+      confidence: 0.88,
+      sourceHintConfidence: 0.74,
+      percussionEvidence: 0.18,
+      bassSourceEvidence: 0.78,
+      airMotionEvidence: 0.84,
+      transientConfidence: 0.12,
+      accent: 0.08,
+      shimmer: 0.42,
+      air: 0.36,
+      musicConfidence: 0.42,
+      peakConfidence: 0.08,
+      dropImpact: 0,
+      sectionChange: 0
+    });
+
+    expect(features.stability.sourceHintConfidence).toBeGreaterThan(0.7);
+    expect(features.presence.bassSource).toBeGreaterThan(0.7);
+    expect(features.texture.airMotion).toBeGreaterThan(0.7);
+    expect(features.impact.percussion).toBeLessThan(0.25);
+    expect(features.impact.hit).toBeLessThan(0.15);
   });
 });

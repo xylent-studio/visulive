@@ -11,17 +11,20 @@ export type StageAudioFeatures = {
     build: number;
     hit: number;
     section: number;
+    percussion: number;
   };
   presence: {
     music: number;
     spatial: number;
     speech: number;
     sourceBias: number;
+    bassSource: number;
   };
   texture: {
     brightness: number;
     roughness: number;
     shimmer: number;
+    airMotion: number;
   };
   memory: {
     afterglow: number;
@@ -31,6 +34,7 @@ export type StageAudioFeatures = {
     tonal: number;
     confidence: number;
     restraint: number;
+    sourceHintConfidence: number;
   };
 };
 
@@ -43,18 +47,21 @@ export const DEFAULT_STAGE_AUDIO_FEATURES: StageAudioFeatures = {
   impact: {
     build: 0,
     hit: 0,
-    section: 0
+    section: 0,
+    percussion: 0
   },
   presence: {
     music: 0,
     spatial: 0,
     speech: 0,
-    sourceBias: 0
+    sourceBias: 0,
+    bassSource: 0
   },
   texture: {
     brightness: 0,
     roughness: 0,
-    shimmer: 0
+    shimmer: 0,
+    airMotion: 0
   },
   memory: {
     afterglow: 0,
@@ -63,7 +70,8 @@ export const DEFAULT_STAGE_AUDIO_FEATURES: StageAudioFeatures = {
   stability: {
     tonal: 0,
     confidence: 0,
-    restraint: 1
+    restraint: 1,
+    sourceHintConfidence: 0
   }
 };
 
@@ -98,6 +106,10 @@ export function deriveStageAudioFeatures(
     | 'harmonicColor'
     | 'accent'
     | 'transientConfidence'
+    | 'sourceHintConfidence'
+    | 'percussionEvidence'
+    | 'bassSourceEvidence'
+    | 'airMotionEvidence'
   >
 ): StageAudioFeatures {
   const sourceBias =
@@ -132,12 +144,16 @@ export function deriveStageAudioFeatures(
       frame.releaseTail * 0.16 +
       frame.peakConfidence * 0.12
   );
+  const impactPercussion = clamp01(
+    frame.percussionEvidence
+  );
 
   const musicPresence = clamp01(
     frame.musicConfidence * 0.48 +
       frame.body * 0.18 +
       frame.presence * 0.18 +
-      sourceBias * 0.16
+      sourceBias * 0.16 +
+      frame.bassSourceEvidence * 0.04
   );
   const spatialPresence = clamp01(
     frame.roomness * 0.28 +
@@ -160,6 +176,11 @@ export function deriveStageAudioFeatures(
   );
   const textureShimmer = clamp01(
     frame.shimmer * 0.66 + frame.air * 0.24 + frame.brightness * 0.1
+  );
+  const textureAirMotion = clamp01(
+    frame.airMotionEvidence * 0.78 +
+      frame.shimmer * 0.12 +
+      frame.air * 0.1
   );
 
   const memoryAfterglow = clamp01(
@@ -198,18 +219,21 @@ export function deriveStageAudioFeatures(
     impact: {
       build: impactBuild,
       hit: impactHit,
-      section: impactSection
+      section: impactSection,
+      percussion: impactPercussion
     },
     presence: {
       music: musicPresence,
       spatial: spatialPresence,
       speech: speechPresence,
-      sourceBias
+      sourceBias,
+      bassSource: clamp01(frame.bassSourceEvidence)
     },
     texture: {
       brightness: textureBrightness,
       roughness: textureRoughness,
-      shimmer: textureShimmer
+      shimmer: textureShimmer,
+      airMotion: textureAirMotion
     },
     memory: {
       afterglow: memoryAfterglow,
@@ -218,7 +242,8 @@ export function deriveStageAudioFeatures(
     stability: {
       tonal: frame.tonalStability,
       confidence: stabilityConfidence,
-      restraint: stabilityRestraint
+      restraint: stabilityRestraint,
+      sourceHintConfidence: clamp01(frame.sourceHintConfidence)
     }
   };
 }

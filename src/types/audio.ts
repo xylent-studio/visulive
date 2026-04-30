@@ -45,6 +45,84 @@ export type AnalysisFrame = {
   clipped: boolean;
 };
 
+export type SpectrumBandId =
+  | 'sub'
+  | 'kick'
+  | 'punch'
+  | 'bass'
+  | 'lowMid'
+  | 'body'
+  | 'presence'
+  | 'snap'
+  | 'crack'
+  | 'sheen'
+  | 'air'
+  | 'fizz';
+
+export type SpectrumBand = {
+  id: SpectrumBandId;
+  hzLow: number;
+  hzHigh: number;
+  energy: number;
+  peak: number;
+  flux: number;
+  onset: number;
+  sustain: number;
+  noise: number;
+  tonal: number;
+  confidence: number;
+  reliability: number;
+  binCount: number;
+};
+
+export type SpectrumFrame = {
+  schemaVersion: 1;
+  timestampMs: number;
+  sampleRate: number;
+  fftSize: number;
+  binWidth: number;
+  bands: SpectrumBand[];
+  legacyLow: number;
+  legacyMid: number;
+  legacyHigh: number;
+  coverageConfidence: number;
+};
+
+export type SourceHintId =
+  | 'lowImpactCandidate'
+  | 'subSustain'
+  | 'bassBodySupport'
+  | 'percussiveSnap'
+  | 'airMotion'
+  | 'speechPresenceCandidate'
+  | 'highSweepCandidate'
+  | 'tonalLift'
+  | 'silenceAir'
+  | 'broadbandHit';
+
+export type SourceHint = {
+  id: SourceHintId;
+  value: number;
+  confidence: number;
+  density: number;
+  reasonCodes: string[];
+  suppressionCodes: string[];
+};
+
+export type SourceHintFrame = {
+  schemaVersion: 1;
+  timestampMs: number;
+  sourceMode: ListeningMode;
+  runtimeMode: SourceHintRuntimeMode;
+  confidence: number;
+  hints: SourceHint[];
+  topHintId: SourceHintId | null;
+  reasonCodes: string[];
+  suppressionCodes: string[];
+};
+
+export type SourceHintRuntimeMode = 'diagnostic' | 'shadow' | 'active';
+
 export type ListeningFrame = {
   timestampMs: number;
   mode: ListeningMode;
@@ -83,6 +161,10 @@ export type ListeningFrame = {
   dropImpact: number;
   sectionChange: number;
   releaseTail: number;
+  sourceHintConfidence: number;
+  percussionEvidence: number;
+  bassSourceEvidence: number;
+  airMotionEvidence: number;
   state: ListeningState;
   showState: ShowState;
   momentKind: MomentKind;
@@ -170,6 +252,8 @@ export type SourceDiagnostics = {
   spectrumLow: number;
   spectrumMid: number;
   spectrumHigh: number;
+  spectrumFrame?: SpectrumFrame;
+  sourceHintFrame?: SourceHintFrame;
   humRejection: number;
   musicTrend: number;
   silenceGate: number;
@@ -281,6 +365,10 @@ export const DEFAULT_LISTENING_FRAME: ListeningFrame = {
   dropImpact: 0,
   sectionChange: 0,
   releaseTail: 0,
+  sourceHintConfidence: 0,
+  percussionEvidence: 0,
+  bassSourceEvidence: 0,
+  airMotionEvidence: 0,
   state: 'dormant',
   showState: 'void',
   momentKind: 'none',

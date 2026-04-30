@@ -1422,4 +1422,102 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('### Coverage debt and monopolies');
     expect(aggregate).toContain('Missing benchmark capture path');
   });
+
+  it('reports spectrum source hints in per-capture and aggregate evidence', () => {
+    const frame = createCaptureFrame({
+      timestampMs: 1000,
+      dropImpact: 0.04,
+      sectionChange: 0.02,
+      accent: 0.04,
+      peakConfidence: 0.12,
+      beatConfidence: 0.1,
+      musicConfidence: 0.18
+    });
+    frame.diagnostics.spectrumFrame = {
+      schemaVersion: 1,
+      timestampMs: 1000,
+      sampleRate: 48000,
+      fftSize: 2048,
+      binWidth: 23.4375,
+      legacyLow: 0.48,
+      legacyMid: 0.14,
+      legacyHigh: 0.08,
+      coverageConfidence: 0.7,
+      bands: [
+        {
+          id: 'kick',
+          hzLow: 45,
+          hzHigh: 90,
+          energy: 0.72,
+          peak: 0.8,
+          flux: 0.4,
+          onset: 0.82,
+          sustain: 0.22,
+          noise: 0.08,
+          tonal: 0.18,
+          confidence: 0.74,
+          reliability: 0.52,
+          binCount: 2
+        }
+      ]
+    };
+    frame.diagnostics.sourceHintFrame = {
+      schemaVersion: 1,
+      timestampMs: 1000,
+      sourceMode: 'system-audio',
+      runtimeMode: 'active',
+      confidence: 0.82,
+      topHintId: 'lowImpactCandidate',
+      reasonCodes: ['low-onset'],
+      suppressionCodes: ['speech-like'],
+      hints: [
+        {
+          id: 'lowImpactCandidate',
+          value: 0.9,
+          confidence: 0.86,
+          density: 0.5,
+          reasonCodes: ['low-onset'],
+          suppressionCodes: []
+        },
+        {
+          id: 'speechPresenceCandidate',
+          value: 0.66,
+          confidence: 0.7,
+          density: 0.44,
+          reasonCodes: ['mid-presence'],
+          suppressionCodes: ['speech-like']
+        }
+      ]
+    };
+    const capture = {
+      metadata: {
+        label: 'source-hint-test',
+        captureMode: 'auto',
+        triggerKind: 'drop',
+        triggerReason: 'source hint proof',
+        sourceLabel: 'PC Audio',
+        sourceMode: 'system-audio',
+        rendererBackend: 'webgpu',
+        qualityTier: 'balanced',
+        rawPathGranted: true,
+        controls: DEFAULT_USER_CONTROL_STATE
+      },
+      frames: [frame]
+    };
+
+    const summary = summarizeCapture(
+      capture,
+      'C:/dev/GitHub/visulive/captures/source-hint-test.json'
+    );
+    const section = buildCaptureSection(summary, 'C:/dev/GitHub/visulive');
+    const aggregate = buildAggregateSection([summary]);
+
+    expect(summary.sourceHintSummary?.recorded).toBe(true);
+    expect(summary.sourceHintSummary?.missedHighConfidenceSourceEvents).toBe(1);
+    expect(section).toContain('### Spectrum source hints');
+    expect(section).toContain('lowImpactCandidate');
+    expect(section).toContain('speech-like');
+    expect(aggregate).toContain('### Source-hint evidence');
+    expect(aggregate).toContain('Captures with source hints: 1');
+  });
 });

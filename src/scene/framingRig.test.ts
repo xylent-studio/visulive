@@ -75,7 +75,8 @@ describe('FramingRig composition planning', () => {
           impact: {
             build: 0.76,
             hit: 0.84,
-            section: 0.52
+            section: 0.52,
+            percussion: 0
           }
         },
         temporalWindows: {
@@ -132,7 +133,8 @@ describe('FramingRig composition planning', () => {
           impact: {
             build: 0.32,
             hit: 0.14,
-            section: 0.18
+            section: 0.18,
+            percussion: 0
           },
           memory: {
             afterglow: 0.82,
@@ -244,7 +246,8 @@ describe('FramingRig composition planning', () => {
           impact: {
             build: 0.72,
             hit: 0.66,
-            section: 0.52
+            section: 0.52,
+            percussion: 0
           }
         },
         temporalWindows: {
@@ -295,7 +298,8 @@ describe('FramingRig composition planning', () => {
           impact: {
             build: 0.42,
             hit: 0.18,
-            section: 0.16
+            section: 0.16,
+            percussion: 0
           }
         }
       }),
@@ -456,7 +460,8 @@ describe('FramingRig composition planning', () => {
           impact: {
             build: 0.34,
             hit: 0.22,
-            section: 0.18
+            section: 0.18,
+            percussion: 0
           }
         },
         temporalWindows: {

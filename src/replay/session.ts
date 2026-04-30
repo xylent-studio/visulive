@@ -1,4 +1,13 @@
-import type { AudioDiagnostics, AnalysisFrame, ListeningFrame } from '../types/audio';
+import type {
+  AudioDiagnostics,
+  AnalysisFrame,
+  ListeningFrame,
+  SourceHintFrame,
+  SourceHintId,
+  SpectrumBandId,
+  SpectrumFrame
+} from '../types/audio';
+import { clamp01 } from '../audio/audioMath';
 import type { BuildInfo } from '../buildInfo';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import { sanitizeUserControlState, type UserControlState } from '../types/tuning';
@@ -184,6 +193,34 @@ export function cloneAnalysisFrame(frame: AnalysisFrame): AnalysisFrame {
   return { ...frame };
 }
 
+function cloneSpectrumFrame(frame: SpectrumFrame | undefined): SpectrumFrame | undefined {
+  if (!frame) {
+    return undefined;
+  }
+
+  return {
+    ...frame,
+    bands: frame.bands.map((band) => ({ ...band }))
+  };
+}
+
+function cloneSourceHintFrame(frame: SourceHintFrame | undefined): SourceHintFrame | undefined {
+  if (!frame) {
+    return undefined;
+  }
+
+  return {
+    ...frame,
+    hints: frame.hints.map((hint) => ({
+      ...hint,
+      reasonCodes: [...hint.reasonCodes],
+      suppressionCodes: [...hint.suppressionCodes]
+    })),
+    reasonCodes: [...frame.reasonCodes],
+    suppressionCodes: [...frame.suppressionCodes]
+  };
+}
+
 export function cloneReplayCaptureFrame(
   listeningFrame: ListeningFrame,
   analysisFrame: AnalysisFrame,
@@ -216,6 +253,8 @@ export function cloneReplayCaptureFrame(
       showStateReason: audio.showStateReason,
       momentReason: audio.momentReason,
       conductorReason: audio.conductorReason,
+      spectrumFrame: cloneSpectrumFrame(audio.spectrumFrame),
+      sourceHintFrame: cloneSourceHintFrame(audio.sourceHintFrame),
       warnings: [...audio.warnings]
     },
     visualTelemetry: cloneVisualTelemetryFrame(visualTelemetry)
@@ -1168,6 +1207,8 @@ export function buildReplayCapture(
       analysisFrame: cloneAnalysisFrame(frame.analysisFrame),
       diagnostics: {
         ...frame.diagnostics,
+        spectrumFrame: cloneSpectrumFrame(frame.diagnostics.spectrumFrame),
+        sourceHintFrame: cloneSourceHintFrame(frame.diagnostics.sourceHintFrame),
         warnings: [...frame.diagnostics.warnings]
       },
       visualTelemetry: cloneVisualTelemetryFrame(
@@ -4292,12 +4333,179 @@ function normalizeReplayFrameDiagnostics(
       typeof diagnostics?.conductorReason === 'string'
         ? diagnostics.conductorReason
         : 'Replay frame diagnostics unavailable.',
+    spectrumFrame: normalizeReplaySpectrumFrame(diagnostics?.spectrumFrame),
+    sourceHintFrame: normalizeReplaySourceHintFrame(diagnostics?.sourceHintFrame),
     warnings: Array.isArray(diagnostics?.warnings)
       ? diagnostics.warnings.filter(
           (warning): warning is string => typeof warning === 'string'
         )
       : []
   };
+}
+
+const REPLAY_SPECTRUM_BAND_IDS: SpectrumBandId[] = [
+  'sub',
+  'kick',
+  'punch',
+  'bass',
+  'lowMid',
+  'body',
+  'presence',
+  'snap',
+  'crack',
+  'sheen',
+  'air',
+  'fizz'
+];
+
+const REPLAY_SOURCE_HINT_IDS: SourceHintId[] = [
+  'lowImpactCandidate',
+  'subSustain',
+  'bassBodySupport',
+  'percussiveSnap',
+  'airMotion',
+  'speechPresenceCandidate',
+  'highSweepCandidate',
+  'tonalLift',
+  'silenceAir',
+  'broadbandHit'
+];
+
+function normalizeReplaySpectrumFrame(value: unknown): SpectrumFrame | undefined {
+  if (typeof value !== 'object' || value === null) {
+    return undefined;
+  }
+
+  const frame = value as Partial<SpectrumFrame>;
+  if (!Array.isArray(frame.bands)) {
+    return undefined;
+  }
+
+  const bands = frame.bands
+    .map((band) => {
+      if (typeof band !== 'object' || band === null) {
+        return null;
+      }
+
+      const candidate = band as SpectrumFrame['bands'][number];
+      if (!REPLAY_SPECTRUM_BAND_IDS.includes(candidate.id)) {
+        return null;
+      }
+
+      return {
+        id: candidate.id,
+        hzLow: numberOrZero(candidate.hzLow),
+        hzHigh: numberOrZero(candidate.hzHigh),
+        energy: clamp01(numberOrZero(candidate.energy)),
+        peak: clamp01(numberOrZero(candidate.peak)),
+        flux: clamp01(numberOrZero(candidate.flux)),
+        onset: clamp01(numberOrZero(candidate.onset)),
+        sustain: clamp01(numberOrZero(candidate.sustain)),
+        noise: clamp01(numberOrZero(candidate.noise)),
+        tonal: clamp01(numberOrZero(candidate.tonal)),
+        confidence: clamp01(numberOrZero(candidate.confidence)),
+        reliability: clamp01(numberOrZero(candidate.reliability)),
+        binCount: Math.max(0, Math.floor(numberOrZero(candidate.binCount)))
+      };
+    })
+    .filter((band): band is SpectrumFrame['bands'][number] => band !== null);
+
+  if (bands.length === 0) {
+    return undefined;
+  }
+
+  return {
+    schemaVersion: 1,
+    timestampMs: numberOrZero(frame.timestampMs),
+    sampleRate: numberOrDefault(frame.sampleRate, 48000),
+    fftSize: numberOrDefault(frame.fftSize, 2048),
+    binWidth: numberOrDefault(frame.binWidth, 0),
+    bands,
+    legacyLow: clamp01(numberOrZero(frame.legacyLow)),
+    legacyMid: clamp01(numberOrZero(frame.legacyMid)),
+    legacyHigh: clamp01(numberOrZero(frame.legacyHigh)),
+    coverageConfidence: clamp01(numberOrZero(frame.coverageConfidence))
+  };
+}
+
+function normalizeReplaySourceHintFrame(value: unknown): SourceHintFrame | undefined {
+  if (typeof value !== 'object' || value === null) {
+    return undefined;
+  }
+
+  const frame = value as Partial<SourceHintFrame>;
+  if (!Array.isArray(frame.hints)) {
+    return undefined;
+  }
+
+  const hints = frame.hints
+    .map((hint) => {
+      if (typeof hint !== 'object' || hint === null) {
+        return null;
+      }
+
+      const candidate = hint as SourceHintFrame['hints'][number];
+      if (!REPLAY_SOURCE_HINT_IDS.includes(candidate.id)) {
+        return null;
+      }
+
+      return {
+        id: candidate.id,
+        value: clamp01(numberOrZero(candidate.value)),
+        confidence: clamp01(numberOrZero(candidate.confidence)),
+        density: clamp01(numberOrZero(candidate.density)),
+        reasonCodes: stringArray(candidate.reasonCodes),
+        suppressionCodes: stringArray(candidate.suppressionCodes)
+      };
+    })
+    .filter((hint): hint is SourceHintFrame['hints'][number] => hint !== null);
+
+  if (hints.length === 0) {
+    return undefined;
+  }
+
+  const sourceMode =
+    frame.sourceMode === 'system-audio' ||
+    frame.sourceMode === 'room-mic' ||
+    frame.sourceMode === 'hybrid'
+      ? frame.sourceMode
+      : 'room-mic';
+  const runtimeMode =
+    frame.runtimeMode === 'diagnostic' ||
+    frame.runtimeMode === 'shadow' ||
+    frame.runtimeMode === 'active'
+      ? frame.runtimeMode
+      : 'diagnostic';
+  const topHintId =
+    frame.topHintId && REPLAY_SOURCE_HINT_IDS.includes(frame.topHintId)
+      ? frame.topHintId
+      : null;
+
+  return {
+    schemaVersion: 1,
+    timestampMs: numberOrZero(frame.timestampMs),
+    sourceMode,
+    runtimeMode,
+    confidence: clamp01(numberOrZero(frame.confidence)),
+    hints,
+    topHintId,
+    reasonCodes: stringArray(frame.reasonCodes),
+    suppressionCodes: stringArray(frame.suppressionCodes)
+  };
+}
+
+function numberOrZero(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+}
+
+function numberOrDefault(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === 'string')
+    : [];
 }
 
 function normalizeVisualTelemetryFrame(value: unknown): VisualTelemetryFrame {

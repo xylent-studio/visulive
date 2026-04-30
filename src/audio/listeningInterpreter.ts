@@ -7,6 +7,9 @@ import {
   type ListeningState,
   type MomentKind,
   type PerformanceIntent,
+  type SourceHintFrame,
+  type SourceHintId,
+  type SourceHintRuntimeMode,
   type ShowState
 } from '../types/audio';
 import type { RuntimeTuning } from '../types/tuning';
@@ -19,6 +22,8 @@ export type InterpreterUpdateInput = {
   adaptiveCeiling: number;
   rawPathGranted: boolean;
   tuning: RuntimeTuning;
+  sourceHints?: SourceHintFrame;
+  sourceHintMode?: SourceHintRuntimeMode;
 };
 
 export type ListeningInterpreterDiagnostics = {
@@ -42,6 +47,15 @@ type MomentState = {
   reason: string;
 };
 
+type SourceHintEvidence = {
+  confidence: number;
+  percussion: number;
+  bassSource: number;
+  airMotion: number;
+  highSweep: number;
+  silenceAir: number;
+};
+
 function damp(
   current: number,
   target: number,
@@ -51,6 +65,12 @@ function damp(
   const mix = 1 - Math.exp(-rate * deltaSeconds);
 
   return current + (target - current) * mix;
+}
+
+function hintSignal(frame: SourceHintFrame, id: SourceHintId): number {
+  const hint = frame.hints.find((candidate) => candidate.id === id);
+
+  return hint ? clamp01(hint.value * hint.confidence) : 0;
 }
 
 export class ListeningInterpreter {
@@ -137,7 +157,9 @@ export class ListeningInterpreter {
     noiseFloor,
     adaptiveCeiling,
     rawPathGranted,
-    tuning
+    tuning,
+    sourceHints,
+    sourceHintMode
   }: InterpreterUpdateInput): {
     frame: ListeningFrame;
     diagnostics: ListeningInterpreterDiagnostics;
@@ -268,6 +290,14 @@ export class ListeningInterpreter {
       4.8,
       deltaSeconds
     );
+    const sourceHintEvidence = this.resolveSourceHintEvidence({
+      frame: sourceHints,
+      mode,
+      runtimeMode: sourceHintMode,
+      humRejection,
+      speechConfidence,
+      clipped: analysis.clipped
+    });
 
     const ambienceConfidenceTarget = clamp01(
       silenceGate * 0.46 +
@@ -294,7 +324,11 @@ export class ListeningInterpreter {
     );
 
     const subPressureTarget = clamp01(
-      low * 0.74 + slow * 0.16 + lowFlux * 0.1 - humRejection * 0.22
+      low * 0.74 +
+        slow * 0.16 +
+        lowFlux * 0.1 +
+        sourceHintEvidence.bassSource * 0.08 -
+        humRejection * 0.22
     );
     const subPressure = damp(
       this.frame.subPressure,
@@ -304,7 +338,12 @@ export class ListeningInterpreter {
     );
 
     const bassBodyTarget = clamp01(
-      low * 0.5 + slow * 0.22 + lowFlux * 0.08 + modulation * 0.06 - humRejection * 0.2
+      low * 0.5 +
+        slow * 0.22 +
+        lowFlux * 0.08 +
+        modulation * 0.06 +
+        sourceHintEvidence.bassSource * 0.1 -
+        humRejection * 0.2
     );
     const bassBody = damp(
       this.frame.bassBody,
@@ -324,7 +363,11 @@ export class ListeningInterpreter {
     );
 
     const shimmerTarget = clamp01(
-      high * 0.4 + brightness * 0.32 + highFlux * 0.2 + midFlux * 0.08
+      high * 0.4 +
+        brightness * 0.32 +
+        highFlux * 0.2 +
+        midFlux * 0.08 +
+        sourceHintEvidence.airMotion * 0.08
     );
     const shimmer = damp(this.frame.shimmer, shimmerTarget, 4.6, deltaSeconds);
 
@@ -413,7 +456,11 @@ export class ListeningInterpreter {
     );
 
     const transientConfidenceTarget = clamp01(
-      transientBase * 0.74 + highFlux * 0.12 + crest * 0.12 + peak * 0.08
+      transientBase * 0.74 +
+        highFlux * 0.12 +
+        crest * 0.12 +
+        peak * 0.08 +
+        sourceHintEvidence.percussion * 0.08
     );
     const transientConfidence = damp(
       this.frame.transientConfidence,
@@ -427,7 +474,8 @@ export class ListeningInterpreter {
         bassBody * 0.26 +
         lowMidBody * 0.22 +
         musicTrend * 0.28 +
-        tonalStability * 0.08) *
+        tonalStability * 0.08 +
+        sourceHintEvidence.bassSource * 0.04) *
         (0.92 + tuning.energy * 0.2 + tuning.spectacle * 0.08) -
         humRejection * 0.12
     );
@@ -439,13 +487,20 @@ export class ListeningInterpreter {
     );
 
     const airTarget = clamp01(
-      (shimmer * 0.54 + high * 0.12 + brightness * 0.18 + modulation * 0.08) *
+      (shimmer * 0.54 +
+        high * 0.12 +
+        brightness * 0.18 +
+        modulation * 0.08 +
+        sourceHintEvidence.airMotion * 0.08) *
         (0.84 + tuning.atmosphere * 0.16 + tuning.radiance * 0.1)
     );
     const air = damp(this.frame.air, airTarget, 4.8, deltaSeconds);
 
     const accentTarget = clamp01(
-      transientConfidence * (0.76 + tuning.beatDrive * 0.08) * beatScale * tuning.accentStrength -
+      (transientConfidence * (0.76 + tuning.beatDrive * 0.08) +
+        sourceHintEvidence.percussion * 0.07) *
+        beatScale *
+        tuning.accentStrength -
         humRejection * 0.42 -
         speech * 0.16
     );
@@ -493,7 +548,8 @@ export class ListeningInterpreter {
         momentum * 0.2 +
         roughness * 0.08 +
         accent * 0.08 +
-        tonalStability * 0.1
+        tonalStability * 0.1 +
+        sourceHintEvidence.highSweep * 0.07
     );
     const phraseTension = damp(
       this.frame.phraseTension,
@@ -587,6 +643,7 @@ export class ListeningInterpreter {
         Math.max(0, previousTransientConfidence - transientConfidence) * 0.24 +
         Math.max(0, previousPeakConfidence - peakConfidence) * 0.16 +
         Math.max(0, previousPhraseTension - phraseTension) * 0.18 +
+        sourceHintEvidence.silenceAir * 0.08 +
         previousReleaseTail * 0.3 +
         previousSectionChange * 0.12
     );
@@ -695,6 +752,10 @@ export class ListeningInterpreter {
       humRejection,
       speech,
       releaseEvidence,
+      sourcePercussionEvidence: sourceHintEvidence.percussion,
+      sourceBassEvidence: sourceHintEvidence.bassSource,
+      sourceHighSweepEvidence: sourceHintEvidence.highSweep,
+      sourceSilenceAirEvidence: sourceHintEvidence.silenceAir,
       aftermathDwellMs: this.aftermathDwellMs,
       hauntDwellMs: this.hauntDwellMs,
       roomMusicFloorActive,
@@ -766,6 +827,10 @@ export class ListeningInterpreter {
       dropImpact: conductor.dropImpact,
       sectionChange: conductor.sectionChange,
       releaseTail: conductor.releaseTail,
+      sourceHintConfidence: sourceHintEvidence.confidence,
+      percussionEvidence: sourceHintEvidence.percussion,
+      bassSourceEvidence: sourceHintEvidence.bassSource,
+      airMotionEvidence: sourceHintEvidence.airMotion,
       state,
       showState,
       momentKind: moment.kind,
@@ -791,6 +856,93 @@ export class ListeningInterpreter {
     return {
       frame: this.frame,
       diagnostics: this.diagnostics
+    };
+  }
+
+  private resolveSourceHintEvidence(input: {
+    frame?: SourceHintFrame;
+    mode: ListeningMode;
+    runtimeMode?: SourceHintRuntimeMode;
+    humRejection: number;
+    speechConfidence: number;
+    clipped: boolean;
+  }): SourceHintEvidence {
+    if (!input.frame || input.runtimeMode !== 'active') {
+      return {
+        confidence: 0,
+        percussion: 0,
+        bassSource: 0,
+        airMotion: 0,
+        highSweep: 0,
+        silenceAir: 0
+      };
+    }
+
+    const modeCap =
+      input.mode === 'system-audio' ? 1 : input.mode === 'hybrid' ? 0.56 : 0.38;
+    const sourceConfidence = input.frame.confidence * modeCap;
+    const speechPresence = hintSignal(input.frame, 'speechPresenceCandidate');
+    const suppressionCodes = new Set(input.frame.suppressionCodes);
+    const noiseSuppression = clamp01(
+      (suppressionCodes.has('hiss-like') ? 0.28 : 0) +
+        (suppressionCodes.has('dense-noise') ? 0.22 : 0) +
+        (input.clipped || suppressionCodes.has('clip-risk') ? 0.3 : 0)
+    );
+    const percussionSuppression = clamp01(
+      input.humRejection * 0.28 +
+        input.speechConfidence * 0.22 +
+        speechPresence * 0.32 +
+        noiseSuppression
+    );
+    const bassSuppression = clamp01(
+      input.humRejection * 0.34 +
+        (suppressionCodes.has('hum-risk') || suppressionCodes.has('steady-low-hum-risk') ? 0.28 : 0) +
+        (input.mode === 'room-mic' ? 0.18 : 0)
+    );
+    const airSuppression = clamp01(
+      noiseSuppression * 0.72 +
+        (suppressionCodes.has('hiss-like') ? 0.26 : 0) +
+        input.speechConfidence * 0.1
+    );
+
+    const percussion = clamp01(
+      Math.max(
+        hintSignal(input.frame, 'lowImpactCandidate'),
+        hintSignal(input.frame, 'percussiveSnap') * 0.86,
+        hintSignal(input.frame, 'broadbandHit') * 0.72
+      ) *
+        modeCap *
+        (1 - percussionSuppression)
+    );
+    const bassSource = clamp01(
+      Math.max(
+        hintSignal(input.frame, 'bassBodySupport') * 0.9,
+        hintSignal(input.frame, 'subSustain') * 0.72
+      ) *
+        modeCap *
+        (1 - bassSuppression)
+    );
+    const airMotion = clamp01(
+      hintSignal(input.frame, 'airMotion') * modeCap * (1 - airSuppression)
+    );
+    const highSweep = clamp01(
+      hintSignal(input.frame, 'highSweepCandidate') *
+        modeCap *
+        (1 - airSuppression * 0.74)
+    );
+    const silenceAir = clamp01(
+      hintSignal(input.frame, 'silenceAir') *
+        modeCap *
+        (1 - Math.max(noiseSuppression * 0.48, speechPresence * 0.22))
+    );
+
+    return {
+      confidence: clamp01(sourceConfidence),
+      percussion,
+      bassSource,
+      airMotion,
+      highSweep,
+      silenceAir
     };
   }
 
@@ -837,6 +989,10 @@ export class ListeningInterpreter {
     humRejection: number;
     speech: number;
     releaseEvidence: number;
+    sourcePercussionEvidence: number;
+    sourceBassEvidence: number;
+    sourceHighSweepEvidence: number;
+    sourceSilenceAirEvidence: number;
     aftermathDwellMs: number;
     hauntDwellMs: number;
   }): {
@@ -859,7 +1015,9 @@ export class ListeningInterpreter {
         input.transientConfidence * 0.2 +
         input.lowFlux * 0.14 +
         Math.max(0, input.fast - input.slow) * 0.1 +
-        input.peak * 0.08 -
+        input.peak * 0.08 +
+        input.sourcePercussionEvidence * 0.02 +
+        input.sourceBassEvidence * 0.04 -
         input.humRejection * (0.18 - input.sourceAggression * 0.06) -
         input.speech * (0.08 - input.sourceAggression * 0.03) +
         input.sourceAggression * 0.04
@@ -870,7 +1028,9 @@ export class ListeningInterpreter {
       input.musicConfidence > 0.2 &&
       beatCandidate > 0.32 - input.sourceAggression * 0.06 &&
       sinceBeat > 180 &&
-      (input.transientConfidence > 0.24 || input.subPressure > 0.18);
+      (input.transientConfidence > 0.24 ||
+        input.subPressure > 0.18 ||
+        input.sourcePercussionEvidence > 0.34);
 
     let beatTriggered = false;
     if (canTriggerBeat) {
@@ -927,7 +1087,9 @@ export class ListeningInterpreter {
         input.musicConfidence * 0.22 +
         input.bassBody * 0.1 +
         input.subPressure * 0.08 +
-        input.transientConfidence * 0.06
+        input.transientConfidence * 0.06 +
+        input.sourcePercussionEvidence * 0.04 +
+        input.sourceBassEvidence * 0.03
     );
 
     const phraseBoundaryApproach = clamp01((phrasePhase - 0.66) / 0.26);
@@ -939,6 +1101,7 @@ export class ListeningInterpreter {
         phraseBoundaryApproach * 0.18 +
         phraseBoundary * 0.14 +
         input.subPressure * 0.08 +
+        input.sourceHighSweepEvidence * 0.08 +
         input.sourceAggression * 0.04
     );
     const preDropTension = damp(
@@ -1017,7 +1180,8 @@ export class ListeningInterpreter {
               input.musicConfidence * 0.18 +
               input.phraseTension * 0.12 +
               sectionChange * 0.18 +
-              input.releaseEvidence * 0.18
+              input.releaseEvidence * 0.18 +
+              input.sourceSilenceAirEvidence * 0.08
           )
         : input.showState === 'aftermath'
           ? clamp01(
@@ -1025,7 +1189,8 @@ export class ListeningInterpreter {
                 sectionChange * 0.18 +
                 phraseBoundary * 0.12 +
                 barBoundary * 0.06 +
-                input.releaseEvidence * 0.22
+                input.releaseEvidence * 0.22 +
+                input.sourceSilenceAirEvidence * 0.1
             )
           : 0;
     const releaseTail = damp(

@@ -1,4 +1,9 @@
-import type { AnalysisFrame, ListeningFrame } from '../types/audio';
+import type {
+  AnalysisFrame,
+  ListeningFrame,
+  SourceHintFrame,
+  SpectrumFrame
+} from '../types/audio';
 import type { UserControlState } from '../types/tuning';
 import type { ListeningMode } from '../types/audio';
 import type { BuildInfo } from '../buildInfo';
@@ -316,6 +321,10 @@ export type ReplayTuningRecommendation = {
   };
 };
 
+export type ReplaySpectrumFrame = SpectrumFrame;
+
+export type ReplaySourceHintFrame = SourceHintFrame;
+
 export type ReplayFrameDiagnostics = {
   humRejection: number;
   musicTrend: number;
@@ -338,6 +347,8 @@ export type ReplayFrameDiagnostics = {
   showStateReason: string;
   momentReason: string;
   conductorReason: string;
+  spectrumFrame?: ReplaySpectrumFrame;
+  sourceHintFrame?: ReplaySourceHintFrame;
   warnings: string[];
 };
 

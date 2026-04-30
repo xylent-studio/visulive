@@ -225,6 +225,12 @@ export function DiagnosticsOverlay({
           : `${formatReplayDuration(noTouchElapsedMs)} / ${formatReplayDuration(
               noTouchProofWindowMs
             )}`;
+  const topSourceHints = [...(audio.sourceHintFrame?.hints ?? [])]
+    .sort((left, right) => right.value * right.confidence - left.value * left.confidence)
+    .slice(0, 4);
+  const topSpectrumBands = [...(audio.spectrumFrame?.bands ?? [])]
+    .sort((left, right) => right.energy - left.energy)
+    .slice(0, 5);
 
   return (
     <aside className="diagnostics-overlay">
@@ -729,6 +735,59 @@ export function DiagnosticsOverlay({
               {formatNumber(audio.spectrumHigh)}
             </strong>
           </div>
+        </div>
+      </div>
+
+      <div className="diagnostics-section">
+        <div className="diagnostics-section-title">Spectrum source hints</div>
+        <div className="diagnostics-grid diagnostics-grid--dense">
+          <div>
+            <span>hint mode</span>
+            <strong>{audio.sourceHintFrame?.runtimeMode ?? 'not recorded'}</strong>
+          </div>
+          <div>
+            <span>hint confidence</span>
+            <strong>{formatNumber(audio.sourceHintFrame?.confidence ?? 0)}</strong>
+          </div>
+          <div>
+            <span>top hint</span>
+            <strong>{audio.sourceHintFrame?.topHintId ?? 'none'}</strong>
+          </div>
+          <div>
+            <span>source support</span>
+            <strong>
+              {formatNumber(frame.sourceHintConfidence)} / {formatNumber(frame.percussionEvidence)}
+            </strong>
+          </div>
+          <div>
+            <span>bass / air</span>
+            <strong>
+              {formatNumber(frame.bassSourceEvidence)} / {formatNumber(frame.airMotionEvidence)}
+            </strong>
+          </div>
+          <div>
+            <span>band coverage</span>
+            <strong>{formatNumber(audio.spectrumFrame?.coverageConfidence ?? 0)}</strong>
+          </div>
+        </div>
+        <div className="diagnostics-code">
+          bands:{' '}
+          {topSpectrumBands.length > 0
+            ? topSpectrumBands
+                .map((band) => `${band.id}:${formatNumber(band.energy)}/${formatNumber(band.onset)}`)
+                .join(' ')
+            : 'not recorded'}
+        </div>
+        <div className="diagnostics-code">
+          hints:{' '}
+          {topSourceHints.length > 0
+            ? topSourceHints
+                .map((hint) => `${hint.id}:${formatNumber(hint.value * hint.confidence)}`)
+                .join(' ')
+            : 'not recorded'}
+        </div>
+        <div className="diagnostics-code">
+          suppress: {audio.sourceHintFrame?.suppressionCodes.join(', ') || 'none'}
         </div>
       </div>
 

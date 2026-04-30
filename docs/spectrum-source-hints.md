@@ -1,7 +1,7 @@
 # Spectrum Source Hints
 
 Date: 2026-04-30
-Status: Implementation planning reference only. No source implementation has been made from this document.
+Status: Implementation reference plus runtime addendum. Source implementation now exists.
 Owner lane: Audio Conductor / Phrase Intelligence
 Consumer lanes: Show Direction / Acts / Palette / Cue Logic, Evidence / Capture / Analyzer, Operator UX / Diagnostics
 
@@ -574,3 +574,45 @@ Do this first when implementation is authorized:
 Do not start by adding dependencies.
 Do not start by changing `showDirection.ts`.
 Do not start by making visuals react to new hints.
+
+## Implementation Addendum
+
+Implemented runtime files:
+
+- `src/audio/spectrumBands.ts`
+- `src/audio/sourceHintInterpreter.ts`
+- `src/audio/AudioEngine.ts`
+- `src/audio/listeningInterpreter.ts`
+- `src/audio/stageAudioFeatures.ts`
+- `src/replay/session.ts`
+- `scripts/capture-analysis-core.mjs`
+- `scripts/source-hint-lab.mjs`
+
+Current behavior:
+
+- Production runtime remains native Web Audio.
+- `AnalysisFrame` stays worklet-owned and broad.
+- `SpectrumFrame` and `SourceHintFrame` are optional diagnostics.
+- Old captures remain valid when hint diagnostics are absent.
+- Public UI remains unchanged.
+- Advanced Diagnostics shows compact bands and top source hints.
+- Analyzer reports now include per-capture `Spectrum source hints` and aggregate `Source-hint evidence`.
+
+Current runtime mode:
+
+- `AudioEngine` computes source hints in active mode.
+- `ListeningInterpreter` only applies bounded conductor-owned refinements in active mode.
+- Shadow mode leaves `ListeningFrame` source-hint fields at zero.
+
+Boundary guard:
+
+- `src/scene/sourceHintGuard.test.ts` protects visual systems from importing raw spectrum or source-hint contracts.
+
+Lab path:
+
+- `npm run source-hint:lab -- <capture-or-folder>` summarizes recorded hint diagnostics without adding production dependencies.
+
+Proof status:
+
+- Unit, replay, analyzer, guard, build, proof audit, legacy audit, and anthology validation passed in implementation.
+- A real no-touch proof run is still required before graduating active behavior as release-ready.

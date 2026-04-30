@@ -5,6 +5,13 @@ import {
   updateAdaptiveNoiseFloor
 } from './audioMath';
 import { ListeningInterpreter } from './listeningInterpreter';
+import { SourceHintInterpreter } from './sourceHintInterpreter';
+import {
+  createSilentSpectrumFrame,
+  deriveSpectrumBaseline,
+  deriveSpectrumFrame,
+  type SpectrumBaseline
+} from './spectrumBands';
 import {
   buildMicSupportWarnings,
   evaluateMicTruth,
@@ -27,6 +34,8 @@ import {
   type ListeningFrame,
   type ListeningMode,
   type ListeningSource,
+  type SourceHintRuntimeMode,
+  type SpectrumFrame,
   type SourceDescriptor,
   type SupportedMicConstraints
 } from '../types/audio';
@@ -34,12 +43,6 @@ import {
   DEFAULT_RUNTIME_TUNING,
   type RuntimeTuning
 } from '../types/tuning';
-
-type SpectrumSnapshot = {
-  low: number;
-  mid: number;
-  high: number;
-};
 
 type DisplayMediaAudioConstraints = MediaTrackConstraints & {
   suppressLocalAudioPlayback?: boolean;
@@ -63,6 +66,8 @@ export class AudioEngine implements ListeningSource {
   private latestAnalysisFrame = DEFAULT_ANALYSIS_FRAME;
   private diagnostics = DEFAULT_AUDIO_DIAGNOSTICS;
   private readonly interpreter = new ListeningInterpreter();
+  private readonly sourceHintInterpreter = new SourceHintInterpreter();
+  private readonly sourceHintMode: SourceHintRuntimeMode = 'active';
   private listeners = new Set<(status: AudioEngineStatus) => void>();
   private frameListeners = new Set<(snapshot: AudioSnapshot) => void>();
   private context: AudioContext | null = null;
@@ -79,6 +84,9 @@ export class AudioEngine implements ListeningSource {
   private calibrationEndsAt = 0;
   private calibrationRms: number[] = [];
   private calibrationPeaks: number[] = [];
+  private calibrationSpectrumFrames: SpectrumFrame[] = [];
+  private previousSpectrumFrame: SpectrumFrame | null = null;
+  private spectrumBaseline: SpectrumBaseline = {};
   private noiseFloor = 0.02;
   private calibrationNoiseFloor = 0.02;
   private minimumCeiling = 0.06;
@@ -388,6 +396,9 @@ export class AudioEngine implements ListeningSource {
 
       this.calibrationRms = [];
       this.calibrationPeaks = [];
+      this.calibrationSpectrumFrames = [];
+      this.previousSpectrumFrame = null;
+      this.spectrumBaseline = {};
       this.noiseFloor = 0.02;
       this.calibrationNoiseFloor = 0.02;
       this.minimumCeiling = 0.06;
@@ -398,6 +409,7 @@ export class AudioEngine implements ListeningSource {
       this.calibrationRmsPercentile20 = 0;
       this.calibrationPeakPercentile90 = 0;
       this.interpreter.reset();
+      this.sourceHintInterpreter.reset();
       this.calibrationStartedAt = performance.now();
       this.calibrationEndsAt = this.calibrationStartedAt + CALIBRATION_MS;
 
@@ -490,7 +502,10 @@ export class AudioEngine implements ListeningSource {
     this.calibrationSampleCount = profile.sampleCount;
     this.calibrationRmsPercentile20 = profile.rmsPercentile20;
     this.calibrationPeakPercentile90 = profile.peakPercentile90;
+    this.spectrumBaseline = deriveSpectrumBaseline(this.calibrationSpectrumFrames);
+    this.previousSpectrumFrame = null;
     this.interpreter.reset();
+    this.sourceHintInterpreter.reset();
     this.bootStep = 'live';
 
     this.updateStatus({
@@ -500,8 +515,12 @@ export class AudioEngine implements ListeningSource {
   }
 
   private updateListeningFrame(): void {
-    const debugSpectrum = this.sampleDebugSpectrum();
+    const spectrumFrame = this.sampleSpectrumFrame();
     const calibrated = this.status.phase === 'live';
+
+    if (this.status.phase === 'calibrating') {
+      this.calibrationSpectrumFrames.push(spectrumFrame);
+    }
 
     if (calibrated && this.sourceMode === 'room-mic') {
       const quietWindow =
@@ -534,6 +553,14 @@ export class AudioEngine implements ListeningSource {
 
     this.latestAnalysisFrame = analysisFrame;
 
+    const sourceHintFrame = this.sourceHintInterpreter.update({
+      analysis: analysisFrame,
+      spectrumFrame,
+      mode: this.sourceMode,
+      runtimeMode: this.sourceHintMode,
+      calibrated
+    });
+
     const interpreterResult = this.interpreter.update({
       analysis: analysisFrame,
       mode: this.sourceMode,
@@ -541,7 +568,9 @@ export class AudioEngine implements ListeningSource {
       noiseFloor: this.noiseFloor,
       adaptiveCeiling: this.adaptiveCeiling,
       rawPathGranted: this.rawPathGranted,
-      tuning: this.tuning
+      tuning: this.tuning,
+      sourceHints: sourceHintFrame,
+      sourceHintMode: this.sourceHintMode
     });
 
     this.latestFrame = {
@@ -575,9 +604,11 @@ export class AudioEngine implements ListeningSource {
       noiseFloor: this.noiseFloor,
       minimumCeiling: this.minimumCeiling,
       calibrationPeak: this.calibrationPeak,
-      spectrumLow: debugSpectrum.low,
-      spectrumMid: debugSpectrum.mid,
-      spectrumHigh: debugSpectrum.high,
+      spectrumLow: spectrumFrame.legacyLow,
+      spectrumMid: spectrumFrame.legacyMid,
+      spectrumHigh: spectrumFrame.legacyHigh,
+      spectrumFrame,
+      sourceHintFrame,
       humRejection: interpreterResult.diagnostics.humRejection,
       musicTrend: interpreterResult.diagnostics.musicTrend,
       silenceGate: interpreterResult.diagnostics.silenceGate,
@@ -606,51 +637,31 @@ export class AudioEngine implements ListeningSource {
     }
   }
 
-  private sampleDebugSpectrum(): SpectrumSnapshot {
+  private sampleSpectrumFrame(): SpectrumFrame {
+    const timestampMs = performance.now();
+
     if (!this.analyser || !this.frequencyData || !this.context) {
-      return {
-        low: 0,
-        mid: 0,
-        high: 0
-      };
+      const silentFrame = createSilentSpectrumFrame(timestampMs);
+      this.previousSpectrumFrame = silentFrame;
+      return silentFrame;
     }
 
     this.analyser.getFloatFrequencyData(
       this.frequencyData as unknown as Float32Array<ArrayBuffer>
     );
 
-    const nyquist = this.context.sampleRate / 2;
-    const maxFrequency = Math.min(12000, nyquist);
-    const binWidth = nyquist / this.frequencyData.length;
-
-    let lowSum = 0;
-    let lowCount = 0;
-    let midSum = 0;
-    let midCount = 0;
-    let highSum = 0;
-    let highCount = 0;
-
-    for (let index = 0; index < this.frequencyData.length; index += 1) {
-      const frequency = (index + 1) * binWidth;
-      const normalized = clamp01((this.frequencyData[index] + 90) / 80);
-
-      if (frequency >= 40 && frequency < 220) {
-        lowSum += normalized;
-        lowCount += 1;
-      } else if (frequency >= 220 && frequency < 2200) {
-        midSum += normalized;
-        midCount += 1;
-      } else if (frequency >= 2200 && frequency < maxFrequency) {
-        highSum += normalized;
-        highCount += 1;
-      }
-    }
-
-    return {
-      low: lowCount > 0 ? lowSum / lowCount : 0,
-      mid: midCount > 0 ? midSum / midCount : 0,
-      high: highCount > 0 ? highSum / highCount : 0
-    };
+    const spectrumFrame = deriveSpectrumFrame({
+      frequencyData: this.frequencyData,
+      sampleRate: this.context.sampleRate,
+      fftSize: this.analyser.fftSize,
+      timestampMs,
+      minDecibels: this.analyser.minDecibels,
+      maxDecibels: this.analyser.maxDecibels,
+      previousFrame: this.previousSpectrumFrame,
+      baseline: this.spectrumBaseline
+    });
+    this.previousSpectrumFrame = spectrumFrame;
+    return spectrumFrame;
   }
 
   private shapeAnalysisFrame(packet: AnalysisFrame): AnalysisFrame {
