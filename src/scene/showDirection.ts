@@ -2712,8 +2712,18 @@ export function deriveStageCuePlan(input: {
       frame.sectionChange * 0.08 -
       frame.momentum * 0.08
   );
+  const systemAudioProgressiveImpact =
+    frame.mode === 'system-audio' &&
+    frame.performanceIntent === 'ignite' &&
+    frame.musicConfidence >= 0.42 &&
+    frame.peakConfidence >= 0.42 &&
+    frame.preDropTension >= 0.32 &&
+    frame.dropImpact >= 0.38 &&
+    frame.sectionChange >= 0.26 &&
+    frame.releaseTail < 0.26;
   const ruptureLike =
     cueState.cueClass === 'rupture' ||
+    systemAudioProgressiveImpact ||
     (showAct === 'eclipse-rupture' &&
       ruptureAuthority >= 0.5 &&
       frame.dropImpact >= 0.38 &&

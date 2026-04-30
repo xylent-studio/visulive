@@ -1218,6 +1218,7 @@ export class ListeningInterpreter {
       dropImpact,
       sectionChange,
       releaseTail,
+      transientConfidence: input.transientConfidence,
       phraseTension: input.phraseTension,
       releaseEvidence: input.releaseEvidence,
       aftermathDwellMs: input.aftermathDwellMs,
@@ -1255,6 +1256,7 @@ export class ListeningInterpreter {
     dropImpact: number;
     sectionChange: number;
     releaseTail: number;
+    transientConfidence: number;
     phraseTension: number;
     releaseEvidence: number;
     aftermathDwellMs: number;
@@ -1276,10 +1278,20 @@ export class ListeningInterpreter {
     const detonateImpact =
       input.dropImpact > 0.42 - input.sourceAggression * 0.04 ||
       input.sectionChange > 0.46 - input.sourceAggression * 0.04;
+    const systemAudioProgressiveImpact =
+      input.mode === 'system-audio' &&
+      input.musicConfidence >= 0.42 &&
+      input.phraseTension >= 0.4 &&
+      input.transientConfidence >= 0.3 &&
+      input.preDropTension >= 0.34 &&
+      input.dropImpact >= 0.38 &&
+      input.sectionChange >= 0.26 &&
+      input.releaseTail < 0.26;
 
     if (
       !releaseCarrySuppression &&
-      ((input.showState === 'surge' && detonateImpact) ||
+      (systemAudioProgressiveImpact ||
+        (input.showState === 'surge' && detonateImpact) ||
         input.dropImpact > 0.58 - input.sourceAggression * 0.04 ||
         input.sectionChange > 0.58 - input.sourceAggression * 0.04 ||
         (input.showState === 'surge' &&

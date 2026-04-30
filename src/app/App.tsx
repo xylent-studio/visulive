@@ -184,6 +184,7 @@ const INITIAL_RENDERER_STATE: RendererDiagnostics = {
 
 type RendererHandle = {
   start(): Promise<RendererDiagnostics>;
+  resetForShowStart(): void;
   dispose(): void;
   getDiagnostics(): RendererDiagnostics;
   setTuning(tuning: RuntimeTuning): void;
@@ -3374,6 +3375,7 @@ export function App() {
       }
 
       beginNoTouchSession();
+      rendererRef.current?.resetForShowStart();
       if (proofArmedAtStart) {
         proofWaveArmedRef.current = true;
       }
@@ -3439,6 +3441,7 @@ export function App() {
     setStartError(null);
     setReplayError(null);
     beginNoTouchSession();
+    rendererRef.current?.resetForShowStart();
     startRunJournal(sourceMode, audioDiagnostics);
     proofSetupAutoStartingRef.current = false;
   }, [

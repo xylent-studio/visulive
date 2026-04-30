@@ -167,6 +167,10 @@ export class DirectorStateRig {
     this.initialized = true;
   }
 
+  resetFromTuning(tuning: RuntimeTuning): void {
+    this.initializeFromTuning(tuning);
+  }
+
   getStageDirectorSnapshot(): StageFrameContext['director'] {
     return {
       worldActivity: this.worldActivity,

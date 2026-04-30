@@ -315,6 +315,85 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneTransitionReason).not.toBe('drop-rupture');
   });
 
+  it('lets hard rupture context override a stale ghost scene', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'silence-constellation',
+        signatureMoment: signatureMoment({
+          kind: 'silence-constellation',
+          phase: 'hold',
+          intensity: 0.5,
+          style: 'ambient-premium'
+        })
+      })
+    );
+
+    expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe(
+      'ghost-constellation'
+    );
+
+    system.update(
+      context({
+        elapsedSeconds: 5,
+        visualMotif: 'world-takeover',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'rupture',
+          worldMode: 'collapse-well',
+          transformIntent: 'collapse'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.44,
+          sectionChange: 0.34,
+          releaseTail: 0.04
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('collapse-scar');
+    expect(telemetry.playableMotifSceneTransitionReason).toBe('drop-rupture');
+  });
+
+  it('resets scene age and stale scene ownership for a new show start', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'machine-grid',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'gather'
+        }
+      })
+    );
+    system.update(
+      context({
+        elapsedSeconds: 12,
+        visualMotif: 'machine-grid',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'gather'
+        }
+      })
+    );
+
+    expect(system.collectTelemetryInputs().playableMotifSceneAgeSeconds).toBeGreaterThan(8);
+
+    system.resetForShowStart();
+    expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('none');
+    expect(system.collectTelemetryInputs().playableMotifSceneAgeSeconds).toBe(0);
+
+    system.update(context({ elapsedSeconds: 0.2 }));
+    expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('void-pressure');
+    expect(system.collectTelemetryInputs().playableMotifSceneAgeSeconds).toBe(0);
+  });
+
   it('lets collapse residue yield back to the current motif once rupture no longer owns it', () => {
     const system = new PlayableMotifSystem();
     system.build();

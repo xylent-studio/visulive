@@ -102,6 +102,7 @@ export class VisualizerEngine {
     | null = null;
   private afterImageDampNode: { value: number } | null = null;
   private lastTime = 0;
+  private showClockOriginSeconds = 0;
   private backend: RendererBackend = 'unavailable';
   private qualityTier: QualityTier = 'balanced';
   private cappedPixelRatio = 1;
@@ -242,6 +243,15 @@ export class VisualizerEngine {
     this.sceneRuntime?.setSignatureMomentDevOverride(override);
   }
 
+  resetForShowStart(): void {
+    this.showClockOriginSeconds = this.lastTime;
+    this.sceneRuntime?.resetForShowStart();
+    this.latestVisualTelemetry = {
+      ...DEFAULT_VISUAL_TELEMETRY,
+      qualityTier: this.qualityTier
+    };
+  }
+
   dispose(): void {
     window.removeEventListener('resize', this.resizeHandler);
     if (POINTER_INTERACTION_ENABLED) {
@@ -265,6 +275,7 @@ export class VisualizerEngine {
     this.afterImagePass = null;
     this.afterImageDampNode = null;
     this.lastTime = 0;
+    this.showClockOriginSeconds = 0;
     this.backend = 'unavailable';
     this.qualityTier = 'balanced';
     this.cappedPixelRatio = 1;
@@ -516,6 +527,7 @@ export class VisualizerEngine {
     }
 
     const elapsedSeconds = time * 0.001;
+    const showElapsedSeconds = Math.max(0, elapsedSeconds - this.showClockOriginSeconds);
     const deltaSeconds =
       this.lastTime === 0 ? 0.016 : Math.max(0.001, elapsedSeconds - this.lastTime);
     const deltaMs = deltaSeconds * 1000;
@@ -535,7 +547,7 @@ export class VisualizerEngine {
     }
 
     const frame = this.getFrame();
-    this.sceneRuntime.update(frame, elapsedSeconds, deltaSeconds);
+    this.sceneRuntime.update(frame, showElapsedSeconds, deltaSeconds);
     const sceneTelemetry = this.sceneRuntime.getVisualTelemetry();
     const atmospherePostProfile = this.deriveAtmospherePostProfile(sceneTelemetry);
     const exposureCeiling = sceneTelemetry.stageExposureCeiling ?? 0.98;

@@ -183,6 +183,14 @@ function resolveSceneFromContext(
     return signatureScene;
   }
 
+  if (
+    isHardRuptureContext(context) &&
+    context.audio.dropImpact >= 0.34 &&
+    context.audio.releaseTail < 0.34
+  ) {
+    return 'collapse-scar';
+  }
+
   if (context.visualMotif === 'rupture-scar' && !isHardRuptureContext(context)) {
     if (
       context.stageCuePlan.family === 'release' ||
@@ -515,6 +523,42 @@ export class PlayableMotifSystem {
 
   collectTelemetryInputs(): PlayableMotifSystemTelemetry {
     return { ...this.telemetry };
+  }
+
+  resetForShowStart(): void {
+    this.activeScene = 'none';
+    this.lastSceneChangeSeconds = 0;
+    this.transitionReason = 'hold';
+    this.voidMaterial.opacity = 0;
+    this.constellationMaterial.opacity = 0;
+    for (const material of this.portalMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.tunnelMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.scarMaterials) {
+      material.opacity = 0;
+    }
+    this.telemetry = {
+      activePlayableMotifScene: 'none',
+      playableMotifSceneProfileId: 'none',
+      playableMotifSceneAssetPackIds: [],
+      playableMotifSceneSilhouetteFamily: 'none',
+      playableMotifSceneSurfaceRole: 'none',
+      playableMotifSceneProfileMatch: true,
+      compositorMaskFamily: 'none',
+      particleFieldJob: 'none',
+      playableMotifSceneDriver: 'hold',
+      playableMotifSceneIntentMatch: true,
+      playableMotifSceneAgeSeconds: 0,
+      playableMotifSceneTransitionReason: 'hold',
+      playableMotifSceneIntensity: 0,
+      playableMotifSceneMotifMatch: true,
+      playableMotifScenePaletteMatch: true,
+      playableMotifSceneDistinctness: 0,
+      playableMotifSceneSilhouetteConfidence: 0
+    };
   }
 
   dispose(): void {

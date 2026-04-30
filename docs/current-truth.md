@@ -14,6 +14,7 @@ Use this page before reading the longer history docs. It is intentionally compac
 - Latest valid/current-proof-eligible runs:
   - `run_20260430_091448_xmm6a6`: PC Audio proof with `deadmau5 - Strobe`; valid, useful, not release-grade.
   - `run_20260430_100305_os4do2`: fullscreen/watch-mode proof; valid/current-proof-eligible, but not release-grade.
+  - `run_20260430_114858_ctx3di`: PC Audio proof with `Madeon - Technicolor`; valid/current-proof-eligible, but underwhelming. The run exposed stale pre-proof visual age at show start, overly polite PC-audio lift routing, and ghost-constellation over-holding through a real progressive lift.
 - Diagnostic-only run:
   - `run_20260430_093649_52bpjn`: invalid proof/operator-trust run; useful only for failure diagnosis.
 
@@ -38,6 +39,8 @@ Use this page before reading the longer history docs. It is intentionally compac
 - Underused repertoire: acts, palettes, stage cue families, playable scenes, compositor masks, and particle jobs remain dormant or rare.
 - Playable motifs, palette bases, hero forms, hero/world hue, and ring posture still need to behave like one authored director.
 - Ring posture can still read as wallpaper after authority turns unless a cathedral/architecture scene truly owns it.
+- A fresh proof can begin with visual/director state aged during setup unless the runtime resets its show clock at the actual proof/live start.
+- Progressive PC-audio lifts can carry enough drop/section evidence to deserve a stronger authored cue even when the conductor does not classify the passage as a full surge.
 
 ## Current Best Next Move
 
@@ -46,7 +49,8 @@ Finish the `Current Truth + Orchestration Coherence` wave:
 1. Keep run-level reports as primary tuning truth for fresh proof.
 2. Add/maintain `npm run truth:audit` as a non-blocking stale-surface check.
 3. Tune the existing authored engine for stronger semantic holds, broader valid utilization, richer playable scene silhouettes, and faster non-architectural ring decay.
-4. Run a fresh 90-120 second PC Audio primary canary, fullscreen, no-touch, using `Finish Proof Run`.
+4. Preserve the show-start reset and PC-audio progressive-lift repair before the next canary.
+5. Run a fresh 90-120 second PC Audio primary canary, fullscreen, no-touch, using `Finish Proof Run`.
 5. Review with `npm run proof:current`, `npm run evidence:index`, `npm run run:review -- --run-id <runId>`, and `npm run moment:sheet -- --run-id <runId>` when stills exist.
 
 ## Proof Command Path

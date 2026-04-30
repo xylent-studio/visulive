@@ -354,6 +354,36 @@ export class CompositorSystem {
     return { ...this.telemetry };
   }
 
+  resetForShowStart(): void {
+    this.vignetteMaterial.opacity = 0;
+    for (const material of this.cutMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.bandMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.edgeMaterials) {
+      material.opacity = 0;
+    }
+    this.telemetry = {
+      compositorMaskFamily: 'none',
+      compositorSignatureMask: 0,
+      compositorCutAmount: 0,
+      compositorVignetteAmount: 0,
+      compositorChromaticAmount: 0,
+      compositorEdgeWindowAmount: 0,
+      compositorContrastLift: 0,
+      compositorSaturationLift: 0,
+      compositorExposureBias: 0,
+      compositorBloomBias: 0,
+      compositorAfterImageBias: 0,
+      compositorOverprocessRisk: 0,
+      perceptualContrastScore: 0.62,
+      perceptualColorfulnessScore: 0.52,
+      perceptualWashoutRisk: 0
+    };
+  }
+
   dispose(): void {
     if (this.disposed) {
       return;

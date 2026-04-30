@@ -1116,6 +1116,46 @@ describe('showDirection', () => {
     expect(plan.compositorMode).toMatch(/precharge|wipe/);
   });
 
+  it('spends a progressive PC-audio lift as a rupture cue instead of staying polite', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      showState: 'generative' as const,
+      performanceIntent: 'ignite' as const,
+      mode: 'system-audio' as const,
+      musicConfidence: 0.48,
+      peakConfidence: 0.47,
+      beatConfidence: 0.3,
+      preDropTension: 0.44,
+      dropImpact: 0.42,
+      sectionChange: 0.34,
+      releaseTail: 0.04,
+      phraseTension: 0.46,
+      transientConfidence: 0.52,
+      momentum: 0.4,
+      harmonicColor: 0.58,
+      shimmer: 0.5
+    };
+    const cueState = deriveVisualCue(frame, 'matrix-storm', {
+      preBeatLift: 0.34,
+      beatStrike: 0.48,
+      postBeatRelease: 0.06,
+      interBeatFloat: 0.28,
+      barTurn: 0.22,
+      phraseResolve: 0.1
+    });
+    const plan = deriveStageCuePlan({
+      frame,
+      cueState,
+      showAct: 'matrix-storm',
+      cueFamilySeconds: 0.4
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.worldMode).toBe('collapse-well');
+    expect(plan.compositorMode).toBe('flash');
+    expect(plan.eventDensity).toBeGreaterThan(0.58);
+  });
+
   it('keeps matrix-storm reveal in a lighter hybrid world mode instead of cathedral lock', () => {
     const frame = {
       ...DEFAULT_LISTENING_FRAME,

@@ -62,6 +62,10 @@ export class FlagshipShowRuntime implements VisualizerSceneRuntime {
     this.sceneRuntime.setPointerInfluence(x, y);
   }
 
+  resetForShowStart(): void {
+    this.sceneRuntime.resetForShowStart();
+  }
+
   update(
     frame: ListeningFrame,
     elapsedSeconds: number,

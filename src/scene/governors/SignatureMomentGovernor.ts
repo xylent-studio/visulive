@@ -370,6 +370,17 @@ export class SignatureMomentGovernor {
     };
   }
 
+  resetForShowStart(): void {
+    this.activeMoment = null;
+    this.armedCandidate = null;
+    this.cooldownUntilSeconds = 0;
+    this.lastStartedByKind = {};
+    this.latestSnapshot = {
+      ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT,
+      candidateScores: { ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT.candidateScores }
+    };
+  }
+
   private resolveForcedPreview(
     input: SignatureMomentGovernorInput,
     override: SignatureMomentDevOverride,

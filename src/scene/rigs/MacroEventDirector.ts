@@ -78,6 +78,15 @@ export class MacroEventDirector {
     return this.releasePulse;
   }
 
+  resetForShowStart(): void {
+    this.activeEvents.length = 0;
+    this.nextEventAt = 10;
+    this.liftPulse = 0;
+    this.strikePulse = 0;
+    this.releasePulse = 0;
+    this.lastMomentSignature = '';
+  }
+
   registerMoment(frame: ListeningFrame): void {
     const momentSignature =
       frame.momentKind === 'none'

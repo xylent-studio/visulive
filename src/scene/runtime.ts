@@ -30,6 +30,7 @@ export interface VisualizerSceneRuntime {
   setQualityProfile(profile: SceneQualityProfile): void;
   setTuning(tuning: RuntimeTuning): void;
   setPointerInfluence(x: number, y: number): void;
+  resetForShowStart(): void;
   update(
     frame: ListeningFrame,
     elapsedSeconds: number,

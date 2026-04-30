@@ -594,6 +594,129 @@ export class ObsidianBloomScene {
     }
   }
   setPointerInfluence(x: number, y: number): void { this.pointerTarget.set(THREE.MathUtils.clamp(x, -1, 1), THREE.MathUtils.clamp(y, -1, 1)); }
+  resetForShowStart(): void {
+    this.lastListeningFrame = DEFAULT_LISTENING_FRAME;
+    this.currentListeningMode = 'room-mic';
+    this.roomMusicVisualFloor = 0;
+    this.adaptiveMusicVisualFloor = 0;
+    this.subPressure = 0;
+    this.bassBody = 0;
+    this.lowMidBody = 0;
+    this.presence = 0;
+    this.body = 0;
+    this.air = 0;
+    this.shimmer = 0;
+    this.accent = 0;
+    this.brightness = 0;
+    this.roughness = 0;
+    this.tonalStability = 0;
+    this.harmonicColor = 0.5;
+    this.phraseTension = 0;
+    this.resonance = 0;
+    this.speech = 0;
+    this.roomness = 0;
+    this.musicConfidence = 0;
+    this.peakConfidence = 0;
+    this.momentum = 0;
+    this.ambienceConfidence = 0;
+    this.speechConfidence = 0;
+    this.transientConfidence = 0;
+    this.activeFamily = 'eclipse-chamber';
+    this.fromFamily = 'eclipse-chamber';
+    this.toFamily = 'eclipse-chamber';
+    this.familyTransition = 1;
+    this.nextFamilyAt = 8;
+    Object.assign(this.familyWeights, createFamilyWeights());
+    this.activeAct = 'void-chamber';
+    this.fromAct = 'void-chamber';
+    this.toAct = 'void-chamber';
+    this.actTransition = 1;
+    this.nextActAt = 9;
+    this.lastActChangeSeconds = 0;
+    Object.assign(this.actWeights, createActWeights());
+    this.beatConfidence = 0;
+    this.beatPhase = 0;
+    this.beatJustHit = false;
+    this.barPhase = 0;
+    this.phrasePhase = 0;
+    this.preDropTension = 0;
+    this.dropImpact = 0;
+    this.sectionChange = 0;
+    this.releaseTail = 0;
+    this.performanceIntent = 'hold';
+    this.directorStateRig.resetFromTuning(this.tuning);
+    this.macroEventDirector.resetForShowStart();
+    this.shellTension = 0.18;
+    this.shellBloom = 0.18;
+    this.shellOrbit = 0.22;
+    this.shellHalo = 0.24;
+    this.glowOverdrive = 0.2;
+    this.atmosphereGas = 1;
+    this.atmosphereLiquid = 0;
+    this.atmospherePlasma = 0;
+    this.atmosphereCrystal = 0;
+    this.atmospherePressure = 0.16;
+    this.atmosphereIonization = 0.08;
+    this.atmosphereResidue = 0.18;
+    this.atmosphereStructureReveal = 0.08;
+    this.activeMatterState = 'gas';
+    this.preBeatLift = 0;
+    this.beatStrike = 0;
+    this.postBeatRelease = 0;
+    this.interBeatFloat = 0;
+    this.barTurn = 0;
+    this.phraseResolve = 0;
+    this.ambientGlowBudget = 0.12;
+    this.eventGlowBudget = 0.08;
+    this.authorityFrameSnapshot = { ...DEFAULT_AUTHORITY_FRAME_SNAPSHOT };
+    this.paletteState = 'void-cyan';
+    this.lastPaletteChangeSeconds = 0;
+    this.paletteTransitionReason = 'hold';
+    this.paletteFrame = { ...DEFAULT_PALETTE_FRAME };
+    this.semanticEpisodeId = DEFAULT_VISUAL_MOTIF_SNAPSHOT.semanticEpisodeId;
+    this.lastSemanticEpisodeChangeSeconds = 0;
+    this.visualMotifSnapshot = {
+      ...DEFAULT_VISUAL_MOTIF_SNAPSHOT,
+      paletteFrame: { ...DEFAULT_PALETTE_FRAME }
+    };
+    this.heroFormSwitchCount = 0;
+    this.lastActiveHeroForm = DEFAULT_STAGE_CUE_PLAN.heroForm;
+    this.lastPreparedElapsedSeconds = 0;
+    this.cueState = { ...DEFAULT_VISUAL_CUE_STATE };
+    this.stageCuePlan = { ...DEFAULT_STAGE_CUE_PLAN };
+    this.stageCompositionPlan = {
+      ...DEFAULT_STAGE_COMPOSITION_PLAN,
+      heroEnvelope: { ...DEFAULT_STAGE_COMPOSITION_PLAN.heroEnvelope },
+      chamberEnvelope: { ...DEFAULT_STAGE_COMPOSITION_PLAN.chamberEnvelope },
+      subtractivePolicy: { ...DEFAULT_STAGE_COMPOSITION_PLAN.subtractivePolicy }
+    };
+    this.stageCueFamilySeconds = 0;
+    this.heroHue = 0;
+    this.worldHue = 0;
+    this.heroScreenX = 0.5;
+    this.heroScreenY = 0.5;
+    this.heroCoverageEstimateCurrent = 0.12;
+    this.heroScaleCurrentMetric = 0.56;
+    this.heroOffCenterPenaltyCurrent = 0;
+    this.heroDepthPenaltyCurrent = 0;
+    this.stageFallbackHeroOverreachCurrent = false;
+    this.stageFallbackRingOverdrawCurrent = false;
+    this.stageFallbackOverbrightRiskCurrent = false;
+    this.stageFallbackWashoutRiskCurrent = false;
+    this.stageAudioFeatures = { ...DEFAULT_STAGE_AUDIO_FEATURES };
+    this.lastAuthorityFrameContext = null;
+    this.signatureMomentGovernor.resetForShowStart();
+    this.signatureMomentSnapshot = { ...DEFAULT_SIGNATURE_MOMENT_SNAPSHOT };
+    this.postSystem.resetForShowStart();
+    this.playableMotifSystem.resetForShowStart();
+    this.compositorSystem.resetForShowStart();
+    this.visualTelemetry = {
+      ...DEFAULT_VISUAL_TELEMETRY,
+      macroEventsActive: [],
+      temporalWindows: { ...DEFAULT_VISUAL_TELEMETRY.temporalWindows },
+      qualityTier: this.qualityProfile.tier
+    };
+  }
   getVisualTelemetry(): VisualTelemetryFrame { return { ...this.visualTelemetry, macroEventsActive: [...this.visualTelemetry.macroEventsActive], temporalWindows: { ...this.visualTelemetry.temporalWindows } }; }
   setSignatureMomentDevOverride(override: SignatureMomentDevOverride | null): void {
     this.signatureMomentDevOverride = override;

@@ -428,6 +428,43 @@ export class PostSystem {
     return { ...this.telemetry };
   }
 
+  resetForShowStart(): void {
+    this.memoryTraces.length = 0;
+    this.lastTraceStartedAtSeconds = null;
+    this.veilMaterial.opacity = 0;
+    for (const material of this.scarMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.cathedralMaterials) {
+      material.opacity = 0;
+    }
+    for (const material of this.ghostMaterials) {
+      material.opacity = 0;
+    }
+    this.constellationMaterial.opacity = 0;
+    this.telemetry = {
+      activeSignatureMoment: 'none',
+      signatureMomentPhase: 'idle',
+      signatureMomentStyle: 'contrast-mythic',
+      signatureMomentIntensity: 0,
+      signatureMomentAgeSeconds: 0,
+      signatureMomentSuppressionReason: 'none',
+      signatureMomentTriggerConfidence: 0,
+      signatureMomentPrechargeProgress: 0,
+      signatureMomentRarityBudget: 1,
+      signatureMomentForcedPreview: false,
+      signatureMomentDistinctnessHint: 'none',
+      collapseScarAmount: 0,
+      cathedralOpenAmount: 0,
+      ghostResidueAmount: 0,
+      silenceConstellationAmount: 0,
+      memoryTraceCount: 0,
+      aftermathClearance: 1,
+      postConsequenceIntensity: 0,
+      postOverprocessRisk: 0
+    };
+  }
+
   dispose(): void {
     if (this.disposed) {
       return;
