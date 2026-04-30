@@ -94,6 +94,13 @@ const SOURCE_HINT_IDS = [
   'broadbandHit'
 ];
 
+const SOURCE_HINT_EVENT_IDS = [
+  'lowImpactCandidate',
+  'percussiveSnap',
+  'highSweepCandidate',
+  'broadbandHit'
+];
+
 const SCENE_SILHOUETTE_FAMILIES = [
   'none',
   'vertical-vault',
@@ -721,6 +728,7 @@ function summarizeSourceHintEvidence(frames) {
     }
 
     let topSignal = 0;
+    let eventSignal = 0;
     let percussionSignal = 0;
     let falsePositiveRisk = false;
     for (const hint of sourceHintFrame.hints) {
@@ -737,6 +745,9 @@ function summarizeSourceHintEvidence(frames) {
         hint.id === 'broadbandHit'
       ) {
         percussionSignal = Math.max(percussionSignal, signal);
+      }
+      if (SOURCE_HINT_EVENT_IDS.includes(hint.id)) {
+        eventSignal = Math.max(eventSignal, signal);
       }
       falsePositiveRisk =
         falsePositiveRisk ||
@@ -763,7 +774,7 @@ function summarizeSourceHintEvidence(frames) {
       unsupportedMajorVisualSpend += 1;
     }
     if (
-      topSignal > 0.46 &&
+      eventSignal > 0.46 &&
       finiteNumber(listening.accent) < 0.12 &&
       finiteNumber(listening.dropImpact) < 0.12 &&
       finiteNumber(listening.sectionChange) < 0.12

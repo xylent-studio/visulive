@@ -1032,10 +1032,10 @@ function chooseChamberEnvelope(
       cuePlan.spendProfile === 'peak');
   const ringOpacityCap =
     ringAuthority === 'event-platform'
-      ? 0.38
+      ? 0.34
       : ringAuthority === 'framing-architecture'
-        ? 0.2
-        : 0.1;
+        ? 0.16
+        : 0.08;
   const musicFloorLift = quietRoomFloor ? 0.14 : adaptiveMusicFloor ? 0.12 : 0;
   const chamberEnvelope = {
     presenceFloor: clamp01(
@@ -1063,9 +1063,9 @@ function chooseChamberEnvelope(
         worldBootFloor * 0.06 +
         musicFloorLift * 0.12 -
         (overbrightRisk > 0.28 ? 0.08 : 0) -
-        (previousRingAuthority ?? 0) * 0.08 -
+        (previousRingAuthority ?? 0) * 0.12 -
         previousHeroCoverage * 0.08 -
-        previousRingBeltPersistence * 0.1
+        previousRingBeltPersistence * 0.16
     ),
     wireDensityCap: clamp01(
       0.12 +
@@ -1094,12 +1094,12 @@ function chooseChamberEnvelope(
     previousStageRingAuthority === 'event-platform' ||
     (typeof previousRingAuthority === 'number' && previousRingAuthority > 0.72)
   ) {
-    chamberEnvelope.ringOpacityCap = clamp01(chamberEnvelope.ringOpacityCap - 0.1);
+    chamberEnvelope.ringOpacityCap = clamp01(chamberEnvelope.ringOpacityCap - 0.12);
     chamberEnvelope.worldTakeoverBias = clamp01(chamberEnvelope.worldTakeoverBias - 0.02);
   }
 
-  if (previousRingBeltPersistence > 0.54 || previousHeroCoverage > 0.3) {
-    chamberEnvelope.ringOpacityCap = clamp01(chamberEnvelope.ringOpacityCap - 0.08);
+  if (previousRingBeltPersistence > 0.48 || previousHeroCoverage > 0.3) {
+    chamberEnvelope.ringOpacityCap = clamp01(chamberEnvelope.ringOpacityCap - 0.1);
     chamberEnvelope.wireDensityCap = clamp01(chamberEnvelope.wireDensityCap - 0.04);
   }
 

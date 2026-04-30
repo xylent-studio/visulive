@@ -1,28 +1,28 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-30T00:49:17.430Z
+Generated: 2026-04-30T02:13:51.365Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-30T00:49:12.977Z
-Report capture count: 75
+Report timestamp: 2026-04-30T02:13:18.755Z
+Report capture count: 77
 
 ## Executive Read
-- Captures analyzed: 75
-- Current-proof-eligible captures: 47
-- Safe-tier captures: 47/47
-- Screenshot references: 297
+- Captures analyzed: 77
+- Current-proof-eligible captures: 49
+- Safe-tier captures: 49/49
+- Screenshot references: 317
 - Strong evidence picks: 5
 - Weak evidence picks: 5
 
 ## Evidence Freshness
-- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T00:45:51.599Z
-- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z
-- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z
+- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T01:57:04.001Z
+- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z
+- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z
 - Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z
 - Current branch proof cutoff: 2026-04-23T08:28:02.000Z
 - Serious proof max age: 7 day(s)
 - Current branch proof freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - Screenshot review freshness: pass - Screenshot references satisfy the current proof cutoff and freshness window.
-- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-30T00:46:10.194Z
+- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-30T01:57:21.764Z
 
 ## Validation Gates
 - current-branch freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
@@ -32,95 +32,113 @@ Report capture count: 75
 - compositor consequence: pass - At least one capture shows visible event-glow spend.
 - build identity: pass - All current captures include valid build identity.
 - scenario validation: pass - Current capture scenarios are validated or unrecorded.
-- proof-pack completeness: pass - 297 current screenshot reference(s) are available and all captures are attributable to a valid build.
-- no-touch autonomy: pass - 30 capture(s) cleared the no-touch proof window.
-- authority split validation: pass - authority-ready 47/47; world 0.941; chamber 0.948; hierarchy 0.790; hero coverage 0.059; legacy glow 91.6%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0.
-- primary authority proof: pass - 19 no-touch primary benchmark capture(s) show world/chamber authority.
+- proof-pack completeness: pass - 317 current screenshot reference(s) are available and all captures are attributable to a valid build.
+- no-touch autonomy: pass - 32 capture(s) cleared the no-touch proof window.
+- authority split validation: pass - authority-ready 49/49; world 0.937; chamber 0.944; hierarchy 0.792; hero coverage 0.059; legacy glow 90.2%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0.
+- primary authority proof: pass - 21 no-touch primary benchmark capture(s) show world/chamber authority.
 - silence dignity: pass - 4 capture(s) preserved quiet-state regime evidence.
-- world authority delivery: pass - 47 capture(s) show shared or dominant world authority.
+- world authority delivery: pass - 49 capture(s) show shared or dominant world authority.
 - operator trust: pass - 15 operator-trust scenario capture(s) are attached.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
-- missed capture opportunities: fail - 20 meaningful run marker(s) were not matched to saved clips.
+- missed capture opportunities: fail - 18 meaningful run marker(s) were not matched to saved clips.
 - scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
 ### Current scenarios
 - `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 32 capture(s)
+- `primary-benchmark`: 34 capture(s)
 
 ### Current Proof Missions
 - `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 32 capture(s)
+- `primary-benchmark`: 34 capture(s)
 
 ### Historical baselines
 - `primary-benchmark`: 1 capture(s)
 - `room-floor`: 1 capture(s)
 
-- Current review captures: 47
+- Current review captures: 49
 - Unclassified current captures: 0
 - Historical baseline captures: 2
-- No-touch captures: 47
-- Qualified no-touch windows: 30
+- No-touch captures: 49
+- Qualified no-touch windows: 32
 - Quiet-state evidence: 4
-- World-authority evidence: 47
-- Primary no-touch authority evidence: 19
+- World-authority evidence: 49
+- Primary no-touch authority evidence: 21
 - Operator-trust evidence: 15
 
 ## Cue Spread
-- `laser-burst`: 12 capture(s)
-- `fan-sweep`: 10 capture(s)
-- `gather`: 7 capture(s)
+- `laser-burst`: 13 capture(s)
+- `gather`: 8 capture(s)
+- `orbit-widen`: 8 capture(s)
 - `collapse`: 7 capture(s)
-- `orbit-widen`: 6 capture(s)
-- `hold`: 4 capture(s)
+- `fan-sweep`: 7 capture(s)
+- `hold`: 5 capture(s)
 - `residue`: 1 capture(s)
 
 ## Authority Split Read
-- Authority-ready captures: 47/47
-- World-authority evidence: 47/47
-- Chamber presence mean: 0.948 (target >= 0.240)
-- World dominance delivered mean: 0.941 (target >= 0.280)
-- Frame hierarchy mean: 0.790 (target >= 0.620)
+- Authority-ready captures: 49/49
+- World-authority evidence: 49/49
+- Chamber presence mean: 0.944 (target >= 0.240)
+- World dominance delivered mean: 0.937 (target >= 0.280)
+- Frame hierarchy mean: 0.792 (target >= 0.620)
 - Hero coverage mean: 0.059 (target <= 0.320)
-- Legacy glow-spend rate: 91.6% (legacy watch target <= 12.0%)
+- Legacy glow-spend rate: 90.2% (legacy watch target <= 12.0%)
 - Perceptual washout risk: 0.000 (release-blocking target <= 0.120)
-- Risk counts: hero monopoly 0/47; low chamber 0/47; weak world 0/47; legacy glow 44/47; perceptual washout 0/47
+- Risk counts: hero monopoly 0/49; low chamber 0/49; weak world 0/49; legacy glow 46/49; perceptual washout 0/49
 ### World authority state spread
-- `dominant`: 31 capture(s)
-- `shared`: 16 capture(s)
+- `dominant`: 30 capture(s)
+- `shared`: 19 capture(s)
 
 ## Chamber Authority
-- `liquid-pressure-core`: 27 capture(s)
-- `spectral-plume`: 7 capture(s)
+- `liquid-pressure-core`: 25 capture(s)
+- `cathedral-rings`: 11 capture(s)
 - `portal-iris`: 7 capture(s)
-- `cathedral-rings`: 6 capture(s)
+- `spectral-plume`: 6 capture(s)
 
 ## Compositor Consequence
-- `consequence`: 47 capture(s)
+- `consequence`: 49 capture(s)
 
 ## Signature Moments
-- `none`: weighted presence 44.54
-- `cathedral-open`: weighted presence 1.05
-- `silence-constellation`: weighted presence 1.00
-- `collapse-scar`: weighted presence 0.39
-- `ghost-residue`: weighted presence 0.02
+- `none`: weighted presence 46.15
+- `silence-constellation`: weighted presence 1.32
+- `cathedral-open`: weighted presence 0.85
+- `collapse-scar`: weighted presence 0.67
+- `ghost-residue`: weighted presence 0.00
 ### Style Spread
-- `maximal-neon`: weighted presence 1.96
-- `ambient-premium`: weighted presence 1.04
-- `contrast-mythic`: weighted presence 1.00
-- Signature moment evidence: 4/47 capture(s)
-- Active rate / intensity mean / peak: 5.2% / 0.015 / 0.821
-- Aftermath clearance / post consequence / post overprocess risk: 0.993 / 0.010 / 0.006
-- Perceptual colorfulness / washout risk / compositor risk: 0.057 / 0.000 / 0.011
+- `contrast-mythic`: weighted presence 2.07
+- `ambient-premium`: weighted presence 2.00
+- `maximal-neon`: weighted presence 1.93
+- Signature moment evidence: 6/49 capture(s)
+- Active rate / intensity mean / peak: 5.8% / 0.021 / 0.984
+- Aftermath clearance / post consequence / post overprocess risk: 0.992 / 0.013 / 0.008
+- Perceptual colorfulness / washout risk / compositor risk: 0.073 / 0.000 / 0.015
 
 ## Spend Governance
-- `earned`: weighted presence 43.15
-- `withheld`: weighted presence 3.85
-- Legacy glow-spend risk: 91.6%
-- Large hero frequency: 2/47 capture(s)
-- Ring authority mean: 0.932
+- `earned`: weighted presence 44.29
+- `withheld`: weighted presence 4.71
+- Legacy glow-spend risk: 90.2%
+- Large hero frequency: 2/49 capture(s)
+- Ring authority mean: 0.934
 
 ## Strong Evidence
+- `auto_operator-trust-clear_2026-04-29_21-55-35.json`
+  - score: 9.03
+  - trigger/event: operator-trust-clear / ghost-trace
+  - route/world/look: this-computer / eclipse-chamber / ember-veil
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: hold
+  - dominant act: laser-bloom
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.744; chamber 0.704; hierarchy 0.819; hero coverage 0.076
+  - compositor: event glow 0.628 mean / 0.813 peak; bloom 0.677 mean / 0.695 peak
+  - signature: none / contrast-mythic; washout 0.000
+  - spend: earned; legacy glow 34.0%; hero scale peak 1.250
+  - interventions: 0; no-touch window passed
+  - safe tier: yes
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn
 - `auto_authority-turn_2026-04-28_19-54-09.json`
   - score: 8.47
   - trigger/event: authority-turn / cathedral-rise
@@ -193,39 +211,21 @@ Report capture count: 75
   - interventions: 0; no-touch window passed
   - safe tier: yes
   - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_19-33-53.json`
-  - score: 8.33
-  - trigger/event: authority-turn / strike-burst
-  - route/world/look: this-computer / storm-crown / acid-flare
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: collapse
-  - dominant act: laser-bloom
-  - dominant chamber family: liquid-pressure-core
-  - authority: world 0.992; chamber 1.000; hierarchy 0.772; hero coverage 0.046
-  - compositor: event glow 0.919 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window passed
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 
 ## Weak Evidence
-- `auto_authority-turn_2026-04-29_20-44-33.json`
-  - score: 4.38
+- `auto_authority-turn_2026-04-29_21-54-46.json`
+  - score: 4.22
   - trigger/event: authority-turn / void
   - route/world/look: this-computer / haunted-residue / ghost-signal
   - proof scenario: Primary benchmark
-  - build: 1.0.0 / ad19055 / stable (valid)
+  - build: 1.0.0 / e37b2ba / stable (valid)
   - scenario validation: primary-benchmark -> primary-benchmark (validated)
   - capability: full-autonomous
   - canonical cue class: hold
   - dominant act: matrix-storm
   - dominant chamber family: spectral-plume
-  - authority: world 0.446; chamber 0.443; hierarchy 0.858; hero coverage 0.038
-  - compositor: event glow 0.244 mean / 0.386 peak; bloom 0.262 mean / 0.394 peak
+  - authority: world 0.435; chamber 0.430; hierarchy 0.861; hero coverage 0.034
+  - compositor: event glow 0.228 mean / 0.373 peak; bloom 0.248 mean / 0.376 peak
   - signature: silence-constellation / ambient-premium; washout 0.000
   - spend: withheld; legacy glow 0.0%; hero scale peak 0.984
   - interventions: 0; no-touch window not proven
@@ -285,52 +285,72 @@ Report capture count: 75
   - interventions: 0; no-touch window not proven
   - safe tier: yes
   - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_governance-risk_2026-04-29_20-44-42.json`
+- `auto_governance-risk_2026-04-28_20-37-14.json`
   - score: 6.19
   - trigger/event: governance-risk / ghost-trace
   - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / ad19055 / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - proof scenario: Operator trust
+  - build: 1.0.0 / afa9c7d / stable (valid)
+  - scenario validation: operator-trust -> operator-trust (validated)
   - capability: full-autonomous
-  - canonical cue class: fan-sweep
+  - canonical cue class: orbit-widen
   - dominant act: matrix-storm
-  - dominant chamber family: liquid-pressure-core
-  - authority: world 0.881; chamber 0.892; hierarchy 0.840; hero coverage 0.104
-  - compositor: event glow 0.616 mean / 0.727 peak; bloom 0.645 mean / 0.698 peak
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.913; chamber 0.930; hierarchy 0.811; hero coverage 0.071
+  - compositor: event glow 0.698 mean / 0.802 peak; bloom 0.740 mean / 0.740 peak
   - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 77.1%; hero scale peak 1.250
+  - spend: earned; legacy glow 88.3%; hero scale peak 1.250
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, randomFeelingPaletteChurn, unearnedHeroFormSwitch, ambiguousHeroSilhouette
+  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 
 ## Screenshot Review Set
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_93661.png` (847 KB, modified 2026-04-30T00:46:10.194Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_90899.png` (946 KB, modified 2026-04-30T00:46:01.906Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_78952.png` (858 KB, modified 2026-04-30T00:46:00.406Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_75848.png` (796 KB, modified 2026-04-30T00:45:52.228Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_72275.png` (1060 KB, modified 2026-04-30T00:45:44.203Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_64669.png` (808 KB, modified 2026-04-30T00:45:41.706Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_61555.png` (951 KB, modified 2026-04-30T00:45:33.516Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_59549.png` (972 KB, modified 2026-04-30T00:45:30.870Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_57245.png` (879 KB, modified 2026-04-30T00:45:28.442Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_53555.png` (1094 KB, modified 2026-04-30T00:45:25.019Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__trust_51976.png` (1034 KB, modified 2026-04-30T00:45:22.694Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_48509.png` (1035 KB, modified 2026-04-30T00:45:19.983Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_45971.png` (1130 KB, modified 2026-04-30T00:45:16.956Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_43933.png` (1014 KB, modified 2026-04-30T00:45:14.688Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_41107.png` (532 KB, modified 2026-04-30T00:45:12.441Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_38301.png` (675 KB, modified 2026-04-30T00:45:09.252Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_36072.png` (1131 KB, modified 2026-04-30T00:45:06.910Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_29928.png` (802 KB, modified 2026-04-30T00:45:04.544Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_29928.png` (882 KB, modified 2026-04-30T00:45:02.103Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_27795.png` (815 KB, modified 2026-04-30T00:44:59.256Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_24285.png` (556 KB, modified 2026-04-30T00:44:56.807Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_15059.png` (910 KB, modified 2026-04-30T00:44:54.050Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_14205.png` (1005 KB, modified 2026-04-30T00:44:45.444Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_2195.png` (729 KB, modified 2026-04-30T00:44:43.123Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_8915.png` (775 KB, modified 2026-04-30T00:44:40.563Z)
-- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_2195.png` (344 KB, modified 2026-04-30T00:44:38.735Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_156765.png` (511 KB, modified 2026-04-30T01:57:21.764Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_151869.png` (612 KB, modified 2026-04-30T01:57:19.793Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_152851.png` (651 KB, modified 2026-04-30T01:57:17.119Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_150035.png` (482 KB, modified 2026-04-30T01:57:14.321Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_146568.png` (437 KB, modified 2026-04-30T01:57:10.915Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_143933.png` (465 KB, modified 2026-04-30T01:57:07.876Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_116029.png` (567 KB, modified 2026-04-30T01:57:05.686Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_137512.png` (750 KB, modified 2026-04-30T01:57:02.813Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_135304.png` (727 KB, modified 2026-04-30T01:56:59.776Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_103581.png` (506 KB, modified 2026-04-30T01:56:55.910Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_121149.png` (1078 KB, modified 2026-04-30T01:56:52.937Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_119709.png` (1081 KB, modified 2026-04-30T01:56:49.882Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_117256.png` (848 KB, modified 2026-04-30T01:56:41.252Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_97288.png` (602 KB, modified 2026-04-30T01:56:38.445Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_104189.png` (819 KB, modified 2026-04-30T01:56:35.408Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_101811.png` (669 KB, modified 2026-04-30T01:56:32.467Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_99101.png` (837 KB, modified 2026-04-30T01:56:23.538Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_87485.png` (770 KB, modified 2026-04-30T01:56:20.581Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_93789.png` (808 KB, modified 2026-04-30T01:56:17.766Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_88317.png` (664 KB, modified 2026-04-30T01:56:14.679Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_76381.png` (702 KB, modified 2026-04-30T01:56:11.692Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_72541.png` (689 KB, modified 2026-04-30T01:56:03.237Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_70429.png` (662 KB, modified 2026-04-30T01:55:55.114Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_68936.png` (741 KB, modified 2026-04-30T01:55:52.846Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_61267.png` (773 KB, modified 2026-04-30T01:55:50.433Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_47208.png` (765 KB, modified 2026-04-30T01:55:47.712Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_61267.png` (895 KB, modified 2026-04-30T01:55:45.460Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_56883.png` (916 KB, modified 2026-04-30T01:55:42.132Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_55731.png` (696 KB, modified 2026-04-30T01:55:39.505Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__trust_51219.png` (1110 KB, modified 2026-04-30T01:55:36.730Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_35112.png` (680 KB, modified 2026-04-30T01:55:33.263Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_45149.png` (876 KB, modified 2026-04-30T01:55:30.325Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_40307.png` (832 KB, modified 2026-04-30T01:55:27.307Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_40520.png` (523 KB, modified 2026-04-30T01:55:24.166Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_37171.png` (726 KB, modified 2026-04-30T01:55:21.443Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_34216.png` (769 KB, modified 2026-04-30T01:55:18.144Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_31581.png` (892 KB, modified 2026-04-30T01:55:15.351Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_28872.png` (897 KB, modified 2026-04-30T01:55:12.511Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_23293.png` (779 KB, modified 2026-04-30T01:55:09.622Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_22760.png` (921 KB, modified 2026-04-30T01:55:06.903Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_20168.png` (667 KB, modified 2026-04-30T01:55:04.252Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_16424.png` (642 KB, modified 2026-04-30T01:55:01.068Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_11987.png` (442 KB, modified 2026-04-30T01:54:56.647Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__checkpoint_2173.png` (435 KB, modified 2026-04-30T01:54:53.495Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_2173.png` (431 KB, modified 2026-04-30T01:54:50.049Z)
+- `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_2173.png` (334 KB, modified 2026-04-30T01:54:46.398Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_464275.png` (1070 KB, modified 2026-04-29T00:44:51.297Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_461181.png` (980 KB, modified 2026-04-29T00:44:42.764Z)

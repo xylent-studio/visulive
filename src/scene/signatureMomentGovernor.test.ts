@@ -151,6 +151,40 @@ describe('SignatureMomentGovernor', () => {
     expect(snapshot.chamberArchitecture).toBeGreaterThan(0);
   });
 
+  it('uses source hints to keep low-percussion luminous drops out of collapse scar', () => {
+    const governor = new SignatureMomentGovernor();
+    const snapshot = governor.resolveFrame(
+      buildInput({
+        frame: {
+          dropImpact: 0.8,
+          sectionChange: 0.36,
+          preDropTension: 0.52,
+          musicConfidence: 0.72,
+          sourceHintConfidence: 0.34,
+          percussionEvidence: 0.02,
+          tonalStability: 0.7
+        },
+        stage: {
+          family: 'gather',
+          worldMode: 'fan-sweep',
+          transformIntent: 'open'
+        },
+        composition: {
+          shotClass: 'worldTakeover',
+          transitionClass: 'iris'
+        },
+        authority: {
+          worldDominanceDelivered: 0.9,
+          chamberPresenceScore: 0.74,
+          compositionSafetyScore: 0.88,
+          overbright: 0.08
+        }
+      })
+    );
+
+    expect(snapshot.kind).toBe('cathedral-open');
+  });
+
   it('suppresses bright cathedral moments while still allowing darker collapse moments', () => {
     const governor = new SignatureMomentGovernor();
     const cathedral = governor.resolveFrame(

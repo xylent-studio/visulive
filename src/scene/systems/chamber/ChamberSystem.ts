@@ -575,14 +575,14 @@ export class ChamberSystem {
       0.82
     );
     const ringPersistencePressure = THREE.MathUtils.clamp(
-      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.18) * 1.65 +
+      Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.16) * 2.05 +
         Math.max(
           0,
           context.metrics.wirefieldDensityScoreCurrent - chamberWireDensityCap
         ) *
           0.46,
       0,
-      0.56
+      0.72
     );
     const chamberColorIntegrityGuard = THREE.MathUtils.clamp(
       1 - ringPersistencePressure * 0.54 - washoutSuppression * 0.18,
@@ -887,16 +887,16 @@ export class ChamberSystem {
         0,
         Math.max(
           chamberRingOpacityCap,
-          0.12 +
-            chamberStageLift * 0.12 +
-            shotWorldTakeover * 0.06 +
-            ringEventPlatform * 0.04 +
-            bladeBoost * 0.03
+          0.1 +
+            chamberStageLift * 0.1 +
+            shotWorldTakeover * 0.04 +
+            ringEventPlatform * 0.03 +
+            bladeBoost * 0.02
         )
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
-        1 - (ringSuppression * 0.62 + ringPersistencePressure * 0.28),
-        0.18,
+        1 - (ringSuppression * 0.62 + ringPersistencePressure * 0.36),
+        0.14,
         1
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
@@ -929,7 +929,7 @@ export class ChamberSystem {
             0,
             context.metrics.ringBeltPersistenceCurrent - 0.22
           ) *
-            0.74 -
+            0.92 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.2
@@ -950,7 +950,7 @@ export class ChamberSystem {
             0,
             context.metrics.ringBeltPersistenceCurrent - 0.24
           ) *
-            0.58,
+            0.72,
         0.36,
         1
       );
@@ -1086,19 +1086,19 @@ export class ChamberSystem {
           ghostResidueMoment * 0.016,
         0,
         Math.max(
-          chamberRingOpacityCap + 0.08,
-          0.18 +
-            chamberStageLift * 0.16 +
-            shotWorldTakeover * 0.08 +
-            haloBoost * 0.03
+          chamberRingOpacityCap + 0.05,
+          0.14 +
+            chamberStageLift * 0.12 +
+            shotWorldTakeover * 0.06 +
+            haloBoost * 0.02
         )
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
         1 -
           (ringSuppression * 0.36 +
             portalSuppression * 0.44 +
-            ringPersistencePressure * 0.32),
-        0.16,
+            ringPersistencePressure * 0.42),
+        0.12,
         1
       );
       ring.mesh.material.opacity *= THREE.MathUtils.clamp(
@@ -1133,7 +1133,7 @@ export class ChamberSystem {
             0,
             context.metrics.ringBeltPersistenceCurrent - 0.22
           ) *
-            0.82 -
+            1.02 -
           Math.max(
             0,
             context.metrics.heroCoverageEstimateCurrent - 0.2

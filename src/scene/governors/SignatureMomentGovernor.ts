@@ -89,6 +89,18 @@ function clamp01(value: number): number {
   return THREE.MathUtils.clamp(value, 0, 1);
 }
 
+function hasLowPercussionSourceHint(frame: ListeningFrame): boolean {
+  return frame.sourceHintConfidence > 0.08 && frame.percussionEvidence < 0.08;
+}
+
+function hasRuptureStructure(stage: StageCuePlan): boolean {
+  return (
+    stage.family === 'rupture' ||
+    stage.worldMode === 'collapse-well' ||
+    stage.transformIntent === 'collapse'
+  );
+}
+
 function hashSignature(value: string): number {
   let hash = 0;
 
@@ -805,9 +817,15 @@ export class SignatureMomentGovernor {
       this.armedCandidate?.kind === candidate.kind
         ? input.elapsedSeconds - this.armedCandidate.armedAtSeconds
         : 0;
+    const ruptureStructure = hasRuptureStructure(input.stageCuePlan);
+    const lowPercussionSourceHint = hasLowPercussionSourceHint(input.frame);
+    const sourcePermitsCollapseImpact =
+      !lowPercussionSourceHint || input.frame.percussionEvidence > 0.18;
     const impactStrike =
       candidate.kind === 'collapse-scar' &&
-      (input.frame.dropImpact > 0.52 || input.stageCuePlan.family === 'rupture');
+      ((input.frame.dropImpact > 0.52 && sourcePermitsCollapseImpact) ||
+        (ruptureStructure &&
+          (sourcePermitsCollapseImpact || input.frame.dropImpact > 0.42)));
     const revealStrike =
       candidate.kind === 'cathedral-open' &&
       (input.frame.sectionChange > 0.3 ||
@@ -925,6 +943,16 @@ export class SignatureMomentGovernor {
   private scoreCollapseScar(input: SignatureMomentGovernorInput): number {
     const stage = input.stageCuePlan;
     const composition = input.stageCompositionPlan;
+    const ruptureStructure = hasRuptureStructure(stage);
+    const lowPercussionSourceHint = hasLowPercussionSourceHint(input.frame);
+    const dropImpactWeight =
+      lowPercussionSourceHint && !ruptureStructure ? 0.16 : 0.42;
+    const sourceHintLift =
+      input.frame.sourceHintConfidence > 0.08
+        ? input.frame.percussionEvidence * 0.18
+        : 0;
+    const lowPercussionPenalty =
+      lowPercussionSourceHint && !ruptureStructure ? 0.18 : 0;
 
     return clamp01(
       (stage.family === 'rupture' ? 0.28 : 0) +
@@ -935,10 +963,12 @@ export class SignatureMomentGovernor {
           : 0) +
         (composition.shotClass === 'worldTakeover' ? 0.14 : 0) +
         (composition.shotClass === 'rupture' ? 0.12 : 0) +
-        input.frame.dropImpact * 0.42 +
+        input.frame.dropImpact * dropImpactWeight +
         input.frame.sectionChange * 0.16 +
         input.frame.preDropTension * 0.12 +
-        input.authority.worldDominanceDelivered * 0.08
+        input.authority.worldDominanceDelivered * 0.08 +
+        sourceHintLift -
+        lowPercussionPenalty
     );
   }
 

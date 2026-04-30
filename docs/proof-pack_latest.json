@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-04-30T00:49:17.430Z",
+  "generatedAt": "2026-04-30T02:13:51.361Z",
   "sourceReportPath": "C:\\dev\\GitHub\\visulive\\captures\\reports\\capture-analysis_latest.md",
-  "reportTimestamp": "2026-04-30T00:49:12.977Z",
-  "reportCaptureCount": 75,
+  "reportTimestamp": "2026-04-30T02:13:18.755Z",
+  "reportCaptureCount": 77,
   "capturesPaths": [
     "C:\\dev\\GitHub\\visulive\\captures\\inbox",
     "C:\\dev\\GitHub\\visulive\\captures\\canonical"
   ],
   "screenshotsPath": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\screenshots",
-  "captureCount": 75,
-  "proofEligibleCaptureCount": 47,
+  "captureCount": 77,
+  "proofEligibleCaptureCount": 49,
   "benchmarkScenarioCount": 2,
   "evidenceFreshness": {
     "currentBatchRange": {
-      "count": 75,
+      "count": 77,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-30T00:45:51.599Z",
+      "newest": "2026-04-30T01:57:04.001Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-30T00:45:51.599Z"
+      "newestIso": "2026-04-30T01:57:04.001Z"
     },
     "currentReviewRange": {
-      "count": 75,
+      "count": 77,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-30T00:45:51.599Z",
+      "newest": "2026-04-30T01:57:04.001Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-30T00:45:51.599Z"
+      "newestIso": "2026-04-30T01:57:04.001Z"
     },
     "historicalBaselineRange": {
       "count": 2,
@@ -34,13 +34,13 @@
       "newestIso": "2026-04-09T14:22:43.998Z"
     },
     "allAttachedRange": {
-      "count": 77,
+      "count": 79,
       "oldest": "2026-04-09T06:51:04.103Z",
-      "newest": "2026-04-30T00:45:51.599Z",
+      "newest": "2026-04-30T01:57:04.001Z",
       "oldestIso": "2026-04-09T06:51:04.103Z",
-      "newestIso": "2026-04-30T00:45:51.599Z"
+      "newestIso": "2026-04-30T01:57:04.001Z"
     },
-    "currentReviewCount": 75,
+    "currentReviewCount": 77,
     "historicalBaselineCount": 2,
     "currentBranchProofCutoffAt": "2026-04-23T08:28:02.000Z",
     "seriousProofMaxAgeDays": 7,
@@ -51,9 +51,9 @@
     ],
     "summaryLine": "Current review captures satisfy the current branch proof cutoff and freshness window.",
     "lines": [
-      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T00:45:51.599Z",
-      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z",
-      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z",
+      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T01:57:04.001Z",
+      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z",
+      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z",
       "- Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z",
       "- Current branch proof cutoff: 2026-04-23T08:28:02.000Z",
       "- Serious proof max age: 7 day(s)",
@@ -63,89 +63,89 @@
   },
   "screenshotFreshness": {
     "range": {
-      "count": 297,
+      "count": 317,
       "oldestIso": "2026-04-28T23:29:06.062Z",
-      "newestIso": "2026-04-30T00:46:10.194Z",
+      "newestIso": "2026-04-30T01:57:21.764Z",
       "oldest": "2026-04-28T23:29:06.062Z",
-      "newest": "2026-04-30T00:46:10.194Z"
+      "newest": "2026-04-30T01:57:21.764Z"
     },
     "currentReviewReady": true,
     "summaryLine": "Screenshot references satisfy the current proof cutoff and freshness window."
   },
   "aggregate": {
-    "safeTierCaptures": 47,
+    "safeTierCaptures": 49,
     "cueSpread": {
-      "hold": 4,
-      "gather": 7,
-      "orbit-widen": 6,
+      "hold": 5,
+      "gather": 8,
+      "orbit-widen": 8,
       "residue": 1,
       "collapse": 7,
-      "laser-burst": 12,
-      "fan-sweep": 10
+      "laser-burst": 13,
+      "fan-sweep": 7
     },
     "chamberSpread": {
-      "spectral-plume": 7,
-      "liquid-pressure-core": 27,
-      "cathedral-rings": 6,
+      "spectral-plume": 6,
+      "liquid-pressure-core": 25,
+      "cathedral-rings": 11,
       "portal-iris": 7
     },
     "compositorSpread": {
-      "consequence": 47
+      "consequence": 49
     },
     "spendProfileSpread": {
-      "withheld": 3.853617374005305,
-      "earned": 43.14638262599469
+      "withheld": 4.707303271441202,
+      "earned": 44.292696728558795
     },
     "worldAuthorityStateSpread": {
-      "shared": 16,
-      "dominant": 31
+      "shared": 19,
+      "dominant": 30
     },
-    "authorityReadyCount": 47,
-    "worldAuthorityEvidenceCount": 47,
+    "authorityReadyCount": 49,
+    "worldAuthorityEvidenceCount": 49,
     "heroMonopolyRiskCount": 0,
     "lowChamberPresenceCount": 0,
     "weakWorldAuthorityCount": 0,
-    "overbrightRiskCount": 44,
-    "legacyGlowSpendRiskCount": 44,
+    "overbrightRiskCount": 46,
+    "legacyGlowSpendRiskCount": 46,
     "perceptualWashoutRiskCount": 0,
-    "averageChamberPresence": 0.9475383753931789,
-    "averageFrameHierarchy": 0.7902620588328618,
-    "averageHeroCoverage": 0.0587672153409166,
-    "averageWorldDominanceDelivered": 0.9407753669500779,
-    "averageOverbrightRate": 0.9164528881052793,
-    "averagePerceptualWashoutRisk": 0.000051606396859756294,
-    "averagePerceptualColorfulness": 0.05688083588685518,
-    "averageCompositorOverprocessRisk": 0.01135015628184422,
+    "averageChamberPresence": 0.9444634923065184,
+    "averageFrameHierarchy": 0.7919019207647642,
+    "averageHeroCoverage": 0.05926547988947242,
+    "averageWorldDominanceDelivered": 0.9365112321945663,
+    "averageOverbrightRate": 0.9024362343783239,
+    "averagePerceptualWashoutRisk": 0.00047156956595335837,
+    "averagePerceptualColorfulness": 0.0725456315734583,
+    "averageCompositorOverprocessRisk": 0.01467186590694994,
     "largeHeroCount": 2,
-    "averageRingAuthority": 0.9319190441217825
+    "averageRingAuthority": 0.9343807585038199
   },
   "scenarioCoverage": {
     "currentCounts": {
-      "primary-benchmark": 32,
+      "primary-benchmark": 34,
       "operator-trust": 15
     },
     "currentMissionCounts": {
-      "primary-benchmark": 32,
+      "primary-benchmark": 34,
       "operator-trust": 15
     },
     "historicalBaselineCounts": {
       "primary-benchmark": 1,
       "room-floor": 1
     },
-    "currentReviewCaptureCount": 47,
+    "currentReviewCaptureCount": 49,
     "unclassifiedCurrentCount": 0,
     "historicalBaselineCount": 2,
-    "noTouchCaptureCount": 47,
-    "qualifiedNoTouchCount": 30,
+    "noTouchCaptureCount": 49,
+    "qualifiedNoTouchCount": 32,
     "silenceDignityCount": 4,
-    "worldAuthorityCount": 47,
-    "primaryBenchmarkAuthorityCount": 32,
-    "primaryBenchmarkNoTouchAuthorityCount": 19,
+    "worldAuthorityCount": 49,
+    "primaryBenchmarkAuthorityCount": 34,
+    "primaryBenchmarkNoTouchAuthorityCount": 21,
     "operatorTrustCount": 15
   },
   "runArtifactIntegrityFailureCount": 0,
   "runArtifactIntegrityFailures": [],
-  "missedOpportunityCount": 20,
+  "missedOpportunityCount": 18,
   "releaseReady": false,
   "strictGateFailureCount": 2,
   "warningGateCount": 0,
@@ -154,7 +154,7 @@
       "label": "missed capture opportunities",
       "status": "fail",
       "required": true,
-      "rationale": "20 meaningful run marker(s) were not matched to saved clips."
+      "rationale": "18 meaningful run marker(s) were not matched to saved clips."
     },
     {
       "label": "scenario coverage",
@@ -210,25 +210,25 @@
       "label": "proof-pack completeness",
       "status": "pass",
       "required": true,
-      "rationale": "297 current screenshot reference(s) are available and all captures are attributable to a valid build."
+      "rationale": "317 current screenshot reference(s) are available and all captures are attributable to a valid build."
     },
     {
       "label": "no-touch autonomy",
       "status": "pass",
       "required": true,
-      "rationale": "30 capture(s) cleared the no-touch proof window."
+      "rationale": "32 capture(s) cleared the no-touch proof window."
     },
     {
       "label": "authority split validation",
       "status": "pass",
       "required": true,
-      "rationale": "authority-ready 47/47; world 0.941; chamber 0.948; hierarchy 0.790; hero coverage 0.059; legacy glow 91.6%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0."
+      "rationale": "authority-ready 49/49; world 0.937; chamber 0.944; hierarchy 0.792; hero coverage 0.059; legacy glow 90.2%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0."
     },
     {
       "label": "primary authority proof",
       "status": "pass",
       "required": true,
-      "rationale": "19 no-touch primary benchmark capture(s) show world/chamber authority."
+      "rationale": "21 no-touch primary benchmark capture(s) show world/chamber authority."
     },
     {
       "label": "silence dignity",
@@ -240,7 +240,7 @@
       "label": "world authority delivery",
       "status": "pass",
       "required": false,
-      "rationale": "47 capture(s) show shared or dominant world authority."
+      "rationale": "49 capture(s) show shared or dominant world authority."
     },
     {
       "label": "operator trust",
@@ -258,7 +258,7 @@
       "label": "missed capture opportunities",
       "status": "fail",
       "required": true,
-      "rationale": "20 meaningful run marker(s) were not matched to saved clips."
+      "rationale": "18 meaningful run marker(s) were not matched to saved clips."
     },
     {
       "label": "scenario coverage",
@@ -274,7 +274,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-30T00:49:17.428Z",
+        "generatedAt": "2026-04-30T02:13:51.352Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -846,7 +846,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-30T00:49:17.429Z",
+        "generatedAt": "2026-04-30T02:13:51.353Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1562,7 +1562,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-30T00:49:17.429Z",
+        "generatedAt": "2026-04-30T02:13:51.355Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -2170,19 +2170,173 @@
         }
       ]
     },
-    "run_20260429_204428_unpcmw": {
+    "run_20260429_215428_di0zi0": {
       "version": 1,
       "metadata": {
         "app": "visulive",
         "artifactType": "run-recommendations",
-        "runId": "run_20260429_204428_unpcmw",
-        "generatedAt": "2026-04-30T00:49:17.429Z",
+        "runId": "run_20260429_215428_di0zi0",
+        "generatedAt": "2026-04-30T02:13:51.355Z",
+        "lifecycleState": "inbox",
+        "proofValidity": {
+          "verdict": "valid",
+          "currentProofEligible": false,
+          "startedReady": true,
+          "lastCheckedAt": "2026-04-30T01:54:28.156Z",
+          "invalidations": [],
+          "recoveryGuidance": null
+        },
+        "gateOutcomes": [
+          {
+            "id": "truth",
+            "status": "fail",
+            "rationale": "Run readiness or proof validity does not yet clear the truth gate."
+          },
+          {
+            "id": "hierarchy",
+            "status": "fail",
+            "rationale": "hero=0.000 world=0.000 ring=0.000"
+          },
+          {
+            "id": "coverage",
+            "status": "fail",
+            "rationale": "cue classes=0 families=0"
+          },
+          {
+            "id": "taste",
+            "status": "fail",
+            "rationale": "legacyGlow=0.000 chamber=0.000"
+          },
+          {
+            "id": "operator-trust",
+            "status": "fail",
+            "rationale": "No-touch operator trust was not maintained for this run."
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "issueId": "proof-invalid",
+          "severity": "critical",
+          "title": "Proof run is not eligible as current truth",
+          "ownerLane": "evidence-capture-analyzer",
+          "subsystem": "Proof Wave / run package lifecycle",
+          "suspectedCause": "The serious-run readiness or validity contract was not maintained.",
+          "impactedGates": [
+            "truth",
+            "operator trust"
+          ],
+          "targetMetrics": [
+            "currentProofEligible=true",
+            "invalidationCount=0"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.98,
+          "evidence": {
+            "runId": "run_20260429_215428_di0zi0",
+            "clipFiles": [],
+            "stillFiles": [],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "weak-world-delivery",
+          "severity": "high",
+          "title": "World takeover is still too weak or decorative",
+          "ownerLane": "chamber-environment-lighting",
+          "subsystem": "WorldSystem + ChamberSystem",
+          "suspectedCause": "Chamber/world participation is present, but not decisive enough to read across the room.",
+          "impactedGates": [
+            "hierarchy",
+            "coverage",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageWorldDominance >= 0.22",
+            "averageChamberPresence >= 0.18"
+          ],
+          "recommendedNextProofScenario": "coverage",
+          "confidence": 0.78,
+          "evidence": {
+            "runId": "run_20260429_215428_di0zi0",
+            "clipFiles": [],
+            "stillFiles": [],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "unearned-hero-form-switch",
+          "severity": "high",
+          "title": "Hero shape changes are not consistently matching the semantic plan",
+          "ownerLane": "hero-render-emissive-materials",
+          "subsystem": "HeroSystem semantic form arbitration",
+          "suspectedCause": "Hero form scoring or novelty pressure is still overriding the planned motif grammar too often.",
+          "impactedGates": [
+            "taste",
+            "hierarchy"
+          ],
+          "targetMetrics": [
+            "plannedActiveHeroFormMatchRate >= 0.8",
+            "heroFormSwitchesPerMinute <= 7",
+            "heroFormLongestRunMs up"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.83,
+          "evidence": {
+            "runId": "run_20260429_215428_di0zi0",
+            "clipFiles": [],
+            "stillFiles": [],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "playable-motif-scene-coherence",
+          "severity": "high",
+          "title": "Playable motif scenes are not reading as stable authored scenes",
+          "ownerLane": "show-direction-cue-logic",
+          "subsystem": "PlayableMotifSystem scene routing + silhouette posture",
+          "suspectedCause": "Scene routing, palette base, or signature moment posture is drifting away from the locked motif instead of holding an authored scene long enough to read.",
+          "impactedGates": [
+            "taste",
+            "coverage"
+          ],
+          "targetMetrics": [
+            "playableMotifSceneIntentMatchRate >= 0.8",
+            "playableMotifSceneMotifMatchRate >= 0.78",
+            "playableMotifScenePaletteMatchRate >= 0.78",
+            "playableMotifSceneProfileMatchRate >= 0.78",
+            "playableMotifSceneSilhouetteConfidenceMean >= 0.55",
+            "dominantParticleFieldJob != none when particles are active",
+            "playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.78,
+          "evidence": {
+            "runId": "run_20260429_215428_di0zi0",
+            "clipFiles": [],
+            "stillFiles": [],
+            "markers": []
+          },
+          "details": {}
+        }
+      ]
+    },
+    "run_20260429_215441_sxbzs9": {
+      "version": 1,
+      "metadata": {
+        "app": "visulive",
+        "artifactType": "run-recommendations",
+        "runId": "run_20260429_215441_sxbzs9",
+        "generatedAt": "2026-04-30T02:13:51.357Z",
         "lifecycleState": "inbox",
         "proofValidity": {
           "verdict": "valid",
           "currentProofEligible": true,
           "startedReady": true,
-          "lastCheckedAt": "2026-04-30T00:46:08.110Z",
+          "lastCheckedAt": "2026-04-30T01:57:18.975Z",
           "invalidations": [],
           "recoveryGuidance": null
         },
@@ -2195,22 +2349,22 @@
           {
             "id": "hierarchy",
             "status": "pass",
-            "rationale": "hero=0.066 world=0.871 ring=0.648"
+            "rationale": "hero=0.067 world=0.863 ring=0.734"
           },
           {
             "id": "coverage",
-            "status": "warn",
-            "rationale": "cue classes=2 families=2"
+            "status": "pass",
+            "rationale": "cue classes=5 families=3"
           },
           {
             "id": "taste",
             "status": "warn",
-            "rationale": "legacyGlow=0.795 washout=0.000 color=0.446 chamber=0.864"
+            "rationale": "legacyGlow=0.740 washout=0.003 color=0.444 chamber=0.866"
           },
           {
             "id": "operator-trust",
-            "status": "warn",
-            "rationale": "2 missed capture opportunity marker(s) were found."
+            "status": "pass",
+            "rationale": "No-touch proof remained clean for this run."
           }
         ]
       },
@@ -2233,42 +2387,64 @@
           "recommendedNextProofScenario": "primary-benchmark",
           "confidence": 0.7,
           "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
+            "runId": "run_20260429_215441_sxbzs9",
             "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
+              "auto_authority-turn_2026-04-29_21-54-46.json",
+              "auto_authority-turn_2026-04-29_21-54-55.json",
+              "auto_authority-turn_2026-04-29_21-55-51.json",
+              "auto_authority-turn_2026-04-29_21-56-53.json",
+              "auto_drop_2026-04-29_21-55-17.json",
+              "auto_drop_2026-04-29_21-57-03.json",
+              "auto_operator-trust-clear_2026-04-29_21-55-35.json",
+              "auto_signature-moment-peak_2026-04-29_21-55-04.json"
             ],
             "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
+              "run_20260429_215441_sxbzs9__signature_2173.png",
+              "run_20260429_215441_sxbzs9__authority_2173.png",
+              "run_20260429_215441_sxbzs9__checkpoint_2173.png",
+              "run_20260429_215441_sxbzs9__authority_11987.png",
+              "run_20260429_215441_sxbzs9__safety_16424.png",
+              "run_20260429_215441_sxbzs9__signature_20168.png",
+              "run_20260429_215441_sxbzs9__authority_22760.png",
+              "run_20260429_215441_sxbzs9__signature_23293.png",
+              "run_20260429_215441_sxbzs9__safety_28872.png",
+              "run_20260429_215441_sxbzs9__safety_31581.png",
+              "run_20260429_215441_sxbzs9__safety_34216.png",
+              "run_20260429_215441_sxbzs9__signature_37171.png",
+              "run_20260429_215441_sxbzs9__authority_40520.png",
+              "run_20260429_215441_sxbzs9__signature_40307.png",
+              "run_20260429_215441_sxbzs9__safety_45149.png",
+              "run_20260429_215441_sxbzs9__authority_35112.png",
+              "run_20260429_215441_sxbzs9__trust_51219.png",
+              "run_20260429_215441_sxbzs9__signature_55731.png",
+              "run_20260429_215441_sxbzs9__signature_56883.png",
+              "run_20260429_215441_sxbzs9__safety_61267.png",
+              "run_20260429_215441_sxbzs9__authority_47208.png",
+              "run_20260429_215441_sxbzs9__authority_61267.png",
+              "run_20260429_215441_sxbzs9__signature_68936.png",
+              "run_20260429_215441_sxbzs9__signature_70429.png",
+              "run_20260429_215441_sxbzs9__signature_72541.png",
+              "run_20260429_215441_sxbzs9__safety_76381.png",
+              "run_20260429_215441_sxbzs9__signature_88317.png",
+              "run_20260429_215441_sxbzs9__authority_93789.png",
+              "run_20260429_215441_sxbzs9__safety_87485.png",
+              "run_20260429_215441_sxbzs9__signature_99101.png",
+              "run_20260429_215441_sxbzs9__signature_101811.png",
+              "run_20260429_215441_sxbzs9__signature_104189.png",
+              "run_20260429_215441_sxbzs9__safety_97288.png",
+              "run_20260429_215441_sxbzs9__signature_117256.png",
+              "run_20260429_215441_sxbzs9__signature_119709.png",
+              "run_20260429_215441_sxbzs9__signature_121149.png",
+              "run_20260429_215441_sxbzs9__safety_103581.png",
+              "run_20260429_215441_sxbzs9__signature_135304.png",
+              "run_20260429_215441_sxbzs9__signature_137512.png",
+              "run_20260429_215441_sxbzs9__safety_116029.png",
+              "run_20260429_215441_sxbzs9__safety_143933.png",
+              "run_20260429_215441_sxbzs9__safety_146568.png",
+              "run_20260429_215441_sxbzs9__signature_150035.png",
+              "run_20260429_215441_sxbzs9__signature_152851.png",
+              "run_20260429_215441_sxbzs9__safety_151869.png",
+              "run_20260429_215441_sxbzs9__safety_156765.png"
             ],
             "markers": []
           },
@@ -2292,42 +2468,64 @@
           "recommendedNextProofScenario": "primary-benchmark",
           "confidence": 0.74,
           "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
+            "runId": "run_20260429_215441_sxbzs9",
             "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
+              "auto_authority-turn_2026-04-29_21-54-46.json",
+              "auto_authority-turn_2026-04-29_21-54-55.json",
+              "auto_authority-turn_2026-04-29_21-55-51.json",
+              "auto_authority-turn_2026-04-29_21-56-53.json",
+              "auto_drop_2026-04-29_21-55-17.json",
+              "auto_drop_2026-04-29_21-57-03.json",
+              "auto_operator-trust-clear_2026-04-29_21-55-35.json",
+              "auto_signature-moment-peak_2026-04-29_21-55-04.json"
             ],
             "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
+              "run_20260429_215441_sxbzs9__signature_2173.png",
+              "run_20260429_215441_sxbzs9__authority_2173.png",
+              "run_20260429_215441_sxbzs9__checkpoint_2173.png",
+              "run_20260429_215441_sxbzs9__authority_11987.png",
+              "run_20260429_215441_sxbzs9__safety_16424.png",
+              "run_20260429_215441_sxbzs9__signature_20168.png",
+              "run_20260429_215441_sxbzs9__authority_22760.png",
+              "run_20260429_215441_sxbzs9__signature_23293.png",
+              "run_20260429_215441_sxbzs9__safety_28872.png",
+              "run_20260429_215441_sxbzs9__safety_31581.png",
+              "run_20260429_215441_sxbzs9__safety_34216.png",
+              "run_20260429_215441_sxbzs9__signature_37171.png",
+              "run_20260429_215441_sxbzs9__authority_40520.png",
+              "run_20260429_215441_sxbzs9__signature_40307.png",
+              "run_20260429_215441_sxbzs9__safety_45149.png",
+              "run_20260429_215441_sxbzs9__authority_35112.png",
+              "run_20260429_215441_sxbzs9__trust_51219.png",
+              "run_20260429_215441_sxbzs9__signature_55731.png",
+              "run_20260429_215441_sxbzs9__signature_56883.png",
+              "run_20260429_215441_sxbzs9__safety_61267.png",
+              "run_20260429_215441_sxbzs9__authority_47208.png",
+              "run_20260429_215441_sxbzs9__authority_61267.png",
+              "run_20260429_215441_sxbzs9__signature_68936.png",
+              "run_20260429_215441_sxbzs9__signature_70429.png",
+              "run_20260429_215441_sxbzs9__signature_72541.png",
+              "run_20260429_215441_sxbzs9__safety_76381.png",
+              "run_20260429_215441_sxbzs9__signature_88317.png",
+              "run_20260429_215441_sxbzs9__authority_93789.png",
+              "run_20260429_215441_sxbzs9__safety_87485.png",
+              "run_20260429_215441_sxbzs9__signature_99101.png",
+              "run_20260429_215441_sxbzs9__signature_101811.png",
+              "run_20260429_215441_sxbzs9__signature_104189.png",
+              "run_20260429_215441_sxbzs9__safety_97288.png",
+              "run_20260429_215441_sxbzs9__signature_117256.png",
+              "run_20260429_215441_sxbzs9__signature_119709.png",
+              "run_20260429_215441_sxbzs9__signature_121149.png",
+              "run_20260429_215441_sxbzs9__safety_103581.png",
+              "run_20260429_215441_sxbzs9__signature_135304.png",
+              "run_20260429_215441_sxbzs9__signature_137512.png",
+              "run_20260429_215441_sxbzs9__safety_116029.png",
+              "run_20260429_215441_sxbzs9__safety_143933.png",
+              "run_20260429_215441_sxbzs9__safety_146568.png",
+              "run_20260429_215441_sxbzs9__signature_150035.png",
+              "run_20260429_215441_sxbzs9__signature_152851.png",
+              "run_20260429_215441_sxbzs9__safety_151869.png",
+              "run_20260429_215441_sxbzs9__safety_156765.png"
             ],
             "markers": []
           },
@@ -2352,42 +2550,64 @@
           "recommendedNextProofScenario": "primary-benchmark",
           "confidence": 0.8,
           "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
+            "runId": "run_20260429_215441_sxbzs9",
             "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
+              "auto_authority-turn_2026-04-29_21-54-46.json",
+              "auto_authority-turn_2026-04-29_21-54-55.json",
+              "auto_authority-turn_2026-04-29_21-55-51.json",
+              "auto_authority-turn_2026-04-29_21-56-53.json",
+              "auto_drop_2026-04-29_21-55-17.json",
+              "auto_drop_2026-04-29_21-57-03.json",
+              "auto_operator-trust-clear_2026-04-29_21-55-35.json",
+              "auto_signature-moment-peak_2026-04-29_21-55-04.json"
             ],
             "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
+              "run_20260429_215441_sxbzs9__signature_2173.png",
+              "run_20260429_215441_sxbzs9__authority_2173.png",
+              "run_20260429_215441_sxbzs9__checkpoint_2173.png",
+              "run_20260429_215441_sxbzs9__authority_11987.png",
+              "run_20260429_215441_sxbzs9__safety_16424.png",
+              "run_20260429_215441_sxbzs9__signature_20168.png",
+              "run_20260429_215441_sxbzs9__authority_22760.png",
+              "run_20260429_215441_sxbzs9__signature_23293.png",
+              "run_20260429_215441_sxbzs9__safety_28872.png",
+              "run_20260429_215441_sxbzs9__safety_31581.png",
+              "run_20260429_215441_sxbzs9__safety_34216.png",
+              "run_20260429_215441_sxbzs9__signature_37171.png",
+              "run_20260429_215441_sxbzs9__authority_40520.png",
+              "run_20260429_215441_sxbzs9__signature_40307.png",
+              "run_20260429_215441_sxbzs9__safety_45149.png",
+              "run_20260429_215441_sxbzs9__authority_35112.png",
+              "run_20260429_215441_sxbzs9__trust_51219.png",
+              "run_20260429_215441_sxbzs9__signature_55731.png",
+              "run_20260429_215441_sxbzs9__signature_56883.png",
+              "run_20260429_215441_sxbzs9__safety_61267.png",
+              "run_20260429_215441_sxbzs9__authority_47208.png",
+              "run_20260429_215441_sxbzs9__authority_61267.png",
+              "run_20260429_215441_sxbzs9__signature_68936.png",
+              "run_20260429_215441_sxbzs9__signature_70429.png",
+              "run_20260429_215441_sxbzs9__signature_72541.png",
+              "run_20260429_215441_sxbzs9__safety_76381.png",
+              "run_20260429_215441_sxbzs9__signature_88317.png",
+              "run_20260429_215441_sxbzs9__authority_93789.png",
+              "run_20260429_215441_sxbzs9__safety_87485.png",
+              "run_20260429_215441_sxbzs9__signature_99101.png",
+              "run_20260429_215441_sxbzs9__signature_101811.png",
+              "run_20260429_215441_sxbzs9__signature_104189.png",
+              "run_20260429_215441_sxbzs9__safety_97288.png",
+              "run_20260429_215441_sxbzs9__signature_117256.png",
+              "run_20260429_215441_sxbzs9__signature_119709.png",
+              "run_20260429_215441_sxbzs9__signature_121149.png",
+              "run_20260429_215441_sxbzs9__safety_103581.png",
+              "run_20260429_215441_sxbzs9__signature_135304.png",
+              "run_20260429_215441_sxbzs9__signature_137512.png",
+              "run_20260429_215441_sxbzs9__safety_116029.png",
+              "run_20260429_215441_sxbzs9__safety_143933.png",
+              "run_20260429_215441_sxbzs9__safety_146568.png",
+              "run_20260429_215441_sxbzs9__signature_150035.png",
+              "run_20260429_215441_sxbzs9__signature_152851.png",
+              "run_20260429_215441_sxbzs9__safety_151869.png",
+              "run_20260429_215441_sxbzs9__safety_156765.png"
             ],
             "markers": []
           },
@@ -2412,42 +2632,64 @@
           "recommendedNextProofScenario": "primary-benchmark",
           "confidence": 0.83,
           "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
+            "runId": "run_20260429_215441_sxbzs9",
             "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
+              "auto_authority-turn_2026-04-29_21-54-46.json",
+              "auto_authority-turn_2026-04-29_21-54-55.json",
+              "auto_authority-turn_2026-04-29_21-55-51.json",
+              "auto_authority-turn_2026-04-29_21-56-53.json",
+              "auto_drop_2026-04-29_21-55-17.json",
+              "auto_drop_2026-04-29_21-57-03.json",
+              "auto_operator-trust-clear_2026-04-29_21-55-35.json",
+              "auto_signature-moment-peak_2026-04-29_21-55-04.json"
             ],
             "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
+              "run_20260429_215441_sxbzs9__signature_2173.png",
+              "run_20260429_215441_sxbzs9__authority_2173.png",
+              "run_20260429_215441_sxbzs9__checkpoint_2173.png",
+              "run_20260429_215441_sxbzs9__authority_11987.png",
+              "run_20260429_215441_sxbzs9__safety_16424.png",
+              "run_20260429_215441_sxbzs9__signature_20168.png",
+              "run_20260429_215441_sxbzs9__authority_22760.png",
+              "run_20260429_215441_sxbzs9__signature_23293.png",
+              "run_20260429_215441_sxbzs9__safety_28872.png",
+              "run_20260429_215441_sxbzs9__safety_31581.png",
+              "run_20260429_215441_sxbzs9__safety_34216.png",
+              "run_20260429_215441_sxbzs9__signature_37171.png",
+              "run_20260429_215441_sxbzs9__authority_40520.png",
+              "run_20260429_215441_sxbzs9__signature_40307.png",
+              "run_20260429_215441_sxbzs9__safety_45149.png",
+              "run_20260429_215441_sxbzs9__authority_35112.png",
+              "run_20260429_215441_sxbzs9__trust_51219.png",
+              "run_20260429_215441_sxbzs9__signature_55731.png",
+              "run_20260429_215441_sxbzs9__signature_56883.png",
+              "run_20260429_215441_sxbzs9__safety_61267.png",
+              "run_20260429_215441_sxbzs9__authority_47208.png",
+              "run_20260429_215441_sxbzs9__authority_61267.png",
+              "run_20260429_215441_sxbzs9__signature_68936.png",
+              "run_20260429_215441_sxbzs9__signature_70429.png",
+              "run_20260429_215441_sxbzs9__signature_72541.png",
+              "run_20260429_215441_sxbzs9__safety_76381.png",
+              "run_20260429_215441_sxbzs9__signature_88317.png",
+              "run_20260429_215441_sxbzs9__authority_93789.png",
+              "run_20260429_215441_sxbzs9__safety_87485.png",
+              "run_20260429_215441_sxbzs9__signature_99101.png",
+              "run_20260429_215441_sxbzs9__signature_101811.png",
+              "run_20260429_215441_sxbzs9__signature_104189.png",
+              "run_20260429_215441_sxbzs9__safety_97288.png",
+              "run_20260429_215441_sxbzs9__signature_117256.png",
+              "run_20260429_215441_sxbzs9__signature_119709.png",
+              "run_20260429_215441_sxbzs9__signature_121149.png",
+              "run_20260429_215441_sxbzs9__safety_103581.png",
+              "run_20260429_215441_sxbzs9__signature_135304.png",
+              "run_20260429_215441_sxbzs9__signature_137512.png",
+              "run_20260429_215441_sxbzs9__safety_116029.png",
+              "run_20260429_215441_sxbzs9__safety_143933.png",
+              "run_20260429_215441_sxbzs9__safety_146568.png",
+              "run_20260429_215441_sxbzs9__signature_150035.png",
+              "run_20260429_215441_sxbzs9__signature_152851.png",
+              "run_20260429_215441_sxbzs9__safety_151869.png",
+              "run_20260429_215441_sxbzs9__safety_156765.png"
             ],
             "markers": []
           },
@@ -2476,131 +2718,97 @@
           "recommendedNextProofScenario": "primary-benchmark",
           "confidence": 0.78,
           "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
+            "runId": "run_20260429_215441_sxbzs9",
             "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
+              "auto_authority-turn_2026-04-29_21-54-46.json",
+              "auto_authority-turn_2026-04-29_21-54-55.json",
+              "auto_authority-turn_2026-04-29_21-55-51.json",
+              "auto_authority-turn_2026-04-29_21-56-53.json",
+              "auto_drop_2026-04-29_21-55-17.json",
+              "auto_drop_2026-04-29_21-57-03.json",
+              "auto_operator-trust-clear_2026-04-29_21-55-35.json",
+              "auto_signature-moment-peak_2026-04-29_21-55-04.json"
             ],
             "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
+              "run_20260429_215441_sxbzs9__signature_2173.png",
+              "run_20260429_215441_sxbzs9__authority_2173.png",
+              "run_20260429_215441_sxbzs9__checkpoint_2173.png",
+              "run_20260429_215441_sxbzs9__authority_11987.png",
+              "run_20260429_215441_sxbzs9__safety_16424.png",
+              "run_20260429_215441_sxbzs9__signature_20168.png",
+              "run_20260429_215441_sxbzs9__authority_22760.png",
+              "run_20260429_215441_sxbzs9__signature_23293.png",
+              "run_20260429_215441_sxbzs9__safety_28872.png",
+              "run_20260429_215441_sxbzs9__safety_31581.png",
+              "run_20260429_215441_sxbzs9__safety_34216.png",
+              "run_20260429_215441_sxbzs9__signature_37171.png",
+              "run_20260429_215441_sxbzs9__authority_40520.png",
+              "run_20260429_215441_sxbzs9__signature_40307.png",
+              "run_20260429_215441_sxbzs9__safety_45149.png",
+              "run_20260429_215441_sxbzs9__authority_35112.png",
+              "run_20260429_215441_sxbzs9__trust_51219.png",
+              "run_20260429_215441_sxbzs9__signature_55731.png",
+              "run_20260429_215441_sxbzs9__signature_56883.png",
+              "run_20260429_215441_sxbzs9__safety_61267.png",
+              "run_20260429_215441_sxbzs9__authority_47208.png",
+              "run_20260429_215441_sxbzs9__authority_61267.png",
+              "run_20260429_215441_sxbzs9__signature_68936.png",
+              "run_20260429_215441_sxbzs9__signature_70429.png",
+              "run_20260429_215441_sxbzs9__signature_72541.png",
+              "run_20260429_215441_sxbzs9__safety_76381.png",
+              "run_20260429_215441_sxbzs9__signature_88317.png",
+              "run_20260429_215441_sxbzs9__authority_93789.png",
+              "run_20260429_215441_sxbzs9__safety_87485.png",
+              "run_20260429_215441_sxbzs9__signature_99101.png",
+              "run_20260429_215441_sxbzs9__signature_101811.png",
+              "run_20260429_215441_sxbzs9__signature_104189.png",
+              "run_20260429_215441_sxbzs9__safety_97288.png",
+              "run_20260429_215441_sxbzs9__signature_117256.png",
+              "run_20260429_215441_sxbzs9__signature_119709.png",
+              "run_20260429_215441_sxbzs9__signature_121149.png",
+              "run_20260429_215441_sxbzs9__safety_103581.png",
+              "run_20260429_215441_sxbzs9__signature_135304.png",
+              "run_20260429_215441_sxbzs9__signature_137512.png",
+              "run_20260429_215441_sxbzs9__safety_116029.png",
+              "run_20260429_215441_sxbzs9__safety_143933.png",
+              "run_20260429_215441_sxbzs9__safety_146568.png",
+              "run_20260429_215441_sxbzs9__signature_150035.png",
+              "run_20260429_215441_sxbzs9__signature_152851.png",
+              "run_20260429_215441_sxbzs9__safety_151869.png",
+              "run_20260429_215441_sxbzs9__safety_156765.png"
             ],
             "markers": []
           },
           "details": {}
-        },
-        {
-          "issueId": "missed-opportunities",
-          "severity": "medium",
-          "title": "Run journal shows meaningful moments with no matching saved clip",
-          "ownerLane": "evidence-capture-analyzer",
-          "subsystem": "authority-aware auto capture",
-          "suspectedCause": "Trigger windows or clip finalization are missing kind-specific evidence for meaningful authority, governance, quiet, trust, or signature moments.",
-          "impactedGates": [
-            "truth",
-            "operator trust"
-          ],
-          "targetMetrics": [
-            "missedOpportunityCount=0"
-          ],
-          "recommendedNextProofScenario": "primary-benchmark",
-          "confidence": 0.84,
-          "evidence": {
-            "runId": "run_20260429_204428_unpcmw",
-            "clipFiles": [
-              "auto_authority-turn_2026-04-29_20-44-33.json",
-              "auto_authority-turn_2026-04-29_20-45-24.json",
-              "auto_authority-turn_2026-04-29_20-45-51.json",
-              "auto_drop_2026-04-29_20-45-03.json",
-              "auto_drop_2026-04-29_20-45-13.json",
-              "auto_governance-risk_2026-04-29_20-44-42.json"
-            ],
-            "stillFiles": [
-              "run_20260429_204428_unpcmw__signature_2195.png",
-              "run_20260429_204428_unpcmw__authority_8915.png",
-              "run_20260429_204428_unpcmw__checkpoint_2195.png",
-              "run_20260429_204428_unpcmw__checkpoint_14205.png",
-              "run_20260429_204428_unpcmw__safety_15059.png",
-              "run_20260429_204428_unpcmw__signature_24285.png",
-              "run_20260429_204428_unpcmw__safety_27795.png",
-              "run_20260429_204428_unpcmw__safety_29928.png",
-              "run_20260429_204428_unpcmw__authority_29928.png",
-              "run_20260429_204428_unpcmw__safety_36072.png",
-              "run_20260429_204428_unpcmw__signature_38301.png",
-              "run_20260429_204428_unpcmw__signature_41107.png",
-              "run_20260429_204428_unpcmw__safety_43933.png",
-              "run_20260429_204428_unpcmw__safety_45971.png",
-              "run_20260429_204428_unpcmw__safety_48509.png",
-              "run_20260429_204428_unpcmw__trust_51976.png",
-              "run_20260429_204428_unpcmw__safety_53555.png",
-              "run_20260429_204428_unpcmw__signature_57245.png",
-              "run_20260429_204428_unpcmw__signature_59549.png",
-              "run_20260429_204428_unpcmw__safety_61555.png",
-              "run_20260429_204428_unpcmw__safety_64669.png",
-              "run_20260429_204428_unpcmw__safety_72275.png",
-              "run_20260429_204428_unpcmw__signature_75848.png",
-              "run_20260429_204428_unpcmw__signature_78952.png",
-              "run_20260429_204428_unpcmw__safety_90899.png",
-              "run_20260429_204428_unpcmw__safety_93661.png"
-            ],
-            "markers": [
-              {
-                "markerKind": "authority-turn",
-                "severity": "medium",
-                "timestampMs": 20584,
-                "endTimestampMs": 20605.333333333336,
-                "markerCount": 2,
-                "expectedEvidence": "authority-turn clip or authority still",
-                "reason": "world=dominant delivered=0.747"
-              },
-              {
-                "markerKind": "signature-moment-precharge",
-                "severity": "medium",
-                "timestampMs": 91570.66666666667,
-                "endTimestampMs": 97576,
-                "markerCount": 19,
-                "expectedEvidence": "signature-moment-precharge clip or signature still",
-                "reason": "signature=cathedral-open style=maximal-neon phase=armed"
-              }
-            ]
-          },
-          "details": {
-            "missedOpportunityCount": 2,
-            "highSeverityMissCount": 0
-          }
         }
       ]
     }
   },
   "strongEvidence": [
+    {
+      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\clips\\auto_operator-trust-clear_2026-04-29_21-55-35.json",
+      "score": 9.03473184966338,
+      "triggerKind": "operator-trust-clear",
+      "eventArchetype": "ghost-trace",
+      "cueClass": "hold",
+      "dominantAct": "laser-bloom",
+      "dominantShowFamily": "cathedral-rings",
+      "dominantPaletteState": "tron-blue",
+      "chamberPresenceMean": 0.7040388003576313,
+      "frameHierarchyMean": 0.8185849924705001,
+      "heroCoverageMean": 0.07630669108950905,
+      "worldDominanceDeliveredMean": 0.7442425579350818,
+      "eventGlowPeak": 0.8128042973585099,
+      "bloomStrengthPeak": 0.6950566917894302,
+      "qualityFlags": [
+        "safeTierActive",
+        "highAmbientGlow",
+        "ringOverdrawRisk",
+        "unearnedHeroFormSwitch",
+        "ambiguousHeroSilhouette",
+        "sceneChurn"
+      ]
+    },
     {
       "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_194808_ot6j46\\clips\\auto_authority-turn_2026-04-28_19-54-09.json",
       "score": 8.468949998319136,
@@ -2691,47 +2899,24 @@
         "ambiguousHeroSilhouette",
         "sameySceneSilhouette"
       ]
-    },
-    {
-      "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_192855_gnmlg1\\clips\\auto_authority-turn_2026-04-28_19-33-53.json",
-      "score": 8.329056383281277,
-      "triggerKind": "authority-turn",
-      "eventArchetype": "strike-burst",
-      "cueClass": "collapse",
-      "dominantAct": "laser-bloom",
-      "dominantShowFamily": "liquid-pressure-core",
-      "dominantPaletteState": "acid-lime",
-      "chamberPresenceMean": 1,
-      "frameHierarchyMean": 0.7721674612738806,
-      "heroCoverageMean": 0.045567012205389806,
-      "worldDominanceDeliveredMean": 0.9924912568124958,
-      "eventGlowPeak": 0.9199752125232361,
-      "bloomStrengthPeak": 0.74,
-      "qualityFlags": [
-        "safeTierActive",
-        "highAmbientGlow",
-        "ringOverdrawRisk",
-        "ambiguousHeroSilhouette",
-        "sameySceneSilhouette"
-      ]
     }
   ],
   "weakEvidence": [
     {
-      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\clips\\auto_authority-turn_2026-04-29_20-44-33.json",
-      "score": 4.375768628921651,
+      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\clips\\auto_authority-turn_2026-04-29_21-54-46.json",
+      "score": 4.220404839090385,
       "triggerKind": "authority-turn",
       "eventArchetype": "void",
       "cueClass": "hold",
       "dominantAct": "matrix-storm",
       "dominantShowFamily": "spectral-plume",
       "dominantPaletteState": "tron-blue",
-      "chamberPresenceMean": 0.4433193117916634,
-      "frameHierarchyMean": 0.8576251925198783,
-      "heroCoverageMean": 0.03804142121233696,
-      "worldDominanceDeliveredMean": 0.44550466629415536,
-      "eventGlowPeak": 0.38606066804488093,
-      "bloomStrengthPeak": 0.3939961748134424,
+      "chamberPresenceMean": 0.43012759379697085,
+      "frameHierarchyMean": 0.8610945913651306,
+      "heroCoverageMean": 0.03359584450665647,
+      "worldDominanceDeliveredMean": 0.4353912695274498,
+      "eventGlowPeak": 0.3725440499287589,
+      "bloomStrengthPeak": 0.3755023162553978,
       "qualityFlags": [
         "safeTierActive",
         "lowPaletteVariation",
@@ -2806,184 +2991,305 @@
       ]
     },
     {
-      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\clips\\auto_governance-risk_2026-04-29_20-44-42.json",
-      "score": 6.191235043624553,
+      "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_203658_8yovza\\clips\\auto_governance-risk_2026-04-28_20-37-14.json",
+      "score": 6.192354526155306,
       "triggerKind": "governance-risk",
       "eventArchetype": "ghost-trace",
-      "cueClass": "fan-sweep",
+      "cueClass": "orbit-widen",
       "dominantAct": "matrix-storm",
-      "dominantShowFamily": "liquid-pressure-core",
+      "dominantShowFamily": "cathedral-rings",
       "dominantPaletteState": "tron-blue",
-      "chamberPresenceMean": 0.8922180470299885,
-      "frameHierarchyMean": 0.8398768310122072,
-      "heroCoverageMean": 0.10426052172333243,
-      "worldDominanceDeliveredMean": 0.8806318400127456,
-      "eventGlowPeak": 0.7270754559183834,
-      "bloomStrengthPeak": 0.6983170700189123,
+      "chamberPresenceMean": 0.9297016049347767,
+      "frameHierarchyMean": 0.8109343596784117,
+      "heroCoverageMean": 0.07105757480636171,
+      "worldDominanceDeliveredMean": 0.9126435560461847,
+      "eventGlowPeak": 0.8024929481288138,
+      "bloomStrengthPeak": 0.739999999944496,
       "qualityFlags": [
         "safeTierActive",
-        "randomFeelingPaletteChurn",
-        "unearnedHeroFormSwitch",
-        "ambiguousHeroSilhouette"
+        "highAmbientGlow",
+        "ringOverdrawRisk",
+        "ambiguousHeroSilhouette",
+        "sameySceneSilhouette"
       ]
     }
   ],
   "screenshots": [
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_93661.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_93661.png",
-      "sizeBytes": 867233,
-      "modifiedAt": "2026-04-30T00:46:10.194Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_156765.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_156765.png",
+      "sizeBytes": 523167,
+      "modifiedAt": "2026-04-30T01:57:21.764Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_90899.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_90899.png",
-      "sizeBytes": 968212,
-      "modifiedAt": "2026-04-30T00:46:01.906Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_151869.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_151869.png",
+      "sizeBytes": 626330,
+      "modifiedAt": "2026-04-30T01:57:19.793Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_78952.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_78952.png",
-      "sizeBytes": 878139,
-      "modifiedAt": "2026-04-30T00:46:00.406Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_152851.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_152851.png",
+      "sizeBytes": 666758,
+      "modifiedAt": "2026-04-30T01:57:17.119Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_75848.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_75848.png",
-      "sizeBytes": 814638,
-      "modifiedAt": "2026-04-30T00:45:52.228Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_150035.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_150035.png",
+      "sizeBytes": 493753,
+      "modifiedAt": "2026-04-30T01:57:14.321Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_72275.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_72275.png",
-      "sizeBytes": 1085530,
-      "modifiedAt": "2026-04-30T00:45:44.203Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_146568.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_146568.png",
+      "sizeBytes": 447999,
+      "modifiedAt": "2026-04-30T01:57:10.915Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_64669.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_64669.png",
-      "sizeBytes": 827272,
-      "modifiedAt": "2026-04-30T00:45:41.706Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_143933.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_143933.png",
+      "sizeBytes": 475877,
+      "modifiedAt": "2026-04-30T01:57:07.876Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_61555.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_61555.png",
-      "sizeBytes": 974135,
-      "modifiedAt": "2026-04-30T00:45:33.516Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_116029.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_116029.png",
+      "sizeBytes": 580770,
+      "modifiedAt": "2026-04-30T01:57:05.686Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_59549.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_59549.png",
-      "sizeBytes": 994869,
-      "modifiedAt": "2026-04-30T00:45:30.870Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_137512.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_137512.png",
+      "sizeBytes": 767846,
+      "modifiedAt": "2026-04-30T01:57:02.813Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_57245.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_57245.png",
-      "sizeBytes": 900263,
-      "modifiedAt": "2026-04-30T00:45:28.442Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_135304.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_135304.png",
+      "sizeBytes": 744079,
+      "modifiedAt": "2026-04-30T01:56:59.776Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_53555.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_53555.png",
-      "sizeBytes": 1120335,
-      "modifiedAt": "2026-04-30T00:45:25.019Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_103581.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_103581.png",
+      "sizeBytes": 518001,
+      "modifiedAt": "2026-04-30T01:56:55.910Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__trust_51976.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__trust_51976.png",
-      "sizeBytes": 1059147,
-      "modifiedAt": "2026-04-30T00:45:22.694Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_121149.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_121149.png",
+      "sizeBytes": 1104035,
+      "modifiedAt": "2026-04-30T01:56:52.937Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_48509.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_48509.png",
-      "sizeBytes": 1059369,
-      "modifiedAt": "2026-04-30T00:45:19.983Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_119709.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_119709.png",
+      "sizeBytes": 1106584,
+      "modifiedAt": "2026-04-30T01:56:49.882Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_45971.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_45971.png",
-      "sizeBytes": 1157218,
-      "modifiedAt": "2026-04-30T00:45:16.956Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_117256.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_117256.png",
+      "sizeBytes": 868685,
+      "modifiedAt": "2026-04-30T01:56:41.252Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_43933.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_43933.png",
-      "sizeBytes": 1038142,
-      "modifiedAt": "2026-04-30T00:45:14.688Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_97288.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_97288.png",
+      "sizeBytes": 616614,
+      "modifiedAt": "2026-04-30T01:56:38.445Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_41107.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_41107.png",
-      "sizeBytes": 544379,
-      "modifiedAt": "2026-04-30T00:45:12.441Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_104189.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_104189.png",
+      "sizeBytes": 838394,
+      "modifiedAt": "2026-04-30T01:56:35.408Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_38301.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_38301.png",
-      "sizeBytes": 691213,
-      "modifiedAt": "2026-04-30T00:45:09.252Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_101811.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_101811.png",
+      "sizeBytes": 685328,
+      "modifiedAt": "2026-04-30T01:56:32.467Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_36072.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_36072.png",
-      "sizeBytes": 1157769,
-      "modifiedAt": "2026-04-30T00:45:06.910Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_99101.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_99101.png",
+      "sizeBytes": 857118,
+      "modifiedAt": "2026-04-30T01:56:23.538Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_29928.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__authority_29928.png",
-      "sizeBytes": 821346,
-      "modifiedAt": "2026-04-30T00:45:04.544Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_87485.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_87485.png",
+      "sizeBytes": 788128,
+      "modifiedAt": "2026-04-30T01:56:20.581Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_29928.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_29928.png",
-      "sizeBytes": 902734,
-      "modifiedAt": "2026-04-30T00:45:02.103Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_93789.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_93789.png",
+      "sizeBytes": 827838,
+      "modifiedAt": "2026-04-30T01:56:17.766Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_27795.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_27795.png",
-      "sizeBytes": 834208,
-      "modifiedAt": "2026-04-30T00:44:59.256Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_88317.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_88317.png",
+      "sizeBytes": 680346,
+      "modifiedAt": "2026-04-30T01:56:14.679Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_24285.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_24285.png",
-      "sizeBytes": 569478,
-      "modifiedAt": "2026-04-30T00:44:56.807Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_76381.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_76381.png",
+      "sizeBytes": 718727,
+      "modifiedAt": "2026-04-30T01:56:11.692Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_15059.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_15059.png",
-      "sizeBytes": 932182,
-      "modifiedAt": "2026-04-30T00:44:54.050Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_72541.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_72541.png",
+      "sizeBytes": 705682,
+      "modifiedAt": "2026-04-30T01:56:03.237Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_14205.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__checkpoint_14205.png",
-      "sizeBytes": 1029334,
-      "modifiedAt": "2026-04-30T00:44:45.444Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_70429.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_70429.png",
+      "sizeBytes": 677867,
+      "modifiedAt": "2026-04-30T01:55:55.114Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_2195.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__checkpoint_2195.png",
-      "sizeBytes": 746907,
-      "modifiedAt": "2026-04-30T00:44:43.123Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_68936.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_68936.png",
+      "sizeBytes": 758690,
+      "modifiedAt": "2026-04-30T01:55:52.846Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_8915.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__authority_8915.png",
-      "sizeBytes": 793157,
-      "modifiedAt": "2026-04-30T00:44:40.563Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_61267.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_61267.png",
+      "sizeBytes": 791752,
+      "modifiedAt": "2026-04-30T01:55:50.433Z"
     },
     {
-      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_2195.png",
-      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_2195.png",
-      "sizeBytes": 351998,
-      "modifiedAt": "2026-04-30T00:44:38.735Z"
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_47208.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_47208.png",
+      "sizeBytes": 783447,
+      "modifiedAt": "2026-04-30T01:55:47.712Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_61267.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_61267.png",
+      "sizeBytes": 916554,
+      "modifiedAt": "2026-04-30T01:55:45.460Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_56883.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_56883.png",
+      "sizeBytes": 938395,
+      "modifiedAt": "2026-04-30T01:55:42.132Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_55731.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_55731.png",
+      "sizeBytes": 712291,
+      "modifiedAt": "2026-04-30T01:55:39.505Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__trust_51219.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__trust_51219.png",
+      "sizeBytes": 1136179,
+      "modifiedAt": "2026-04-30T01:55:36.730Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_35112.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_35112.png",
+      "sizeBytes": 696205,
+      "modifiedAt": "2026-04-30T01:55:33.263Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_45149.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_45149.png",
+      "sizeBytes": 896927,
+      "modifiedAt": "2026-04-30T01:55:30.325Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_40307.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_40307.png",
+      "sizeBytes": 852179,
+      "modifiedAt": "2026-04-30T01:55:27.307Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_40520.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_40520.png",
+      "sizeBytes": 535373,
+      "modifiedAt": "2026-04-30T01:55:24.166Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_37171.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_37171.png",
+      "sizeBytes": 743728,
+      "modifiedAt": "2026-04-30T01:55:21.443Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_34216.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_34216.png",
+      "sizeBytes": 787659,
+      "modifiedAt": "2026-04-30T01:55:18.144Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_31581.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_31581.png",
+      "sizeBytes": 913127,
+      "modifiedAt": "2026-04-30T01:55:15.351Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_28872.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_28872.png",
+      "sizeBytes": 918116,
+      "modifiedAt": "2026-04-30T01:55:12.511Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_23293.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_23293.png",
+      "sizeBytes": 797661,
+      "modifiedAt": "2026-04-30T01:55:09.622Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_22760.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_22760.png",
+      "sizeBytes": 942687,
+      "modifiedAt": "2026-04-30T01:55:06.903Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_20168.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_20168.png",
+      "sizeBytes": 683332,
+      "modifiedAt": "2026-04-30T01:55:04.252Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_16424.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__safety_16424.png",
+      "sizeBytes": 657420,
+      "modifiedAt": "2026-04-30T01:55:01.068Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_11987.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_11987.png",
+      "sizeBytes": 452381,
+      "modifiedAt": "2026-04-30T01:54:56.647Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__checkpoint_2173.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__checkpoint_2173.png",
+      "sizeBytes": 445579,
+      "modifiedAt": "2026-04-30T01:54:53.495Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_2173.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__authority_2173.png",
+      "sizeBytes": 441505,
+      "modifiedAt": "2026-04-30T01:54:50.049Z"
+    },
+    {
+      "name": "run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_2173.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_215441_sxbzs9\\stills\\run_20260429_215441_sxbzs9__signature_2173.png",
+      "sizeBytes": 341542,
+      "modifiedAt": "2026-04-30T01:54:46.398Z"
     },
     {
       "name": "run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png",

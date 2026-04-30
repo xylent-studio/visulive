@@ -1520,4 +1520,66 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('### Source-hint evidence');
     expect(aggregate).toContain('Captures with source hints: 1');
   });
+
+  it('does not count quiet texture source hints as missed source events', () => {
+    const frame = createCaptureFrame({
+      timestampMs: 1000,
+      dropImpact: 0.03,
+      sectionChange: 0.02,
+      accent: 0.04,
+      peakConfidence: 0.08,
+      beatConfidence: 0.08,
+      musicConfidence: 0.12
+    });
+    frame.diagnostics.sourceHintFrame = {
+      schemaVersion: 1,
+      timestampMs: 1000,
+      sourceMode: 'system-audio',
+      runtimeMode: 'active',
+      confidence: 0.82,
+      topHintId: 'silenceAir',
+      reasonCodes: ['quiet-air'],
+      suppressionCodes: [],
+      hints: [
+        {
+          id: 'silenceAir',
+          value: 0.92,
+          confidence: 0.88,
+          density: 0.2,
+          reasonCodes: ['quiet-air'],
+          suppressionCodes: []
+        },
+        {
+          id: 'tonalLift',
+          value: 0.74,
+          confidence: 0.82,
+          density: 0.24,
+          reasonCodes: ['stable-tone'],
+          suppressionCodes: []
+        }
+      ]
+    };
+
+    const summary = summarizeCapture(
+      {
+        metadata: {
+          label: 'quiet-source-hint-test',
+          captureMode: 'auto',
+          triggerKind: 'quiet',
+          triggerReason: 'quiet source hint proof',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'balanced',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE
+        },
+        frames: [frame]
+      },
+      'C:/dev/GitHub/visulive/captures/quiet-source-hint-test.json'
+    );
+
+    expect(summary.sourceHintSummary?.recorded).toBe(true);
+    expect(summary.sourceHintSummary?.missedHighConfidenceSourceEvents).toBe(0);
+  });
 });

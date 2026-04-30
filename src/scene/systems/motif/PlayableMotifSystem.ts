@@ -108,11 +108,12 @@ function resolveSceneFromSignature(
   if (moment.kind === 'collapse-scar') {
     const collapseIsEarned =
       motif === 'rupture-scar' ||
-      moment.postConsequence > 0.52 ||
-      moment.worldLead > 0.68 ||
-      moment.safetyRisk > 0.55;
+      (moment.postConsequence > 0.58 &&
+        (moment.worldLead > 0.7 || moment.safetyRisk > 0.58));
     const collapseResidueStillOwnsScene =
-      motif === 'rupture-scar' || moment.postConsequence > 0.58;
+      motif === 'rupture-scar' ||
+      (moment.postConsequence > 0.64 &&
+        (moment.worldLead > 0.72 || moment.safetyRisk > 0.6));
 
     if (
       ((moment.phase === 'precharge' ||
@@ -167,8 +168,7 @@ function isHardRuptureContext(context: PlayableMotifSystemUpdateContext): boolea
   return (
     context.stageCuePlan.family === 'rupture' ||
     context.stageCuePlan.worldMode === 'collapse-well' ||
-    context.stageCuePlan.transformIntent === 'collapse' ||
-    context.audio.dropImpact > 0.5
+    context.stageCuePlan.transformIntent === 'collapse'
   );
 }
 
@@ -463,7 +463,13 @@ export class PlayableMotifSystem {
     const profileMatch =
       this.activeScene === 'none'
         ? true
-        : motifMatch && paletteMatch && profile?.id === this.activeScene;
+        : profile?.id === this.activeScene &&
+          (motifMatch ||
+            resolveSceneFromSignature(context.signatureMoment, context.visualMotif) ===
+              this.activeScene) &&
+          (paletteMatch ||
+            resolveSceneFromSignature(context.signatureMoment, context.visualMotif) ===
+              this.activeScene);
     const distinctness = profile?.distinctness ?? 0;
     const silhouetteConfidence =
       (profile?.silhouetteConfidence ?? 0) *
@@ -560,13 +566,20 @@ export class PlayableMotifSystem {
       reason === 'drop-rupture';
     const yieldingFromCollapse =
       this.activeScene === 'collapse-scar' && targetScene !== 'collapse-scar';
+    const collapseIsResidueOnly =
+      context.signatureMoment.kind !== 'collapse-scar' ||
+      context.signatureMoment.phase === 'idle' ||
+      context.signatureMoment.phase === 'clear' ||
+      context.signatureMoment.phase === 'residue';
     const minimumDwellSeconds =
       this.activeScene === 'none'
         ? 0
         : urgent
           ? 1.2
           : yieldingFromCollapse
-            ? 2.6
+            ? collapseIsResidueOnly && !isHardRuptureContext(context)
+              ? 1.1
+              : 2.2
             : posture?.minimumDwellSeconds ?? 7;
 
     if (ageSeconds >= minimumDwellSeconds) {

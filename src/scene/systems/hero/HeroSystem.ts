@@ -1466,24 +1466,25 @@ export class HeroSystem {
     );
     const urgentSemanticSwitch =
       semanticSwitchReason === 'drop-rupture' ||
+      semanticSwitchReason === 'signature-moment' ||
       semanticSwitchReason === 'authority-demotion' ||
       this.dropImpact > 0.74;
     const candidateDwellSeconds = urgentSemanticSwitch
-      ? 0.55
-      : semanticSwitchReason === 'signature-moment'
-        ? 1.85
-        : semanticSwitchReason === 'motif-change' ||
+      ? semanticSwitchReason === 'signature-moment'
+        ? 0.72
+        : 0.55
+      : semanticSwitchReason === 'motif-change' ||
             semanticSwitchReason === 'cue-family' ||
             semanticSwitchReason === 'release-residue'
-          ? 2.8
+          ? 1.35
           : 4.2;
     const candidateIsStable =
       heroFormCandidateAgeSeconds >= candidateDwellSeconds &&
       this.heroFormCandidate === plannedHeroForm;
     const candidateHasPhrasePermission =
       urgentSemanticSwitch ||
-      phraseBoundaryStrength > 0.34 ||
-      heroFormCandidateAgeSeconds >= candidateDwellSeconds + 2.4;
+      phraseBoundaryStrength > 0.28 ||
+      heroFormCandidateAgeSeconds >= candidateDwellSeconds + 0.9;
     const semanticSwitchEligible =
       plannedHeroForm !== this.activeHeroForm &&
       candidateIsStable &&
@@ -1508,8 +1509,15 @@ export class HeroSystem {
       secondsSinceHeroFormChange >= heroFormHoldSeconds * 1.55 &&
       plannedHeroFormScore >= currentHeroFormScore + 0.18 &&
       plannedHeroFormScore >= topHeroFormScore - 0.025;
+    const persistentPlannedMismatchEligible =
+      plannedHeroForm !== this.activeHeroForm &&
+      candidateIsStable &&
+      semanticSwitchReason !== 'hold' &&
+      secondsSinceHeroFormChange >=
+        Math.min(heroFormHoldSeconds * 0.72, candidateDwellSeconds + 2.1);
     const nextHeroFormCandidate =
       semanticSwitchEligible ||
+      persistentPlannedMismatchEligible ||
       (scorePlannedSwitchEligible &&
         plannedHeroFormScore >= topHeroFormScore - (0.04 + formVarietyPressure * 0.035))
         ? plannedHeroForm
@@ -1517,9 +1525,7 @@ export class HeroSystem {
     const nextHeroFormScore = heroFormScores[nextHeroFormCandidate] ?? currentHeroFormScore;
     const semanticMinimumHoldSeconds = urgentSemanticSwitch
       ? 0.8
-      : semanticSwitchReason === 'signature-moment'
-        ? 2.2
-        : Math.min(heroFormHoldSeconds, candidateDwellSeconds + 1.4);
+      : Math.min(heroFormHoldSeconds, candidateDwellSeconds + 1.4);
     const semanticFormRotationEligible =
       semanticSwitchEligible && secondsSinceHeroFormChange >= semanticMinimumHoldSeconds;
     const formRotationEligible =

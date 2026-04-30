@@ -285,6 +285,36 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneTransitionReason).not.toBe('signature-moment');
   });
 
+  it('does not treat a bright non-rupture drop as collapse scar scene ownership', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'reveal',
+          worldMode: 'cathedral-rise',
+          transformIntent: 'open'
+        },
+        paletteFrame: {
+          ...DEFAULT_PALETTE_FRAME,
+          baseState: 'acid-lime'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.62,
+          sectionChange: 0.36
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('neon-cathedral');
+    expect(telemetry.playableMotifSceneTransitionReason).not.toBe('drop-rupture');
+  });
+
   it('lets collapse residue yield back to the current motif once rupture no longer owns it', () => {
     const system = new PlayableMotifSystem();
     system.build();
