@@ -116,6 +116,7 @@ Important:
 - manual capture and auto evidence capture are intentionally paused while replay mode is active
 - return to live mode before expecting new evidence to be recorded
 - serious proof is mission-gated; `Start Show` should not count as a serious run when folder, build identity, mission, replay, or route-coherence checks fail
+- serious PC-audio proof is also post-share gated; the browser share must grant audio, calibration trust must be stable, and source readiness must report a music lock before the run journal/no-touch clock can start
 - a serious run gets a `ProofMissionSnapshot` at run start; samples, clips, stills, journal, and manifest should inherit that locked mission
 - `currentProofEligible` is finalization-derived from `deriveProofMissionEligibility(...)`; live readiness is not proof eligibility
 - clip references should register only after the clip JSON saves successfully, and run review/promotion should fail dangling references
@@ -127,6 +128,7 @@ Important:
 - captures now preserve both the launch profile and the current active quick-start state, so the report can distinguish "started from the right authored posture" from "drifted into a custom mix later"
 - auto captures now cap their total window length so one saved file is more likely to represent one musical idea
 - captures now preserve boot/calibration summaries, source integrity, decision summaries, and input-drift summaries so floor-policy issues can be judged directly
+- captures now preserve calibration trust, calibration quality, and source-readiness truth so silent PC shares, weak starts, clipping, mixed-source risk, and proof-ready music lock are visible in reports
 - diagnostics now support optional proof-still bundles for auto-saved captures; use them as synchronized evidence checkpoints, not as a screenshot stream
 - folder auto-save is no longer limited by the old in-app 12-capture ceiling; the app now keeps only a recent replay window in memory while continuing to save evidence to disk
 - captures now also preserve visual telemetry summaries such as glow budgets, palette spread, hue variation, and temporal window means

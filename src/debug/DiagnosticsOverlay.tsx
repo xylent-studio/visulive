@@ -358,6 +358,18 @@ export function DiagnosticsOverlay({
           <strong>{frame.calibrated ? 'yes' : 'no'}</strong>
         </div>
         <div>
+          <span>cal trust</span>
+          <strong>{audio.calibrationTrust}</strong>
+        </div>
+        <div>
+          <span>cal quality</span>
+          <strong>{audio.calibrationQuality}</strong>
+        </div>
+        <div>
+          <span>music lock</span>
+          <strong>{audio.sourceReadiness.musicLock ? 'yes' : 'no'}</strong>
+        </div>
+        <div>
           <span>raw path</span>
           <strong>{audio.rawPathGranted ? 'clean' : 'compromised'}</strong>
         </div>
@@ -1084,7 +1096,9 @@ export function DiagnosticsOverlay({
         <div className="diagnostics-code">
           calibration: p20 rms={formatNumber(audio.calibrationRmsPercentile20)} p90 peak=
           {formatNumber(audio.calibrationPeakPercentile90)} floor={formatNumber(audio.noiseFloor)} ceiling=
-          {formatNumber(audio.adaptiveCeiling)}
+          {formatNumber(audio.adaptiveCeiling)} trust={audio.calibrationTrust} quality=
+          {audio.calibrationQuality} proof-ready=
+          {audio.sourceReadiness.proofReady ? 'yes' : 'no'}
         </div>
         <div className="diagnostics-code">
           capture folder: {captureFolder.folderName ?? 'not selected'} | last saved: {captureFolder.lastSavedLabel ?? 'none'}

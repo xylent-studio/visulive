@@ -223,6 +223,30 @@ export type AppliedDisplayTrackSettings = {
   restrictOwnAudio: boolean | null;
 };
 
+export type CalibrationTrust = 'blocked' | 'provisional' | 'stable';
+
+export type CalibrationQuality =
+  | 'clean'
+  | 'silent-system-audio'
+  | 'weak-signal'
+  | 'loud-calibration-risk'
+  | 'clipped-startup'
+  | 'source-ended'
+  | 'mixed-source-risk';
+
+export type SourceReadiness = {
+  trackGranted: boolean;
+  signalPresent: boolean;
+  musicLock: boolean;
+  clipped: boolean;
+  sourceEnded: boolean;
+  firstSourceHeardAtMs: number | null;
+  firstMusicLockAtMs: number | null;
+  stableAtMs: number | null;
+  sourcePresentScore: number;
+  proofReady: boolean;
+};
+
 export type SourceDiagnostics = {
   source: SourceDescriptor;
   sourceMode: ListeningMode;
@@ -243,6 +267,9 @@ export type SourceDiagnostics = {
   calibrationSampleCount: number;
   calibrationRmsPercentile20: number;
   calibrationPeakPercentile90: number;
+  calibrationTrust: CalibrationTrust;
+  calibrationQuality: CalibrationQuality;
+  sourceReadiness: SourceReadiness;
   rawRms: number;
   rawPeak: number;
   adaptiveCeiling: number;
@@ -401,6 +428,20 @@ export const DEFAULT_AUDIO_DIAGNOSTICS: AudioDiagnostics = {
   calibrationSampleCount: 0,
   calibrationRmsPercentile20: 0,
   calibrationPeakPercentile90: 0,
+  calibrationTrust: 'blocked',
+  calibrationQuality: 'weak-signal',
+  sourceReadiness: {
+    trackGranted: false,
+    signalPresent: false,
+    musicLock: false,
+    clipped: false,
+    sourceEnded: false,
+    firstSourceHeardAtMs: null,
+    firstMusicLockAtMs: null,
+    stableAtMs: null,
+    sourcePresentScore: 0,
+    proofReady: false
+  },
   rawRms: 0,
   rawPeak: 0,
   adaptiveCeiling: 0.06,

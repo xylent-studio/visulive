@@ -1,4 +1,4 @@
-import type { AudioEngineStatus } from '../types/audio';
+import type { AudioDiagnostics, AudioEngineStatus } from '../types/audio';
 import type { RendererDiagnostics } from '../engine/VisualizerEngine';
 import type {
   ReplayProofReadiness,
@@ -11,6 +11,7 @@ import {
 
 type ShowLaunchSurfaceProps = {
   visible: boolean;
+  audio: AudioDiagnostics;
   status: AudioEngineStatus;
   renderer: RendererDiagnostics;
   startRoute: ShowStartRoute;
@@ -27,6 +28,7 @@ type ShowLaunchSurfaceProps = {
 
 export function ShowLaunchSurface({
   visible,
+  audio,
   status,
   renderer,
   startRoute,
@@ -109,6 +111,32 @@ export function ShowLaunchSurface({
             </div>
           ) : null}
         </div>
+
+        {startRoute === 'pc-audio' || startRoute === 'combo' ? (
+          <div className="show-launch__status">
+            <div>
+              <span>audio share</span>
+              <strong>{audio.displayAudioGranted ? 'granted' : 'pending'}</strong>
+            </div>
+            <div>
+              <span>signal</span>
+              <strong>
+                {audio.sourceReadiness.signalPresent ? 'heard' : 'waiting'}
+              </strong>
+            </div>
+            <div>
+              <span>music lock</span>
+              <strong>
+                {audio.sourceReadiness.musicLock ? 'locked' : 'pending'}
+              </strong>
+            </div>
+            <div>
+              <span>calibration</span>
+              <strong>{audio.calibrationTrust}</strong>
+              <small>{audio.calibrationQuality}</small>
+            </div>
+          </div>
+        ) : null}
 
         {proofWaveArmed ? (
           <div

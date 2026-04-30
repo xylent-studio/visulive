@@ -22,6 +22,7 @@ If you are entering the repo fresh, start with:
    - [mastery-review-system.md](C:/dev/GitHub/visulive/docs/mastery-review-system.md) for golden references, failure patterns, and review cadence
    - [show-language.md](C:/dev/GitHub/visulive/docs/show-language.md)
    - [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
+   - [audio-calibration-trust.md](C:/dev/GitHub/visulive/docs/audio-calibration-trust.md)
    - [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
    - [preserved-editions.md](C:/dev/GitHub/visulive/docs/preserved-editions.md) for V1 preservation, legacy-host truth, and release history
    - [control-system-audit.md](C:/dev/GitHub/visulive/docs/control-system-audit.md)
@@ -67,6 +68,9 @@ Public operator/control truth.
 
 ### [tuning-workflow.md](C:/dev/GitHub/visulive/docs/tuning-workflow.md)
 Evidence, replay, and review workflow.
+
+### [audio-calibration-trust.md](C:/dev/GitHub/visulive/docs/audio-calibration-trust.md)
+Source-aware startup calibration, PC-audio readiness, and proof gating.
 
 ### [deployment-operations.md](C:/dev/GitHub/visulive/docs/deployment-operations.md)
 Hosting, release, and domain runbook.

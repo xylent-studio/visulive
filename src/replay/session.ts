@@ -109,6 +109,7 @@ import { isReplayProofMissionKind } from './proofMission';
 import {
   createReplayBuildInfo,
   deriveReplayScenarioAssessment,
+  isAutonomyBreakingIntervention,
   isReplayBuildInfoValid
 } from './runJournal';
 
@@ -245,6 +246,9 @@ export function cloneReplayCaptureFrame(
       spectrumLow: audio.spectrumLow,
       spectrumMid: audio.spectrumMid,
       spectrumHigh: audio.spectrumHigh,
+      calibrationTrust: audio.calibrationTrust,
+      calibrationQuality: audio.calibrationQuality,
+      sourceReadiness: audio.sourceReadiness,
       roomMusicFloorActive: audio.roomMusicFloorActive,
       roomMusicDrive: audio.roomMusicDrive,
       aftermathEntryEvidence: audio.aftermathEntryEvidence,
@@ -1156,6 +1160,9 @@ function buildBootSummary(audio: AudioDiagnostics) {
     calibrationSampleCount: audio.calibrationSampleCount,
     calibrationRmsPercentile20: audio.calibrationRmsPercentile20,
     calibrationPeakPercentile90: audio.calibrationPeakPercentile90,
+    calibrationTrust: audio.calibrationTrust,
+    calibrationQuality: audio.calibrationQuality,
+    sourceReadiness: audio.sourceReadiness,
     noiseFloor: audio.noiseFloor,
     minimumCeiling: audio.minimumCeiling,
     calibrationPeak: audio.calibrationPeak,
@@ -1177,6 +1184,9 @@ function buildSourceSummary(
     displayAudioGranted: audio.displayAudioGranted,
     displayTrackLabel: audio.displayTrackLabel,
     rawPathGranted: audio.rawPathGranted,
+    sourceReadiness: audio.sourceReadiness,
+    calibrationTrust: audio.calibrationTrust,
+    calibrationQuality: audio.calibrationQuality,
     provenanceMismatch: Boolean(provenanceNote),
     provenanceNote
   };
@@ -1261,6 +1271,7 @@ export function buildReplayCapture(
     quickStartProfileId,
     buildInfo: replayBuildInfo,
     scenarioAssessment,
+    interventionReasons,
     triggerKind: options?.triggerKind,
     durationMs,
     triggerCount: options?.triggerCount ?? 0,
@@ -1506,7 +1517,9 @@ function normalizeReplayProofReadinessCheck(
     check?.id === 'build-identity' ||
     check?.id === 'scenario-tag' ||
     check?.id === 'replay-inactive' ||
-    check?.id === 'route-coherence'
+    check?.id === 'route-coherence' ||
+    check?.id === 'source-readiness' ||
+    check?.id === 'calibration-trust'
       ? (check.id as ReplayProofReadinessCheckId)
       : null;
 
@@ -3701,6 +3714,7 @@ function deriveCaptureQualityFlags(input: {
   quickStartProfileId?: string;
   buildInfo?: ReplayBuildInfo;
   scenarioAssessment?: ReplayScenarioAssessment | null;
+  interventionReasons?: string[];
   triggerKind?: string;
   durationMs: number;
   triggerCount: number;
@@ -3718,12 +3732,12 @@ function deriveCaptureQualityFlags(input: {
   );
   const elevatedGlowFlag = classifyElevatedGlow(input.visualSummary);
 
-  if (
-    (!input.launchQuickStartProfileId && !input.quickStartProfileId) ||
-    (input.launchQuickStartProfileId &&
-      input.quickStartProfileId &&
-      input.quickStartProfileId !== input.launchQuickStartProfileId)
-  ) {
+  const operatorContamination =
+    input.interventionReasons?.some((reason) =>
+      isAutonomyBreakingIntervention(reason)
+    ) ?? false;
+
+  if (operatorContamination) {
     flags.add('manualCustom');
   }
 
@@ -4323,6 +4337,16 @@ function normalizeReplayFrameDiagnostics(
       typeof diagnostics?.spectrumHigh === 'number'
         ? diagnostics.spectrumHigh
         : 0,
+    calibrationTrust:
+      diagnostics?.calibrationTrust === 'blocked' ||
+      diagnostics?.calibrationTrust === 'provisional' ||
+      diagnostics?.calibrationTrust === 'stable'
+        ? diagnostics.calibrationTrust
+        : undefined,
+    calibrationQuality: normalizeCalibrationQuality(
+      diagnostics?.calibrationQuality
+    ),
+    sourceReadiness: normalizeSourceReadiness(diagnostics?.sourceReadiness),
     roomMusicFloorActive:
       typeof diagnostics?.roomMusicFloorActive === 'boolean'
         ? diagnostics.roomMusicFloorActive
@@ -4362,6 +4386,47 @@ function normalizeReplayFrameDiagnostics(
           (warning): warning is string => typeof warning === 'string'
         )
       : []
+  };
+}
+
+function normalizeCalibrationQuality(value: unknown) {
+  return value === 'clean' ||
+    value === 'silent-system-audio' ||
+    value === 'weak-signal' ||
+    value === 'loud-calibration-risk' ||
+    value === 'clipped-startup' ||
+    value === 'source-ended' ||
+    value === 'mixed-source-risk'
+    ? value
+    : undefined;
+}
+
+function normalizeSourceReadiness(value: unknown) {
+  if (!isObject(value)) {
+    return undefined;
+  }
+
+  return {
+    trackGranted: Boolean(value.trackGranted),
+    signalPresent: Boolean(value.signalPresent),
+    musicLock: Boolean(value.musicLock),
+    clipped: Boolean(value.clipped),
+    sourceEnded: Boolean(value.sourceEnded),
+    firstSourceHeardAtMs:
+      typeof value.firstSourceHeardAtMs === 'number'
+        ? value.firstSourceHeardAtMs
+        : null,
+    firstMusicLockAtMs:
+      typeof value.firstMusicLockAtMs === 'number'
+        ? value.firstMusicLockAtMs
+        : null,
+    stableAtMs:
+      typeof value.stableAtMs === 'number' ? value.stableAtMs : null,
+    sourcePresentScore:
+      typeof value.sourcePresentScore === 'number'
+        ? value.sourcePresentScore
+        : 0,
+    proofReady: Boolean(value.proofReady)
   };
 }
 
@@ -5581,6 +5646,14 @@ function normalizeReplayBootSummary(value: unknown): ReplayCaptureMetadata['boot
       typeof value.calibrationPeakPercentile90 === 'number'
         ? value.calibrationPeakPercentile90
         : 0,
+    calibrationTrust:
+      value.calibrationTrust === 'blocked' ||
+      value.calibrationTrust === 'provisional' ||
+      value.calibrationTrust === 'stable'
+        ? value.calibrationTrust
+        : undefined,
+    calibrationQuality: normalizeCalibrationQuality(value.calibrationQuality),
+    sourceReadiness: normalizeSourceReadiness(value.sourceReadiness),
     noiseFloor: typeof value.noiseFloor === 'number' ? value.noiseFloor : 0,
     minimumCeiling:
       typeof value.minimumCeiling === 'number' ? value.minimumCeiling : 0,
@@ -5615,6 +5688,14 @@ function normalizeReplaySourceSummary(
         ? value.displayTrackLabel
         : null,
     rawPathGranted: Boolean(value.rawPathGranted),
+    sourceReadiness: normalizeSourceReadiness(value.sourceReadiness),
+    calibrationTrust:
+      value.calibrationTrust === 'blocked' ||
+      value.calibrationTrust === 'provisional' ||
+      value.calibrationTrust === 'stable'
+        ? value.calibrationTrust
+        : undefined,
+    calibrationQuality: normalizeCalibrationQuality(value.calibrationQuality),
     provenanceMismatch: Boolean(value.provenanceMismatch),
     provenanceNote:
       typeof value.provenanceNote === 'string' ? value.provenanceNote : undefined

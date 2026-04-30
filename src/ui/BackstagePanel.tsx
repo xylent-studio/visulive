@@ -713,6 +713,11 @@ export function BackstagePanel({
                 phase: <strong>{status.phase}</strong> | input:{' '}
                 <strong>{activeInputLabel || 'pending'}</strong>
               </div>
+              <div className="backstage-note">
+                source trust: <strong>{audio.calibrationTrust}</strong> | quality:{' '}
+                <strong>{audio.calibrationQuality}</strong> | music lock:{' '}
+                <strong>{audio.sourceReadiness.musicLock ? 'yes' : 'no'}</strong>
+              </div>
               {audio.warnings.length > 0 ? (
                 <ul className="backstage-warnings">
                   {audio.warnings.slice(0, 3).map((warning) => (

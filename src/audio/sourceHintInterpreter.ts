@@ -188,7 +188,18 @@ export class SourceHintInterpreter {
   }
 
   private materializeHint(recipe: HintRecipe, deltaSeconds: number, mode: ListeningMode, calibrated: boolean): SourceHint {
-    const suppression = clamp01(recipe.suppressionCodes.length * 0.22);
+    const suppressionWeight = recipe.suppressionCodes.reduce((sum, code) => {
+      if (code === 'speech-like' && mode === 'system-audio') {
+        return sum + 0.35;
+      }
+
+      if ((code === 'hiss-like' || code === 'dense-noise') && mode === 'system-audio') {
+        return sum + 0.72;
+      }
+
+      return sum + 1;
+    }, 0);
+    const suppression = clamp01(suppressionWeight * 0.22);
     const modeTrust = mode === 'system-audio' ? 1 : mode === 'hybrid' ? 0.72 : 0.54;
     const calibrationTrust = calibrated ? 1 : 0.82;
     const value = clamp01(recipe.value * (1 - suppression * 0.68));

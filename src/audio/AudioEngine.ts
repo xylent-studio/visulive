@@ -1,9 +1,16 @@
 import {
   clamp01,
-  summarizeCalibrationSamples,
   updateAdaptiveCeiling,
   updateAdaptiveNoiseFloor
 } from './audioMath';
+import {
+  DEFAULT_SOURCE_READINESS,
+  buildSourceReadiness,
+  getCalibrationDurationMs,
+  hasMusicLock,
+  hasSourceSignal,
+  summarizeSourceAwareCalibration
+} from './calibrationPolicy';
 import { ListeningInterpreter } from './listeningInterpreter';
 import { SourceHintInterpreter } from './sourceHintInterpreter';
 import {
@@ -31,9 +38,12 @@ import {
   type AudioDiagnostics,
   type AudioSnapshot,
   type AudioEngineStatus,
+  type CalibrationQuality,
+  type CalibrationTrust,
   type ListeningFrame,
   type ListeningMode,
   type ListeningSource,
+  type SourceReadiness,
   type SourceHintRuntimeMode,
   type SpectrumFrame,
   type SourceDescriptor,
@@ -57,8 +67,6 @@ type ExtendedDisplayMediaStreamOptions = DisplayMediaStreamOptions & {
   preferCurrentTab?: boolean;
   audio?: DisplayMediaAudioConstraints | boolean;
 };
-
-const CALIBRATION_MS = 2400;
 
 export class AudioEngine implements ListeningSource {
   private status = DEFAULT_AUDIO_STATUS;
@@ -96,6 +104,13 @@ export class AudioEngine implements ListeningSource {
   private calibrationSampleCount = 0;
   private calibrationRmsPercentile20 = 0;
   private calibrationPeakPercentile90 = 0;
+  private calibrationTrust: CalibrationTrust = 'blocked';
+  private calibrationQuality: CalibrationQuality = 'weak-signal';
+  private sourceReadiness: SourceReadiness = DEFAULT_SOURCE_READINESS;
+  private firstSourceHeardAtMs: number | null = null;
+  private firstMusicLockAtMs: number | null = null;
+  private stableAtMs: number | null = null;
+  private sourceEnded = false;
   private sourceMode: ListeningMode = 'room-mic';
   private sourceDescriptor: SourceDescriptor = DEFAULT_SOURCE_DESCRIPTOR;
   private availableInputs: SourceDescriptor[] = [DEFAULT_SOURCE_DESCRIPTOR];
@@ -329,6 +344,7 @@ export class AudioEngine implements ListeningSource {
         : null;
       this.displayTrackLabel = needsDisplayAudio ? displayLabel : null;
       this.displayAudioGranted = Boolean(displayAudioTrack);
+      this.sourceEnded = false;
 
       this.selectedInputId = needsMic
         ? micTrack?.getSettings().deviceId ?? this.preferredInputId ?? null
@@ -387,6 +403,7 @@ export class AudioEngine implements ListeningSource {
         const packet = event.data;
 
         this.workletPacket = packet;
+        this.observeSourcePacket(packet);
 
         if (this.status.phase === 'calibrating') {
           this.calibrationRms.push(packet.rms);
@@ -408,10 +425,21 @@ export class AudioEngine implements ListeningSource {
       this.calibrationSampleCount = 0;
       this.calibrationRmsPercentile20 = 0;
       this.calibrationPeakPercentile90 = 0;
+      this.calibrationTrust = 'blocked';
+      this.calibrationQuality = 'weak-signal';
+      this.sourceReadiness = {
+        ...DEFAULT_SOURCE_READINESS,
+        trackGranted: this.sourceMode === 'room-mic' || this.displayAudioGranted
+      };
+      this.firstSourceHeardAtMs = null;
+      this.firstMusicLockAtMs = null;
+      this.stableAtMs = null;
+      this.sourceEnded = false;
       this.interpreter.reset();
       this.sourceHintInterpreter.reset();
       this.calibrationStartedAt = performance.now();
-      this.calibrationEndsAt = this.calibrationStartedAt + CALIBRATION_MS;
+      this.calibrationEndsAt =
+        this.calibrationStartedAt + getCalibrationDurationMs(this.sourceMode);
 
       this.bootStep = 'calibrating';
       this.updateStatus({
@@ -420,6 +448,7 @@ export class AudioEngine implements ListeningSource {
       });
 
       this.startAnalysisLoop();
+      await this.waitForStartupCompletion();
     } catch (error) {
       this.stopStream(requestedMicStream);
       this.stopStream(requestedDisplayStream);
@@ -455,6 +484,65 @@ export class AudioEngine implements ListeningSource {
     }
   }
 
+  private async waitForStartupCompletion(): Promise<void> {
+    if (this.status.phase === 'live' || this.status.phase === 'error') {
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      const timeoutMs = getCalibrationDurationMs(this.sourceMode) + 3200;
+      let timeoutId = 0;
+      const unsubscribe = this.subscribe((status) => {
+        if (status.phase !== 'live' && status.phase !== 'error') {
+          return;
+        }
+
+        window.clearTimeout(timeoutId);
+        unsubscribe();
+        resolve();
+      });
+
+      timeoutId = window.setTimeout(() => {
+        unsubscribe();
+        if (this.status.phase !== 'live' && this.status.phase !== 'error') {
+          this.updateStatus({
+            phase: 'error',
+            message: 'Calibration timed out.',
+            error:
+              'The browser did not deliver enough audio frames to finish calibration. Restart the source and keep the tab visible during startup.'
+          });
+        }
+        resolve();
+      }, timeoutMs);
+    });
+  }
+
+  private observeSourcePacket(packet: AnalysisFrame): void {
+    const now = performance.now();
+
+    if (hasSourceSignal(packet) && this.firstSourceHeardAtMs === null) {
+      this.firstSourceHeardAtMs = now;
+    }
+
+    if (hasMusicLock(packet) && this.firstMusicLockAtMs === null) {
+      this.firstMusicLockAtMs = now;
+    }
+
+    if (
+      this.status.phase === 'live' &&
+      this.sourceMode === 'system-audio' &&
+      this.calibrationTrust === 'provisional' &&
+      this.displayAudioGranted &&
+      hasMusicLock(packet) &&
+      !packet.clipped &&
+      !this.sourceEnded
+    ) {
+      this.calibrationTrust = 'stable';
+      this.calibrationQuality = 'clean';
+      this.stableAtMs = this.stableAtMs ?? now;
+    }
+  }
+
   private startAnalysisLoop(): void {
     if (this.analysisFrameId !== 0) {
       cancelAnimationFrame(this.analysisFrameId);
@@ -485,9 +573,14 @@ export class AudioEngine implements ListeningSource {
       return;
     }
 
-    const profile = summarizeCalibrationSamples(
+    const profile = summarizeSourceAwareCalibration(
+      this.sourceMode,
       this.calibrationRms,
-      this.calibrationPeaks
+      this.calibrationPeaks,
+      {
+        displayAudioGranted: this.displayAudioGranted,
+        sourceEnded: this.sourceEnded
+      }
     );
 
     this.noiseFloor = Math.max(profile.noiseFloor, 0.0025);
@@ -502,15 +595,37 @@ export class AudioEngine implements ListeningSource {
     this.calibrationSampleCount = profile.sampleCount;
     this.calibrationRmsPercentile20 = profile.rmsPercentile20;
     this.calibrationPeakPercentile90 = profile.peakPercentile90;
-    this.spectrumBaseline = deriveSpectrumBaseline(this.calibrationSpectrumFrames);
+    this.calibrationTrust = profile.calibrationTrust;
+    this.calibrationQuality = profile.calibrationQuality;
+    this.stableAtMs =
+      profile.calibrationTrust === 'stable' ? performance.now() : null;
+    this.spectrumBaseline = deriveSpectrumBaseline(
+      this.calibrationSpectrumFrames,
+      this.sourceMode === 'room-mic' ? 0.2 : 0.08,
+      this.sourceMode === 'system-audio' ? 0.45 : this.sourceMode === 'hybrid' ? 0.65 : 1
+    );
     this.previousSpectrumFrame = null;
     this.interpreter.reset();
     this.sourceHintInterpreter.reset();
     this.bootStep = 'live';
+    this.sourceReadiness = buildSourceReadiness({
+      mode: this.sourceMode,
+      displayAudioGranted: this.displayAudioGranted,
+      calibrationTrust: this.calibrationTrust,
+      calibrationQuality: this.calibrationQuality,
+      frame: this.workletPacket,
+      sourceEnded: this.sourceEnded,
+      firstSourceHeardAtMs: this.firstSourceHeardAtMs,
+      firstMusicLockAtMs: this.firstMusicLockAtMs,
+      stableAtMs: this.stableAtMs
+    });
 
     this.updateStatus({
       phase: 'live',
-      message: 'Live'
+      message:
+        this.calibrationTrust === 'stable'
+          ? 'Live'
+          : 'Live - source trust provisional'
     });
   }
 
@@ -578,6 +693,18 @@ export class AudioEngine implements ListeningSource {
       mode: this.sourceMode
     };
 
+    this.sourceReadiness = buildSourceReadiness({
+      mode: this.sourceMode,
+      displayAudioGranted: this.displayAudioGranted,
+      calibrationTrust: this.calibrationTrust,
+      calibrationQuality: this.calibrationQuality,
+      frame: analysisFrame,
+      sourceEnded: this.sourceEnded,
+      firstSourceHeardAtMs: this.firstSourceHeardAtMs,
+      firstMusicLockAtMs: this.firstMusicLockAtMs,
+      stableAtMs: this.stableAtMs
+    });
+
     this.diagnostics = {
       source: this.sourceDescriptor,
       sourceMode: this.sourceMode,
@@ -598,6 +725,9 @@ export class AudioEngine implements ListeningSource {
       calibrationSampleCount: this.calibrationSampleCount,
       calibrationRmsPercentile20: this.calibrationRmsPercentile20,
       calibrationPeakPercentile90: this.calibrationPeakPercentile90,
+      calibrationTrust: this.calibrationTrust,
+      calibrationQuality: this.calibrationQuality,
+      sourceReadiness: this.sourceReadiness,
       rawRms: this.workletPacket.rms,
       rawPeak: this.workletPacket.peak,
       adaptiveCeiling: this.adaptiveCeiling,
@@ -888,7 +1018,23 @@ export class AudioEngine implements ListeningSource {
 
     if (this.sourceMode === 'hybrid') {
       warnings.push(
-        'Hybrid mode is active. Direct PC audio and room sounds are being interpreted together.'
+        'Hybrid mode is active. Direct PC audio and room sounds are mixed before analysis, so serious proof should use PC Audio until split-source analysis exists.'
+      );
+    }
+
+    if (calibrated && this.calibrationTrust !== 'stable') {
+      warnings.push(
+        `Audio source trust is ${this.calibrationTrust}: ${this.describeCalibrationQuality(this.calibrationQuality)}`
+      );
+    }
+
+    if (
+      calibrated &&
+      this.sourceMode === 'system-audio' &&
+      !this.sourceReadiness.musicLock
+    ) {
+      warnings.push(
+        'PC audio is shared, but a representative music signal has not been locked yet.'
       );
     }
 
@@ -939,6 +1085,26 @@ export class AudioEngine implements ListeningSource {
     }
 
     return warnings;
+  }
+
+  private describeCalibrationQuality(quality: CalibrationQuality): string {
+    switch (quality) {
+      case 'silent-system-audio':
+        return 'shared PC audio was silent during calibration';
+      case 'weak-signal':
+        return 'startup signal was too weak for proof-grade trust';
+      case 'loud-calibration-risk':
+        return 'startup audio was unusually loud and may overfit calibration';
+      case 'clipped-startup':
+        return 'startup audio clipped';
+      case 'source-ended':
+        return 'the selected source ended or was unavailable';
+      case 'mixed-source-risk':
+        return 'hybrid input is mixed before analysis';
+      case 'clean':
+      default:
+        return 'calibration is clean';
+    }
   }
 
   private buildSourceDescriptor(
@@ -996,9 +1162,9 @@ export class AudioEngine implements ListeningSource {
   private getCalibrationMessage(): string {
     switch (this.sourceMode) {
       case 'system-audio':
-        return 'Listening to PC audio...';
+        return 'Verifying PC audio signal...';
       case 'hybrid':
-        return 'Listening to the room and PC audio...';
+        return 'Verifying mixed room and PC audio...';
       default:
         return 'Listening to the room...';
     }
@@ -1022,10 +1188,20 @@ export class AudioEngine implements ListeningSource {
   }
 
   private async handleExternalSourceEnded(kind: ListeningMode): Promise<void> {
+    this.sourceEnded = true;
     await this.teardown();
     this.latestFrame = DEFAULT_LISTENING_FRAME;
     this.latestAnalysisFrame = DEFAULT_ANALYSIS_FRAME;
-    this.diagnostics = DEFAULT_AUDIO_DIAGNOSTICS;
+    this.diagnostics = {
+      ...DEFAULT_AUDIO_DIAGNOSTICS,
+      sourceMode: this.sourceMode,
+      calibrationTrust: 'blocked',
+      calibrationQuality: 'source-ended',
+      sourceReadiness: {
+        ...DEFAULT_SOURCE_READINESS,
+        sourceEnded: true
+      }
+    };
 
     const error =
       kind === 'system-audio'
@@ -1092,6 +1268,13 @@ export class AudioEngine implements ListeningSource {
     this.calibrationSampleCount = 0;
     this.calibrationRmsPercentile20 = 0;
     this.calibrationPeakPercentile90 = 0;
+    this.calibrationTrust = 'blocked';
+    this.calibrationQuality = 'weak-signal';
+    this.sourceReadiness = DEFAULT_SOURCE_READINESS;
+    this.firstSourceHeardAtMs = null;
+    this.firstMusicLockAtMs = null;
+    this.stableAtMs = null;
+    this.sourceEnded = false;
     this.staticWarnings = [];
     this.bootStep = 'idle';
     this.workletPacket = DEFAULT_ANALYSIS_FRAME;

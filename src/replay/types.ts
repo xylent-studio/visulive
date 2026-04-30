@@ -1,6 +1,9 @@
 import type {
   AnalysisFrame,
+  CalibrationQuality,
+  CalibrationTrust,
   ListeningFrame,
+  SourceReadiness,
   SourceHintFrame,
   SpectrumFrame
 } from '../types/audio';
@@ -126,7 +129,9 @@ export type ReplayProofReadinessCheckId =
   | 'build-identity'
   | 'scenario-tag'
   | 'replay-inactive'
-  | 'route-coherence';
+  | 'route-coherence'
+  | 'source-readiness'
+  | 'calibration-trust';
 
 export type ReplayProofReadinessCheck = {
   id: ReplayProofReadinessCheckId;
@@ -339,6 +344,9 @@ export type ReplayFrameDiagnostics = {
   spectrumLow: number;
   spectrumMid: number;
   spectrumHigh: number;
+  calibrationTrust?: CalibrationTrust;
+  calibrationQuality?: CalibrationQuality;
+  sourceReadiness?: SourceReadiness;
   roomMusicFloorActive: boolean;
   roomMusicDrive: number;
   aftermathEntryEvidence: number;
@@ -460,6 +468,9 @@ export type ReplayBootSummary = {
   calibrationSampleCount: number;
   calibrationRmsPercentile20: number;
   calibrationPeakPercentile90: number;
+  calibrationTrust?: CalibrationTrust;
+  calibrationQuality?: CalibrationQuality;
+  sourceReadiness?: SourceReadiness;
   noiseFloor: number;
   minimumCeiling: number;
   calibrationPeak: number;
@@ -473,6 +484,9 @@ export type ReplaySourceSummary = {
   displayAudioGranted: boolean;
   displayTrackLabel: string | null;
   rawPathGranted: boolean;
+  sourceReadiness?: SourceReadiness;
+  calibrationTrust?: CalibrationTrust;
+  calibrationQuality?: CalibrationQuality;
   provenanceMismatch: boolean;
   provenanceNote?: string;
 };
@@ -545,6 +559,9 @@ export type ReplayRunJournalSample = {
     selectedInputId: string | null;
     rawPathGranted: boolean;
     displayAudioGranted: boolean;
+    calibrationTrust?: CalibrationTrust;
+    calibrationQuality?: CalibrationQuality;
+    sourceReadiness?: SourceReadiness;
   };
   audio: {
     showState: ListeningFrame['showState'];
@@ -663,6 +680,7 @@ export type ReplayRunEventMarkerKind =
   | 'signature-moment-peak'
   | 'signature-moment-residue'
   | 'signature-preview'
+  | 'source-readiness'
   | 'proof-invalidated'
   | 'intervention'
   | 'suppressed-intervention'

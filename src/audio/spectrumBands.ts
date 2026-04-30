@@ -116,7 +116,8 @@ export function deriveSpectrumFrame(input: SpectrumFrameInput): SpectrumFrame {
 
 export function deriveSpectrumBaseline(
   frames: SpectrumFrame[],
-  p = 0.2
+  p = 0.2,
+  scale = 1
 ): SpectrumBaseline {
   const baseline: SpectrumBaseline = {};
 
@@ -125,7 +126,7 @@ export function deriveSpectrumBaseline(
       .map((frame) => frame.bands.find((band) => band.id === definition.id)?.energy)
       .filter((value): value is number => typeof value === 'number');
 
-    baseline[definition.id] = percentile(values, p);
+    baseline[definition.id] = clamp01(percentile(values, p) * scale);
   }
 
   return baseline;

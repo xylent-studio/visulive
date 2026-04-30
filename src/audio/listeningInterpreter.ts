@@ -274,6 +274,8 @@ export class ListeningInterpreter {
       deltaSeconds
     );
 
+    const speechEnvironmentTrust =
+      mode === 'system-audio' ? 0.46 : mode === 'hybrid' ? 0.74 : 1;
     const speechTarget = clamp01(
       (mid * 0.96 +
         modulation * 0.36 +
@@ -281,7 +283,8 @@ export class ListeningInterpreter {
         low * 0.12 -
         high * 0.05) *
         (1 - transientBase * 0.48) *
-        (1 - humRejection * 0.54)
+        (1 - humRejection * 0.54) *
+        speechEnvironmentTrust
     );
     const speech = damp(this.frame.speech, speechTarget, 4.8, deltaSeconds);
     const speechConfidence = damp(
@@ -1264,15 +1267,22 @@ export class ListeningInterpreter {
       input.releaseTail < 0.28 &&
       input.sectionChange < 0.2 &&
       input.recentQualifiedSectionAgeMs > 2200;
+    const releaseCarrySuppression =
+      input.showState !== 'surge' &&
+      input.surgeAgeMs > 900 &&
+      (input.releaseEvidence > 0.08 ||
+        input.releaseTail > 0.08 ||
+        input.sectionChange < 0.74);
 
     if (
-      input.dropImpact > 0.42 - input.sourceAggression * 0.04 ||
-      input.sectionChange > 0.46 - input.sourceAggression * 0.04 ||
-      (input.showState === 'surge' &&
-        input.surgeAgeMs < 2200 &&
-        input.beatConfidence > 0.3 - input.sourceAggression * 0.03 &&
-        input.phraseTension > 0.44 - input.sourceAggression * 0.04 &&
-        (input.dropImpact > 0.16 || input.preDropTension > 0.34))
+      !releaseCarrySuppression &&
+      (input.dropImpact > 0.42 - input.sourceAggression * 0.04 ||
+        input.sectionChange > 0.46 - input.sourceAggression * 0.04 ||
+        (input.showState === 'surge' &&
+          input.surgeAgeMs < 2200 &&
+          input.beatConfidence > 0.3 - input.sourceAggression * 0.03 &&
+          input.phraseTension > 0.44 - input.sourceAggression * 0.04 &&
+          (input.dropImpact > 0.16 || input.preDropTension > 0.34)))
     ) {
       return {
         performanceIntent: 'detonate',

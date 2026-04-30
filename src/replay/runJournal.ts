@@ -91,6 +91,7 @@ type ReplayProofReadinessInput = {
   captureFolderReady?: boolean;
   showStartRoute?: ShowStartRoute;
   sourceMode?: ListeningMode;
+  audioDiagnostics?: AudioDiagnostics | null;
   proofScenarioKind?: ReplayProofScenarioKind | null;
   buildInfo?: Partial<ReplayBuildInfo> | BuildInfo | null;
   replayActive?: boolean;
@@ -424,10 +425,14 @@ function buildProofReadinessCheck(
         : id === 'build-identity'
           ? 'Build identity'
           : id === 'scenario-tag'
-            ? 'Scenario tag'
-            : id === 'replay-inactive'
-              ? 'Replay inactive'
-              : 'Route coherence',
+          ? 'Scenario tag'
+          : id === 'replay-inactive'
+            ? 'Replay inactive'
+            : id === 'source-readiness'
+              ? 'Source readiness'
+              : id === 'calibration-trust'
+                ? 'Calibration trust'
+                : 'Route coherence',
     passed,
     reason,
     blocking
@@ -486,6 +491,21 @@ export function deriveReplayProofReadiness(
           : input.showStartRoute === 'pc-audio'
             ? routeCapabilities.displayAudioAvailable
             : routeCapabilities.microphoneAvailable;
+  const audio = input.audioDiagnostics ?? null;
+  const postStartAudioKnown = audio?.listeningFrame.calibrated === true;
+  const calibrationTrustReady =
+    !postStartAudioKnown ||
+    audio.calibrationTrust === 'stable' ||
+    input.proofScenarioKind === 'room-floor';
+  const sourceReadinessReady =
+    !postStartAudioKnown ||
+    (audio.sourceReadiness.proofReady === true &&
+      (resolvedSourceMode === 'room-mic' || audio.displayAudioGranted === true));
+  const sourceReadinessReason = !postStartAudioKnown
+    ? 'Post-share source readiness will be checked after audio starts.'
+    : sourceReadinessReady
+      ? `Source readiness is proof-grade (${audio.calibrationQuality}, ${audio.calibrationTrust}).`
+      : `Source readiness is not proof-grade (${audio.calibrationQuality}, ${audio.calibrationTrust}). Restart with a clean source and audible music.`;
 
   const checks = [
     buildProofReadinessCheck(
@@ -526,6 +546,20 @@ export function deriveReplayProofReadiness(
         : input.proofScenarioKind === 'room-floor'
           ? 'Room-floor proof must start from the Microphone route with room-mic support.'
           : 'Route and input capabilities are coherent enough for this proof mission.'
+    ),
+    buildProofReadinessCheck(
+      'calibration-trust',
+      calibrationTrustReady,
+      !postStartAudioKnown
+        ? 'Calibration trust will be checked after source startup.'
+        : calibrationTrustReady
+          ? `Calibration trust is ${audio.calibrationTrust}.`
+          : `Calibration trust is ${audio.calibrationTrust}; serious proof requires stable calibration.`
+    ),
+    buildProofReadinessCheck(
+      'source-readiness',
+      sourceReadinessReady,
+      sourceReadinessReason
     )
   ];
 
@@ -912,7 +946,10 @@ export function buildReplayRunJournalSample(
       sourceLabel: input.diagnostics.deviceLabel || 'Unknown source',
       selectedInputId: input.diagnostics.selectedInputId,
       rawPathGranted: input.diagnostics.rawPathGranted,
-      displayAudioGranted: input.diagnostics.displayAudioGranted
+      displayAudioGranted: input.diagnostics.displayAudioGranted,
+      calibrationTrust: input.diagnostics.calibrationTrust,
+      calibrationQuality: input.diagnostics.calibrationQuality,
+      sourceReadiness: input.diagnostics.sourceReadiness
     },
     audio: {
       showState: input.listeningFrame.showState,

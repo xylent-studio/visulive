@@ -760,6 +760,7 @@ export function App() {
     captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
     showStartRoute,
     sourceMode,
+    audioDiagnostics,
     proofScenarioKind: proofMissionProfile.scenarioKind,
     buildInfo: BUILD_INFO,
     replayActive,
@@ -1169,6 +1170,7 @@ export function App() {
         captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
       showStartRoute: journal.metadata.showStartRoute,
       sourceMode: options?.sourceMode ?? journal.metadata.sourceMode,
+      audioDiagnostics: audioRef.current?.getDiagnostics() ?? audioDiagnostics,
       proofScenarioKind: lockedScenarioKind,
       buildInfo: journal.metadata.buildInfo,
       replayActive: options?.replayActive ?? replayRef.current.hasCapture(),
@@ -1661,6 +1663,7 @@ export function App() {
         captureFolderStatusRef.current.ready && captureFolderStatusRef.current.autoSave,
       showStartRoute: journalRoute,
       sourceMode: nextSourceMode,
+      audioDiagnostics: diagnostics,
       proofScenarioKind: journalScenarioKind,
       buildInfo: BUILD_INFO,
       replayActive: false,
@@ -1707,6 +1710,21 @@ export function App() {
       interventionReasons: [],
       noTouchWindowPassed: false
     });
+    journal.markers.push(
+      buildReplayRunEventMarker(
+        'source-readiness',
+        diagnostics.listeningFrame.timestampMs,
+        `Audio source readiness locked as ${diagnostics.calibrationTrust}/${diagnostics.calibrationQuality}.`,
+        {
+          calibrationTrust: diagnostics.calibrationTrust,
+          calibrationQuality: diagnostics.calibrationQuality,
+          proofReady: diagnostics.sourceReadiness.proofReady,
+          signalPresent: diagnostics.sourceReadiness.signalPresent,
+          musicLock: diagnostics.sourceReadiness.musicLock,
+          sourcePresentScore: diagnostics.sourceReadiness.sourcePresentScore
+        }
+      )
+    );
 
     runJournalRef.current = {
       journal,
@@ -3239,7 +3257,6 @@ export function App() {
     setSourceMode(nextSourceMode);
     setAdvancedDrawerTab(null);
     setReplayError(null);
-    beginNoTouchSession();
     try {
       await audioRef.current?.setSourceMode(nextSourceMode);
       audioRef.current?.setTuning(audioTuning);
@@ -3250,9 +3267,43 @@ export function App() {
         throw new Error(startedStatus.error ?? 'Audio engine failed to start.');
       }
 
+      const startedDiagnostics = audioRef.current?.getDiagnostics() ?? diagnostics;
+      if (proofWaveArmed) {
+        const postStartReadiness = deriveReplayProofReadiness({
+          proofWaveArmed,
+          captureFolderLabel: captureFolderStatus.folderName,
+          captureFolderReady: captureFolderStatus.ready && captureFolderStatus.autoSave,
+          showStartRoute: startRoute,
+          sourceMode: nextSourceMode,
+          audioDiagnostics: startedDiagnostics,
+          proofScenarioKind: activeMission.scenarioKind,
+          buildInfo: BUILD_INFO,
+          replayActive,
+          routeCapabilities
+        });
+
+        if (!postStartReadiness.ready) {
+          const blockingReasons = postStartReadiness.checks
+            .filter((check) => check.blocking && !check.passed)
+            .map((check) => check.reason);
+          const nextError =
+            blockingReasons.length > 0
+              ? `Proof Wave cannot start from this audio source: ${blockingReasons.join(' ')}`
+              : 'Proof Wave cannot start because post-share audio readiness is not proof-grade.';
+
+          await audioRef.current?.stop();
+          updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
+          setStartError(nextError);
+          setReplayError(nextError);
+          setAdvancedDrawerTab('backstage');
+          return;
+        }
+      }
+
+      beginNoTouchSession();
       startRunJournal(
         nextSourceMode,
-        audioRef.current?.getDiagnostics() ?? diagnostics
+        startedDiagnostics
       );
     } catch (error) {
       updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
@@ -4725,6 +4776,7 @@ export function App() {
       />
 
       <ShowLaunchSurface
+        audio={audioDiagnostics}
         onOpenAdvanced={() => {
           openAdvancedDrawer('style');
         }}
