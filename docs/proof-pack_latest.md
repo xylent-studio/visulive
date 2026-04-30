@@ -1,28 +1,28 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-29T22:47:11.277Z
+Generated: 2026-04-30T00:49:17.430Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-29T22:47:07.843Z
-Report capture count: 69
+Report timestamp: 2026-04-30T00:49:12.977Z
+Report capture count: 75
 
 ## Executive Read
-- Captures analyzed: 69
-- Current-proof-eligible captures: 41
-- Safe-tier captures: 41/41
-- Screenshot references: 271
+- Captures analyzed: 75
+- Current-proof-eligible captures: 47
+- Safe-tier captures: 47/47
+- Screenshot references: 297
 - Strong evidence picks: 5
 - Weak evidence picks: 5
 
 ## Evidence Freshness
-- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T00:44:04.808Z
-- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
-- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z
+- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T00:45:51.599Z
+- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z
+- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z
 - Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z
 - Current branch proof cutoff: 2026-04-23T08:28:02.000Z
 - Serious proof max age: 7 day(s)
 - Current branch proof freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - Screenshot review freshness: pass - Screenshot references satisfy the current proof cutoff and freshness window.
-- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-29T00:44:54.021Z
+- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-30T00:46:10.194Z
 
 ## Validation Gates
 - current-branch freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
@@ -32,93 +32,93 @@ Report capture count: 69
 - compositor consequence: pass - At least one capture shows visible event-glow spend.
 - build identity: pass - All current captures include valid build identity.
 - scenario validation: pass - Current capture scenarios are validated or unrecorded.
-- proof-pack completeness: pass - 271 current screenshot reference(s) are available and all captures are attributable to a valid build.
-- no-touch autonomy: pass - 28 capture(s) cleared the no-touch proof window.
-- authority split validation: pass - authority-ready 41/41; world 0.951; chamber 0.960; hierarchy 0.787; hero coverage 0.058; legacy glow 93.4%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0.
-- primary authority proof: pass - 17 no-touch primary benchmark capture(s) show world/chamber authority.
-- silence dignity: pass - 2 capture(s) preserved quiet-state regime evidence.
-- world authority delivery: pass - 41 capture(s) show shared or dominant world authority.
+- proof-pack completeness: pass - 297 current screenshot reference(s) are available and all captures are attributable to a valid build.
+- no-touch autonomy: pass - 30 capture(s) cleared the no-touch proof window.
+- authority split validation: pass - authority-ready 47/47; world 0.941; chamber 0.948; hierarchy 0.790; hero coverage 0.059; legacy glow 91.6%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0.
+- primary authority proof: pass - 19 no-touch primary benchmark capture(s) show world/chamber authority.
+- silence dignity: pass - 4 capture(s) preserved quiet-state regime evidence.
+- world authority delivery: pass - 47 capture(s) show shared or dominant world authority.
 - operator trust: pass - 15 operator-trust scenario capture(s) are attached.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
-- missed capture opportunities: fail - 18 meaningful run marker(s) were not matched to saved clips.
+- missed capture opportunities: fail - 20 meaningful run marker(s) were not matched to saved clips.
 - scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
 ### Current scenarios
 - `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 26 capture(s)
+- `primary-benchmark`: 32 capture(s)
 
 ### Current Proof Missions
 - `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 26 capture(s)
+- `primary-benchmark`: 32 capture(s)
 
 ### Historical baselines
 - `primary-benchmark`: 1 capture(s)
 - `room-floor`: 1 capture(s)
 
-- Current review captures: 41
+- Current review captures: 47
 - Unclassified current captures: 0
 - Historical baseline captures: 2
-- No-touch captures: 41
-- Qualified no-touch windows: 28
-- Quiet-state evidence: 2
-- World-authority evidence: 41
-- Primary no-touch authority evidence: 17
+- No-touch captures: 47
+- Qualified no-touch windows: 30
+- Quiet-state evidence: 4
+- World-authority evidence: 47
+- Primary no-touch authority evidence: 19
 - Operator-trust evidence: 15
 
 ## Cue Spread
 - `laser-burst`: 12 capture(s)
+- `fan-sweep`: 10 capture(s)
 - `gather`: 7 capture(s)
 - `collapse`: 7 capture(s)
 - `orbit-widen`: 6 capture(s)
-- `fan-sweep`: 5 capture(s)
-- `hold`: 3 capture(s)
+- `hold`: 4 capture(s)
 - `residue`: 1 capture(s)
 
 ## Authority Split Read
-- Authority-ready captures: 41/41
-- World-authority evidence: 41/41
-- Chamber presence mean: 0.960 (target >= 0.240)
-- World dominance delivered mean: 0.951 (target >= 0.280)
-- Frame hierarchy mean: 0.787 (target >= 0.620)
-- Hero coverage mean: 0.058 (target <= 0.320)
-- Legacy glow-spend rate: 93.4% (legacy watch target <= 12.0%)
+- Authority-ready captures: 47/47
+- World-authority evidence: 47/47
+- Chamber presence mean: 0.948 (target >= 0.240)
+- World dominance delivered mean: 0.941 (target >= 0.280)
+- Frame hierarchy mean: 0.790 (target >= 0.620)
+- Hero coverage mean: 0.059 (target <= 0.320)
+- Legacy glow-spend rate: 91.6% (legacy watch target <= 12.0%)
 - Perceptual washout risk: 0.000 (release-blocking target <= 0.120)
-- Risk counts: hero monopoly 0/41; low chamber 0/41; weak world 0/41; legacy glow 39/41; perceptual washout 0/41
+- Risk counts: hero monopoly 0/47; low chamber 0/47; weak world 0/47; legacy glow 44/47; perceptual washout 0/47
 ### World authority state spread
-- `dominant`: 27 capture(s)
-- `shared`: 14 capture(s)
+- `dominant`: 31 capture(s)
+- `shared`: 16 capture(s)
 
 ## Chamber Authority
-- `liquid-pressure-core`: 23 capture(s)
+- `liquid-pressure-core`: 27 capture(s)
+- `spectral-plume`: 7 capture(s)
 - `portal-iris`: 7 capture(s)
 - `cathedral-rings`: 6 capture(s)
-- `spectral-plume`: 5 capture(s)
 
 ## Compositor Consequence
-- `consequence`: 41 capture(s)
+- `consequence`: 47 capture(s)
 
 ## Signature Moments
-- `none`: weighted presence 41.00
-- `collapse-scar`: weighted presence 0.00
-- `cathedral-open`: weighted presence 0.00
-- `ghost-residue`: weighted presence 0.00
-- `silence-constellation`: weighted presence 0.00
+- `none`: weighted presence 44.54
+- `cathedral-open`: weighted presence 1.05
+- `silence-constellation`: weighted presence 1.00
+- `collapse-scar`: weighted presence 0.39
+- `ghost-residue`: weighted presence 0.02
 ### Style Spread
-- `contrast-mythic`: weighted presence 0.00
-- `maximal-neon`: weighted presence 0.00
-- `ambient-premium`: weighted presence 0.00
-- Signature moment evidence: 0/41 capture(s)
-- Active rate / intensity mean / peak: 0.0% / 0.000 / n/a
-- Aftermath clearance / post consequence / post overprocess risk: 1.000 / 0.000 / 0.000
-- Perceptual colorfulness / washout risk / compositor risk: 0.000 / 0.000 / 0.000
+- `maximal-neon`: weighted presence 1.96
+- `ambient-premium`: weighted presence 1.04
+- `contrast-mythic`: weighted presence 1.00
+- Signature moment evidence: 4/47 capture(s)
+- Active rate / intensity mean / peak: 5.2% / 0.015 / 0.821
+- Aftermath clearance / post consequence / post overprocess risk: 0.993 / 0.010 / 0.006
+- Perceptual colorfulness / washout risk / compositor risk: 0.057 / 0.000 / 0.011
 
 ## Spend Governance
-- `earned`: weighted presence 38.22
-- `withheld`: weighted presence 2.78
-- Legacy glow-spend risk: 93.4%
-- Large hero frequency: 1/41 capture(s)
-- Ring authority mean: 0.973
+- `earned`: weighted presence 43.15
+- `withheld`: weighted presence 3.85
+- Legacy glow-spend risk: 91.6%
+- Large hero frequency: 2/47 capture(s)
+- Ring authority mean: 0.932
 
 ## Strong Evidence
 - `auto_authority-turn_2026-04-28_19-54-09.json`
@@ -213,6 +213,24 @@ Report capture count: 69
   - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
 
 ## Weak Evidence
+- `auto_authority-turn_2026-04-29_20-44-33.json`
+  - score: 4.38
+  - trigger/event: authority-turn / void
+  - route/world/look: this-computer / haunted-residue / ghost-signal
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / ad19055 / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: hold
+  - dominant act: matrix-storm
+  - dominant chamber family: spectral-plume
+  - authority: world 0.446; chamber 0.443; hierarchy 0.858; hero coverage 0.038
+  - compositor: event glow 0.244 mean / 0.386 peak; bloom 0.262 mean / 0.394 peak
+  - signature: silence-constellation / ambient-premium; washout 0.000
+  - spend: withheld; legacy glow 0.0%; hero scale peak 0.984
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: safeTierActive, lowPaletteVariation, ambiguousHeroSilhouette, sceneChurn
 - `auto_authority-turn_2026-04-28_20-37-06.json`
   - score: 5.19
   - trigger/event: authority-turn / void
@@ -267,44 +285,52 @@ Report capture count: 69
   - interventions: 0; no-touch window not proven
   - safe tier: yes
   - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_governance-risk_2026-04-28_20-37-14.json`
+- `auto_governance-risk_2026-04-29_20-44-42.json`
   - score: 6.19
   - trigger/event: governance-risk / ghost-trace
   - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Operator trust
-  - build: 1.0.0 / afa9c7d / stable (valid)
-  - scenario validation: operator-trust -> operator-trust (validated)
-  - capability: full-autonomous
-  - canonical cue class: orbit-widen
-  - dominant act: matrix-storm
-  - dominant chamber family: cathedral-rings
-  - authority: world 0.913; chamber 0.930; hierarchy 0.811; hero coverage 0.071
-  - compositor: event glow 0.698 mean / 0.802 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 88.3%; hero scale peak 1.250
-  - interventions: 0; no-touch window not proven
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_drop_2026-04-28_19-32-23.json`
-  - score: 6.42
-  - trigger/event: drop / ghost-trace
-  - route/world/look: this-computer / portal-chamber / machine-halo
   - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
+  - build: 1.0.0 / ad19055 / stable (valid)
   - scenario validation: primary-benchmark -> primary-benchmark (validated)
   - capability: full-autonomous
   - canonical cue class: fan-sweep
-  - dominant act: laser-bloom
+  - dominant act: matrix-storm
   - dominant chamber family: liquid-pressure-core
-  - authority: world 0.998; chamber 0.997; hierarchy 0.789; hero coverage 0.060
-  - compositor: event glow 0.880 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
+  - authority: world 0.881; chamber 0.892; hierarchy 0.840; hero coverage 0.104
+  - compositor: event glow 0.616 mean / 0.727 peak; bloom 0.645 mean / 0.698 peak
   - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window passed
+  - spend: earned; legacy glow 77.1%; hero scale peak 1.250
+  - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, undercommittedDrop, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
+  - flags: safeTierActive, randomFeelingPaletteChurn, unearnedHeroFormSwitch, ambiguousHeroSilhouette
 
 ## Screenshot Review Set
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_93661.png` (847 KB, modified 2026-04-30T00:46:10.194Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_90899.png` (946 KB, modified 2026-04-30T00:46:01.906Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_78952.png` (858 KB, modified 2026-04-30T00:46:00.406Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_75848.png` (796 KB, modified 2026-04-30T00:45:52.228Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_72275.png` (1060 KB, modified 2026-04-30T00:45:44.203Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_64669.png` (808 KB, modified 2026-04-30T00:45:41.706Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_61555.png` (951 KB, modified 2026-04-30T00:45:33.516Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_59549.png` (972 KB, modified 2026-04-30T00:45:30.870Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_57245.png` (879 KB, modified 2026-04-30T00:45:28.442Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_53555.png` (1094 KB, modified 2026-04-30T00:45:25.019Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__trust_51976.png` (1034 KB, modified 2026-04-30T00:45:22.694Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_48509.png` (1035 KB, modified 2026-04-30T00:45:19.983Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_45971.png` (1130 KB, modified 2026-04-30T00:45:16.956Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_43933.png` (1014 KB, modified 2026-04-30T00:45:14.688Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_41107.png` (532 KB, modified 2026-04-30T00:45:12.441Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_38301.png` (675 KB, modified 2026-04-30T00:45:09.252Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_36072.png` (1131 KB, modified 2026-04-30T00:45:06.910Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_29928.png` (802 KB, modified 2026-04-30T00:45:04.544Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_29928.png` (882 KB, modified 2026-04-30T00:45:02.103Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_27795.png` (815 KB, modified 2026-04-30T00:44:59.256Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_24285.png` (556 KB, modified 2026-04-30T00:44:56.807Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_15059.png` (910 KB, modified 2026-04-30T00:44:54.050Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_14205.png` (1005 KB, modified 2026-04-30T00:44:45.444Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_2195.png` (729 KB, modified 2026-04-30T00:44:43.123Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_8915.png` (775 KB, modified 2026-04-30T00:44:40.563Z)
+- `run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_2195.png` (344 KB, modified 2026-04-30T00:44:38.735Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_464275.png` (1070 KB, modified 2026-04-29T00:44:51.297Z)
 - `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_461181.png` (980 KB, modified 2026-04-29T00:44:42.764Z)

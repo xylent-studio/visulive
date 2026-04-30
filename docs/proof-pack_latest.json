@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-04-29T22:47:11.276Z",
+  "generatedAt": "2026-04-30T00:49:17.430Z",
   "sourceReportPath": "C:\\dev\\GitHub\\visulive\\captures\\reports\\capture-analysis_latest.md",
-  "reportTimestamp": "2026-04-29T22:47:07.843Z",
-  "reportCaptureCount": 69,
+  "reportTimestamp": "2026-04-30T00:49:12.977Z",
+  "reportCaptureCount": 75,
   "capturesPaths": [
     "C:\\dev\\GitHub\\visulive\\captures\\inbox",
     "C:\\dev\\GitHub\\visulive\\captures\\canonical"
   ],
   "screenshotsPath": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\screenshots",
-  "captureCount": 69,
-  "proofEligibleCaptureCount": 41,
+  "captureCount": 75,
+  "proofEligibleCaptureCount": 47,
   "benchmarkScenarioCount": 2,
   "evidenceFreshness": {
     "currentBatchRange": {
-      "count": 69,
+      "count": 75,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-30T00:45:51.599Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-30T00:45:51.599Z"
     },
     "currentReviewRange": {
-      "count": 69,
+      "count": 75,
       "oldest": "2026-04-28T21:03:42.763Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-30T00:45:51.599Z",
       "oldestIso": "2026-04-28T21:03:42.763Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-30T00:45:51.599Z"
     },
     "historicalBaselineRange": {
       "count": 2,
@@ -34,13 +34,13 @@
       "newestIso": "2026-04-09T14:22:43.998Z"
     },
     "allAttachedRange": {
-      "count": 71,
+      "count": 77,
       "oldest": "2026-04-09T06:51:04.103Z",
-      "newest": "2026-04-29T00:44:04.808Z",
+      "newest": "2026-04-30T00:45:51.599Z",
       "oldestIso": "2026-04-09T06:51:04.103Z",
-      "newestIso": "2026-04-29T00:44:04.808Z"
+      "newestIso": "2026-04-30T00:45:51.599Z"
     },
-    "currentReviewCount": 69,
+    "currentReviewCount": 75,
     "historicalBaselineCount": 2,
     "currentBranchProofCutoffAt": "2026-04-23T08:28:02.000Z",
     "seriousProofMaxAgeDays": 7,
@@ -51,9 +51,9 @@
     ],
     "summaryLine": "Current review captures satisfy the current branch proof cutoff and freshness window.",
     "lines": [
-      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-29T00:44:04.808Z",
-      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z",
-      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-29T00:44:04.808Z",
+      "- Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T00:45:51.599Z",
+      "- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z",
+      "- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T00:45:51.599Z",
       "- Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z",
       "- Current branch proof cutoff: 2026-04-23T08:28:02.000Z",
       "- Serious proof max age: 7 day(s)",
@@ -63,89 +63,89 @@
   },
   "screenshotFreshness": {
     "range": {
-      "count": 271,
+      "count": 297,
       "oldestIso": "2026-04-28T23:29:06.062Z",
-      "newestIso": "2026-04-29T00:44:54.021Z",
+      "newestIso": "2026-04-30T00:46:10.194Z",
       "oldest": "2026-04-28T23:29:06.062Z",
-      "newest": "2026-04-29T00:44:54.021Z"
+      "newest": "2026-04-30T00:46:10.194Z"
     },
     "currentReviewReady": true,
     "summaryLine": "Screenshot references satisfy the current proof cutoff and freshness window."
   },
   "aggregate": {
-    "safeTierCaptures": 41,
+    "safeTierCaptures": 47,
     "cueSpread": {
-      "hold": 3,
+      "hold": 4,
       "gather": 7,
       "orbit-widen": 6,
       "residue": 1,
       "collapse": 7,
       "laser-burst": 12,
-      "fan-sweep": 5
+      "fan-sweep": 10
     },
     "chamberSpread": {
-      "spectral-plume": 5,
-      "liquid-pressure-core": 23,
+      "spectral-plume": 7,
+      "liquid-pressure-core": 27,
       "cathedral-rings": 6,
       "portal-iris": 7
     },
     "compositorSpread": {
-      "consequence": 41
+      "consequence": 47
     },
     "spendProfileSpread": {
-      "withheld": 2.7765340406719714,
-      "earned": 38.223465959328024
+      "withheld": 3.853617374005305,
+      "earned": 43.14638262599469
     },
     "worldAuthorityStateSpread": {
-      "shared": 14,
-      "dominant": 27
+      "shared": 16,
+      "dominant": 31
     },
-    "authorityReadyCount": 41,
-    "worldAuthorityEvidenceCount": 41,
+    "authorityReadyCount": 47,
+    "worldAuthorityEvidenceCount": 47,
     "heroMonopolyRiskCount": 0,
     "lowChamberPresenceCount": 0,
     "weakWorldAuthorityCount": 0,
-    "overbrightRiskCount": 39,
-    "legacyGlowSpendRiskCount": 39,
+    "overbrightRiskCount": 44,
+    "legacyGlowSpendRiskCount": 44,
     "perceptualWashoutRiskCount": 0,
-    "averageChamberPresence": 0.9598020853496174,
-    "averageFrameHierarchy": 0.7872650636496146,
-    "averageHeroCoverage": 0.057775406519044004,
-    "averageWorldDominanceDelivered": 0.9509276256392121,
-    "averageOverbrightRate": 0.9342061562832875,
-    "averagePerceptualWashoutRisk": 0,
-    "averagePerceptualColorfulness": 0,
-    "averageCompositorOverprocessRisk": 0,
-    "largeHeroCount": 1,
-    "averageRingAuthority": 0.9734009252009387
+    "averageChamberPresence": 0.9475383753931789,
+    "averageFrameHierarchy": 0.7902620588328618,
+    "averageHeroCoverage": 0.0587672153409166,
+    "averageWorldDominanceDelivered": 0.9407753669500779,
+    "averageOverbrightRate": 0.9164528881052793,
+    "averagePerceptualWashoutRisk": 0.000051606396859756294,
+    "averagePerceptualColorfulness": 0.05688083588685518,
+    "averageCompositorOverprocessRisk": 0.01135015628184422,
+    "largeHeroCount": 2,
+    "averageRingAuthority": 0.9319190441217825
   },
   "scenarioCoverage": {
     "currentCounts": {
-      "primary-benchmark": 26,
+      "primary-benchmark": 32,
       "operator-trust": 15
     },
     "currentMissionCounts": {
-      "primary-benchmark": 26,
+      "primary-benchmark": 32,
       "operator-trust": 15
     },
     "historicalBaselineCounts": {
       "primary-benchmark": 1,
       "room-floor": 1
     },
-    "currentReviewCaptureCount": 41,
+    "currentReviewCaptureCount": 47,
     "unclassifiedCurrentCount": 0,
     "historicalBaselineCount": 2,
-    "noTouchCaptureCount": 41,
-    "qualifiedNoTouchCount": 28,
-    "silenceDignityCount": 2,
-    "worldAuthorityCount": 41,
-    "primaryBenchmarkAuthorityCount": 26,
-    "primaryBenchmarkNoTouchAuthorityCount": 17,
+    "noTouchCaptureCount": 47,
+    "qualifiedNoTouchCount": 30,
+    "silenceDignityCount": 4,
+    "worldAuthorityCount": 47,
+    "primaryBenchmarkAuthorityCount": 32,
+    "primaryBenchmarkNoTouchAuthorityCount": 19,
     "operatorTrustCount": 15
   },
   "runArtifactIntegrityFailureCount": 0,
   "runArtifactIntegrityFailures": [],
-  "missedOpportunityCount": 18,
+  "missedOpportunityCount": 20,
   "releaseReady": false,
   "strictGateFailureCount": 2,
   "warningGateCount": 0,
@@ -154,7 +154,7 @@
       "label": "missed capture opportunities",
       "status": "fail",
       "required": true,
-      "rationale": "18 meaningful run marker(s) were not matched to saved clips."
+      "rationale": "20 meaningful run marker(s) were not matched to saved clips."
     },
     {
       "label": "scenario coverage",
@@ -210,37 +210,37 @@
       "label": "proof-pack completeness",
       "status": "pass",
       "required": true,
-      "rationale": "271 current screenshot reference(s) are available and all captures are attributable to a valid build."
+      "rationale": "297 current screenshot reference(s) are available and all captures are attributable to a valid build."
     },
     {
       "label": "no-touch autonomy",
       "status": "pass",
       "required": true,
-      "rationale": "28 capture(s) cleared the no-touch proof window."
+      "rationale": "30 capture(s) cleared the no-touch proof window."
     },
     {
       "label": "authority split validation",
       "status": "pass",
       "required": true,
-      "rationale": "authority-ready 41/41; world 0.951; chamber 0.960; hierarchy 0.787; hero coverage 0.058; legacy glow 93.4%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0."
+      "rationale": "authority-ready 47/47; world 0.941; chamber 0.948; hierarchy 0.790; hero coverage 0.059; legacy glow 91.6%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0."
     },
     {
       "label": "primary authority proof",
       "status": "pass",
       "required": true,
-      "rationale": "17 no-touch primary benchmark capture(s) show world/chamber authority."
+      "rationale": "19 no-touch primary benchmark capture(s) show world/chamber authority."
     },
     {
       "label": "silence dignity",
       "status": "pass",
       "required": false,
-      "rationale": "2 capture(s) preserved quiet-state regime evidence."
+      "rationale": "4 capture(s) preserved quiet-state regime evidence."
     },
     {
       "label": "world authority delivery",
       "status": "pass",
       "required": false,
-      "rationale": "41 capture(s) show shared or dominant world authority."
+      "rationale": "47 capture(s) show shared or dominant world authority."
     },
     {
       "label": "operator trust",
@@ -258,7 +258,7 @@
       "label": "missed capture opportunities",
       "status": "fail",
       "required": true,
-      "rationale": "18 meaningful run marker(s) were not matched to saved clips."
+      "rationale": "20 meaningful run marker(s) were not matched to saved clips."
     },
     {
       "label": "scenario coverage",
@@ -274,7 +274,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.428Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -846,7 +846,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1562,7 +1562,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -2169,6 +2169,435 @@
           }
         }
       ]
+    },
+    "run_20260429_204428_unpcmw": {
+      "version": 1,
+      "metadata": {
+        "app": "visulive",
+        "artifactType": "run-recommendations",
+        "runId": "run_20260429_204428_unpcmw",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
+        "lifecycleState": "inbox",
+        "proofValidity": {
+          "verdict": "valid",
+          "currentProofEligible": true,
+          "startedReady": true,
+          "lastCheckedAt": "2026-04-30T00:46:08.110Z",
+          "invalidations": [],
+          "recoveryGuidance": null
+        },
+        "gateOutcomes": [
+          {
+            "id": "truth",
+            "status": "pass",
+            "rationale": "Run provenance is eligible for current proof, with build identity and scenario validation recorded."
+          },
+          {
+            "id": "hierarchy",
+            "status": "pass",
+            "rationale": "hero=0.066 world=0.871 ring=0.648"
+          },
+          {
+            "id": "coverage",
+            "status": "warn",
+            "rationale": "cue classes=2 families=2"
+          },
+          {
+            "id": "taste",
+            "status": "warn",
+            "rationale": "legacyGlow=0.795 washout=0.000 color=0.446 chamber=0.864"
+          },
+          {
+            "id": "operator-trust",
+            "status": "warn",
+            "rationale": "2 missed capture opportunity marker(s) were found."
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "issueId": "glow-spend-calibration",
+          "severity": "low",
+          "title": "Legacy glow-spend telemetry is high without perceptual washout",
+          "ownerLane": "renderer-safe-tier",
+          "subsystem": "AuthorityGovernor + LightingSystem",
+          "suspectedCause": "The legacy overbright metric is measuring sustained glow spend; tune or relabel it separately from visible washout.",
+          "impactedGates": [
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageOverbrightRate trend down without dimming",
+            "perceptualWashoutRisk remains low",
+            "perceptualColorfulness remains stable"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.7,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "ring-overdraw",
+          "severity": "medium",
+          "title": "Ring authority is lingering too long or over-drawing the chamber read",
+          "ownerLane": "chamber-environment-lighting",
+          "subsystem": "ChamberSystem + ParticleSystem",
+          "suspectedCause": "Ring persistence and field density are staying too dominant after the cue should move on.",
+          "impactedGates": [
+            "hierarchy",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageRingAuthority <= 0.95",
+            "ringBeltPersistence down"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.74,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "random-feeling-palette-churn",
+          "severity": "medium",
+          "title": "Palette movement is not reading as musically earned",
+          "ownerLane": "show-direction-cue-logic",
+          "subsystem": "semantic motif routing + palette frame",
+          "suspectedCause": "Base palette or hero/world color roles are changing without a strong motif, phrase, release, rupture, or authority reason.",
+          "impactedGates": [
+            "taste",
+            "coverage"
+          ],
+          "targetMetrics": [
+            "unearnedChangeRiskMean <= 0.18",
+            "paletteBaseLongestRunMs up",
+            "paletteTransitionReasonSpread has fewer hold-adjacent changes"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.8,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "unearned-hero-form-switch",
+          "severity": "high",
+          "title": "Hero shape changes are not consistently matching the semantic plan",
+          "ownerLane": "hero-render-emissive-materials",
+          "subsystem": "HeroSystem semantic form arbitration",
+          "suspectedCause": "Hero form scoring or novelty pressure is still overriding the planned motif grammar too often.",
+          "impactedGates": [
+            "taste",
+            "hierarchy"
+          ],
+          "targetMetrics": [
+            "plannedActiveHeroFormMatchRate >= 0.8",
+            "heroFormSwitchesPerMinute <= 7",
+            "heroFormLongestRunMs up"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.83,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "playable-motif-scene-coherence",
+          "severity": "medium",
+          "title": "Playable motif scenes are not reading as stable authored scenes",
+          "ownerLane": "show-direction-cue-logic",
+          "subsystem": "PlayableMotifSystem scene routing + silhouette posture",
+          "suspectedCause": "Scene routing, palette base, or signature moment posture is drifting away from the locked motif instead of holding an authored scene long enough to read.",
+          "impactedGates": [
+            "taste",
+            "coverage"
+          ],
+          "targetMetrics": [
+            "playableMotifSceneIntentMatchRate >= 0.8",
+            "playableMotifSceneMotifMatchRate >= 0.78",
+            "playableMotifScenePaletteMatchRate >= 0.78",
+            "playableMotifSceneProfileMatchRate >= 0.78",
+            "playableMotifSceneSilhouetteConfidenceMean >= 0.55",
+            "dominantParticleFieldJob != none when particles are active",
+            "playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.78,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "missed-opportunities",
+          "severity": "medium",
+          "title": "Run journal shows meaningful moments with no matching saved clip",
+          "ownerLane": "evidence-capture-analyzer",
+          "subsystem": "authority-aware auto capture",
+          "suspectedCause": "Trigger windows or clip finalization are missing kind-specific evidence for meaningful authority, governance, quiet, trust, or signature moments.",
+          "impactedGates": [
+            "truth",
+            "operator trust"
+          ],
+          "targetMetrics": [
+            "missedOpportunityCount=0"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.84,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": [
+              {
+                "markerKind": "authority-turn",
+                "severity": "medium",
+                "timestampMs": 20584,
+                "endTimestampMs": 20605.333333333336,
+                "markerCount": 2,
+                "expectedEvidence": "authority-turn clip or authority still",
+                "reason": "world=dominant delivered=0.747"
+              },
+              {
+                "markerKind": "signature-moment-precharge",
+                "severity": "medium",
+                "timestampMs": 91570.66666666667,
+                "endTimestampMs": 97576,
+                "markerCount": 19,
+                "expectedEvidence": "signature-moment-precharge clip or signature still",
+                "reason": "signature=cathedral-open style=maximal-neon phase=armed"
+              }
+            ]
+          },
+          "details": {
+            "missedOpportunityCount": 2,
+            "highSeverityMissCount": 0
+          }
+        }
+      ]
     }
   },
   "strongEvidence": [
@@ -2289,6 +2718,28 @@
   ],
   "weakEvidence": [
     {
+      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\clips\\auto_authority-turn_2026-04-29_20-44-33.json",
+      "score": 4.375768628921651,
+      "triggerKind": "authority-turn",
+      "eventArchetype": "void",
+      "cueClass": "hold",
+      "dominantAct": "matrix-storm",
+      "dominantShowFamily": "spectral-plume",
+      "dominantPaletteState": "tron-blue",
+      "chamberPresenceMean": 0.4433193117916634,
+      "frameHierarchyMean": 0.8576251925198783,
+      "heroCoverageMean": 0.03804142121233696,
+      "worldDominanceDeliveredMean": 0.44550466629415536,
+      "eventGlowPeak": 0.38606066804488093,
+      "bloomStrengthPeak": 0.3939961748134424,
+      "qualityFlags": [
+        "safeTierActive",
+        "lowPaletteVariation",
+        "ambiguousHeroSilhouette",
+        "sceneChurn"
+      ]
+    },
+    {
       "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_203658_8yovza\\clips\\auto_authority-turn_2026-04-28_20-37-06.json",
       "score": 5.190323124788142,
       "triggerKind": "authority-turn",
@@ -2355,56 +2806,185 @@
       ]
     },
     {
-      "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_203658_8yovza\\clips\\auto_governance-risk_2026-04-28_20-37-14.json",
-      "score": 6.192354526155306,
+      "file": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\clips\\auto_governance-risk_2026-04-29_20-44-42.json",
+      "score": 6.191235043624553,
       "triggerKind": "governance-risk",
       "eventArchetype": "ghost-trace",
-      "cueClass": "orbit-widen",
-      "dominantAct": "matrix-storm",
-      "dominantShowFamily": "cathedral-rings",
-      "dominantPaletteState": "tron-blue",
-      "chamberPresenceMean": 0.9297016049347767,
-      "frameHierarchyMean": 0.8109343596784117,
-      "heroCoverageMean": 0.07105757480636171,
-      "worldDominanceDeliveredMean": 0.9126435560461847,
-      "eventGlowPeak": 0.8024929481288138,
-      "bloomStrengthPeak": 0.739999999944496,
-      "qualityFlags": [
-        "safeTierActive",
-        "highAmbientGlow",
-        "ringOverdrawRisk",
-        "ambiguousHeroSilhouette",
-        "sameySceneSilhouette"
-      ]
-    },
-    {
-      "file": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_192855_gnmlg1\\clips\\auto_drop_2026-04-28_19-32-23.json",
-      "score": 6.42458711967449,
-      "triggerKind": "drop",
-      "eventArchetype": "ghost-trace",
       "cueClass": "fan-sweep",
-      "dominantAct": "laser-bloom",
+      "dominantAct": "matrix-storm",
       "dominantShowFamily": "liquid-pressure-core",
-      "dominantPaletteState": "acid-lime",
-      "chamberPresenceMean": 0.9972483921993032,
-      "frameHierarchyMean": 0.7894779250887561,
-      "heroCoverageMean": 0.05986489550088478,
-      "worldDominanceDeliveredMean": 0.9976640003194311,
-      "eventGlowPeak": 0.9196603439651179,
-      "bloomStrengthPeak": 0.74,
+      "dominantPaletteState": "tron-blue",
+      "chamberPresenceMean": 0.8922180470299885,
+      "frameHierarchyMean": 0.8398768310122072,
+      "heroCoverageMean": 0.10426052172333243,
+      "worldDominanceDeliveredMean": 0.8806318400127456,
+      "eventGlowPeak": 0.7270754559183834,
+      "bloomStrengthPeak": 0.6983170700189123,
       "qualityFlags": [
-        "oversizedWindow",
-        "multiEventWindow",
         "safeTierActive",
-        "highAmbientGlow",
-        "undercommittedDrop",
-        "ringOverdrawRisk",
-        "ambiguousHeroSilhouette",
-        "sameySceneSilhouette"
+        "randomFeelingPaletteChurn",
+        "unearnedHeroFormSwitch",
+        "ambiguousHeroSilhouette"
       ]
     }
   ],
   "screenshots": [
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_93661.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_93661.png",
+      "sizeBytes": 867233,
+      "modifiedAt": "2026-04-30T00:46:10.194Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_90899.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_90899.png",
+      "sizeBytes": 968212,
+      "modifiedAt": "2026-04-30T00:46:01.906Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_78952.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_78952.png",
+      "sizeBytes": 878139,
+      "modifiedAt": "2026-04-30T00:46:00.406Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_75848.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_75848.png",
+      "sizeBytes": 814638,
+      "modifiedAt": "2026-04-30T00:45:52.228Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_72275.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_72275.png",
+      "sizeBytes": 1085530,
+      "modifiedAt": "2026-04-30T00:45:44.203Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_64669.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_64669.png",
+      "sizeBytes": 827272,
+      "modifiedAt": "2026-04-30T00:45:41.706Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_61555.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_61555.png",
+      "sizeBytes": 974135,
+      "modifiedAt": "2026-04-30T00:45:33.516Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_59549.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_59549.png",
+      "sizeBytes": 994869,
+      "modifiedAt": "2026-04-30T00:45:30.870Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_57245.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_57245.png",
+      "sizeBytes": 900263,
+      "modifiedAt": "2026-04-30T00:45:28.442Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_53555.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_53555.png",
+      "sizeBytes": 1120335,
+      "modifiedAt": "2026-04-30T00:45:25.019Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__trust_51976.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__trust_51976.png",
+      "sizeBytes": 1059147,
+      "modifiedAt": "2026-04-30T00:45:22.694Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_48509.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_48509.png",
+      "sizeBytes": 1059369,
+      "modifiedAt": "2026-04-30T00:45:19.983Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_45971.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_45971.png",
+      "sizeBytes": 1157218,
+      "modifiedAt": "2026-04-30T00:45:16.956Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_43933.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_43933.png",
+      "sizeBytes": 1038142,
+      "modifiedAt": "2026-04-30T00:45:14.688Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_41107.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_41107.png",
+      "sizeBytes": 544379,
+      "modifiedAt": "2026-04-30T00:45:12.441Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_38301.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_38301.png",
+      "sizeBytes": 691213,
+      "modifiedAt": "2026-04-30T00:45:09.252Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_36072.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_36072.png",
+      "sizeBytes": 1157769,
+      "modifiedAt": "2026-04-30T00:45:06.910Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_29928.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__authority_29928.png",
+      "sizeBytes": 821346,
+      "modifiedAt": "2026-04-30T00:45:04.544Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_29928.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_29928.png",
+      "sizeBytes": 902734,
+      "modifiedAt": "2026-04-30T00:45:02.103Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_27795.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_27795.png",
+      "sizeBytes": 834208,
+      "modifiedAt": "2026-04-30T00:44:59.256Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_24285.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_24285.png",
+      "sizeBytes": 569478,
+      "modifiedAt": "2026-04-30T00:44:56.807Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__safety_15059.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__safety_15059.png",
+      "sizeBytes": 932182,
+      "modifiedAt": "2026-04-30T00:44:54.050Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_14205.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__checkpoint_14205.png",
+      "sizeBytes": 1029334,
+      "modifiedAt": "2026-04-30T00:44:45.444Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__checkpoint_2195.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__checkpoint_2195.png",
+      "sizeBytes": 746907,
+      "modifiedAt": "2026-04-30T00:44:43.123Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__authority_8915.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__authority_8915.png",
+      "sizeBytes": 793157,
+      "modifiedAt": "2026-04-30T00:44:40.563Z"
+    },
+    {
+      "name": "run_20260429_204428_unpcmw/run_20260429_204428_unpcmw__signature_2195.png",
+      "path": "C:\\dev\\GitHub\\visulive\\captures\\inbox\\runs\\run_20260429_204428_unpcmw\\stills\\run_20260429_204428_unpcmw__signature_2195.png",
+      "sizeBytes": 351998,
+      "modifiedAt": "2026-04-30T00:44:38.735Z"
+    },
     {
       "name": "run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png",
       "path": "C:\\dev\\GitHub\\visulive\\captures\\canonical\\runs\\run_20260428_203658_8yovza\\stills\\run_20260428_203658_8yovza__authority_471155.png",

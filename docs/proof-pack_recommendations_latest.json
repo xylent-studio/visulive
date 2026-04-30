@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-29T22:47:11.276Z",
+  "generatedAt": "2026-04-30T00:49:17.430Z",
   "sourceProofManifestPath": "C:\\dev\\GitHub\\visulive\\docs\\proof-pack_latest.json",
-  "runCount": 3,
-  "totalRecommendationCount": 12,
+  "runCount": 4,
+  "totalRecommendationCount": 18,
   "runs": {
     "run_20260428_192855_gnmlg1": {
       "version": 1,
@@ -11,7 +11,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.428Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -583,7 +583,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1299,7 +1299,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-29T22:47:11.276Z",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1903,6 +1903,435 @@
           "details": {
             "missedOpportunityCount": 6,
             "highSeverityMissCount": 6
+          }
+        }
+      ]
+    },
+    "run_20260429_204428_unpcmw": {
+      "version": 1,
+      "metadata": {
+        "app": "visulive",
+        "artifactType": "run-recommendations",
+        "runId": "run_20260429_204428_unpcmw",
+        "generatedAt": "2026-04-30T00:49:17.429Z",
+        "lifecycleState": "inbox",
+        "proofValidity": {
+          "verdict": "valid",
+          "currentProofEligible": true,
+          "startedReady": true,
+          "lastCheckedAt": "2026-04-30T00:46:08.110Z",
+          "invalidations": [],
+          "recoveryGuidance": null
+        },
+        "gateOutcomes": [
+          {
+            "id": "truth",
+            "status": "pass",
+            "rationale": "Run provenance is eligible for current proof, with build identity and scenario validation recorded."
+          },
+          {
+            "id": "hierarchy",
+            "status": "pass",
+            "rationale": "hero=0.066 world=0.871 ring=0.648"
+          },
+          {
+            "id": "coverage",
+            "status": "warn",
+            "rationale": "cue classes=2 families=2"
+          },
+          {
+            "id": "taste",
+            "status": "warn",
+            "rationale": "legacyGlow=0.795 washout=0.000 color=0.446 chamber=0.864"
+          },
+          {
+            "id": "operator-trust",
+            "status": "warn",
+            "rationale": "2 missed capture opportunity marker(s) were found."
+          }
+        ]
+      },
+      "recommendations": [
+        {
+          "issueId": "glow-spend-calibration",
+          "severity": "low",
+          "title": "Legacy glow-spend telemetry is high without perceptual washout",
+          "ownerLane": "renderer-safe-tier",
+          "subsystem": "AuthorityGovernor + LightingSystem",
+          "suspectedCause": "The legacy overbright metric is measuring sustained glow spend; tune or relabel it separately from visible washout.",
+          "impactedGates": [
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageOverbrightRate trend down without dimming",
+            "perceptualWashoutRisk remains low",
+            "perceptualColorfulness remains stable"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.7,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "ring-overdraw",
+          "severity": "medium",
+          "title": "Ring authority is lingering too long or over-drawing the chamber read",
+          "ownerLane": "chamber-environment-lighting",
+          "subsystem": "ChamberSystem + ParticleSystem",
+          "suspectedCause": "Ring persistence and field density are staying too dominant after the cue should move on.",
+          "impactedGates": [
+            "hierarchy",
+            "taste"
+          ],
+          "targetMetrics": [
+            "averageRingAuthority <= 0.95",
+            "ringBeltPersistence down"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.74,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "random-feeling-palette-churn",
+          "severity": "medium",
+          "title": "Palette movement is not reading as musically earned",
+          "ownerLane": "show-direction-cue-logic",
+          "subsystem": "semantic motif routing + palette frame",
+          "suspectedCause": "Base palette or hero/world color roles are changing without a strong motif, phrase, release, rupture, or authority reason.",
+          "impactedGates": [
+            "taste",
+            "coverage"
+          ],
+          "targetMetrics": [
+            "unearnedChangeRiskMean <= 0.18",
+            "paletteBaseLongestRunMs up",
+            "paletteTransitionReasonSpread has fewer hold-adjacent changes"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.8,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "unearned-hero-form-switch",
+          "severity": "high",
+          "title": "Hero shape changes are not consistently matching the semantic plan",
+          "ownerLane": "hero-render-emissive-materials",
+          "subsystem": "HeroSystem semantic form arbitration",
+          "suspectedCause": "Hero form scoring or novelty pressure is still overriding the planned motif grammar too often.",
+          "impactedGates": [
+            "taste",
+            "hierarchy"
+          ],
+          "targetMetrics": [
+            "plannedActiveHeroFormMatchRate >= 0.8",
+            "heroFormSwitchesPerMinute <= 7",
+            "heroFormLongestRunMs up"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.83,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "playable-motif-scene-coherence",
+          "severity": "medium",
+          "title": "Playable motif scenes are not reading as stable authored scenes",
+          "ownerLane": "show-direction-cue-logic",
+          "subsystem": "PlayableMotifSystem scene routing + silhouette posture",
+          "suspectedCause": "Scene routing, palette base, or signature moment posture is drifting away from the locked motif instead of holding an authored scene long enough to read.",
+          "impactedGates": [
+            "taste",
+            "coverage"
+          ],
+          "targetMetrics": [
+            "playableMotifSceneIntentMatchRate >= 0.8",
+            "playableMotifSceneMotifMatchRate >= 0.78",
+            "playableMotifScenePaletteMatchRate >= 0.78",
+            "playableMotifSceneProfileMatchRate >= 0.78",
+            "playableMotifSceneSilhouetteConfidenceMean >= 0.55",
+            "dominantParticleFieldJob != none when particles are active",
+            "playableMotifSceneLongestRunMs >= 6000 for non-rupture scenes"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.78,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": []
+          },
+          "details": {}
+        },
+        {
+          "issueId": "missed-opportunities",
+          "severity": "medium",
+          "title": "Run journal shows meaningful moments with no matching saved clip",
+          "ownerLane": "evidence-capture-analyzer",
+          "subsystem": "authority-aware auto capture",
+          "suspectedCause": "Trigger windows or clip finalization are missing kind-specific evidence for meaningful authority, governance, quiet, trust, or signature moments.",
+          "impactedGates": [
+            "truth",
+            "operator trust"
+          ],
+          "targetMetrics": [
+            "missedOpportunityCount=0"
+          ],
+          "recommendedNextProofScenario": "primary-benchmark",
+          "confidence": 0.84,
+          "evidence": {
+            "runId": "run_20260429_204428_unpcmw",
+            "clipFiles": [
+              "auto_authority-turn_2026-04-29_20-44-33.json",
+              "auto_authority-turn_2026-04-29_20-45-24.json",
+              "auto_authority-turn_2026-04-29_20-45-51.json",
+              "auto_drop_2026-04-29_20-45-03.json",
+              "auto_drop_2026-04-29_20-45-13.json",
+              "auto_governance-risk_2026-04-29_20-44-42.json"
+            ],
+            "stillFiles": [
+              "run_20260429_204428_unpcmw__signature_2195.png",
+              "run_20260429_204428_unpcmw__authority_8915.png",
+              "run_20260429_204428_unpcmw__checkpoint_2195.png",
+              "run_20260429_204428_unpcmw__checkpoint_14205.png",
+              "run_20260429_204428_unpcmw__safety_15059.png",
+              "run_20260429_204428_unpcmw__signature_24285.png",
+              "run_20260429_204428_unpcmw__safety_27795.png",
+              "run_20260429_204428_unpcmw__safety_29928.png",
+              "run_20260429_204428_unpcmw__authority_29928.png",
+              "run_20260429_204428_unpcmw__safety_36072.png",
+              "run_20260429_204428_unpcmw__signature_38301.png",
+              "run_20260429_204428_unpcmw__signature_41107.png",
+              "run_20260429_204428_unpcmw__safety_43933.png",
+              "run_20260429_204428_unpcmw__safety_45971.png",
+              "run_20260429_204428_unpcmw__safety_48509.png",
+              "run_20260429_204428_unpcmw__trust_51976.png",
+              "run_20260429_204428_unpcmw__safety_53555.png",
+              "run_20260429_204428_unpcmw__signature_57245.png",
+              "run_20260429_204428_unpcmw__signature_59549.png",
+              "run_20260429_204428_unpcmw__safety_61555.png",
+              "run_20260429_204428_unpcmw__safety_64669.png",
+              "run_20260429_204428_unpcmw__safety_72275.png",
+              "run_20260429_204428_unpcmw__signature_75848.png",
+              "run_20260429_204428_unpcmw__signature_78952.png",
+              "run_20260429_204428_unpcmw__safety_90899.png",
+              "run_20260429_204428_unpcmw__safety_93661.png"
+            ],
+            "markers": [
+              {
+                "markerKind": "authority-turn",
+                "severity": "medium",
+                "timestampMs": 20584,
+                "endTimestampMs": 20605.333333333336,
+                "markerCount": 2,
+                "expectedEvidence": "authority-turn clip or authority still",
+                "reason": "world=dominant delivered=0.747"
+              },
+              {
+                "markerKind": "signature-moment-precharge",
+                "severity": "medium",
+                "timestampMs": 91570.66666666667,
+                "endTimestampMs": 97576,
+                "markerCount": 19,
+                "expectedEvidence": "signature-moment-precharge clip or signature still",
+                "reason": "signature=cathedral-open style=maximal-neon phase=armed"
+              }
+            ]
+          },
+          "details": {
+            "missedOpportunityCount": 2,
+            "highSeverityMissCount": 0
           }
         }
       ]
