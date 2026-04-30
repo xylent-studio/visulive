@@ -1496,6 +1496,14 @@ function deriveRingPosture(input: {
   signatureMomentKind?: string;
   signatureMomentPhase?: string;
 }): RingPosture {
+  const signatureOwnsArchitecture =
+    input.signatureMomentKind === 'cathedral-open' &&
+    (input.signatureMomentPhase === 'precharge' ||
+      input.signatureMomentPhase === 'strike' ||
+      input.signatureMomentPhase === 'hold');
+  const signatureResidue =
+    input.signatureMomentKind === 'cathedral-open' &&
+    input.signatureMomentPhase === 'residue';
   const signatureActive =
     input.signatureMomentKind &&
     input.signatureMomentKind !== 'none' &&
@@ -1519,7 +1527,8 @@ function deriveRingPosture(input: {
     input.motif === 'ghost-residue' ||
     input.motif === 'silence-constellation' ||
     input.cuePlan.residueMode === 'ghost' ||
-    input.cuePlan.residueMode === 'afterglow'
+    input.cuePlan.residueMode === 'afterglow' ||
+    signatureResidue
   ) {
     return 'residue-trace';
   }
@@ -1536,12 +1545,15 @@ function deriveRingPosture(input: {
   if (
     input.cuePlan.ringAuthority === 'framing-architecture' &&
     (input.cuePlan.worldMode === 'cathedral-rise' ||
-      input.signatureMomentKind === 'cathedral-open')
+      signatureOwnsArchitecture)
   ) {
     return 'cathedral-architecture';
   }
 
-  if (input.cuePlan.ringAuthority === 'event-platform' || signatureActive) {
+  if (
+    input.cuePlan.ringAuthority === 'event-platform' ||
+    (signatureActive && !signatureResidue)
+  ) {
     return 'event-strike';
   }
 
@@ -3416,6 +3428,12 @@ export function deriveStageCuePlan(input: {
           : matrixAmbientFloat
             ? 'fan-sweep'
             : 'field-bloom';
+    const laserLivingWorldMode =
+      frame.sectionChange > 0.26 && cueState.attack > 0.34
+        ? 'cathedral-rise'
+        : frame.releaseTail > 0.16 || frame.resonance > 0.2
+          ? 'field-bloom'
+          : 'fan-sweep';
     const livingReveal =
       matrixLivingReveal
         ? frame.sectionChange > 0.18 ||
@@ -3489,7 +3507,16 @@ export function deriveStageCuePlan(input: {
         family: 'reveal',
         dominance: matrixLivingReveal ? 'hybrid' : 'chamber',
         ...buildSpendTuning('reveal'),
-        worldMode: matrixLivingReveal ? matrixLivingWorldMode : 'cathedral-rise',
+        ringAuthority: matrixLivingReveal
+          ? matrixLivingWorldMode === 'cathedral-rise'
+            ? 'framing-architecture'
+            : 'event-platform'
+          : laserLivingWorldMode === 'cathedral-rise'
+            ? 'framing-architecture'
+            : laserLivingWorldMode === 'fan-sweep'
+              ? 'event-platform'
+              : 'background-scaffold',
+        worldMode: matrixLivingReveal ? matrixLivingWorldMode : laserLivingWorldMode,
         compositorMode: 'wipe',
         residueMode: 'short',
         transformIntent: 'open',
@@ -3499,13 +3526,13 @@ export function deriveStageCuePlan(input: {
             livingNeonLift * 0.16
         ),
         chamberWeight: clamp01(
-          (matrixLivingReveal ? 0.66 : 0.76) + cueState.worldWeight * 0.12
+          (matrixLivingReveal ? 0.66 : 0.7) + cueState.worldWeight * 0.12
         ),
         heroWeight: clamp01(
-          (matrixLivingReveal ? 0.34 : 0.5) + cueState.heroWeight * 0.14
+          (matrixLivingReveal ? 0.34 : 0.54) + cueState.heroWeight * 0.16
         ),
         worldWeight: clamp01(
-          (matrixLivingReveal ? 0.6 : 0.74) + cueState.worldWeight * 0.1
+          (matrixLivingReveal ? 0.6 : 0.68) + cueState.worldWeight * 0.1
         ),
         screenWeight: clamp01(
           (matrixLivingReveal ? 0.26 : 0.36) +
@@ -3519,7 +3546,7 @@ export function deriveStageCuePlan(input: {
         subtractiveAmount: matrixLivingReveal ? 0.1 : 0.08,
         wipeAmount: matrixLivingReveal ? 0.16 : 0.22,
         flashAmount: 0.05,
-        heroScaleBias: matrixLivingReveal ? -0.12 : 0.34,
+        heroScaleBias: matrixLivingReveal ? -0.12 : 0.44,
         heroStageX: clampSigned(
           actAnchor.x * (matrixLivingReveal ? 1.28 : 1.14) +
             (matrixLivingReveal
@@ -3776,30 +3803,41 @@ export function deriveStageCuePlan(input: {
           : frame.resonance > 0.18
             ? 'ghost-chamber'
             : 'field-bloom';
+    const revealWorldMode = matrixReveal
+      ? matrixRevealWorldMode
+      : laserReveal
+        ? 'fan-sweep'
+        : 'cathedral-rise';
     return finalizePlan({
       family: 'reveal',
       dominance: matrixReveal ? 'hybrid' : 'chamber',
       ...buildSpendTuning('reveal'),
-      worldMode: matrixReveal ? matrixRevealWorldMode : laserReveal ? 'fan-sweep' : 'cathedral-rise',
+      ringAuthority:
+        revealWorldMode === 'cathedral-rise'
+          ? 'framing-architecture'
+          : revealWorldMode === 'fan-sweep'
+            ? 'event-platform'
+            : 'background-scaffold',
+      worldMode: revealWorldMode,
       compositorMode: 'wipe',
       residueMode: 'short',
       transformIntent: 'open',
       stageWeight: clamp01(
-        (laserReveal ? 0.6 : matrixReveal ? 0.48 : 0.52) +
+        (laserReveal ? 0.62 : matrixReveal ? 0.48 : 0.52) +
           cueState.intensity * 0.18 +
           livingNeonLift * 0.08
       ),
       chamberWeight: clamp01(
-        (laserReveal ? 0.88 : matrixReveal ? 0.58 : 0.74) +
+        (laserReveal ? 0.78 : matrixReveal ? 0.58 : 0.74) +
           cueState.worldWeight * 0.14 +
           livingNeonLift * 0.08
       ),
       heroWeight: clamp01(
-        (laserReveal ? 0.22 : matrixReveal ? 0.3 : 0.36) +
-          cueState.heroWeight * (laserReveal ? 0.08 : 0.18)
+        (laserReveal ? 0.36 : matrixReveal ? 0.3 : 0.36) +
+          cueState.heroWeight * (laserReveal ? 0.14 : 0.18)
       ),
       worldWeight: clamp01(
-        (laserReveal ? 0.86 : matrixReveal ? 0.52 : 0.72) +
+        (laserReveal ? 0.76 : matrixReveal ? 0.52 : 0.72) +
           cueState.worldWeight * 0.12 +
           operatorBias.worldBoot * 0.1
       ),
@@ -3816,7 +3854,7 @@ export function deriveStageCuePlan(input: {
       ),
       flashAmount: 0.08,
       heroScaleBias: clampSigned(
-        (laserReveal ? 0.18 : matrixReveal ? -0.08 : 0.62) +
+        (laserReveal ? 0.34 : matrixReveal ? -0.08 : 0.62) +
           cueState.intensity * (laserReveal ? 0.08 : matrixReveal ? 0.1 : 0.16)
       ),
       heroStageX: clampSigned(
@@ -3830,7 +3868,7 @@ export function deriveStageCuePlan(input: {
       heroStageY: clampSigned(
         actAnchor.y * (laserReveal ? 0.72 : matrixReveal ? 0.9 : 0.92) + 0.08
       ),
-      heroDepthBias: laserReveal ? 0.12 : matrixReveal ? -0.02 : 0.48,
+      heroDepthBias: laserReveal ? 0.22 : matrixReveal ? -0.02 : 0.48,
       heroMotionBias: laserReveal ? 0.64 : matrixReveal ? 0.76 : 0.78,
       heroMorphBias: matrixReveal ? 0.64 : 0.7
     });

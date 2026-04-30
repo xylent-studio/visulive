@@ -199,8 +199,8 @@ export function resolveExpectedEvidence(cluster) {
       return {
         severity: 'high',
         clipKinds: new Set(['governance-risk']),
-        stillKinds: new Set(['safety']),
-        label: 'governance-risk clip or safety still'
+        stillKinds: new Set(['safety', 'authority', 'signature', 'signature-preview']),
+        label: 'governance-risk clip or contextual safety/authority/signature still'
       };
     case 'quiet-beauty':
       return {

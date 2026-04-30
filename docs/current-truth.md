@@ -7,7 +7,7 @@ Use this page before reading the longer history docs. It is intentionally compac
 
 ## Build And Runs
 
-- Current base commit before this pass: `effb5cd`
+- Current base commit before this pass: `7ed2cfd`
 - Current committed wave: run `git rev-parse --short HEAD`; this page is part of that commit.
 - Current implementation wave: `Current Truth + Orchestration Coherence`
 - Latest local checkpoint: run `C:\dev\_intel\scripts\Write-AgentCheckpoint.ps1` after meaningful passes; use `_intel` latest as machine memory.
@@ -17,6 +17,7 @@ Use this page before reading the longer history docs. It is intentionally compac
   - `run_20260430_114858_ctx3di`: PC Audio proof with `Madeon - Technicolor`; valid/current-proof-eligible, but underwhelming. The run exposed stale pre-proof visual age at show start, overly polite PC-audio lift routing, and ghost-constellation over-holding through a real progressive lift.
   - `run_20260430_122217_tlpxp2`: PC Audio proof with `Justice - Genesis`; valid/current-proof-eligible and no-touch clean, but still underwhelming. The run proved source readiness was not the blocker; it exposed detonate frames being routed as gather/reveal, hard rupture being visually converted back into cathedral/neon, double-dampened post consequence, weak collapse-scar ownership, and ring posture staying in event language too long.
   - `run_20260430_125933_3p5rwa`: PC Audio proof on `effb5cd`; valid/current-proof-eligible and archived. It proved the rupture repair helped collapse-scar appear naturally, but exposed the next blockers: ring authority still too dominant, neon/cathedral still too dominant, and signature masks sometimes overriding the active playable scene. After the evidence repair, run review reports no missed opportunities.
+  - `run_20260430_141217_bvdt0n`: PC Audio proof on `7ed2cfd`; valid/current-proof-eligible. It proved the strike/ring repair improved rupture routing, but still exposed a world/chamber-heavy show: `hero=0.100`, `world=0.988`, `ring=0.728`, `laser-bloom` dominated the act spread, and `neon-cathedral` dominated playable-scene spread. After the governance-still matcher repair, run review reports no missed opportunities.
 - Diagnostic-only run:
   - `run_20260430_093649_52bpjn`: invalid proof/operator-trust run; useful only for failure diagnosis.
 
@@ -41,6 +42,7 @@ Use this page before reading the longer history docs. It is intentionally compac
 - Playable motifs, palette bases, hero forms, hero/world hue, and ring posture still need to behave like one authored director.
 - Signature masks can still fight playable-scene ownership if future changes loosen the new phase/scene guardrails.
 - Ring posture can still read as wallpaper after authority turns unless a cathedral/architecture scene truly owns it.
+- Non-cathedral `laser-bloom` reveal/fan-sweep passages need to read as moving stage rails with visible hero/stage body, not static portal halos.
 - Hard detonate passages need continued proof that signature, playable motif, post, and ring posture agree on rupture ownership.
 
 ## Current Best Next Move
@@ -51,8 +53,9 @@ Finish the `Current Truth + Orchestration Coherence` wave:
 2. Add/maintain `npm run truth:audit` as a non-blocking stale-surface check.
 3. Tune the existing authored engine for stronger semantic holds, broader valid utilization, richer playable scene silhouettes, and faster non-architectural ring decay.
 4. Preserve the show-start reset, PC-audio progressive/detonate lift repair, collapse signature preemption, post consequence intensity fix, stricter signature precharge evidence, compositor scene/mask ownership, and hard-rupture playable-scene preemption before the next canary.
-5. Run a fresh 90-120 second PC Audio primary canary, fullscreen, no-touch, using `Finish Proof Run`.
-5. Review with `npm run proof:current`, `npm run evidence:index`, `npm run run:review -- --run-id <runId>`, and `npm run moment:sheet -- --run-id <runId>` when stills exist.
+5. Preserve the post-`run_20260430_141217_bvdt0n` repair: cathedral-open residue decays out of architectural ring posture, laser-bloom reveal uses non-static fan-sweep/event-platform staging, chamber chroma halos obey ring persistence suppression, and governance-risk clusters can be covered by contextual signature/authority stills.
+6. Run a fresh 90-120 second PC Audio primary canary, fullscreen, no-touch, using `Finish Proof Run`.
+7. Review with `npm run proof:current`, `npm run evidence:index`, `npm run run:review -- --run-id <runId>`, and `npm run moment:sheet -- --run-id <runId>` when stills exist.
 
 ## Proof Command Path
 

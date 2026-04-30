@@ -44,6 +44,25 @@ describe('missed capture opportunity matching', () => {
     });
   });
 
+  it('counts contextual signature stills that span governance risk clusters', () => {
+    const cluster = {
+      markerKind: 'governance-risk',
+      timestampMs: 397976,
+      endTimestampMs: 399672,
+      markerCount: 9,
+      reason: 'safety=ok overbright=0.326'
+    };
+
+    const match = clusterHasSavedEvidence(
+      cluster,
+      [],
+      [{ kind: 'signature', timestampMs: 399480 }]
+    );
+
+    expect(match.matched).toBe(true);
+    expect(match.expectedEvidence.label).toContain('contextual');
+  });
+
   it('ignores armed and eligible signature candidates when looking for missed precharge proof', () => {
     const clusters = clusterMissableMarkers([
       {

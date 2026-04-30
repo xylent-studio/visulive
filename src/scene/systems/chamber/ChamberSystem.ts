@@ -1404,6 +1404,17 @@ export class ChamberSystem {
         0.28,
         1
       );
+      halo.mesh.material.opacity *= THREE.MathUtils.clamp(
+        1 -
+          ringPostureSuppression * (0.46 + index * 0.035) -
+          ringPersistencePressure * 0.28 -
+          ringEventStrike * 0.08 -
+          ringBackground * 0.14 -
+          ringSuppressed * 0.2,
+        ringCathedralArchitecture > 0 ? 0.38 : 0.16,
+        1
+      );
+      halo.mesh.material.opacity *= portalOverdrawGuard;
     });
 
     this.ghostLattice.rotation.y = context.elapsedSeconds * (0.05 + ghost * 0.12);
