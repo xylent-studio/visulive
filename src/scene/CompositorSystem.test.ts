@@ -129,6 +129,12 @@ describe('CompositorSystem', () => {
         signatureMomentStyle: 'maximal-neon',
         cathedralOpenAmount: 0.86,
         collapseScarAmount: 0
+      },
+      playableMotif: {
+        ...PLAYABLE_MOTIF_TELEMETRY,
+        activePlayableMotifScene: 'neon-cathedral',
+        playableMotifSceneProfileId: 'neon-cathedral',
+        compositorMaskFamily: 'portal-aperture'
       }
     });
 
@@ -166,6 +172,58 @@ describe('CompositorSystem', () => {
 
     const telemetry = system.collectTelemetryInputs();
     expect(telemetry.compositorMaskFamily).toBe('portal-aperture');
+    system.dispose();
+  });
+
+  it('keeps the authored playable mask when an unrelated signature is still over it', () => {
+    const system = new CompositorSystem();
+    const context = buildContext();
+
+    system.build();
+    system.update({
+      ...context,
+      signatureMoment: {
+        ...context.signatureMoment,
+        kind: 'cathedral-open',
+        phase: 'hold',
+        intensity: 0.58,
+        style: 'contrast-mythic'
+      },
+      playableMotif: {
+        ...PLAYABLE_MOTIF_TELEMETRY,
+        activePlayableMotifScene: 'collapse-scar',
+        playableMotifSceneProfileId: 'collapse-scar',
+        compositorMaskFamily: 'scar-matte'
+      }
+    });
+
+    expect(system.collectTelemetryInputs().compositorMaskFamily).toBe('scar-matte');
+    system.dispose();
+  });
+
+  it('lets a real collapse strike preempt a stale playable mask', () => {
+    const system = new CompositorSystem();
+    const context = buildContext();
+
+    system.build();
+    system.update({
+      ...context,
+      signatureMoment: {
+        ...context.signatureMoment,
+        kind: 'collapse-scar',
+        phase: 'strike',
+        intensity: 0.92,
+        style: 'contrast-mythic'
+      },
+      playableMotif: {
+        ...PLAYABLE_MOTIF_TELEMETRY,
+        activePlayableMotifScene: 'neon-cathedral',
+        playableMotifSceneProfileId: 'neon-cathedral',
+        compositorMaskFamily: 'portal-aperture'
+      }
+    });
+
+    expect(system.collectTelemetryInputs().compositorMaskFamily).toBe('scar-matte');
     system.dispose();
   });
 });

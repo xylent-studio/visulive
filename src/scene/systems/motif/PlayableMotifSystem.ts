@@ -611,6 +611,7 @@ export class PlayableMotifSystem {
     const urgent =
       reason === 'signature-moment' ||
       reason === 'drop-rupture';
+    const urgentMinimumDwellSeconds = reason === 'drop-rupture' ? 0.18 : 1.2;
     const yieldingFromCollapse =
       this.activeScene === 'collapse-scar' && targetScene !== 'collapse-scar';
     const collapseIsResidueOnly =
@@ -622,7 +623,7 @@ export class PlayableMotifSystem {
       this.activeScene === 'none'
         ? 0
         : urgent
-          ? 1.2
+          ? urgentMinimumDwellSeconds
           : yieldingFromCollapse
             ? collapseIsResidueOnly && !isHardRuptureContext(context)
               ? 3

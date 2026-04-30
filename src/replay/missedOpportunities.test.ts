@@ -28,6 +28,49 @@ describe('missed capture opportunity matching', () => {
     });
   });
 
+  it('clusters persistent governance risk across the capture cooldown window', () => {
+    const clusters = clusterMissableMarkers([
+      { kind: 'governance-risk', timestampMs: 251410, reason: 'overbright' },
+      { kind: 'governance-risk', timestampMs: 259464, reason: 'overbright' },
+      { kind: 'governance-risk', timestampMs: 276221, reason: 'safety=risk' }
+    ]);
+
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0]).toMatchObject({
+      markerKind: 'governance-risk',
+      timestampMs: 251410,
+      endTimestampMs: 276221,
+      markerCount: 3
+    });
+  });
+
+  it('ignores armed and eligible signature candidates when looking for missed precharge proof', () => {
+    const clusters = clusterMissableMarkers([
+      {
+        kind: 'signature-moment-precharge',
+        timestampMs: 1000,
+        reason: 'signature=silence-constellation style=ambient-premium phase=armed'
+      },
+      {
+        kind: 'signature-moment-precharge',
+        timestampMs: 1600,
+        reason: 'signature=cathedral-open style=maximal-neon phase=eligible'
+      },
+      {
+        kind: 'signature-moment-precharge',
+        timestampMs: 2400,
+        reason: 'signature=cathedral-open style=maximal-neon phase=precharge'
+      }
+    ]);
+
+    expect(clusters).toHaveLength(1);
+    expect(clusters[0]).toMatchObject({
+      markerKind: 'signature-moment-precharge',
+      timestampMs: 2400,
+      markerCount: 1
+    });
+  });
+
   it('counts authority-context clips and stills that span late authority turns', () => {
     const cluster = {
       markerKind: 'authority-turn',

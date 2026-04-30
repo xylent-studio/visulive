@@ -4029,9 +4029,7 @@ function isVisualCommitFrame(frame, triggerKind) {
       return (
         Boolean(visual.activeSignatureMoment) &&
         visual.activeSignatureMoment !== 'none' &&
-        (visual.signatureMomentPhase === 'armed' ||
-          visual.signatureMomentPhase === 'eligible' ||
-          visual.signatureMomentPhase === 'precharge') &&
+        visual.signatureMomentPhase === 'precharge' &&
         ((visual.signatureMomentPrechargeProgress ?? 0) > 0.2 ||
           (visual.signatureMomentTriggerConfidence ?? 0) > 0.4)
       );

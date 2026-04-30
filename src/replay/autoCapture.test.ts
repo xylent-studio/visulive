@@ -189,4 +189,60 @@ describe('auto capture helpers', () => {
     expect(trigger?.kind).toBe('authority-turn');
     expect(trigger?.label).toBe('Authority Landmark');
   });
+
+  it('does not treat armed signature candidates as proof precharge evidence', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 275000,
+        mode: 'system-audio',
+        musicConfidence: 0.72,
+        beatConfidence: 0.38,
+        dropImpact: 0.08
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        visualTelemetry: {
+          activeSignatureMoment: 'silence-constellation',
+          signatureMomentPhase: 'armed',
+          signatureMomentStyle: 'ambient-premium',
+          signatureMomentIntensity: 0.22,
+          signatureMomentPrechargeProgress: 1,
+          signatureMomentTriggerConfidence: 0.9,
+          compositionSafetyScore: 0.9,
+          overbright: 0.02
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).not.toBe('signature-moment-precharge');
+  });
+
+  it('captures real signature precharge once the moment enters precharge phase', () => {
+    const trigger = detectAutoCaptureTrigger(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 276000,
+        mode: 'system-audio',
+        musicConfidence: 0.72,
+        beatConfidence: 0.38,
+        dropImpact: 0.08
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        visualTelemetry: {
+          activeSignatureMoment: 'cathedral-open',
+          signatureMomentPhase: 'precharge',
+          signatureMomentStyle: 'maximal-neon',
+          signatureMomentIntensity: 0.28,
+          signatureMomentPrechargeProgress: 0.62,
+          signatureMomentTriggerConfidence: 0.72,
+          compositionSafetyScore: 0.9,
+          overbright: 0.02
+        } as any
+      }
+    );
+
+    expect(trigger?.kind).toBe('signature-moment-precharge');
+  });
 });

@@ -568,9 +568,11 @@ export class ChamberSystem {
       context.tuning.worldBootFloor * 0.01;
     const ringPostureSuppression = THREE.MathUtils.clamp(
       ringSuppressed * 0.78 +
-        ringResidueTrace * 0.58 +
-        ringEventStrike * 0.32 -
-        ringCathedralArchitecture * 0.24,
+        ringResidueTrace * 0.64 +
+        ringEventStrike * 0.38 +
+        ringBackground * 0.18 -
+        ringCathedralArchitecture *
+          (0.1 + signaturePortalArchitectureLift * 0.42),
       0,
       0.86
     );
@@ -583,6 +585,28 @@ export class ChamberSystem {
           0.54,
       0,
       0.78
+    );
+    const ringOverdrawGuard = THREE.MathUtils.clamp(
+      1 -
+        Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.18) * 0.78 -
+        Math.max(
+          0,
+          context.metrics.wirefieldDensityScoreCurrent - chamberWireDensityCap
+        ) *
+          0.24,
+      ringCathedralArchitecture > 0 ? 0.68 : 0.42,
+      1
+    );
+    const portalOverdrawGuard = THREE.MathUtils.clamp(
+      1 -
+        Math.max(0, context.metrics.ringBeltPersistenceCurrent - 0.2) * 0.62 -
+        Math.max(
+          0,
+          context.metrics.wirefieldDensityScoreCurrent - chamberWireDensityCap
+        ) *
+          0.18,
+      ringCathedralArchitecture > 0 ? 0.7 : 0.46,
+      1
     );
     const chamberColorIntegrityGuard = THREE.MathUtils.clamp(
       1 - ringPersistencePressure * 0.54 - washoutSuppression * 0.18,
@@ -951,9 +975,10 @@ export class ChamberSystem {
             context.metrics.ringBeltPersistenceCurrent - 0.24
           ) *
             0.72,
-        0.36,
+        0.22,
         1
       );
+      ring.mesh.material.opacity *= ringOverdrawGuard;
     });
 
     this.portalRings.forEach((ring, index) => {
@@ -1142,6 +1167,7 @@ export class ChamberSystem {
         0.06,
         1
       );
+      ring.mesh.material.opacity *= portalOverdrawGuard;
     });
 
     this.chromaHalos.forEach((halo, index) => {

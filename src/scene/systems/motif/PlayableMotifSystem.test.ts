@@ -419,6 +419,52 @@ describe('PlayableMotifSystem', () => {
     expect(telemetry.playableMotifSceneDriver).not.toBe('signature');
   });
 
+  it('lets hard rupture cut through a fresh cathedral scene without waiting for normal dwell', () => {
+    const system = new PlayableMotifSystem();
+    system.build();
+    system.update(
+      context({
+        elapsedSeconds: 3,
+        visualMotif: 'neon-portal',
+        signatureMoment: signatureMoment({
+          kind: 'cathedral-open',
+          phase: 'strike',
+          intensity: 0.74,
+          style: 'maximal-neon'
+        }),
+        paletteFrame: {
+          ...DEFAULT_PALETTE_FRAME,
+          baseState: 'tron-blue'
+        }
+      })
+    );
+
+    expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('neon-cathedral');
+
+    system.update(
+      context({
+        elapsedSeconds: 3.24,
+        visualMotif: 'world-takeover',
+        stageCuePlan: {
+          ...DEFAULT_STAGE_CUE_PLAN,
+          family: 'rupture',
+          worldMode: 'collapse-well',
+          transformIntent: 'collapse'
+        },
+        audio: {
+          ...context().audio,
+          dropImpact: 0.48,
+          sectionChange: 0.38,
+          releaseTail: 0.02
+        }
+      })
+    );
+
+    const telemetry = system.collectTelemetryInputs();
+    expect(telemetry.activePlayableMotifScene).toBe('collapse-scar');
+    expect(telemetry.playableMotifSceneTransitionReason).toBe('drop-rupture');
+  });
+
   it('resets scene age and stale scene ownership for a new show start', () => {
     const system = new PlayableMotifSystem();
     system.build();

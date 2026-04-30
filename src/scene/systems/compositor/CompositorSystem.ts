@@ -62,28 +62,83 @@ function resolveCompositorMaskFamily(
   context: CompositorSystemUpdateContext
 ): CompositorMaskFamily {
   const moment = context.signatureMoment;
+  const playableMask = resolvePlayableMaskFamily(context);
   const signatureOwnsMask =
     moment.phase === 'precharge' ||
     moment.phase === 'strike' ||
     moment.phase === 'hold' ||
     moment.phase === 'residue';
+  const signatureMask = signatureOwnsMask
+    ? resolveSignatureMaskFamily(moment)
+    : null;
 
-  if (moment.kind === 'collapse-scar' && signatureOwnsMask) {
+  if (!signatureMask) {
+    return playableMask;
+  }
+
+  const signatureScene = resolveSignaturePlayableScene(moment);
+  const playableScene = context.playableMotif.activePlayableMotifScene;
+  const signatureMatchesScene =
+    !signatureScene ||
+    !playableScene ||
+    playableScene === 'none' ||
+    signatureScene === playableScene;
+  const collapseStrikeCanPreemptStaleScene =
+    moment.kind === 'collapse-scar' &&
+    (moment.phase === 'strike' ||
+      (moment.phase === 'hold' && moment.intensity >= 0.82)) &&
+    moment.intensity >= 0.72;
+
+  if (signatureMatchesScene || collapseStrikeCanPreemptStaleScene) {
+    return signatureMask;
+  }
+
+  return playableMask;
+}
+
+function resolveSignatureMaskFamily(
+  moment: SignatureMomentSnapshot
+): CompositorMaskFamily | null {
+  if (moment.kind === 'collapse-scar') {
     return 'scar-matte';
   }
 
-  if (moment.kind === 'cathedral-open' && signatureOwnsMask) {
+  if (moment.kind === 'cathedral-open') {
     return 'portal-aperture';
   }
 
-  if (
-    (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') &&
-    signatureOwnsMask
-  ) {
+  if (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') {
     return 'ghost-veil';
   }
 
-  if (context.playableMotif.compositorMaskFamily) {
+  return null;
+}
+
+function resolveSignaturePlayableScene(
+  moment: SignatureMomentSnapshot
+): PlayableMotifSystemTelemetry['activePlayableMotifScene'] | null {
+  if (moment.kind === 'collapse-scar') {
+    return 'collapse-scar';
+  }
+
+  if (moment.kind === 'cathedral-open') {
+    return 'neon-cathedral';
+  }
+
+  if (moment.kind === 'ghost-residue' || moment.kind === 'silence-constellation') {
+    return 'ghost-constellation';
+  }
+
+  return null;
+}
+
+function resolvePlayableMaskFamily(
+  context: CompositorSystemUpdateContext
+): CompositorMaskFamily {
+  if (
+    context.playableMotif.compositorMaskFamily &&
+    context.playableMotif.compositorMaskFamily !== 'none'
+  ) {
     return context.playableMotif.compositorMaskFamily;
   }
 

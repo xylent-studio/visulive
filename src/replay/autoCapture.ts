@@ -430,7 +430,7 @@ function detectSignatureMomentTrigger(
   const style = visual.signatureMomentStyle ?? 'contrast-mythic';
 
   if (
-    (phase === 'armed' || phase === 'precharge') &&
+    phase === 'precharge' &&
     (visual.signatureMomentPrechargeProgress ?? 0) >= 0.42 &&
     intensity >= 0.18
   ) {

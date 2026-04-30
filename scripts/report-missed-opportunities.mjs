@@ -27,6 +27,7 @@ const SIGNATURE_MARKER_KINDS = new Set([
 ]);
 const MATCH_WINDOW_MS = 2_500;
 const CLUSTER_GAP_MS = 5_000;
+const GOVERNANCE_CLUSTER_GAP_MS = 18_000;
 const DEFAULT_STILL_MATCH_WINDOW_MS = 1_500;
 const SIGNATURE_STILL_MATCH_WINDOW_MS = 5_000;
 const AUTHORITY_STILL_MATCH_WINDOW_MS = 10_000;
@@ -125,12 +126,34 @@ async function resolveClipCoverageByRunId(summaries = []) {
   return clipsByRunId;
 }
 
+function resolveClusterGapMs(markerKind) {
+  return markerKind === 'governance-risk'
+    ? GOVERNANCE_CLUSTER_GAP_MS
+    : CLUSTER_GAP_MS;
+}
+
+function isMissableMarker(marker) {
+  if (!MISSABLE_MARKER_KINDS.has(marker.kind)) {
+    return false;
+  }
+
+  if (
+    marker.kind === 'signature-moment-precharge' &&
+    typeof marker.reason === 'string' &&
+    /phase=(armed|eligible)\b/.test(marker.reason)
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function clusterMissableMarkers(markers = []) {
   const clusters = [];
   const markersByKind = new Map();
 
   for (const marker of markers) {
-    if (!MISSABLE_MARKER_KINDS.has(marker.kind)) {
+    if (!isMissableMarker(marker)) {
       continue;
     }
 
@@ -144,11 +167,12 @@ export function clusterMissableMarkers(markers = []) {
       .filter((marker) => typeof marker.timestampMs === 'number')
       .sort((left, right) => left.timestampMs - right.timestampMs);
     let activeCluster = null;
+    const clusterGapMs = resolveClusterGapMs(kind);
 
     for (const marker of sortedMarkers) {
       if (
         !activeCluster ||
-        marker.timestampMs - activeCluster.endTimestampMs > CLUSTER_GAP_MS
+        marker.timestampMs - activeCluster.endTimestampMs > clusterGapMs
       ) {
         activeCluster = {
           markerKind: kind,
