@@ -43,8 +43,16 @@ button {
 .app-shell {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   isolation: isolate;
+  overflow: hidden;
+}
+
+.app-shell:fullscreen {
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg-0);
 }
 
 .app-shell::before {
@@ -65,7 +73,13 @@ button {
 .scene-canvas {
   display: block;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
+}
+
+.app-shell:fullscreen .scene-canvas {
+  height: 100vh;
+  height: 100dvh;
 }
 
 .show-launch {

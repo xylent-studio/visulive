@@ -9,6 +9,8 @@ import {
 type ShowHudProps = {
   visible: boolean;
   currentRouteId: ResolvedRouteId;
+  isFullscreen: boolean;
+  fullscreenError?: string | null;
   statusLabel: string;
   showCapabilityMode: ShowCapabilityMode;
   routeRecommendation: AutoRouteRecommendation | null;
@@ -25,6 +27,7 @@ type ShowHudProps = {
     validityLabel: string;
   };
   onFinishProofRun?: () => void;
+  onToggleFullscreen: () => void;
   onOpenAdvanced: () => void;
   onApplyRouteRecommendation: () => void;
 };
@@ -32,11 +35,14 @@ type ShowHudProps = {
 export function ShowHud({
   visible,
   currentRouteId,
+  isFullscreen,
+  fullscreenError,
   statusLabel,
   showCapabilityMode,
   routeRecommendation,
   proofStatus,
   onFinishProofRun,
+  onToggleFullscreen,
   onOpenAdvanced,
   onApplyRouteRecommendation
 }: ShowHudProps) {
@@ -145,6 +151,14 @@ export function ShowHud({
         ) : null}
         <button
           className="show-hud__button show-hud__button--ghost"
+          onClick={onToggleFullscreen}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          type="button"
+        >
+          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+        </button>
+        <button
+          className="show-hud__button show-hud__button--ghost"
           onClick={onOpenAdvanced}
           type="button"
         >
@@ -152,9 +166,11 @@ export function ShowHud({
         </button>
       </div>
       <div className="show-hud__build">
-        {proofStatus?.active
-          ? `${proofStatus.validityLabel} / ${proofStatus.lastPersistedAt ? 'saved' : 'not saved yet'}`
-          : `${BUILD_INFO.lane} / ${BUILD_INFO.proofStatus}`}
+        {fullscreenError
+          ? fullscreenError
+          : proofStatus?.active
+            ? `${proofStatus.validityLabel} / ${proofStatus.lastPersistedAt ? 'saved' : 'not saved yet'}`
+            : `${BUILD_INFO.lane} / ${BUILD_INFO.proofStatus}`}
       </div>
     </div>
   );

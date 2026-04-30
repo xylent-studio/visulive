@@ -14,6 +14,8 @@ type ShowLaunchSurfaceProps = {
   audio: AudioDiagnostics;
   status: AudioEngineStatus;
   renderer: RendererDiagnostics;
+  isFullscreen: boolean;
+  fullscreenError?: string | null;
   startRoute: ShowStartRoute;
   startError?: string | null;
   proofWaveArmed: boolean;
@@ -24,6 +26,7 @@ type ShowLaunchSurfaceProps = {
   onStartRouteChange: (route: ShowStartRoute) => void;
   onStart: () => void;
   onOpenAdvanced: () => void;
+  onToggleFullscreen: () => void;
 };
 
 export function ShowLaunchSurface({
@@ -31,6 +34,8 @@ export function ShowLaunchSurface({
   audio,
   status,
   renderer,
+  isFullscreen,
+  fullscreenError,
   startRoute,
   startError,
   proofWaveArmed,
@@ -40,7 +45,8 @@ export function ShowLaunchSurface({
   proofAdvancedLocked = false,
   onStartRouteChange,
   onStart,
-  onOpenAdvanced
+  onOpenAdvanced,
+  onToggleFullscreen
 }: ShowLaunchSurfaceProps) {
   if (!visible) {
     return null;
@@ -181,6 +187,9 @@ export function ShowLaunchSurface({
         {renderer.error ? (
           <div className="show-launch__error">{renderer.error}</div>
         ) : null}
+        {fullscreenError ? (
+          <div className="show-launch__error">{fullscreenError}</div>
+        ) : null}
         {startError ? (
           <div className="show-launch__error">{startError}</div>
         ) : null}
@@ -193,6 +202,13 @@ export function ShowLaunchSurface({
             type="button"
           >
             {isBusy ? 'Waking The Show' : 'Start Show'}
+          </button>
+          <button
+            className="show-launch__button show-launch__button--ghost"
+            onClick={onToggleFullscreen}
+            type="button"
+          >
+            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           </button>
           <button
             className="show-launch__button show-launch__button--ghost"

@@ -518,6 +518,7 @@ function buildReplayAudioDiagnostics(
 }
 
 export function App() {
+  const appShellRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const replayFileInputRef = useRef<HTMLInputElement | null>(null);
   const audioRef = useRef<AudioEngine | null>(null);
@@ -630,6 +631,7 @@ export function App() {
   const [startError, setStartError] = useState<string | null>(null);
   const [diagnosticsVisible, setDiagnosticsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [fullscreenError, setFullscreenError] = useState<string | null>(null);
   const [advancedDrawerTab, setAdvancedDrawerTab] =
     useState<AdvancedDrawerTab>(null);
   const [sourceMode, setSourceMode] = useState<ListeningMode>(() => {
@@ -2242,13 +2244,26 @@ export function App() {
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setFullscreen(Boolean(document.fullscreenElement));
+      const fullscreenActive = Boolean(document.fullscreenElement);
+
+      setFullscreen(fullscreenActive);
+
+      if (fullscreenActive) {
+        setFullscreenError(null);
+      }
+    };
+    const handleFullscreenError = () => {
+      setFullscreenError(
+        'Fullscreen was blocked by the browser. Use the fullscreen button while this tab is active.'
+      );
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('fullscreenerror', handleFullscreenError);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('fullscreenerror', handleFullscreenError);
     };
   }, []);
 
@@ -3975,12 +3990,29 @@ export function App() {
   };
 
   const toggleFullscreen = async () => {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-      return;
-    }
+    setFullscreenError(null);
 
-    await document.documentElement.requestFullscreen();
+    try {
+      if (!document.fullscreenEnabled) {
+        setFullscreenError('This browser or window does not allow fullscreen.');
+        return;
+      }
+
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+
+      const fullscreenTarget = appShellRef.current ?? document.documentElement;
+
+      await fullscreenTarget.requestFullscreen({ navigationUI: 'hide' });
+    } catch (error) {
+      setFullscreenError(
+        error instanceof Error
+          ? `Fullscreen could not start: ${error.message}`
+          : 'Fullscreen could not start from this browser state.'
+      );
+    }
   };
 
   const handleShowStartRouteChange = (nextRoute: ShowStartRoute) => {
@@ -4864,6 +4896,7 @@ export function App() {
   return (
     <main
       className={`app-shell ${immersiveView ? 'app-shell--immersive' : ''}`}
+      ref={appShellRef}
     >
       <input
         accept="application/json,.json"
@@ -4888,17 +4921,25 @@ export function App() {
         onOpenAdvanced={() => {
           openAdvancedDrawer('style');
         }}
+        onToggleFullscreen={() => {
+          void toggleFullscreen();
+        }}
         proofStatus={proofHudStatus}
         routeRecommendation={routeRecommendation}
         showCapabilityMode={appliedShowIntent.showCapabilityMode}
         statusLabel={topStatusLabel}
-        visible={runtimeActive && !activationVisible && (!immersiveView || proofControlActive)}
+        fullscreenError={fullscreenError}
+        isFullscreen={fullscreen}
+        visible={runtimeActive && !activationVisible && !advancedDrawerOpen && !diagnosticsVisible}
       />
 
       <ShowLaunchSurface
         audio={audioDiagnostics}
         onOpenAdvanced={() => {
           openAdvancedDrawer('style');
+        }}
+        onToggleFullscreen={() => {
+          void toggleFullscreen();
         }}
         onStartRouteChange={handleShowStartRouteChange}
         onStart={() => {
@@ -4911,6 +4952,8 @@ export function App() {
         proofScenarioKind={proofScenarioKind}
         proofWaveArmed={proofWaveArmed}
         startError={startError}
+        fullscreenError={fullscreenError}
+        isFullscreen={fullscreen}
         startRoute={showStartRoute}
         status={status}
         visible={launchSurfaceVisible}
