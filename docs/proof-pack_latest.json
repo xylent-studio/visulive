@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-04-30T17:25:38.737Z",
+  "generatedAt": "2026-04-30T18:07:53.254Z",
   "sourceReportPath": "C:\\dev\\GitHub\\visulive\\captures\\reports\\capture-analysis_latest.md",
-  "reportTimestamp": "2026-04-30T17:25:25.141Z",
+  "reportTimestamp": "2026-04-30T18:07:33.604Z",
   "reportCaptureCount": 152,
   "capturesPaths": [
     "C:\\dev\\GitHub\\visulive\\captures\\inbox",
@@ -274,7 +274,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_192855_gnmlg1",
-        "generatedAt": "2026-04-30T17:25:38.737Z",
+        "generatedAt": "2026-04-30T18:07:53.253Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -687,7 +687,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_194808_ot6j46",
-        "generatedAt": "2026-04-30T17:25:38.737Z",
+        "generatedAt": "2026-04-30T18:07:53.253Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",
@@ -1340,7 +1340,7 @@
         "app": "visulive",
         "artifactType": "run-recommendations",
         "runId": "run_20260428_203658_8yovza",
-        "generatedAt": "2026-04-30T17:25:38.737Z",
+        "generatedAt": "2026-04-30T18:07:53.254Z",
         "lifecycleState": "reviewed-candidate",
         "proofValidity": {
           "verdict": "valid",

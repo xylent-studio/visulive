@@ -1,8 +1,8 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-30T17:25:38.737Z
+Generated: 2026-04-30T18:07:53.255Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-30T17:25:25.141Z
+Report timestamp: 2026-04-30T18:07:33.604Z
 Report capture count: 152
 
 ## Executive Read
