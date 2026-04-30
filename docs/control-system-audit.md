@@ -13,7 +13,7 @@ Its job is to keep the next-version surface coherent while code catches up.
 The show must be compelling before the user touches anything.
 
 VisuLive is not a visual app that becomes good when the operator finds the right sliders.
-It is an autonomous show system with optional steering.
+It is an autonomous show system. Normal operators should not tune the show into quality; the director should earn quality from the music.
 
 ## Surface Model
 
@@ -61,12 +61,10 @@ This is the only optional control layer.
 
 Its internal tabs are:
 
-- `Style`
-- `Steer`
+- `Director`
 - `Backstage`
 
-`Style` owns optional world / look / stance / pool curation.
-`Steer` owns a very small set of semantic macro biases.
+`Director` is read-only during normal operation. It explains current autonomous intent: active scene, image class, motif, palette chapter, ring posture, hero role/form, signature moment, scene age, transition reason, proof state, and why the director made the choice.
 `Backstage` owns route repair, device selection, recalibration, capture, replay, build / lane / proof / system truth, and diagnostics.
 
 ## Public Content Model
@@ -77,7 +75,7 @@ The public creative vocabulary is:
 - `Looks`: palette, material, residue, and post identities
 - `Director Stances`: reusable autonomous behavior profiles
 
-These are allowed even while the runtime still shares one flagship engine underneath, but they now belong behind `Advanced > Style`.
+These remain valid internal repertoire definitions. They should not appear as normal-use lockable controls. Hidden development labs may force them for previews and exploratory receipts, but those runs cannot satisfy serious proof.
 
 What remains disallowed:
 
@@ -85,19 +83,22 @@ What remains disallowed:
 - static mode sprawl
 - an undisciplined public browser with no authored differentiation
 
-## Public Control Rule
+## Control Rule
 
-Public controls should be semantic director influences.
+Normal-use controls should not steer the creative show.
 
-They may bias:
+The director may still use internal repertoire signals for:
 
 - authority
 - motion
 - color
 - consequence
 - character
+- world, look, stance, and anchor posture
 
-Examples of correct advanced steering semantics:
+But these are now internal director vocabulary, not normal operator knobs. If the system needs a semantic bias to become good, improve the autonomous director or add a hidden lab/proof fixture. Do not restore a public tuning desk.
+
+Examples of valid internal director semantics:
 
 - `World Takeover`
 - `Motion Appetite`
@@ -108,20 +109,18 @@ Examples of correct advanced steering semantics:
 - `Impact Appetite`
 - `Aftermath`
 
-Examples of what public controls should not be:
+Examples of what must not return as normal-use UI:
 
 - raw debug values
+- Style sliders
+- Steer sliders
+- pool locks
+- saved stance pickers
 - one-property locks disguised as creativity
-- repair controls
+- repair controls mixed with creative controls
 - analyzer knobs
 
-No public control should simply mean:
-
-- set one value and leave the scene there
-
-It should mean:
-
-- make the director more or less willing to behave a certain way when the music justifies it
+Hidden localhost/dev labs may force these values for deterministic previews and exploratory receipts. Those receipts are useful development evidence, but they are never serious proof.
 
 ## Compatibility Rule
 
@@ -141,10 +140,11 @@ They should not reappear as mounted public UI.
 
 ## Decision Standard
 
-When deciding whether something belongs on the public surface:
+When deciding whether something belongs on the normal surface:
 
 - if it should make the autonomous show better, improve the director
 - if it is route choice needed before the browser can start listening, it belongs on the start surface
-- if it is a semantic bias or optional curation, it may belong in `Advanced`
+- if it explains what the director is doing, it belongs in read-only `Advanced > Director`
 - if it is setup, repair, replay, capture, or diagnostics, it belongs in `Advanced > Backstage`
+- if it is semantic bias, forced preview, curation, or fixture generation, it belongs in a hidden dev-only lab and must mark the run exploratory
 - if it is merely exposing implementation debt, it should not become public at all

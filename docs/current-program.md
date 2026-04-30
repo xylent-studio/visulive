@@ -70,6 +70,9 @@ April 28 proof-first override:
 - the latest semantic-motif pass makes color and hero form changes meaning-bearing instead of novelty-driven: show direction now derives a `VisualMotifSnapshot`, palette identity has a held base plus continuous modulation, `HeroSystem` defaults to semantic form arbitration with longer dwell, pressure waves use the palette-frame transient role, `PlayableMotifSystem` turns motifs into stable authored scenes, and analyzer/recommendation output can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, scene churn, scene-motif mismatch, and samey scene silhouettes
 - the current coherence unlock extends that semantic layer into phrase-scale episodes: visual telemetry now records semantic episode id/age/transition reason, palette base hold reason, pending hero form, playable scene driver/intent match, and ring posture so proof can distinguish authored holds from arbitrary churn
 - the authored procedural asset pass gives those five playable scenes explicit ontology contracts: [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) declares procedural-only scene profiles for silhouette family, surface role, palette base, ring posture, hero role/form, compositor mask, and particle job, while [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts) declares the small source-owned mask/glyph/surface/geometry/particle/post-memory pack catalog with legality and fallback behavior; `PlayableMotifSystem`, `CompositorSystem`, run journals, analyzer flags, and `moment:sheet` now report profile/mask/job truth so evidence can catch "different label, same image" failures
+- the old `Advanced -> Style` and `Advanced -> Steer` product surfaces are now demoted from user controls to internal autonomous repertoire: normal Advanced opens a read-only Director Console that explains current scene ontology, motif, palette chapter, ring posture, hero role/form, signature moment, and proof state; worlds, looks, pools, stances, saved stances, and steering sliders should not reappear as normal-use knobs
+- captures and run journals now preserve `directorConsoleSnapshot` truth so proof can reconstruct whether the run was autonomous/default, what the director chose, why it changed, whether Proof Mission reset stale preferences, and whether any actual intervention occurred
+- [autonomous-director-backlog.md](C:/dev/GitHub/visulive/docs/autonomous-director-backlog.md) records the deferred Director Console, hidden-lab, visual ontology, Hero/World, compositor/memory, asset provenance, proof telemetry, and operator UX work so it does not get lost between agents
 - [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) is now the active real-world reference translation: the relevant lesson from Sphere, Phish, Radiohead, Anyma, Prydz, Chemical Brothers, Massive Attack/UVA, Amon Tobin, projectM/MilkDrop, and TouchDesigner is authored playable systems with stable image classes, not more random effects
 
 ## Immediate Start-Right Gate
@@ -286,16 +289,16 @@ The public surface should now be:
 
 - `Start Show` first
 - `PC Audio`, `Microphone`, or `Combo` as the only required pre-show choice
-- `Advanced` optional for style curation, semantic steering, route repair, capture, replay, system, and diagnostics
+- `Advanced` optional for read-only Director Console, route repair, capture, replay, system, and diagnostics
 
-Public controls should bias authority, depth, motion, color temperature, contrast,
-saturation, consequence, and character over time.
+Normal operators should not bias authority, depth, motion, color, consequence, or character directly.
+Those remain internal director semantics and hidden-lab fixtures.
 
-They should not be the main way the show becomes compelling.
+The show should be compelling before any operator touches Advanced.
 
-Worlds, looks, stances, and pools remain real internal content architecture, but they are advanced curation now, not front-door startup concepts. Each world/look option should expose its intended playable scene, motif, palette, ring posture, hero role, and hero form so Advanced reads as authored direction rather than arbitrary styling.
+Worlds, looks, stances, anchors, pools, saved stances, and steering appetites remain real internal content architecture, but they are no longer normal-use controls. Each internal option should expose its intended playable scene, motif, palette, ring posture, hero role, and hero form so the Director Console and proof artifacts read as authored direction rather than arbitrary styling.
 
-The `Advanced -> Style` surface now includes a Director Autonomy audit. Green means the show is still free to migrate; guided/constrained states are acceptable for exploration but should not be mistaken for serious proof defaults.
+The `Advanced -> Director` surface is read-only. It explains current autonomous intent, proof lock state, and why the director is holding or changing the frame. Hidden labs may force style/scene/moment states for development receipts; those runs are exploratory and cannot satisfy serious proof.
 
 The long-term public identity is:
 

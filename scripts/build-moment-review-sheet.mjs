@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { loadRunPackage, resolveRunStillPaths } from './run-package-utils.mjs';
 import { workspaceRoot } from './capture-reporting.mjs';
 
@@ -135,8 +134,10 @@ function summarizeSample(sample) {
   };
 }
 
-function imageTag(filePath, width = 260) {
-  const uri = pathToFileURL(filePath).href;
+function imageTag(filePath, outputDirectory, width = 260) {
+  const uri = path
+    .relative(outputDirectory, filePath)
+    .replaceAll(path.sep, '/');
   return `<img src="${uri}" width="${width}" />`;
 }
 
@@ -172,15 +173,10 @@ async function writeReviewSheet(runPackage, args) {
 
   const outputPath = args.output
     ? path.resolve(workspaceRoot, args.output)
-    : path.join(
-        workspaceRoot,
-        'captures',
-        'reports',
-        'moment-contact-sheets',
-        `${runPackage.runId}__moment-review-sheet.md`
-      );
+    : path.join(runPackage.runDirectory, `${runPackage.runId}__moment-review-sheet.md`);
+  const outputDirectory = path.dirname(outputPath);
 
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.mkdir(outputDirectory, { recursive: true });
 
   const metadata = runPackage.manifest.metadata ?? {};
   const lines = [
@@ -215,7 +211,7 @@ async function writeReviewSheet(runPackage, args) {
     '| Still | Timing | Intent Telemetry | Authority / Safety |',
     '| --- | --- | --- | --- |',
     ...stills.map((still) => [
-      `| ${imageTag(still.filePath)}`,
+      `| ${imageTag(still.filePath, outputDirectory)}`,
       `${escapeCell(still.kind)}<br>${formatMs(still.elapsedMs)}<br>${escapeCell(still.fileName)}`,
       `${escapeCell(still.summary.cue)}<br>${escapeCell(still.summary.signature)}<br>${escapeCell(still.summary.scene)}`,
       `${escapeCell(still.summary.authority)}<br>${escapeCell(still.summary.safety)} |`
@@ -226,7 +222,7 @@ async function writeReviewSheet(runPackage, args) {
     ...stills.map((still) => [
       `### ${formatMs(still.elapsedMs)} - ${still.kind}`,
       '',
-      imageTag(still.filePath, 560),
+      imageTag(still.filePath, outputDirectory, 560),
       '',
       `- Cue: ${still.summary.cue}`,
       `- Signature: ${still.summary.signature}`,

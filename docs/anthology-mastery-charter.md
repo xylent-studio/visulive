@@ -107,13 +107,14 @@ The public product should always read as:
 - choose `PC Audio`, `Microphone`, or `Combo`
 - press `Start Show`
 - trust the system first
-- open `Advanced` only when you want curation, steering, repair, capture, replay, or diagnostics
+- open `Advanced` only when you want to understand the autonomous director or use Backstage repair, capture, replay, or diagnostics
 
 The public product should never require:
 
 - scene browsing before the show starts
 - a preset soup
 - broad front-door control walls
+- public Style/Steer controls to make the show good
 - hidden narrowing defaults that weaken the autonomous run
 
 ## The Capability Law

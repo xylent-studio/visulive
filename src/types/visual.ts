@@ -388,12 +388,83 @@ export type ParticleFieldJob =
   | 'memory-echo'
   | 'pressure-dust';
 
+export type SceneImageClass =
+  | 'cathedral-vault'
+  | 'machine-shutter-tunnel'
+  | 'void-mass'
+  | 'ghost-starfield'
+  | 'diagonal-scar';
+
+export type SceneFrameOwner =
+  | 'world'
+  | 'chamber'
+  | 'post'
+  | 'hero-supporting'
+  | 'hybrid';
+
+export type SceneCompositionClass =
+  | 'portal-vault'
+  | 'perspective-lanes'
+  | 'negative-space-body'
+  | 'wide-field'
+  | 'asymmetric-rupture';
+
+export type SceneLightingClass =
+  | 'neon-seams'
+  | 'scanline-voltage'
+  | 'dark-pressure'
+  | 'soft-memory'
+  | 'subtractive-cut';
+
+export type SceneMaterialClass =
+  | 'emissive-architecture'
+  | 'mechanical-glass'
+  | 'velvet-void'
+  | 'spectral-dust'
+  | 'scar-matte';
+
+export type SceneAudioZoneBinding =
+  | 'build-reveal'
+  | 'grid-rhythm'
+  | 'pressure-drop'
+  | 'quiet-release'
+  | 'rupture-impact';
+
+export type SceneMemoryBehavior =
+  | 'clean-clear'
+  | 'shutter-afterimage'
+  | 'pressure-residue'
+  | 'ghost-recall'
+  | 'scar-residue';
+
+export type SceneProofStatus =
+  | 'unproven'
+  | 'diagnostic'
+  | 'proof-candidate'
+  | 'canonical';
+
+export type ScenePreviewRecipe = {
+  cueProfile: SignatureMomentPreviewProfile;
+  preferredStyle: ResolvedSignatureMomentStyle;
+  stillKind: 'signature' | 'signature-preview' | 'authority' | 'quiet';
+  reviewPrompt: string;
+};
+
 export type SceneVisualProfile = {
   id: Exclude<PlayableMotifSceneKind, 'none'>;
   label: string;
   assetPacks: readonly VisualAssetPackKind[];
   assetPackIds: readonly VisualAssetPackId[];
   provenance: VisualAssetProvenance;
+  imageClass: SceneImageClass;
+  frameOwner: SceneFrameOwner;
+  compositionClass: SceneCompositionClass;
+  lightingClass: SceneLightingClass;
+  materialClass: SceneMaterialClass;
+  audioZoneBinding: SceneAudioZoneBinding;
+  memoryBehavior: SceneMemoryBehavior;
+  proofStatus: SceneProofStatus;
+  previewRecipe: ScenePreviewRecipe;
   silhouetteFamily: SceneSilhouetteFamily;
   surfaceRole: SceneSurfaceRole;
   expectedMotifs: readonly VisualMotifKind[];

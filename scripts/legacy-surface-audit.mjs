@@ -114,8 +114,11 @@ for (const token of ['ShowLaunchSurface', 'ShowHud', 'BackstagePanel', 'Diagnost
 }
 
 const backstage = await readText('src/ui/BackstagePanel.tsx');
-if (!backstage.includes('Director Autonomy')) {
-  failures.push('BackstagePanel is missing the Director Autonomy audit surface.');
+if (!backstage.includes('Autonomous Director Console')) {
+  failures.push('BackstagePanel is missing the read-only Autonomous Director Console surface.');
+}
+if (backstage.includes('Semantic Steering') || backstage.includes('director-slider')) {
+  failures.push('BackstagePanel still exposes the retired normal-use steering slider surface.');
 }
 
 const launch = await readText('src/ui/ShowLaunchSurface.tsx');

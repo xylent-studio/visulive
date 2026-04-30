@@ -88,6 +88,10 @@ Use these when needed, not by default:
 - [agent-workstreams.md](C:/dev/GitHub/visulive/docs/agent-workstreams.md)
 - [specialist-brief-template.md](C:/dev/GitHub/visulive/docs/specialist-brief-template.md)
 - [operator-test-guide.md](C:/dev/GitHub/visulive/docs/operator-test-guide.md)
+- [autonomous-director-backlog.md](C:/dev/GitHub/visulive/docs/autonomous-director-backlog.md)
+- [spectrum-source-hints.md](C:/dev/GitHub/visulive/docs/spectrum-source-hints.md)
+- [spectrum-source-hints-scenarios.md](C:/dev/GitHub/visulive/docs/spectrum-source-hints-scenarios.md)
+- [spectrum-source-hints-references.md](C:/dev/GitHub/visulive/docs/spectrum-source-hints-references.md)
 
 ## Historical / External
 

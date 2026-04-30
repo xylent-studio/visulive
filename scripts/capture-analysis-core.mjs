@@ -4758,6 +4758,7 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
   const particleFieldJobSpread = visual.particleFieldJobSpread ?? {};
   const playableMotifSceneTransitionReasonSpread =
     visual.playableMotifSceneTransitionReasonSpread ?? {};
+  const directorConsole = metadata.directorConsoleSnapshot ?? null;
   const paletteStateSpreadByAct = visual.paletteStateSpreadByAct ?? {};
   const paletteStateSpreadByFamily = visual.paletteStateSpreadByFamily ?? {};
   const stageShotClassSpreadByFamily = visual.stageShotClassSpreadByFamily ?? {};
@@ -4827,6 +4828,17 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     ...(metadata.sourceSummary?.provenanceMismatch
       ? [`- Source mismatch: ${metadata.sourceSummary.provenanceNote ?? 'Serialized source provenance does not match the active source mode.'}`]
       : []),
+    '',
+    '### Director console',
+    `- Surface: ${directorConsole?.surface ?? 'not recorded'}`,
+    `- Mode / proof lock: ${directorConsole?.mode ?? metadata.showCapabilityMode ?? 'n/a'} / ${directorConsole?.proofLocked ? 'locked' : 'open'}`,
+    `- Autonomous defaults: curation=${directorConsole?.curationDefault === false ? 'modified' : directorConsole ? 'default' : 'n/a'}, steering=${directorConsole?.steeringDefault === false ? 'modified' : directorConsole ? 'default' : 'n/a'}`,
+    `- Director why: ${directorConsole?.directorWhy ?? 'n/a'}`,
+    `- Active scene / image class / owner: ${directorConsole?.activeScene ?? visual.dominantPlayableMotifScene ?? 'n/a'} / ${directorConsole?.sceneImageClass ?? 'n/a'} / ${directorConsole?.sceneFrameOwner ?? 'n/a'}`,
+    `- Composition / lighting / material: ${directorConsole?.sceneCompositionClass ?? 'n/a'} / ${directorConsole?.sceneLightingClass ?? 'n/a'} / ${directorConsole?.sceneMaterialClass ?? 'n/a'}`,
+    `- Motif / palette / ring: ${directorConsole?.visualMotif ?? visual.dominantVisualMotif ?? 'n/a'} / ${directorConsole?.paletteBaseState ?? visual.dominantPaletteBaseState ?? 'n/a'} / ${directorConsole?.ringPosture ?? visual.dominantRingPosture ?? 'n/a'}`,
+    `- Hero role/form/reason: ${directorConsole?.heroRole ?? visual.dominantHeroRole ?? 'n/a'} / ${directorConsole?.activeHeroForm ?? visual.dominantHeroForm ?? 'n/a'} / ${directorConsole?.heroFormReason ?? visual.dominantHeroFormReason ?? 'n/a'}`,
+    `- Mission reset/corrections: ${directorConsole?.missionResetApplied ? 'yes' : directorConsole ? 'no' : 'n/a'}${directorConsole?.missionCorrections?.length ? ` (${directorConsole.missionCorrections.join('; ')})` : ''}`,
     '',
     '### Boot and calibration',
     `- Calibration duration / samples: ${metadata.bootSummary?.calibrationDurationMs ?? 0}ms / ${metadata.bootSummary?.calibrationSampleCount ?? 0}`,

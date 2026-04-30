@@ -25,6 +25,7 @@ import type {
   ReplayProofReadinessCheck,
   ReplayProofReadinessCheckId,
   ReplayProofValidity,
+  ReplayDirectorConsoleSnapshot,
   ReplayRunLifecycleState,
   ReplayProofRunState,
   ReplayProofScenarioKind,
@@ -81,6 +82,7 @@ type ReplayRunJournalContext = {
   interventionCount: number;
   interventionReasons: string[];
   noTouchWindowPassed: boolean;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot;
 };
 
 type ReplayProofReadinessInput = {
@@ -140,6 +142,7 @@ type ReplayRunJournalSampleInput = {
   proofMission?: ReplayProofMissionSnapshot;
   interventionCount: number;
   noTouchWindowPassed: boolean;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot;
 };
 
 const AUTONOMY_BREAKING_PREFIXES = [
@@ -881,6 +884,7 @@ export function createReplayRunJournal(context: ReplayRunJournalContext): Replay
       suppressedInterventions: [...(context.suppressedInterventions ?? [])],
       artifactIntegrity: context.artifactIntegrity,
       lifecycleState: context.lifecycleState ?? 'inbox',
+      directorConsoleSnapshot: context.directorConsoleSnapshot,
       sessionStartedAt: context.sessionStartedAt,
       sessionElapsedMs: context.sessionElapsedMs,
       interventionCount: context.interventionCount,
@@ -1010,7 +1014,8 @@ export function buildReplayRunJournalSample(
       proofScenarioKind: input.proofScenarioKind ?? null,
       proofMissionKind: input.proofMission?.kind,
       proofWaveArmed: input.proofWaveArmed
-    }
+    },
+    directorConsole: input.directorConsoleSnapshot
   };
 }
 
@@ -1058,6 +1063,7 @@ export function buildReplayRunManifest(
       suppressedInterventions: journal.metadata.suppressedInterventions,
       artifactIntegrity: journal.metadata.artifactIntegrity,
       lifecycleState: journal.metadata.lifecycleState,
+      directorConsoleSnapshot: journal.metadata.directorConsoleSnapshot,
       clipCount: options.clipFiles.length,
       stillCount: options.stillFiles.length,
       sampleCount: journal.samples.length,

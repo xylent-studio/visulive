@@ -46,6 +46,8 @@ Read first:
 - color and hero-form changes are now expected to be semantic, not variety churn: [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts) derives `VisualMotifSnapshot` and `PaletteFrame`, [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts) uses semantic form arbitration with longer dwell, and the analyzer can flag random-feeling palette churn, unearned hero-form switches, hero/world hue divergence, and weak hero silhouette evidence
 - the Authored Playable Motif System vertical slice is now installed and coherence-hardened: [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five playable scene postures (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, `collapse-scar`), scene dwell, scene driver, scene intent match, motif/palette match telemetry, and camera-space silhouettes; [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts) consumes that scene posture, and the analyzer can flag scene churn, scene-motif mismatch, scene-intent mismatch, and samey scene silhouettes
 - the authored procedural asset system is now installed as code-native scene ontology, not imported media: [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) defines scene profile intent, [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts) defines the source-owned mask/glyph/surface/geometry/particle/post-memory pack catalog with legality and fallback behavior, and the analyzer can now flag scene-profile mismatch and decorative particle activity while `moment:sheet` includes quick score tags for thumbnail readability and generic-ring-wallpaper review
+- normal `Advanced` now exposes a read-only Director Console instead of Style/Steer knobs: former worlds, looks, pools, anchors, stances, saved stances, and steering appetites remain internal autonomous repertoire or hidden-lab fixtures, run journals serialize `directorConsoleSnapshot`, and generated moment review sheets now default to the run package with package-relative links so archived evidence stays readable
+- [autonomous-director-backlog.md](C:/dev/GitHub/visulive/docs/autonomous-director-backlog.md) records the deferred visual ontology, hidden-lab, Hero/World, compositor/memory, asset provenance, proof telemetry, and operator UX work so future agents do not rely on thread memory
 - chamber rings now receive semantic `ringPosture` from direction and decay as `event-strike`, `residue-trace`, or `suppressed` unless the current episode owns `cathedral-architecture`
 - [live-show-reference-patterns.md](C:/dev/GitHub/visulive/docs/live-show-reference-patterns.md) translates current real-world references into VisuLive-specific rules: playable systems, stable scene identity, simple operator surfaces, large readable image classes, phrase envelopes, and review tooling before taste claims
 
@@ -107,6 +109,7 @@ The highest-leverage move is:
 
 - do not add a second public show
 - do not add a public world/look browser on the front door
+- do not restore Style/Steer, pool locks, saved stance pickers, or macro appetite sliders as normal-use controls
 - do not add major new anthology families into legacy monolithic ownership
 - do not use the April 28 invalid run as current proof; it is debugging evidence only
 - do not treat `systems/**` or `governors/**` folder names as proof that extraction is done
@@ -123,6 +126,7 @@ The pass is successful only if at least one of these becomes more true in code, 
 - collapse scar, cathedral open, ghost residue, and silence constellation read as distinct image classes across contrast-mythic, maximal-neon, and ambient-premium variants
 - at least one proof moment is world/post-led with hero visibly demoted
 - aftermath clears instead of becoming permanent treatment
+- proof artifacts preserve read-only Director Console truth so no-touch autonomous runs can be separated from hidden-lab or exploratory runs
 
 ## Verification Expectation
 

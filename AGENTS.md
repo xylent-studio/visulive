@@ -42,7 +42,7 @@ Then load only the task-relevant reference:
 
 VisuLive is a single public portal with:
 - one public `Start Show` path
-- one optional `Advanced` layer
+- one optional `Advanced` layer whose normal surface is a read-only Director Console plus Backstage ops
 - hidden internal acts
 - a growing internal anthology engine
 - `Music On This PC` as the primary tuning path
@@ -78,6 +78,7 @@ One important current clue from live screenshots:
 - the wireframe, seam, and rim direction is stronger than the old filled-shell read
 - future hero specialists should push emitted structure and dark-body contrast further, not revert to a softly lit blob
 - authored playable scenes now have code-native procedural profiles in [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) and source-owned asset-pack declarations in [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts); future visual specialists should strengthen those silhouettes, surfaces, compositor masks, and particle jobs before importing media or adding public asset controls
+- old Style/Steer controls are no longer normal product knobs. Worlds, looks, anchors, stances, saved stances, and macro steering appetites are internal autonomous repertoire or hidden localhost/dev lab fixtures. Normal Advanced should explain active director truth; lab forcing marks the run exploratory.
 
 ## Transitional Honesty Rules
 
@@ -255,7 +256,7 @@ Own:
 Own specifically:
 - `Start Show` surface
 - live HUD
-- `Advanced` drawer
+- `Advanced` drawer, including the read-only Director Console
 - diagnostics presentation
 - fullscreen/operator experience
 
@@ -358,6 +359,7 @@ Before heavy parallel visual work, prove the current signature-moment build:
 - run a 90-120 second no-touch canary on direct PC audio; use `Jon Hopkins - Emerald Rush` for continuity with `run_20260429_123116_jzqbjo`
 - end with `Finish Proof Run`; do not rely on closing the tab or stopping audio informally
 - review `npm run proof:current`, `npm run evidence:index`, and `npm run run:review -- --run-id <runId>`
+- use `npm run moment:sheet -- --run-id <runId>` for package-local thumbnail/temporal review when the run contains useful proof stills
 - if the canary is valid, run a full no-touch `Primary benchmark` pass before tuning
 
 The primary benchmark proof candidates are valid enough to show the older correction targets: overbright/glow spend, ring persistence, palette churn, unearned hero-form switching, and playable-scene mismatch. The new authored playable motif build must now prove that the five scenes (`neon-cathedral`, `machine-tunnel`, `void-pressure`, `ghost-constellation`, and `collapse-scar`) and the four signature moments are distinct, rare, readable, semantically coherent, and safe across contrast-mythic, maximal-neon, and ambient-premium styles. If proof fails, tune [showDirection.ts](C:/dev/GitHub/visulive/src/scene/showDirection.ts), [HeroSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/hero/HeroSystem.ts), [SignatureMomentGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/SignatureMomentGovernor.ts), [PostSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/post/PostSystem.ts), [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts), [CompositorSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/compositor/CompositorSystem.ts), [AuthorityGovernor.ts](C:/dev/GitHub/visulive/src/scene/governors/AuthorityGovernor.ts), [LightingSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/LightingSystem.ts), [ParticleSystem.ts](C:/dev/GitHub/visulive/src/scene/modules/ParticleSystem.ts), or stage cue policy without moving ownership back into the scene. If coherence holds, the next feature wave is hero-suppressed/world-as-hero and world mutation verbs through owned systems only.

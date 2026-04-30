@@ -9,7 +9,7 @@ The rule is:
 
 - one public portal
 - one simple `Start Show` path
-- one optional `Advanced` layer
+- one optional `Advanced` layer for read-only director truth plus Backstage ops
 - many internal anthology families under active development
 
 Specialization is how that ambition stays coherent.
@@ -162,7 +162,7 @@ Success looks like:
 ### 10. Operator UX / Trust
 
 Mission:
-- keep the public portal simple while exposing useful truth behind `Advanced`
+- keep the public portal simple while exposing useful read-only director truth and Backstage operations behind `Advanced`
 
 Primary ownership:
 - [App.tsx](C:/dev/GitHub/visulive/src/app/App.tsx)
@@ -172,6 +172,7 @@ Primary ownership:
 Success looks like:
 - startup is obvious in under 5 seconds
 - `Advanced` remains optional
+- old Style/Steer controls remain internal repertoire or hidden dev-lab fixtures, not normal-use knobs
 - new anthology depth does not leak into front-door clutter
 
 ### 11. Runtime / Ownership Extraction

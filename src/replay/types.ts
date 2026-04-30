@@ -32,9 +32,31 @@ import type {
 } from '../types/director';
 import type {
   CaptureQualityFlag,
+  PaletteBaseHoldReason,
+  PaletteState,
+  PlayableMotifSceneDriver,
+  PlayableMotifSceneKind,
+  PlayableMotifSceneTransitionReason,
+  RingPosture,
+  SceneCompositionClass,
+  SceneFrameOwner,
+  SceneImageClass,
+  SceneLightingClass,
+  SceneMaterialClass,
+  SceneMemoryBehavior,
+  SceneProofStatus,
+  SceneSurfaceRole,
+  SignatureMomentKind,
+  SignatureMomentPhase,
+  StageHeroForm,
+  HeroFormSwitchReason,
+  HeroSemanticRole,
+  ResolvedSignatureMomentStyle,
+  SceneSilhouetteFamily,
   VisualAssetLayerSummary,
   VisualTelemetryFrame,
-  VisualTelemetrySummary
+  VisualTelemetrySummary,
+  VisualMotifKind
 } from '../types/visual';
 import type { ProofStillKind } from './proofStills';
 
@@ -205,6 +227,54 @@ export type ReplaySuppressedIntervention = {
   timestampMs: number;
 };
 
+export type ReplayDirectorConsoleSnapshot = {
+  version: 1;
+  mode: ShowCapabilityMode;
+  surface: 'read-only-director-console';
+  styleControlsAvailable: false;
+  steeringControlsAvailable: false;
+  curationDefault: boolean;
+  steeringDefault: boolean;
+  proofLocked: boolean;
+  proofWaveArmed: boolean;
+  proofMissionKind?: ReplayProofMissionKind;
+  missionResetApplied: boolean;
+  missionCorrections: string[];
+  autonomyScore: number;
+  expectedSceneCount: number;
+  expectedSceneIntents: PlayableMotifSceneKind[];
+  auditTone: 'ok' | 'info' | 'warn';
+  auditHeadline: string;
+  directorWhy: string;
+  activeScene?: PlayableMotifSceneKind;
+  sceneAgeSeconds?: number;
+  sceneTransitionReason?: PlayableMotifSceneTransitionReason;
+  sceneDriver?: PlayableMotifSceneDriver;
+  sceneIntentMatch?: boolean;
+  sceneImageClass?: SceneImageClass;
+  sceneFrameOwner?: SceneFrameOwner;
+  sceneCompositionClass?: SceneCompositionClass;
+  sceneLightingClass?: SceneLightingClass;
+  sceneMaterialClass?: SceneMaterialClass;
+  sceneSurfaceRole?: SceneSurfaceRole;
+  sceneSilhouetteFamily?: SceneSilhouetteFamily;
+  sceneMemoryBehavior?: SceneMemoryBehavior;
+  sceneProofStatus?: SceneProofStatus;
+  visualMotif?: VisualMotifKind;
+  paletteBaseState?: PaletteState;
+  paletteBaseHoldReason?: PaletteBaseHoldReason;
+  ringPosture?: RingPosture;
+  heroRole?: HeroSemanticRole;
+  plannedHeroForm?: StageHeroForm;
+  activeHeroForm?: StageHeroForm;
+  pendingHeroForm?: StageHeroForm;
+  heroFormReason?: HeroFormSwitchReason;
+  signatureMoment?: SignatureMomentKind;
+  signatureMomentPhase?: SignatureMomentPhase;
+  signatureMomentStyle?: ResolvedSignatureMomentStyle;
+  signatureMomentIntensity?: number;
+};
+
 export type ReplayRunLifecycleState =
   | 'inbox'
   | 'reviewed-candidate'
@@ -349,6 +419,7 @@ export type ReplayCaptureMetadata = {
   artifactIntegrity?: ReplayArtifactIntegrity;
   runLifecycleState?: ReplayRunLifecycleState;
   directorBiasSnapshot?: DirectorBiasState;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot;
   triggerKind?: string;
   triggerReason?: string;
   triggerCount?: number;
@@ -563,6 +634,7 @@ export type ReplayRunJournalSample = {
     proofMissionKind?: ReplayProofMissionKind;
     proofWaveArmed: boolean;
   };
+  directorConsole?: ReplayDirectorConsoleSnapshot;
 };
 
 export type ReplayRunEventMarkerKind =
@@ -637,6 +709,7 @@ export type ReplayRunJournalMetadata = {
   interventionCount: number;
   interventionReasons: string[];
   noTouchWindowPassed: boolean;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot;
   clipCount: number;
   checkpointStillCount: number;
   reviewNoteFileName?: string;
@@ -670,6 +743,7 @@ export type ReplayRunManifestMetadata = {
   suppressedInterventions?: ReplaySuppressedIntervention[];
   artifactIntegrity?: ReplayArtifactIntegrity;
   lifecycleState: ReplayRunLifecycleState;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot;
   clipCount: number;
   stillCount: number;
   sampleCount: number;

@@ -19,7 +19,7 @@ Use this guide if you are:
 
 - testing the current build on the target machine
 - judging whether the autonomous path is strong enough to trust
-- validating that steering improves an already-good show instead of rescuing a weak one
+- validating that the Director Console explains an already-good show instead of asking the operator to rescue it
 
 ## Before You Start
 
@@ -36,7 +36,7 @@ Recommended evaluation order:
 2. room listening
 3. hybrid
 4. sparse / silence
-5. steering after the no-touch passes are complete
+5. hidden lab previews after the no-touch passes are complete, if a developer needs deterministic scene or moment receipts
 
 ## No-Touch Review Path
 
@@ -54,7 +54,7 @@ If you want the correct first serious pass, do this:
 6. Let calibration finish.
 7. Start the music.
 8. Press `F` for fullscreen.
-9. Do not touch any steering controls for the first several phrases.
+9. Do not touch route, capture, replay, lab, or repair controls for the first several phrases.
 10. Judge whether the show evolves meaningfully on its own.
 
 If you are running a serious review pass instead of a casual look:
@@ -129,9 +129,9 @@ The canonical next-version surface is:
 
 Use `Advanced` like this:
 
-- `Style` to constrain or curate world pools, look pools, worlds, looks, and stances
-- `Steer` to bias the autonomous director with macro appetites
-- `Backstage` for route repair, device selection, capture, replay, build truth, and diagnostics
+- `Director` to read why the autonomous director chose the current scene, motif, palette chapter, ring posture, hero role/form, and signature moment
+- `Backstage` for route repair, device selection, Proof Mission, capture, replay, build truth, and diagnostics
+- hidden localhost/dev labs for forced scene, motif, moment, and synthetic cue previews; lab use is exploratory and cannot satisfy serious proof
 
 Current route truth:
 
@@ -144,27 +144,27 @@ Current route truth:
 The current branch should expose the new operator language:
 
 - `Start Show` chooses `PC Audio`, `Microphone`, or `Combo`
-- `Advanced > Style` owns optional worlds, looks, stances, and anchors
-- `Advanced > Steer` owns semantic director biases
+- `Advanced > Director` is read-only and explains autonomous intent
 - `Advanced > Backstage` owns route repair, Proof Mission, capture, replay, and diagnostics
+- former worlds, looks, stances, anchors, pools, saved stances, and steering sliders are internal director repertoire or hidden-lab fixtures, not normal-use product knobs
 
 If an old quick-start/settings-panel/top-chrome surface reappears, treat that as a regression and run `npm run legacy:audit`.
 
-## Steering Pass
+## Lab Preview Pass
 
-Only run this after the no-touch pass.
+Only run this after the no-touch pass, and only in localhost/dev proof builds.
 
-Good steering should:
+Good lab preview should:
 
-- bias the director over multiple phrases
-- change world, look, authority, and consequence tendencies over time
-- never freeze the scene into a static answer by accident
+- force one scene, motif, moment, or synthetic cue profile deterministically
+- produce an exploratory receipt, contact sheet, or temporal strip
+- help developers verify capability without pretending it is no-touch proof
 
-Bad steering looks like:
+Bad lab use looks like:
 
-- setting one value and parking the scene there
-- using controls to rescue a weak default
-- needing constant intervention to keep the show alive
+- using forced values to claim serious proof
+- tuning the show by cursor feel instead of fixing autonomous director logic
+- leaving forced preview state active before a serious run
 
 ## Serious Review Standard
 
@@ -174,7 +174,8 @@ A serious pass now means:
 2. one quiet room-floor no-touch batch
 3. one hybrid batch
 4. one sparse / silence batch
-5. one steering batch
+5. one operator-trust batch
+6. optional exploratory lab receipts for any failed or unproven scene/moment matrix cells
 
 Each serious pass should end with:
 
@@ -227,6 +228,6 @@ After a real pass, the most useful report is:
 - whether route recommendations felt correct without hijacking the show
 - whether quiet sections still felt alive
 - whether world/chamber authority showed up clearly
-- whether advanced style curation felt real or superficial
-- whether steering biased the show over time instead of freezing it
+- whether the Director Console correctly explained what you were seeing
+- whether any hidden lab preview exposed a missing or samey scene/moment posture
 - what still felt fake, repetitive, flat, or too menu-dependent

@@ -59,6 +59,8 @@ But it is still transitional in four important ways:
 - The Mythic Signature Moment Engine full-capability slice is now implemented but unproven: `SignatureMomentGovernor` selects rarer moments with decision traces, style routing, candidate state, and risk-based safe-neon preservation; `PostSystem` owns stronger dark-bite, neon-vault, ghost-echo, and quiet-field silhouettes; `PlayableMotifSystem` owns five authored scene postures; `CompositorSystem` owns bounded screen-space/post-profile response; chamber, lighting, and particles now preserve saturated local neon while decaying ring wallpaper after strikes; Moment Lab can preview the moment/style variants locally; and the analyzer can report signature moment coverage, style spread, playable scene coherence, compositor risk, perceptual colorfulness, washout, recomputed package integrity, and kind-aware missed opportunities from fresh captures
 - The semantic motif and playable scene pass is now implemented but unproven by fresh capture: direction now derives `void-anchor`, `machine-grid`, `neon-portal`, `rupture-scar`, `ghost-residue`, `silence-constellation`, `acoustic-transient`, and `world-takeover` motif snapshots plus semantic episode id/age/transition reason, palette base hold reason, and ring posture; palette base identity now dwells separately from modulation; `HeroSystem` defaults to planned semantic form/role with longer dwell and exposes pending form; [PlayableMotifSystem.ts](C:/dev/GitHub/visulive/src/scene/systems/motif/PlayableMotifSystem.ts) owns five authored scene postures plus scene driver/intent match; and analyzer/recommendation output can report unearned palette churn, hero-form switch rate, planned-active form match, hero/world hue divergence, ambiguous silhouette risk, scene churn, scene-motif mismatch, scene-intent mismatch, ring posture spread, and samey scene silhouettes
 - The authored procedural scene ontology pass is now implemented but unproven by fresh capture: [visualAssetProfiles.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetProfiles.ts) defines procedural-only profiles for the five playable scenes, [visualAssetPacks.ts](C:/dev/GitHub/visulive/src/scene/assets/visualAssetPacks.ts) defines the source-owned abstract mask/glyph/surface/geometry/particle/post-memory pack catalog with legality and fallback behavior, `PlayableMotifSystem` reports profile id, silhouette family, surface role, compositor mask, and particle job, `CompositorSystem` responds to portal/shutter/iris/scar/ghost mask families, run journals and analyzer summaries preserve those fields, and `moment:sheet` now includes quick scoring tags for `favorite`, `weak`, `reads-at-thumbnail`, `scene-label-mismatch`, `generic-ring-wallpaper`, and `premium-frame`
+- The autonomous Director Console pass is now implemented but unproven by fresh capture: normal `Advanced` no longer exposes Style/Steer as user tuning knobs, the visible console is read-only and explains director intent, scene ontology, motif/palette/ring/hero state, signature moments, proof state, and internal repertoire coverage; captures and run journals serialize `directorConsoleSnapshot`; `moment:sheet` now writes package-local review sheets with package-relative still links so archived runs do not leave stale inbox paths
+- [autonomous-director-backlog.md](C:/dev/GitHub/visulive/docs/autonomous-director-backlog.md) is the durable ledger for deferred visual ontology, hidden lab, Hero/World, compositor/memory, asset provenance, proof telemetry, and operator UX work
 
 This means the branch is promising enough to continue from, but not honest enough to treat as a clean baseline unless future work keeps correcting those gaps.
 
@@ -133,9 +135,9 @@ The app currently ships with:
 - microphone, PC audio, and combo input paths
 - `Start Show` as the front door
 - one required route choice: `PC Audio`, `Microphone`, or `Combo`
-- one unified `Advanced` drawer for style curation, steering, route repair, capture, replay, system, and diagnostics
-- world / look / stance / pool curation moved behind advanced interaction instead of the public startup path
-- `Advanced -> Style` now audits Director Autonomy and labels world/look choices with their intended playable scene, motif, and palette posture so curation is explainable instead of arbitrary
+- one unified `Advanced` drawer for the read-only Director Console plus Backstage route repair, capture, replay, system truth, and diagnostics
+- world / look / stance / pool curation and steering are internal autonomous repertoire, not normal-use product controls
+- the Director Console explains current autonomous scene ontology, motif, palette chapter, ring posture, hero role/form, signature moment, proof state, and why the director is holding or changing the frame
 - route recommendations surfaced without silent route switching
 
 ### Show system
@@ -146,7 +148,7 @@ Current public show count is unchanged, but the branch materially changes the in
 
 - untouched runs default to full-spectrum world and look pools instead of a narrowed starter set
 - runtime resolution now separates autonomous truth, advanced curation, and advanced steering
-- advanced steering now exposes depth, contrast, and saturation directly in addition to world takeover, motion, heat, impact, and aftermath; serious proof still resets these remembered preferences at run start
+- old advanced steering descriptors remain internal bias grammar for the autonomous director and hidden lab work; serious proof still resets remembered preferences at run start and serializes the reset into evidence
 - anthology director intent is now explicit in runtime contracts and capture metadata
 - current anthology intent names world family, mutation verb, hero species intent, consequence mode, aftermath state, lighting rig, camera phrase, motif, and memory state
 

@@ -77,6 +77,7 @@ import type {
   ReplayBuildInfo,
   ReplayCaptureMetadata,
   ReplayCaptureFrame,
+  ReplayDirectorConsoleSnapshot,
   ReplayDecisionBucketSummary,
   ReplayDecisionSummary,
   ReplayEventTimingDisposition,
@@ -155,6 +156,7 @@ type BuildReplayCaptureOptions = {
   sessionElapsedMs?: number | null;
   scenarioAssessment?: ReplayScenarioAssessment | null;
   directorBiasSnapshot?: DirectorBiasState | null;
+  directorConsoleSnapshot?: ReplayDirectorConsoleSnapshot | null;
   triggerCount?: number;
   extensionCount?: number;
   triggerTimestampMs?: number;
@@ -1354,6 +1356,7 @@ export function buildReplayCapture(
       directorBiasSnapshot: options?.directorBiasSnapshot
         ? sanitizeDirectorBiasState(options.directorBiasSnapshot)
         : undefined,
+      directorConsoleSnapshot: options?.directorConsoleSnapshot ?? undefined,
       triggerKind: options?.triggerKind,
       triggerReason: options?.triggerReason,
       triggerCount:
@@ -4133,6 +4136,9 @@ export function parseReplayCapture(raw: string): ReplayCapture {
         ? sanitizeDirectorBiasState(
             parsed.metadata.directorBiasSnapshot as Partial<DirectorBiasState>
           )
+        : undefined,
+      directorConsoleSnapshot: isObject(parsed.metadata.directorConsoleSnapshot)
+        ? (parsed.metadata.directorConsoleSnapshot as ReplayDirectorConsoleSnapshot)
         : undefined,
       triggerKind:
         typeof parsed.metadata.triggerKind === 'string'

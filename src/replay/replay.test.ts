@@ -57,6 +57,98 @@ describe('replay workflow', () => {
     expect(isReplayBuildInfoValid({ ...strictBuildInfo, dirty: true })).toBe(false);
   });
 
+  it('serializes autonomous director console snapshots into captures', () => {
+    const frame = cloneReplayCaptureFrame(
+      {
+        ...DEFAULT_LISTENING_FRAME,
+        timestampMs: 1000,
+        calibrated: true
+      },
+      {
+        ...DEFAULT_ANALYSIS_FRAME,
+        timestampMs: 1000
+      },
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        ...DEFAULT_VISUAL_TELEMETRY,
+        activePlayableMotifScene: 'neon-cathedral',
+        playableMotifSceneTransitionReason: 'signature-moment',
+        visualMotif: 'neon-portal',
+        paletteBaseState: 'tron-blue',
+        ringPosture: 'cathedral-architecture',
+        heroRole: 'supporting',
+        activeHeroForm: 'prism',
+        activeSignatureMoment: 'cathedral-open',
+        signatureMomentPhase: 'strike',
+        signatureMomentStyle: 'maximal-neon'
+      }
+    );
+    const capture = buildReplayCapture(
+      [frame],
+      DEFAULT_AUDIO_DIAGNOSTICS,
+      {
+        backend: 'webgpu',
+        ready: true,
+        qualityTier: 'safe',
+        devicePixelRatio: 1,
+        cappedPixelRatio: 1,
+        fps: 60,
+        frameTimeMs: 16.7,
+        warnings: [],
+        visualTelemetry: frame.visualTelemetry
+      },
+      DEFAULT_USER_CONTROL_STATE,
+      {
+        label: 'director-console',
+        captureMode: 'auto',
+        sourceMode: 'system-audio',
+        directorConsoleSnapshot: {
+          version: 1,
+          mode: 'full-autonomous',
+          surface: 'read-only-director-console',
+          styleControlsAvailable: false,
+          steeringControlsAvailable: false,
+          curationDefault: true,
+          steeringDefault: true,
+          proofLocked: false,
+          proofWaveArmed: true,
+          proofMissionKind: 'primary-benchmark',
+          missionResetApplied: false,
+          missionCorrections: [],
+          autonomyScore: 1,
+          expectedSceneCount: 5,
+          expectedSceneIntents: ['neon-cathedral', 'machine-tunnel'],
+          auditTone: 'ok',
+          auditHeadline: 'Director autonomy is open',
+          directorWhy: 'Signature moment cathedral-open is steering the frame.',
+          activeScene: 'neon-cathedral',
+          sceneImageClass: 'cathedral-vault',
+          sceneFrameOwner: 'chamber',
+          visualMotif: 'neon-portal',
+          paletteBaseState: 'tron-blue',
+          ringPosture: 'cathedral-architecture',
+          heroRole: 'supporting',
+          activeHeroForm: 'prism',
+          signatureMoment: 'cathedral-open',
+          signatureMomentPhase: 'strike',
+          signatureMomentStyle: 'maximal-neon'
+        }
+      }
+    );
+    const parsed = parseReplayCapture(JSON.stringify(capture));
+
+    expect(parsed.metadata.directorConsoleSnapshot?.surface).toBe(
+      'read-only-director-console'
+    );
+    expect(parsed.metadata.directorConsoleSnapshot?.styleControlsAvailable).toBe(false);
+    expect(parsed.metadata.directorConsoleSnapshot?.activeScene).toBe(
+      'neon-cathedral'
+    );
+    expect(parsed.metadata.directorConsoleSnapshot?.sceneImageClass).toBe(
+      'cathedral-vault'
+    );
+  });
+
   it('snapshots run journal persistence artifacts before async writes mutate state', () => {
     const buildInfo = createReplayBuildInfo({
       version: '1.0.0-test',

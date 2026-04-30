@@ -514,9 +514,9 @@ Every change should be judged through three lenses.
 - does it feel more directed, not just more active?
 
 ### 3. Operator clarity
-- is it easier to steer intentionally?
-- if Advanced is open, does the Director Autonomy audit explain whether the current setup is still autonomous, guided, or over-constrained?
-- if the image looks washed out, use contrast/saturation steering for exploration; do not solve it by raising global radiance or adding permanent rings
+- can a normal operator understand the route/proof state without learning the repo?
+- if Advanced is open, does the read-only Director Console explain what the autonomous director chose and why?
+- if the image looks washed out, fix autonomous palette/post/quality policy or use a hidden lab receipt to isolate the cause; do not restore public contrast/saturation steering or solve it by raising global radiance/permanent rings
 
 If a change fails any of those, it is probably not a good change.
 

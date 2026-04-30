@@ -25,16 +25,12 @@ import {
   PROOF_MISSION_PROFILES,
   getReplayProofMissionProfile
 } from '../replay/proofMission';
+import { getSceneVisualProfile } from '../scene/assets/visualAssetProfiles';
 import { BUILD_INFO, BUILD_LABEL } from '../buildInfo';
 import {
-  ADVANCED_STEERING_KEYS,
-  DIRECTOR_BIAS_DESCRIPTORS,
-  DIRECTOR_STANCE_DEFINITIONS,
   LOOK_DEFINITIONS,
-  LOOK_POOL_DEFINITIONS,
   SHOW_START_ROUTE_DEFINITIONS,
   SHOW_WORLD_DEFINITIONS,
-  WORLD_POOL_DEFINITIONS,
   resolveDirectorOptionAudit,
   type AdvancedCurationState,
   type AdvancedSteeringKey,
@@ -209,46 +205,6 @@ type BackstagePanelProps = {
 
 const PROOF_MISSION_OPTIONS = Object.values(PROOF_MISSION_PROFILES);
 
-function BiasSlider({
-  label,
-  hint,
-  lowLabel,
-  highLabel,
-  value,
-  onChange
-}: {
-  label: string;
-  hint: string;
-  lowLabel: string;
-  highLabel: string;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="director-slider">
-      <div className="director-slider__head">
-        <span>{label}</span>
-        <strong>{Math.round(value * 100)}</strong>
-      </div>
-      <input
-        max={1}
-        min={0}
-        onChange={(event) => {
-          onChange(Number(event.target.value));
-        }}
-        step={0.01}
-        type="range"
-        value={value}
-      />
-      <div className="director-slider__scale">
-        <span>{lowLabel}</span>
-        <span>{highLabel}</span>
-      </div>
-      <div className="director-slider__hint">{hint}</div>
-    </label>
-  );
-}
-
 export function BackstagePanel({
   open,
   activeAdvancedTab,
@@ -336,12 +292,26 @@ export function BackstagePanel({
     return null;
   }
 
-  const selectedWorldPool = WORLD_POOL_DEFINITIONS[curation.worldPoolId];
-  const selectedLookPool = LOOK_POOL_DEFINITIONS[curation.lookPoolId];
   const directorOptionAudit = resolveDirectorOptionAudit(curation, steering);
   const selectedProofMission = getReplayProofMissionProfile(proofMissionKind);
   const activeProofMission =
     runJournalStatus.proofMission ?? selectedProofMission;
+  const visual = renderer.visualTelemetry;
+  const activeScene = visual.activePlayableMotifScene ?? 'none';
+  const sceneProfile = getSceneVisualProfile(activeScene);
+  const activeSignatureMoment =
+    visual.activeSignatureMoment && visual.activeSignatureMoment !== 'none'
+      ? visual.activeSignatureMoment
+      : 'none';
+  const directorWhy =
+    activeSignatureMoment !== 'none'
+      ? `Signature moment ${activeSignatureMoment} is driving a ${visual.signatureMomentPhase ?? 'live'} ${visual.signatureMomentStyle ?? 'contrast-mythic'} frame.`
+      : visual.playableMotifSceneTransitionReason &&
+          visual.playableMotifSceneTransitionReason !== 'hold'
+        ? `Playable scene changed because ${visual.playableMotifSceneTransitionReason}.`
+        : visual.paletteBaseHoldReason
+          ? `The director is holding ${visual.paletteBaseState ?? visual.paletteState} because ${visual.paletteBaseHoldReason}.`
+          : directorOptionAudit.headline;
   const currentRouteLabel =
     routeId === 'the-room'
       ? SHOW_START_ROUTE_DEFINITIONS.microphone.label
@@ -390,7 +360,7 @@ export function BackstagePanel({
       </div>
 
       <div className="backstage-panel__tabs">
-        {(['style', 'steer', 'backstage'] as const).map((tab) => (
+        {(['style', 'backstage'] as const).map((tab) => (
           <button
             className={`backstage-tab ${activeAdvancedTab === tab ? 'backstage-tab--active' : ''}`}
             key={tab}
@@ -399,34 +369,20 @@ export function BackstagePanel({
             }}
             type="button"
           >
-            {tab}
+            {tab === 'style' ? 'director' : tab}
           </button>
         ))}
       </div>
 
-      {activeAdvancedTab === 'style' ? (
+      {activeAdvancedTab !== 'backstage' ? (
         <div className="backstage-panel__body">
           <section className="backstage-section">
-            <div className="backstage-section__title">Auto Show Library</div>
+            <div className="backstage-section__title">Autonomous Director Console</div>
             <div className="backstage-note">
-              These are optional curation choices. If you never touch them, Auto Show
-              keeps its full autonomous world and look spread.
-            </div>
-            <div className="backstage-actions">
-              <button
-                className="backstage-action"
-                onClick={onResetAdvanced}
-                type="button"
-              >
-                Return To Full Auto
-              </button>
-              <button
-                className="backstage-action backstage-action--ghost"
-                onClick={onApplyCurrentDriftAnchors}
-                type="button"
-              >
-                Anchor Current Drift
-              </button>
+              <strong>{directorWhy}</strong> This surface is read-only during
+              normal operation. Worlds, looks, pools, stances, and steering now
+              exist as internal repertoire for the autonomous director, not as
+              user tuning controls.
             </div>
           </section>
 
@@ -436,7 +392,8 @@ export function BackstagePanel({
             <div className="backstage-section__title">Director Autonomy</div>
             <div className="backstage-note">
               <strong>{directorOptionAudit.headline}</strong> |{' '}
-              {directorOptionAudit.detail}
+              {directorOptionAudit.detail} Serious proof starts from full
+              autonomous defaults.
             </div>
             <div className="backstage-meta-grid">
               <div>
@@ -446,6 +403,14 @@ export function BackstagePanel({
               <div>
                 <span>scene families</span>
                 <strong>{directorOptionAudit.expectedSceneCount}</strong>
+              </div>
+              <div>
+                <span>mode</span>
+                <strong>{capabilityMode}</strong>
+              </div>
+              <div>
+                <span>proof lock</span>
+                <strong>{proofWaveArmed ? 'armed' : 'open'}</strong>
               </div>
             </div>
             <ul className="backstage-audit-list">
@@ -462,244 +427,188 @@ export function BackstagePanel({
           </section>
 
           <section className="backstage-section">
-            <div className="backstage-section__title">World Pool</div>
-            <div className="director-chip-grid">
-              {Object.values(WORLD_POOL_DEFINITIONS).map((pool) => (
-                <button
-                  className={`director-chip ${curation.worldPoolId === pool.id ? 'director-chip--active' : ''}`}
-                  key={pool.id}
-                  onClick={() => {
-                    onWorldPoolChange(pool.id);
-                  }}
-                  type="button"
-                >
-                  <span>{pool.label}</span>
-                  <small>Pool</small>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="backstage-section">
-            <div className="backstage-section__title">World Anchor</div>
-            <div className="director-chip-grid">
-              <button
-                className={`director-chip ${curation.showWorldId === null ? 'director-chip--active' : ''}`}
-                onClick={() => {
-                  onWorldChange(null);
-                }}
-                type="button"
-              >
-                <span>Auto</span>
-                <small>Let the director choose</small>
-              </button>
-              {selectedWorldPool.worldIds.map((worldOption) => {
-                const world = SHOW_WORLD_DEFINITIONS[worldOption];
-
-                return (
-                  <button
-                    className={`director-chip ${worldId === world.id ? 'director-chip--active' : ''}`}
-                    key={world.id}
-                    onClick={() => {
-                      onWorldChange(world.id);
-                    }}
-                    type="button"
-                  >
-                    <span>{world.label}</span>
-                    <small>
-                      {world.sceneIntent} / {world.motifIntent}
-                    </small>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="backstage-section">
-            <div className="backstage-section__title">Look Pool</div>
-            <div className="director-chip-grid">
-              {Object.values(LOOK_POOL_DEFINITIONS).map((pool) => (
-                <button
-                  className={`director-chip ${curation.lookPoolId === pool.id ? 'director-chip--active' : ''}`}
-                  key={pool.id}
-                  onClick={() => {
-                    onLookPoolChange(pool.id);
-                  }}
-                  type="button"
-                >
-                  <span>{pool.label}</span>
-                  <small>Pool</small>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="backstage-section">
-            <div className="backstage-section__title">Look Anchor</div>
-            <div className="director-chip-grid">
-              <button
-                className={`director-chip ${curation.lookId === null ? 'director-chip--active' : ''}`}
-                onClick={() => {
-                  onLookChange(null);
-                }}
-                type="button"
-              >
-                <span>Auto</span>
-                <small>Let the director choose</small>
-              </button>
-              {selectedLookPool.lookIds.map((lookOption) => {
-                const look = LOOK_DEFINITIONS[lookOption];
-
-                return (
-                  <button
-                    className={`director-chip ${lookId === look.id ? 'director-chip--active' : ''}`}
-                    key={look.id}
-                    onClick={() => {
-                      onLookChange(look.id);
-                    }}
-                    type="button"
-                  >
-                    <span>{look.label}</span>
-                    <small>
-                      {look.paletteIntent} / {look.sceneIntent}
-                    </small>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="backstage-section">
-            <div className="backstage-section__title">Director Stance</div>
-            <div className="director-chip-grid">
-              <button
-                className={`director-chip ${curation.stanceId === null ? 'director-chip--active' : ''}`}
-                onClick={() => {
-                  onStanceChange(null);
-                }}
-                type="button"
-              >
-                <span>Auto</span>
-                <small>Balanced autonomous stance</small>
-              </button>
-              {Object.values(DIRECTOR_STANCE_DEFINITIONS).map((stance) => (
-                <button
-                  className={`director-chip ${stanceId === stance.id ? 'director-chip--active' : ''}`}
-                  key={stance.id}
-                  onClick={() => {
-                    onStanceChange(stance.id);
-                  }}
-                  type="button"
-                >
-                  <span>{stance.label}</span>
-                  <small>Stance</small>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="backstage-section">
-            <div className="backstage-section__title">Saved Stances</div>
-            <div className="backstage-actions">
-              <button
-                className="backstage-action"
-                onClick={() => {
-                  const name = window.prompt('Save current advanced stance as:', 'Saved stance');
-
-                  if (!name) {
-                    return;
-                  }
-
-                  onSaveCurrentStance(name);
-                }}
-                type="button"
-              >
-                Save Current Stance
-              </button>
-            </div>
-            {savedStances.length > 0 ? (
-              <div className="director-deck__saved-list">
-                {savedStances.map((stance) => (
-                  <div
-                    className="director-deck__saved-item"
-                    key={stance.id}
-                  >
-                    <button
-                      className="director-deck__saved-main"
-                      onClick={() => {
-                        onLoadSavedStance(stance.id);
-                      }}
-                      type="button"
-                    >
-                      <strong>{stance.name}</strong>
-                      <span>
-                        {WORLD_POOL_DEFINITIONS[stance.worldPoolId].label} /{' '}
-                        {SHOW_WORLD_DEFINITIONS[stance.showWorldId].label} /{' '}
-                        {LOOK_POOL_DEFINITIONS[stance.lookPoolId].label} /{' '}
-                        {LOOK_DEFINITIONS[stance.lookId].label} /{' '}
-                        {DIRECTOR_STANCE_DEFINITIONS[stance.stanceId].label}
-                      </span>
-                    </button>
-                    <button
-                      className="director-deck__saved-delete"
-                      onClick={() => {
-                        onDeleteSavedStance(stance.id);
-                      }}
-                      type="button"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
+            <div className="backstage-section__title">Current Image Class</div>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>scene</span>
+                <strong>{activeScene}</strong>
               </div>
-            ) : (
-              <div className="backstage-note">
-                Save a stance if you want to recall a curated world/look/stance
-                combination later.
+              <div>
+                <span>image class</span>
+                <strong>{sceneProfile?.imageClass ?? 'n/a'}</strong>
               </div>
-            )}
+              <div>
+                <span>frame owner</span>
+                <strong>{sceneProfile?.frameOwner ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>composition</span>
+                <strong>{sceneProfile?.compositionClass ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>lighting</span>
+                <strong>{sceneProfile?.lightingClass ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>material</span>
+                <strong>{sceneProfile?.materialClass ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>surface</span>
+                <strong>{visual.playableMotifSceneSurfaceRole ?? sceneProfile?.surfaceRole ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>silhouette</span>
+                <strong>{visual.playableMotifSceneSilhouetteFamily ?? sceneProfile?.silhouetteFamily ?? 'n/a'}</strong>
+              </div>
+            </div>
           </section>
-        </div>
-      ) : null}
 
-      {activeAdvancedTab === 'steer' ? (
-        <div className="backstage-panel__body">
           <section className="backstage-section">
-            <div className="backstage-section__title">Semantic Steering</div>
+            <div className="backstage-section__title">Semantic Frame</div>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>motif</span>
+                <strong>{visual.visualMotif ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>palette chapter</span>
+                <strong>{visual.paletteBaseState ?? visual.paletteState}</strong>
+              </div>
+              <div>
+                <span>palette reason</span>
+                <strong>{visual.paletteBaseHoldReason ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>ring posture</span>
+                <strong>{visual.ringPosture ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>hero role</span>
+                <strong>{visual.heroRole ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>hero form</span>
+                <strong>{visual.activeHeroForm ?? visual.plannedHeroForm ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>pending form</span>
+                <strong>{visual.pendingHeroForm ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>form reason</span>
+                <strong>{visual.heroFormReason ?? 'n/a'}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="backstage-section">
+            <div className="backstage-section__title">Playable Scene State</div>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>age</span>
+                <strong>
+                  {typeof visual.playableMotifSceneAgeSeconds === 'number'
+                    ? `${visual.playableMotifSceneAgeSeconds.toFixed(1)}s`
+                    : 'n/a'}
+                </strong>
+              </div>
+              <div>
+                <span>transition</span>
+                <strong>{visual.playableMotifSceneTransitionReason ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>driver</span>
+                <strong>{visual.playableMotifSceneDriver ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>intent match</span>
+                <strong>{visual.playableMotifSceneIntentMatch === false ? 'no' : 'yes'}</strong>
+              </div>
+              <div>
+                <span>motif match</span>
+                <strong>{visual.playableMotifSceneMotifMatch === false ? 'no' : 'yes'}</strong>
+              </div>
+              <div>
+                <span>palette match</span>
+                <strong>{visual.playableMotifScenePaletteMatch === false ? 'no' : 'yes'}</strong>
+              </div>
+              <div>
+                <span>mask</span>
+                <strong>{visual.compositorMaskFamily ?? sceneProfile?.compositorMask ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>particle job</span>
+                <strong>{visual.particleFieldJob ?? sceneProfile?.particleJob ?? 'n/a'}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="backstage-section">
+            <div className="backstage-section__title">Signature Moment</div>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>moment</span>
+                <strong>{activeSignatureMoment}</strong>
+              </div>
+              <div>
+                <span>phase</span>
+                <strong>{visual.signatureMomentPhase ?? 'idle'}</strong>
+              </div>
+              <div>
+                <span>style</span>
+                <strong>{visual.signatureMomentStyle ?? 'n/a'}</strong>
+              </div>
+              <div>
+                <span>intensity</span>
+                <strong>
+                  {typeof visual.signatureMomentIntensity === 'number'
+                    ? visual.signatureMomentIntensity.toFixed(2)
+                    : 'n/a'}
+                </strong>
+              </div>
+              <div>
+                <span>precharge</span>
+                <strong>
+                  {typeof visual.signatureMomentPrechargeProgress === 'number'
+                    ? `${Math.round(visual.signatureMomentPrechargeProgress * 100)}%`
+                    : 'n/a'}
+                </strong>
+              </div>
+              <div>
+                <span>forced preview</span>
+                <strong>{visual.signatureMomentForcedPreview ? 'yes' : 'no'}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="backstage-section">
+            <div className="backstage-section__title">Internal Repertoire</div>
             <div className="backstage-note">
-              These controls bias the director over time. They should never be
-              required to make the show good.
+              The former Style and Steer controls are now autonomous repertoire.
+              The director can still use the same worlds, looks, pools, stances,
+              and bias grammar internally, but normal operators cannot lock or
+              tune them from this surface.
             </div>
-            <div className="backstage-actions">
-              <button
-                className="backstage-action"
-                onClick={onResetSteering}
-                type="button"
-              >
-                Reset Steering
-              </button>
+            <div className="backstage-meta-grid">
+              <div>
+                <span>world library</span>
+                <strong>{Object.keys(SHOW_WORLD_DEFINITIONS).length}</strong>
+              </div>
+              <div>
+                <span>look library</span>
+                <strong>{Object.keys(LOOK_DEFINITIONS).length}</strong>
+              </div>
+              <div>
+                <span>scene ontology</span>
+                <strong>{directorOptionAudit.expectedSceneIntents.join(', ')}</strong>
+              </div>
+              <div>
+                <span>saved stances</span>
+                <strong>{savedStances.length}</strong>
+              </div>
             </div>
           </section>
-
-          <div className="director-deck__controls">
-            {ADVANCED_STEERING_KEYS.map((key) => {
-              const descriptor = DIRECTOR_BIAS_DESCRIPTORS[key];
-
-              return (
-                <BiasSlider
-                  hint={descriptor.hint}
-                  highLabel={descriptor.highLabel}
-                  key={key}
-                  label={descriptor.label}
-                  lowLabel={descriptor.lowLabel}
-                  onChange={(value) => {
-                    onBiasChange(key, value);
-                  }}
-                  value={steering[key]}
-                />
-              );
-            })}
-          </div>
         </div>
       ) : null}
 

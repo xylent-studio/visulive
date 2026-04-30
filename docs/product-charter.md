@@ -137,7 +137,7 @@ The flagship should not feel like:
 
 Version one remains one public flagship show engine with hidden internal acts.
 
-It may expose curated worlds, looks, and stances inside that engine as long as they behave like authored vocabularies, not preset soup.
+It may keep curated worlds, looks, stances, anchors, and appetites inside that engine as autonomous authored vocabularies. They should not be normal-use public controls unless a later proof-backed product decision explicitly revives them.
 
 That engine must be able to:
 
@@ -146,7 +146,7 @@ That engine must be able to:
 - spend differently on builds, strikes, releases, aftermaths, and resets
 - feel larger than one object
 - preserve a coherent authored language while still generating new outcomes
-- remain compelling before the operator starts steering it
+- remain compelling without operator steering
 
 ## Bottom Line
 

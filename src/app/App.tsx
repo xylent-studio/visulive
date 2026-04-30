@@ -91,6 +91,7 @@ import type {
   ReplayProofReadinessCheck,
   ReplayProofValidity,
   ReplayProofScenarioKind,
+  ReplayDirectorConsoleSnapshot,
   ReplayRunJournal,
   ReplayRunEventMarkerKind,
   ReplayRunLifecycleState,
@@ -98,6 +99,7 @@ import type {
   ReplayScenarioAssessment,
   ReplayStatus
 } from '../replay/types';
+import { getSceneVisualProfile } from '../scene/assets/visualAssetProfiles';
 import {
   createSavedStance,
   DEFAULT_ADVANCED_CURATION_STATE,
@@ -111,6 +113,7 @@ import {
   parseStoredSavedStances,
   resolveAutoRouteRecommendation,
   resolveAppliedShowIntent,
+  resolveDirectorOptionAudit,
   resolveInputRoutePolicyFromShowStartRoute,
   resolveListeningModeFromShowStartRoute,
   resolveRouteIdFromListeningMode,
@@ -132,7 +135,8 @@ import {
   type SignatureMomentDevOverride,
   type SignatureMomentKind,
   type SignatureMomentPreviewProfile,
-  type SignatureMomentStyle
+  type SignatureMomentStyle,
+  type VisualTelemetryFrame
 } from '../types/visual';
 import { BackstagePanel } from '../ui/BackstagePanel';
 import { ShowHud } from '../ui/ShowHud';
@@ -1279,6 +1283,96 @@ export function App() {
     void persistRunJournalArtifacts(true);
   };
 
+  const blockProofMutation = (reason: string): boolean => {
+    if (!proofRunLocksControls()) {
+      return false;
+    }
+
+    recordSuppressedProofIntervention(reason, 'ui');
+    return true;
+  };
+
+  const buildDirectorConsoleSnapshot = (
+    visualTelemetry: VisualTelemetryFrame =
+      rendererRef.current?.getDiagnostics().visualTelemetry ??
+      rendererDiagnostics.visualTelemetry ??
+      DEFAULT_VISUAL_TELEMETRY
+  ): ReplayDirectorConsoleSnapshot => {
+    const audit = resolveDirectorOptionAudit(advancedCuration, advancedSteering);
+    const activeScene = visualTelemetry.activePlayableMotifScene ?? 'none';
+    const sceneProfile = getSceneVisualProfile(activeScene);
+    const curationDefault =
+      serializeAdvancedCurationState(advancedCuration) ===
+      serializeAdvancedCurationState(DEFAULT_ADVANCED_CURATION_STATE);
+    const steeringDefault =
+      serializeAdvancedSteeringState(advancedSteering) ===
+      serializeAdvancedSteeringState(DEFAULT_ADVANCED_STEERING_STATE);
+    const missionCorrections = [...runJournalRef.current.proofMissionCorrections];
+    const activeSignature =
+      visualTelemetry.activeSignatureMoment && visualTelemetry.activeSignatureMoment !== 'none'
+        ? visualTelemetry.activeSignatureMoment
+        : null;
+    const directorWhy =
+      activeSignature !== null
+        ? `Signature moment ${activeSignature} is steering the frame through ${visualTelemetry.signatureMomentPhase ?? 'active'} phase.`
+        : visualTelemetry.playableMotifSceneTransitionReason &&
+            visualTelemetry.playableMotifSceneTransitionReason !== 'hold'
+          ? `Playable scene changed because ${visualTelemetry.playableMotifSceneTransitionReason}.`
+          : visualTelemetry.paletteBaseHoldReason
+            ? `Semantic episode is holding ${visualTelemetry.paletteBaseState ?? visualTelemetry.paletteState} because ${visualTelemetry.paletteBaseHoldReason}.`
+            : audit.headline;
+
+    return {
+      version: 1,
+      mode: appliedShowIntent.showCapabilityMode,
+      surface: 'read-only-director-console',
+      styleControlsAvailable: false,
+      steeringControlsAvailable: false,
+      curationDefault,
+      steeringDefault,
+      proofLocked: proofRunLocksControls(),
+      proofWaveArmed: proofWaveArmedRef.current,
+      proofMissionKind,
+      missionResetApplied: missionCorrections.some((correction) =>
+        correction.includes('advanced')
+      ),
+      missionCorrections,
+      autonomyScore: audit.autonomyScore,
+      expectedSceneCount: audit.expectedSceneCount,
+      expectedSceneIntents: audit.expectedSceneIntents,
+      auditTone: audit.tone,
+      auditHeadline: audit.headline,
+      directorWhy,
+      activeScene,
+      sceneAgeSeconds: visualTelemetry.playableMotifSceneAgeSeconds,
+      sceneTransitionReason: visualTelemetry.playableMotifSceneTransitionReason,
+      sceneDriver: visualTelemetry.playableMotifSceneDriver,
+      sceneIntentMatch: visualTelemetry.playableMotifSceneIntentMatch,
+      sceneImageClass: sceneProfile?.imageClass,
+      sceneFrameOwner: sceneProfile?.frameOwner,
+      sceneCompositionClass: sceneProfile?.compositionClass,
+      sceneLightingClass: sceneProfile?.lightingClass,
+      sceneMaterialClass: sceneProfile?.materialClass,
+      sceneSurfaceRole: sceneProfile?.surfaceRole,
+      sceneSilhouetteFamily: sceneProfile?.silhouetteFamily,
+      sceneMemoryBehavior: sceneProfile?.memoryBehavior,
+      sceneProofStatus: sceneProfile?.proofStatus,
+      visualMotif: visualTelemetry.visualMotif,
+      paletteBaseState: visualTelemetry.paletteBaseState,
+      paletteBaseHoldReason: visualTelemetry.paletteBaseHoldReason,
+      ringPosture: visualTelemetry.ringPosture,
+      heroRole: visualTelemetry.heroRole,
+      plannedHeroForm: visualTelemetry.plannedHeroForm,
+      activeHeroForm: visualTelemetry.activeHeroForm,
+      pendingHeroForm: visualTelemetry.pendingHeroForm,
+      heroFormReason: visualTelemetry.heroFormReason,
+      signatureMoment: visualTelemetry.activeSignatureMoment,
+      signatureMomentPhase: visualTelemetry.signatureMomentPhase,
+      signatureMomentStyle: visualTelemetry.signatureMomentStyle,
+      signatureMomentIntensity: visualTelemetry.signatureMomentIntensity
+    };
+  };
+
   const overrideProofRunToExploratory = (reason: string) => {
     const journal = runJournalRef.current.journal;
     const timestampMs =
@@ -1601,6 +1695,9 @@ export function App() {
       proofReadiness,
       proofValidity,
       lifecycleState: 'inbox',
+      directorConsoleSnapshot: buildDirectorConsoleSnapshot(
+        rendererRef.current?.getDiagnostics().visualTelemetry ?? DEFAULT_VISUAL_TELEMETRY
+      ),
       sessionStartedAt: new Date(sessionStartedAtMs).toISOString(),
       sessionElapsedMs: 0,
       interventionCount: 0,
@@ -2409,7 +2506,11 @@ export function App() {
                 proofMissionProfile.scenarioKind,
               proofMission: lockedMission,
               interventionCount: liveSession.interventionCount,
-              noTouchWindowPassed
+              noTouchWindowPassed,
+              directorConsoleSnapshot: buildDirectorConsoleSnapshot(
+                (rendererRef.current?.getDiagnostics() ?? INITIAL_RENDERER_STATE)
+                  .visualTelemetry
+              )
             })
           );
           runJournalState.lastSampleTimestampMs = nextTimestampMs;
@@ -3283,7 +3384,10 @@ export function App() {
         activeJournal?.metadata.artifactIntegrity,
       runLifecycleState:
         activeJournal?.metadata.lifecycleState ?? 'inbox',
-      directorBiasSnapshot: appliedAtCapture.compatibilityIntent.biases
+      directorBiasSnapshot: appliedAtCapture.compatibilityIntent.biases,
+      directorConsoleSnapshot: buildDirectorConsoleSnapshot(
+        rendererRef.current?.getDiagnostics().visualTelemetry ?? DEFAULT_VISUAL_TELEMETRY
+      )
     };
   };
 
@@ -3730,8 +3834,7 @@ export function App() {
   };
 
   const handleShowStartRouteChange = (nextRoute: ShowStartRoute) => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention(`start-route:${nextRoute}`, 'ui');
+    if (blockProofMutation(`start-route:${nextRoute}`)) {
       setStartError(
         'Proof Mission locks the route during serious proof. Use Finish Proof Run, then rerun if the route was wrong.'
       );
@@ -3880,16 +3983,7 @@ export function App() {
   };
 
   const openAdvancedDrawer = (tab: Exclude<AdvancedDrawerTab, null>) => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention(`advanced:${tab}`, 'ui');
-      setStartError(
-        'Proof Mission locks Advanced controls during serious proof. Use Finish Proof Run, then rerun if steering was needed.'
-      );
-      return;
-    }
-
-    markSessionIntervention(`advanced:${tab}`);
-    setAdvancedDrawerTab(tab);
+    setAdvancedDrawerTab(tab === 'steer' ? 'style' : tab);
   };
 
   const closeAdvancedDrawer = () => {
@@ -3905,14 +3999,17 @@ export function App() {
     }));
   };
   const handleInputDeviceChange = (deviceId: string) => {
+    if (blockProofMutation(deviceId ? `input-device:${deviceId}` : 'input-device:default')) {
+      return;
+    }
+
     markSessionIntervention(deviceId ? `input-device:${deviceId}` : 'input-device:default');
     setPreferredInputId(deviceId);
     void audioRef.current?.setInputDevice(deviceId || null);
   };
 
   const handleStartCapture = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('manual-capture:start', 'ui');
+    if (blockProofMutation('manual-capture:start')) {
       return;
     }
 
@@ -3939,8 +4036,7 @@ export function App() {
   };
 
   const handleToggleAutoCapture = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('auto-capture:toggle', 'ui');
+    if (blockProofMutation('auto-capture:toggle')) {
       return;
     }
 
@@ -3979,8 +4075,7 @@ export function App() {
   };
 
   const handleToggleProofStills = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('proof-stills:toggle', 'ui');
+    if (blockProofMutation('proof-stills:toggle')) {
       return;
     }
 
@@ -4137,8 +4232,7 @@ export function App() {
   };
 
   const handleChooseCaptureFolder = async () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('capture-folder:choose', 'ui');
+    if (blockProofMutation('capture-folder:choose')) {
       return;
     }
 
@@ -4183,8 +4277,7 @@ export function App() {
   };
 
   const handleToggleAutoSaveToFolder = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('auto-save:toggle', 'ui');
+    if (blockProofMutation('auto-save:toggle')) {
       return;
     }
 
@@ -4229,8 +4322,7 @@ export function App() {
   };
 
   const handleForgetCaptureFolder = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('capture-folder:forget', 'ui');
+    if (blockProofMutation('capture-folder:forget')) {
       return;
     }
 
@@ -4257,8 +4349,7 @@ export function App() {
   };
 
   const handleStopCapture = () => {
-    if (proofRunLocksControls()) {
-      recordSuppressedProofIntervention('manual-capture:stop', 'ui');
+    if (blockProofMutation('manual-capture:stop')) {
       return;
     }
 
@@ -4617,7 +4708,7 @@ export function App() {
           void handleFinishProofRun();
         }}
         onOpenAdvanced={() => {
-          openAdvancedDrawer('steer');
+          openAdvancedDrawer('style');
         }}
         proofStatus={proofHudStatus}
         routeRecommendation={routeRecommendation}
@@ -4662,11 +4753,7 @@ export function App() {
         proofWaveArmed={proofWaveArmed}
         proofMissionKind={proofMissionKind}
         onAdvancedTabChange={(tab) => {
-          if (tab !== 'backstage' && proofRunLocksControls()) {
-            recordSuppressedProofIntervention(`advanced-tab:${tab}`, 'ui');
-            return;
-          }
-          setAdvancedDrawerTab(tab);
+          setAdvancedDrawerTab(tab === 'steer' ? 'style' : tab);
         }}
         onApplyCurrentDriftAnchors={handleApplyStyleAnchorFromAuto}
         onArmProofWave={() => {
