@@ -10,6 +10,8 @@ type ShowHudProps = {
   visible: boolean;
   currentRouteId: ResolvedRouteId;
   isFullscreen: boolean;
+  fullscreenMode: boolean;
+  chromeHidden: boolean;
   fullscreenError?: string | null;
   statusLabel: string;
   showCapabilityMode: ShowCapabilityMode;
@@ -27,6 +29,10 @@ type ShowHudProps = {
     validityLabel: string;
   };
   onFinishProofRun?: () => void;
+  onChromeFocusEnter?: () => void;
+  onChromeFocusLeave?: () => void;
+  onChromePointerEnter?: () => void;
+  onChromePointerLeave?: () => void;
   onToggleFullscreen: () => void;
   onOpenAdvanced: () => void;
   onApplyRouteRecommendation: () => void;
@@ -36,12 +42,18 @@ export function ShowHud({
   visible,
   currentRouteId,
   isFullscreen,
+  fullscreenMode,
+  chromeHidden,
   fullscreenError,
   statusLabel,
   showCapabilityMode,
   routeRecommendation,
   proofStatus,
   onFinishProofRun,
+  onChromeFocusEnter,
+  onChromeFocusLeave,
+  onChromePointerEnter,
+  onChromePointerLeave,
   onToggleFullscreen,
   onOpenAdvanced,
   onApplyRouteRecommendation
@@ -62,9 +74,24 @@ export function ShowHud({
     proofStatus?.active === true &&
     proofStatus.runId === null &&
     proofStatus.validityLabel === 'waiting-for-source';
+  const showBuild = Boolean(fullscreenError) || !fullscreenMode;
+  const showMode = !fullscreenMode;
+  const showRouteAdvice = !fullscreenMode && routeRecommendation;
 
   return (
-    <div className="show-hud">
+    <div
+      className={`show-hud ${fullscreenMode ? 'show-hud--fullscreen' : ''} ${chromeHidden ? 'show-hud--hidden' : ''}`}
+      onBlurCapture={(event) => {
+        const nextTarget = event.relatedTarget;
+
+        if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+          onChromeFocusLeave?.();
+        }
+      }}
+      onFocusCapture={onChromeFocusEnter}
+      onPointerEnter={onChromePointerEnter}
+      onPointerLeave={onChromePointerLeave}
+    >
       <div className="show-hud__identity">
         <span className="show-hud__eyebrow">Auto Show</span>
         <strong>VisuLive</strong>
@@ -78,13 +105,15 @@ export function ShowHud({
           <span>route</span>
           <strong>{route.label}</strong>
         </div>
-        <div className="show-hud__pill">
-          <span>mode</span>
-          <strong>
-            {showCapabilityMode === 'full-autonomous' ? 'Full Auto' : 'Curated'}
-          </strong>
-        </div>
-        {routeRecommendation ? (
+        {showMode ? (
+          <div className="show-hud__pill">
+            <span>mode</span>
+            <strong>
+              {showCapabilityMode === 'full-autonomous' ? 'Full Auto' : 'Curated'}
+            </strong>
+          </div>
+        ) : null}
+        {showRouteAdvice ? (
           <div className="show-hud__pill">
             <span>route advice</span>
             <strong>{routeRecommendation.recommendedRoute}</strong>
@@ -155,7 +184,7 @@ export function ShowHud({
           title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
           type="button"
         >
-          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
         </button>
         <button
           className="show-hud__button show-hud__button--ghost"
@@ -165,13 +194,15 @@ export function ShowHud({
           Advanced
         </button>
       </div>
-      <div className="show-hud__build">
-        {fullscreenError
-          ? fullscreenError
-          : proofStatus?.active
-            ? `${proofStatus.validityLabel} / ${proofStatus.lastPersistedAt ? 'saved' : 'not saved yet'}`
-            : `${BUILD_INFO.lane} / ${BUILD_INFO.proofStatus}`}
-      </div>
+      {showBuild ? (
+        <div className="show-hud__build">
+          {fullscreenError
+            ? fullscreenError
+            : proofStatus?.active
+              ? `${proofStatus.validityLabel} / ${proofStatus.lastPersistedAt ? 'saved' : 'not saved yet'}`
+              : `${BUILD_INFO.lane} / ${BUILD_INFO.proofStatus}`}
+        </div>
+      ) : null}
     </div>
   );
 }

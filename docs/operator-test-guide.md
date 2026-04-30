@@ -45,17 +45,19 @@ If you want the correct first serious pass, do this:
 1. Run `npm run dev`.
 2. Open Chrome.
 3. Choose `PC Audio`, `Microphone`, or `Combo`.
-4. Press `Start Show`.
-4. If the current branch still shows legacy route helpers, use the compatibility path that matches your source:
+4. For PC Audio, start music before `Start Show` so calibration hears the real source.
+5. Press `Start Show`.
+6. If the current branch still shows legacy route helpers, use the compatibility path that matches your source:
    - `Music On This PC`
    - `Music In The Room`
    - `Big Show Hybrid`
-5. Grant the requested browser permissions.
-6. Let calibration finish.
-7. Start the music.
-8. Press `F` for fullscreen.
-9. Do not touch route, capture, replay, lab, or repair controls for the first several phrases.
-10. Judge whether the show evolves meaningfully on its own.
+7. Grant the requested browser permissions.
+8. Let calibration finish and confirm the show is live.
+9. Press `F` or `Enter Fullscreen`.
+10. Let the fullscreen chrome auto-hide; the idle screen should show only the visualization.
+11. Move the mouse, tap, press `F`, or tab to reveal controls again.
+12. Do not touch route, capture, replay, lab, or repair controls for the first several phrases.
+13. Judge whether the show evolves meaningfully on its own.
 
 If you are running a serious review pass instead of a casual look:
 
@@ -64,8 +66,11 @@ If you are running a serious review pass instead of a casual look:
 - set `Backstage -> Capture -> Proof Mission` before the run starts
 - arm `Proof Wave`; it should force auto capture, auto-save, proof stills, route/source, and mission metadata
 - confirm the capture folder points at [captures/inbox](C:/dev/GitHub/visulive/captures/inbox)
-- verify `Proof ready: yes` in diagnostics or backstage before pressing `Start Show`
-- end with `Finish Proof Run`, then review the run package and write one short note
+- start PC Audio music before `Start Show`
+- verify the post-share source ladder reaches music lock / proof-ready
+- enter fullscreen before or immediately after the run starts
+- let the fullscreen chrome hide so visual proof is unobstructed
+- reveal controls only when you need `Finish Proof Run`, then review the run package and write one short note
 
 `Proof Wave` is now a setup transaction, not a loose toggle:
 

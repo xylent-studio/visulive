@@ -208,7 +208,7 @@ export function ShowLaunchSurface({
             onClick={onToggleFullscreen}
             type="button"
           >
-            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            {isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
           </button>
           <button
             className="show-launch__button show-launch__button--ghost"

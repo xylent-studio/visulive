@@ -55,6 +55,17 @@ button {
   background: var(--bg-0);
 }
 
+.app-shell--theater {
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg-0);
+}
+
+.app-shell--chrome-hidden,
+.app-shell--chrome-hidden .scene-canvas {
+  cursor: none;
+}
+
 .app-shell::before {
   content: "";
   position: absolute;
@@ -402,6 +413,45 @@ button {
     linear-gradient(180deg, rgba(8, 10, 14, 0.84), rgba(10, 13, 19, 0.68));
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow);
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+.show-hud--fullscreen {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: max(18px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  width: min(1180px, calc(100vw - 36px));
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px 12px;
+  border-radius: 20px;
+  transform: translateX(-50%);
+}
+
+.show-hud--fullscreen.show-hud--hidden:not(:focus-within) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(18px);
+}
+
+.show-hud--fullscreen .show-hud__identity {
+  display: none;
+}
+
+.show-hud--fullscreen .show-hud__status {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.show-hud--fullscreen .show-hud__pill {
+  padding: 7px 10px;
+}
+
+.show-hud--fullscreen .show-hud__actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
 }
 
 .show-hud__identity strong {
@@ -897,6 +947,25 @@ button {
     top: 12px;
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .show-hud--fullscreen {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) + 10px));
+    width: auto;
+    grid-template-columns: 1fr;
+    transform: none;
+  }
+
+  .show-hud--fullscreen.show-hud--hidden:not(:focus-within) {
+    transform: translateY(18px);
+  }
+
+  .show-hud--fullscreen .show-hud__actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 
   .show-hud__build {

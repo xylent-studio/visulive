@@ -724,6 +724,7 @@ export type ReplayRunEventMarkerKind =
   | 'suppressed-intervention'
   | 'exploratory-override'
   | 'route-change'
+  | 'shell-event'
   | 'clip-saved';
 
 export type ReplayRunEventMarker = {

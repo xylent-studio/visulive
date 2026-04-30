@@ -146,8 +146,8 @@ npm run anthology:validate
   - `Big Show Hybrid` for combined input
 - Grant the requested browser permissions
 - If you use `PC Audio` or `Both`, Chrome will open a share picker. Choose a tab, window, or screen source and make sure audio sharing is enabled.
-- Let the 2-3 second calibration finish, then bring music in if you are testing the room-mic path
-- Press `F` to enter or exit true immersive fullscreen; when fullscreen is active and the menu is closed, only the visualization remains on screen
+- For PC Audio proof, start music before `Start Show`; for room-mic testing, bring music in after calibration if that is the scenario
+- Press `F` or `Enter Fullscreen` for true immersive fullscreen; after a short idle, all chrome hides and only the visualization remains on screen
 - Keep the first pass no-touch. Judge whether the autonomous path is compelling before opening any steering surface.
 - Use `Advanced` only if you want to curate style, bias the director, repair the route, capture evidence, or open diagnostics.
 - If the current branch still shows older menu labels, `Manual Input Setup`, `Explore`, `Director Deck`, and the full settings menu should be treated as compatibility paths to the new `Advanced` drawer model.

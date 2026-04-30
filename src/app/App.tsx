@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type PointerEvent as ReactPointerEvent
+} from 'react';
 import { AudioEngine } from '../audio/AudioEngine';
 import { BUILD_INFO } from '../buildInfo';
 import { DiagnosticsOverlay } from '../debug/DiagnosticsOverlay';
@@ -151,6 +157,15 @@ import {
   type RuntimeTuning,
   type UserControlState
 } from '../types/tuning';
+import {
+  FULLSCREEN_CHROME_IDLE_MS,
+  createFullscreenChromeState,
+  handleFullscreenChromeTouch,
+  hideFullscreenChrome,
+  revealFullscreenChrome,
+  setFullscreenChromePinned,
+  shouldHideFullscreenChrome
+} from './fullscreenChrome';
 
 const INITIAL_RENDERER_STATE: RendererDiagnostics = {
   backend: 'unavailable',
@@ -631,7 +646,11 @@ export function App() {
   const [startError, setStartError] = useState<string | null>(null);
   const [diagnosticsVisible, setDiagnosticsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [theaterMode, setTheaterMode] = useState(false);
   const [fullscreenError, setFullscreenError] = useState<string | null>(null);
+  const [fullscreenChrome, setFullscreenChrome] = useState(() =>
+    createFullscreenChromeState(0)
+  );
   const [advancedDrawerTab, setAdvancedDrawerTab] =
     useState<AdvancedDrawerTab>(null);
   const [sourceMode, setSourceMode] = useState<ListeningMode>(() => {
@@ -2249,13 +2268,25 @@ export function App() {
       setFullscreen(fullscreenActive);
 
       if (fullscreenActive) {
+        setTheaterMode(false);
         setFullscreenError(null);
       }
+      appendRunJournalMarker(
+        'shell-event',
+        performance.now(),
+        fullscreenActive ? 'fullscreen-enter' : 'fullscreen-exit',
+        {
+          fullscreen: fullscreenActive
+        }
+      );
     };
     const handleFullscreenError = () => {
       setFullscreenError(
         'Fullscreen was blocked by the browser. Use the fullscreen button while this tab is active.'
       );
+      appendRunJournalMarker('shell-event', performance.now(), 'fullscreen-error', {
+        fullscreen: false
+      });
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -3993,13 +4024,28 @@ export function App() {
     setFullscreenError(null);
 
     try {
-      if (!document.fullscreenEnabled) {
-        setFullscreenError('This browser or window does not allow fullscreen.');
+      if (document.fullscreenElement) {
+        setTheaterMode(false);
+        await document.exitFullscreen();
         return;
       }
 
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
+      if (theaterMode) {
+        setTheaterMode(false);
+        appendRunJournalMarker('shell-event', performance.now(), 'theater-exit', {
+          fullscreen: false
+        });
+        return;
+      }
+
+      if (!document.fullscreenEnabled) {
+        setTheaterMode(true);
+        setFullscreenError(
+          'Browser fullscreen is unavailable, so VisuLive is using in-app theater mode.'
+        );
+        appendRunJournalMarker('shell-event', performance.now(), 'theater-enter', {
+          fullscreen: false
+        });
         return;
       }
 
@@ -4007,11 +4053,15 @@ export function App() {
 
       await fullscreenTarget.requestFullscreen({ navigationUI: 'hide' });
     } catch (error) {
+      setTheaterMode(true);
       setFullscreenError(
         error instanceof Error
-          ? `Fullscreen could not start: ${error.message}`
-          : 'Fullscreen could not start from this browser state.'
+          ? `Fullscreen could not start: ${error.message}. VisuLive is using in-app theater mode.`
+          : 'Fullscreen could not start from this browser state. VisuLive is using in-app theater mode.'
       );
+      appendRunJournalMarker('shell-event', performance.now(), 'fullscreen-error', {
+        fullscreen: false
+      });
     }
   };
 
@@ -4822,12 +4872,21 @@ export function App() {
   const proofControlActive =
     runJournalStatus.active ||
     ((proofWaveArmed || proofWaveArmedRef.current) && runtimeActive);
-  const immersiveView =
-    fullscreen &&
+  const proofWaitingForSource =
+    runJournalStatus.proofRunState === 'waiting-for-source' &&
+    !runJournalStatus.active &&
+    (proofWaveArmed || proofWaveArmedRef.current);
+  const fullscreenDisplayActive = fullscreen || theaterMode;
+  const fullscreenWatchMode =
+    fullscreenDisplayActive &&
     runtimeActive &&
+    !activationVisible &&
     !advancedDrawerOpen &&
-    !diagnosticsVisible &&
-    !proofControlActive;
+    !diagnosticsVisible;
+  const fullscreenChromeHidden =
+    fullscreenWatchMode && !proofWaitingForSource && !fullscreenChrome.visible;
+  const immersiveView =
+    fullscreenWatchMode && !proofWaitingForSource && fullscreenChromeHidden;
   const launchSurfaceVisible = activationVisible;
   const backstagePanelOpen = advancedDrawerOpen;
   const topStatusLabel = replayActive
@@ -4892,10 +4951,127 @@ export function App() {
     durationSeconds: momentLabDurationSeconds,
     latestReceipt: momentLabLatestReceipt
   };
+  const appShellClassName = [
+    'app-shell',
+    immersiveView ? 'app-shell--immersive' : '',
+    fullscreenWatchMode ? 'app-shell--fullscreen-live' : '',
+    fullscreenChromeHidden ? 'app-shell--chrome-hidden' : '',
+    theaterMode ? 'app-shell--theater' : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  useEffect(() => {
+    if (!fullscreenWatchMode) {
+      setFullscreenChrome(createFullscreenChromeState(performance.now()));
+      return;
+    }
+
+    setFullscreenChrome((current) =>
+      revealFullscreenChrome(current, performance.now())
+    );
+  }, [fullscreenWatchMode]);
+
+  useEffect(() => {
+    if (
+      !fullscreenWatchMode ||
+      proofWaitingForSource ||
+      fullscreenChrome.pinned ||
+      !fullscreenChrome.visible
+    ) {
+      return undefined;
+    }
+
+    const elapsedMs = performance.now() - fullscreenChrome.lastInteractionAtMs;
+    const delayMs = Math.max(0, FULLSCREEN_CHROME_IDLE_MS - elapsedMs);
+    const timeoutId = window.setTimeout(() => {
+      setFullscreenChrome((current) =>
+        shouldHideFullscreenChrome(current, {
+          enabled: fullscreenWatchMode,
+          focused: false,
+          nowMs: performance.now(),
+          waitVisible: proofWaitingForSource
+        })
+          ? hideFullscreenChrome(current)
+          : current
+      );
+    }, delayMs);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    fullscreenWatchMode,
+    proofWaitingForSource,
+    fullscreenChrome.lastInteractionAtMs,
+    fullscreenChrome.pinned,
+    fullscreenChrome.visible
+  ]);
+
+  useEffect(() => {
+    if (!fullscreenWatchMode) {
+      return undefined;
+    }
+
+    const revealFromIntent = () => {
+      setFullscreenChrome((current) =>
+        revealFullscreenChrome(current, performance.now())
+      );
+    };
+
+    window.addEventListener('pointermove', revealFromIntent, { passive: true });
+    window.addEventListener('keydown', revealFromIntent);
+
+    return () => {
+      window.removeEventListener('pointermove', revealFromIntent);
+      window.removeEventListener('keydown', revealFromIntent);
+    };
+  }, [fullscreenWatchMode]);
+
+  const handleFullscreenChromePointerEnter = () => {
+    setFullscreenChrome((current) =>
+      setFullscreenChromePinned(
+        revealFullscreenChrome(current, performance.now()),
+        true,
+        performance.now()
+      )
+    );
+  };
+
+  const handleFullscreenChromePointerLeave = () => {
+    setFullscreenChrome((current) =>
+      setFullscreenChromePinned(current, false, performance.now())
+    );
+  };
+
+  const handleAppShellPointerDownCapture = (
+    event: ReactPointerEvent<HTMLElement>
+  ) => {
+    if (
+      !fullscreenWatchMode ||
+      !fullscreenChromeHidden ||
+      event.pointerType === 'mouse'
+    ) {
+      return;
+    }
+
+    const result = handleFullscreenChromeTouch(
+      fullscreenChrome,
+      performance.now()
+    );
+
+    setFullscreenChrome(result.state);
+
+    if (result.blockActivation) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
 
   return (
     <main
-      className={`app-shell ${immersiveView ? 'app-shell--immersive' : ''}`}
+      className={appShellClassName}
+      onPointerDownCapture={handleAppShellPointerDownCapture}
       ref={appShellRef}
     >
       <input
@@ -4921,6 +5097,10 @@ export function App() {
         onOpenAdvanced={() => {
           openAdvancedDrawer('style');
         }}
+        onChromeFocusEnter={handleFullscreenChromePointerEnter}
+        onChromeFocusLeave={handleFullscreenChromePointerLeave}
+        onChromePointerEnter={handleFullscreenChromePointerEnter}
+        onChromePointerLeave={handleFullscreenChromePointerLeave}
         onToggleFullscreen={() => {
           void toggleFullscreen();
         }}
@@ -4928,8 +5108,10 @@ export function App() {
         routeRecommendation={routeRecommendation}
         showCapabilityMode={appliedShowIntent.showCapabilityMode}
         statusLabel={topStatusLabel}
+        chromeHidden={fullscreenChromeHidden}
         fullscreenError={fullscreenError}
-        isFullscreen={fullscreen}
+        fullscreenMode={fullscreenWatchMode}
+        isFullscreen={fullscreenDisplayActive}
         visible={runtimeActive && !activationVisible && !advancedDrawerOpen && !diagnosticsVisible}
       />
 
@@ -4953,7 +5135,7 @@ export function App() {
         proofWaveArmed={proofWaveArmed}
         startError={startError}
         fullscreenError={fullscreenError}
-        isFullscreen={fullscreen}
+        isFullscreen={fullscreenDisplayActive}
         startRoute={showStartRoute}
         status={status}
         visible={launchSurfaceVisible}
@@ -4971,7 +5153,7 @@ export function App() {
         diagnosticsVisible={diagnosticsVisible}
         effectiveLookId={directorRuntime.effectiveLookId}
         effectiveWorldId={directorRuntime.effectiveWorldId}
-        isFullscreen={fullscreen}
+        isFullscreen={fullscreenDisplayActive}
         proofWaveArmed={proofWaveArmed}
         proofMissionKind={proofMissionKind}
         onAdvancedTabChange={(tab) => {
