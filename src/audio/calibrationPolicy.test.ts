@@ -47,6 +47,33 @@ describe('calibrationPolicy', () => {
     expect(readiness.proofReady).toBe(false);
   });
 
+  it('does not keep PC audio proof-ready from stale music lock alone', () => {
+    const readiness = buildSourceReadiness({
+      mode: 'system-audio',
+      displayAudioGranted: true,
+      calibrationTrust: 'stable',
+      calibrationQuality: 'clean',
+      frame: {
+        ...DEFAULT_ANALYSIS_FRAME,
+        rms: 0,
+        peak: 0
+      },
+      sourceEnded: false,
+      firstSourceHeardAtMs: 100,
+      firstMusicLockAtMs: 120,
+      lastSignalAtMs: 120,
+      lastMusicLockAtMs: 120,
+      timeSinceLastSignalMs: 8000,
+      recentSignalFrameCount: 0,
+      recentMusicLockFrameCount: 0,
+      stableAtMs: 140
+    });
+
+    expect(readiness.signalPresent).toBe(false);
+    expect(readiness.musicLock).toBe(false);
+    expect(readiness.proofReady).toBe(false);
+  });
+
   it('keeps PC audio ceilings broad enough after quiet intros', () => {
     const profile = summarizeSourceAwareCalibration(
       'system-audio',

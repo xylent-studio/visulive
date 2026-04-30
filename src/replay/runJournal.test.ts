@@ -46,6 +46,7 @@ describe('runJournal source readiness', () => {
         displayAudioGranted: true,
         calibrationTrust: 'provisional',
         calibrationQuality: 'silent-system-audio',
+        startupBlocker: 'silent-shared-source',
         listeningFrame: {
           ...DEFAULT_AUDIO_DIAGNOSTICS.listeningFrame,
           mode: 'system-audio',
@@ -73,5 +74,8 @@ describe('runJournal source readiness', () => {
     expect(
       readiness.checks.find((check) => check.id === 'source-readiness')?.passed
     ).toBe(false);
+    expect(
+      readiness.checks.find((check) => check.id === 'source-readiness')?.reason
+    ).toContain('PC Audio is connected');
   });
 });

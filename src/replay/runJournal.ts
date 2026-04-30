@@ -439,6 +439,28 @@ function buildProofReadinessCheck(
   };
 }
 
+function describeSourceStartupBlocker(audio: AudioDiagnostics): string {
+  switch (audio.startupBlocker) {
+    case 'missing-display-audio':
+      return 'No PC audio track was shared. Share a tab, window, or screen with audio enabled.';
+    case 'no-worklet-frames':
+      return 'Browser sharing succeeded, but VisuLive is not receiving audio frames.';
+    case 'silent-shared-source':
+      return 'PC Audio is connected, but no music is being received. Start playback in the shared source or share again with audio.';
+    case 'weak-signal':
+      return 'PC Audio is connected, but the signal is too quiet for proof. Raise volume or wait for a louder section.';
+    case 'clipped-startup':
+      return 'PC Audio is clipping. Lower volume, then retry proof setup.';
+    case 'source-ended':
+      return 'The selected PC Audio source ended. Retry PC Audio.';
+    case 'audio-context-suspended':
+      return 'The browser audio context is suspended. Retry from a fresh Start Show click.';
+    case 'none':
+    default:
+      return 'Start music in the shared source and wait for music lock.';
+  }
+}
+
 export function deriveReplayProofReadiness(
   input: ReplayProofReadinessInput
 ): ReplayProofReadiness {
@@ -505,7 +527,7 @@ export function deriveReplayProofReadiness(
     ? 'Post-share source readiness will be checked after audio starts.'
     : sourceReadinessReady
       ? `Source readiness is proof-grade (${audio.calibrationQuality}, ${audio.calibrationTrust}).`
-      : `Source readiness is not proof-grade (${audio.calibrationQuality}, ${audio.calibrationTrust}). Restart with a clean source and audible music.`;
+      : `Source readiness is not proof-grade (${audio.calibrationQuality}, ${audio.calibrationTrust}). ${describeSourceStartupBlocker(audio)}`;
 
   const checks = [
     buildProofReadinessCheck(

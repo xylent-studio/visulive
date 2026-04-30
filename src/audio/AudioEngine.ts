@@ -45,6 +45,8 @@ import {
   type ListeningSource,
   type SourceReadiness,
   type SourceHintRuntimeMode,
+  type SourceStartupBlocker,
+  type SourceStartupStage,
   type SpectrumFrame,
   type SourceDescriptor,
   type SupportedMicConstraints
@@ -67,6 +69,8 @@ type ExtendedDisplayMediaStreamOptions = DisplayMediaStreamOptions & {
   preferCurrentTab?: boolean;
   audio?: DisplayMediaAudioConstraints | boolean;
 };
+
+const RECENT_SOURCE_WINDOW_MS = 2400;
 
 export class AudioEngine implements ListeningSource {
   private status = DEFAULT_AUDIO_STATUS;
@@ -107,8 +111,20 @@ export class AudioEngine implements ListeningSource {
   private calibrationTrust: CalibrationTrust = 'blocked';
   private calibrationQuality: CalibrationQuality = 'weak-signal';
   private sourceReadiness: SourceReadiness = DEFAULT_SOURCE_READINESS;
+  private startupStage: SourceStartupStage = 'idle';
+  private startupBlocker: SourceStartupBlocker = 'none';
+  private workletPacketCount = 0;
+  private nonzeroRmsFrameCount = 0;
+  private zeroRmsFrameCount = 0;
+  private lastPacketAtMs: number | null = null;
+  private currentSignalPresent = false;
+  private currentMusicLock = false;
   private firstSourceHeardAtMs: number | null = null;
   private firstMusicLockAtMs: number | null = null;
+  private lastSignalAtMs: number | null = null;
+  private lastMusicLockAtMs: number | null = null;
+  private recentSignalPacketTimes: number[] = [];
+  private recentMusicLockPacketTimes: number[] = [];
   private stableAtMs: number | null = null;
   private sourceEnded = false;
   private sourceMode: ListeningMode = 'room-mic';
@@ -255,8 +271,11 @@ export class AudioEngine implements ListeningSource {
 
     let requestedMicStream: MediaStream | null = null;
     let requestedDisplayStream: MediaStream | null = null;
+    let startupFailureBlocker: SourceStartupBlocker = 'none';
+    let startupFailureMessage = 'Unknown input startup error.';
 
     try {
+      this.resetStartupDiagnostics();
       this.supportedConstraints = needsMic
         ? this.readSupportedConstraints()
         : DEFAULT_SUPPORTED_MIC_CONSTRAINTS;
@@ -271,6 +290,7 @@ export class AudioEngine implements ListeningSource {
       }
 
       this.bootStep = 'requesting-permission';
+      this.startupStage = 'permission';
       this.updateStatus({
         phase: 'requesting-permission',
         message: this.getPermissionMessage()
@@ -291,12 +311,16 @@ export class AudioEngine implements ListeningSource {
         (!requestedDisplayStream ||
           requestedDisplayStream.getAudioTracks().length === 0)
       ) {
+        startupFailureBlocker = 'missing-display-audio';
+        startupFailureMessage =
+          'No PC audio was shared. Share a tab, window, or screen with audio enabled, then start again.';
         throw new Error(
-          'The selected shared source did not include audio. Retry and enable audio in the share picker.'
+          startupFailureMessage
         );
       }
 
       await this.teardown();
+      this.resetStartupDiagnostics();
 
       this.micStream = requestedMicStream;
       this.displayStream = requestedDisplayStream;
@@ -311,6 +335,9 @@ export class AudioEngine implements ListeningSource {
 
       this.context = new AudioContext({ latencyHint: 'interactive' });
       await this.context.resume();
+      if (this.context.state === 'suspended') {
+        this.startupBlocker = 'audio-context-suspended';
+      }
 
       if (!this.context.audioWorklet) {
         throw new Error('AudioWorklet is unavailable in this browser.');
@@ -344,6 +371,10 @@ export class AudioEngine implements ListeningSource {
         : null;
       this.displayTrackLabel = needsDisplayAudio ? displayLabel : null;
       this.displayAudioGranted = Boolean(displayAudioTrack);
+      this.startupStage =
+        this.displayAudioGranted || this.sourceMode === 'room-mic'
+          ? 'audio-track'
+          : 'permission';
       this.sourceEnded = false;
 
       this.selectedInputId = needsMic
@@ -427,12 +458,22 @@ export class AudioEngine implements ListeningSource {
       this.calibrationPeakPercentile90 = 0;
       this.calibrationTrust = 'blocked';
       this.calibrationQuality = 'weak-signal';
+      this.resetStartupDiagnostics();
+      this.startupStage =
+        this.displayAudioGranted || this.sourceMode === 'room-mic'
+          ? 'audio-track'
+          : 'permission';
+      if (this.context?.state === 'suspended') {
+        this.startupBlocker = 'audio-context-suspended';
+      }
       this.sourceReadiness = {
         ...DEFAULT_SOURCE_READINESS,
         trackGranted: this.sourceMode === 'room-mic' || this.displayAudioGranted
       };
       this.firstSourceHeardAtMs = null;
       this.firstMusicLockAtMs = null;
+      this.lastSignalAtMs = null;
+      this.lastMusicLockAtMs = null;
       this.stableAtMs = null;
       this.sourceEnded = false;
       this.interpreter.reset();
@@ -450,16 +491,31 @@ export class AudioEngine implements ListeningSource {
       this.startAnalysisLoop();
       await this.waitForStartupCompletion();
     } catch (error) {
+      const blocker =
+        startupFailureBlocker !== 'none' ? startupFailureBlocker : this.startupBlocker;
+      const message =
+        error instanceof Error ? error.message : startupFailureMessage;
       this.stopStream(requestedMicStream);
       this.stopStream(requestedDisplayStream);
       await this.teardown();
+      this.startupBlocker = blocker;
+      this.startupStage =
+        blocker === 'missing-display-audio' ? 'permission' : this.startupStage;
+      this.diagnostics = {
+        ...DEFAULT_AUDIO_DIAGNOSTICS,
+        sourceMode: this.sourceMode,
+        bootStep: this.bootStep,
+        startupStage: this.startupStage,
+        startupBlocker: blocker,
+        warnings:
+          blocker === 'missing-display-audio'
+            ? ['PC audio share did not include an audio track.']
+            : []
+      };
       this.updateStatus({
         phase: 'error',
         message: 'Unable to start listening.',
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Unknown input startup error.'
+        error: message
       });
     }
   }
@@ -484,6 +540,144 @@ export class AudioEngine implements ListeningSource {
     }
   }
 
+  private resetStartupDiagnostics(): void {
+    this.startupStage = 'idle';
+    this.startupBlocker = 'none';
+    this.workletPacketCount = 0;
+    this.nonzeroRmsFrameCount = 0;
+    this.zeroRmsFrameCount = 0;
+    this.lastPacketAtMs = null;
+    this.currentSignalPresent = false;
+    this.currentMusicLock = false;
+    this.firstSourceHeardAtMs = null;
+    this.firstMusicLockAtMs = null;
+    this.lastSignalAtMs = null;
+    this.lastMusicLockAtMs = null;
+    this.recentSignalPacketTimes = [];
+    this.recentMusicLockPacketTimes = [];
+  }
+
+  private pruneRecentSourceHistory(now: number): void {
+    const cutoff = now - RECENT_SOURCE_WINDOW_MS;
+    this.recentSignalPacketTimes = this.recentSignalPacketTimes.filter(
+      (timestampMs) => timestampMs >= cutoff
+    );
+    this.recentMusicLockPacketTimes = this.recentMusicLockPacketTimes.filter(
+      (timestampMs) => timestampMs >= cutoff
+    );
+  }
+
+  private getRecentSourceStats(now = performance.now()): {
+    recentSignalFrameCount: number;
+    recentMusicLockFrameCount: number;
+    timeSinceLastSignalMs: number | null;
+  } {
+    this.pruneRecentSourceHistory(now);
+
+    return {
+      recentSignalFrameCount: this.recentSignalPacketTimes.length,
+      recentMusicLockFrameCount: this.recentMusicLockPacketTimes.length,
+      timeSinceLastSignalMs:
+        this.lastSignalAtMs === null ? null : Math.max(0, now - this.lastSignalAtMs)
+    };
+  }
+
+  private buildCurrentSourceReadiness(frame: AnalysisFrame): SourceReadiness {
+    const stats = this.getRecentSourceStats();
+
+    return buildSourceReadiness({
+      mode: this.sourceMode,
+      displayAudioGranted: this.displayAudioGranted,
+      calibrationTrust: this.calibrationTrust,
+      calibrationQuality: this.calibrationQuality,
+      frame,
+      sourceEnded: this.sourceEnded,
+      firstSourceHeardAtMs: this.firstSourceHeardAtMs,
+      firstMusicLockAtMs: this.firstMusicLockAtMs,
+      lastSignalAtMs: this.lastSignalAtMs,
+      lastMusicLockAtMs: this.lastMusicLockAtMs,
+      timeSinceLastSignalMs: stats.timeSinceLastSignalMs,
+      recentSignalFrameCount: stats.recentSignalFrameCount,
+      recentMusicLockFrameCount: stats.recentMusicLockFrameCount,
+      stableAtMs: this.stableAtMs
+    });
+  }
+
+  private resolveStartupStage(readiness: SourceReadiness): SourceStartupStage {
+    if (readiness.proofReady) {
+      return 'proof-ready';
+    }
+
+    if (readiness.musicLock) {
+      return 'music-lock';
+    }
+
+    if (readiness.signalPresent) {
+      return 'signal';
+    }
+
+    if (this.workletPacketCount > 0) {
+      return 'engine-frames';
+    }
+
+    if (this.sourceMode === 'room-mic' || this.displayAudioGranted) {
+      return 'audio-track';
+    }
+
+    if (
+      this.status.phase === 'requesting-permission' ||
+      this.bootStep === 'requesting-permission'
+    ) {
+      return 'permission';
+    }
+
+    return 'idle';
+  }
+
+  private resolveStartupBlocker(
+    frame: AnalysisFrame,
+    readiness: SourceReadiness
+  ): SourceStartupBlocker {
+    if (this.sourceEnded) {
+      return 'source-ended';
+    }
+
+    if (this.sourceMode !== 'room-mic' && !this.displayAudioGranted) {
+      return 'missing-display-audio';
+    }
+
+    if (this.context?.state === 'suspended') {
+      return 'audio-context-suspended';
+    }
+
+    if (
+      this.status.phase !== 'idle' &&
+      this.status.phase !== 'requesting-permission' &&
+      this.workletPacketCount === 0
+    ) {
+      return 'no-worklet-frames';
+    }
+
+    if (frame.clipped || this.calibrationQuality === 'clipped-startup') {
+      return 'clipped-startup';
+    }
+
+    if (
+      this.sourceMode === 'system-audio' &&
+      this.displayAudioGranted &&
+      this.workletPacketCount > 0 &&
+      !readiness.signalPresent
+    ) {
+      return 'silent-shared-source';
+    }
+
+    if (this.calibrationQuality === 'weak-signal') {
+      return 'weak-signal';
+    }
+
+    return 'none';
+  }
+
   private async waitForStartupCompletion(): Promise<void> {
     if (this.status.phase === 'live' || this.status.phase === 'error') {
       return;
@@ -505,11 +699,19 @@ export class AudioEngine implements ListeningSource {
       timeoutId = window.setTimeout(() => {
         unsubscribe();
         if (this.status.phase !== 'live' && this.status.phase !== 'error') {
+          const readiness = this.buildCurrentSourceReadiness(this.workletPacket);
+          this.startupStage = this.resolveStartupStage(readiness);
+          this.startupBlocker = this.resolveStartupBlocker(
+            this.workletPacket,
+            readiness
+          );
           this.updateStatus({
             phase: 'error',
             message: 'Calibration timed out.',
             error:
-              'The browser did not deliver enough audio frames to finish calibration. Restart the source and keep the tab visible during startup.'
+              this.startupBlocker === 'no-worklet-frames'
+                ? 'Browser shared the source, but VisuLive is not receiving audio frames. Keep the source visible and retry PC Audio.'
+                : 'PC Audio did not become ready in time. Start music in the shared source or retry PC Audio with audio enabled.'
           });
         }
         resolve();
@@ -519,21 +721,42 @@ export class AudioEngine implements ListeningSource {
 
   private observeSourcePacket(packet: AnalysisFrame): void {
     const now = performance.now();
+    this.workletPacketCount += 1;
+    this.lastPacketAtMs = now;
 
-    if (hasSourceSignal(packet) && this.firstSourceHeardAtMs === null) {
-      this.firstSourceHeardAtMs = now;
+    if (packet.rms > 0 || packet.peak > 0) {
+      this.nonzeroRmsFrameCount += 1;
+    } else {
+      this.zeroRmsFrameCount += 1;
     }
 
-    if (hasMusicLock(packet) && this.firstMusicLockAtMs === null) {
-      this.firstMusicLockAtMs = now;
+    this.currentSignalPresent = hasSourceSignal(packet);
+    this.currentMusicLock = hasMusicLock(packet);
+
+    if (this.currentSignalPresent) {
+      if (this.firstSourceHeardAtMs === null) {
+        this.firstSourceHeardAtMs = now;
+      }
+      this.lastSignalAtMs = now;
+      this.recentSignalPacketTimes.push(now);
     }
+
+    if (this.currentMusicLock) {
+      if (this.firstMusicLockAtMs === null) {
+        this.firstMusicLockAtMs = now;
+      }
+      this.lastMusicLockAtMs = now;
+      this.recentMusicLockPacketTimes.push(now);
+    }
+
+    this.pruneRecentSourceHistory(now);
 
     if (
       this.status.phase === 'live' &&
       this.sourceMode === 'system-audio' &&
       this.calibrationTrust === 'provisional' &&
       this.displayAudioGranted &&
-      hasMusicLock(packet) &&
+      this.currentMusicLock &&
       !packet.clipped &&
       !this.sourceEnded
     ) {
@@ -541,6 +764,10 @@ export class AudioEngine implements ListeningSource {
       this.calibrationQuality = 'clean';
       this.stableAtMs = this.stableAtMs ?? now;
     }
+
+    const readiness = this.buildCurrentSourceReadiness(packet);
+    this.startupStage = this.resolveStartupStage(readiness);
+    this.startupBlocker = this.resolveStartupBlocker(packet, readiness);
   }
 
   private startAnalysisLoop(): void {
@@ -564,10 +791,19 @@ export class AudioEngine implements ListeningSource {
 
   private finishCalibration(): void {
     if (this.calibrationRms.length < 4 || this.calibrationPeaks.length < 4) {
+      const readiness = this.buildCurrentSourceReadiness(this.workletPacket);
+      this.startupStage = this.resolveStartupStage(readiness);
+      this.startupBlocker =
+        this.sourceMode === 'system-audio' && this.displayAudioGranted
+          ? 'no-worklet-frames'
+          : this.resolveStartupBlocker(this.workletPacket, readiness);
       this.updateStatus({
         phase: 'error',
         message: 'Calibration failed.',
-        error: 'Not enough input signal was captured during calibration.'
+        error:
+          this.startupBlocker === 'no-worklet-frames'
+            ? 'Browser shared the source, but VisuLive is not receiving audio frames. Keep the source visible and retry PC Audio.'
+            : 'Not enough input frames were captured during calibration. Restart the input and keep the source available during startup.'
       });
 
       return;
@@ -608,24 +844,21 @@ export class AudioEngine implements ListeningSource {
     this.interpreter.reset();
     this.sourceHintInterpreter.reset();
     this.bootStep = 'live';
-    this.sourceReadiness = buildSourceReadiness({
-      mode: this.sourceMode,
-      displayAudioGranted: this.displayAudioGranted,
-      calibrationTrust: this.calibrationTrust,
-      calibrationQuality: this.calibrationQuality,
-      frame: this.workletPacket,
-      sourceEnded: this.sourceEnded,
-      firstSourceHeardAtMs: this.firstSourceHeardAtMs,
-      firstMusicLockAtMs: this.firstMusicLockAtMs,
-      stableAtMs: this.stableAtMs
-    });
+    this.sourceReadiness = this.buildCurrentSourceReadiness(this.workletPacket);
+    this.startupStage = this.resolveStartupStage(this.sourceReadiness);
+    this.startupBlocker = this.resolveStartupBlocker(
+      this.workletPacket,
+      this.sourceReadiness
+    );
 
     this.updateStatus({
       phase: 'live',
       message:
         this.calibrationTrust === 'stable'
           ? 'Live'
-          : 'Live - source trust provisional'
+          : this.startupBlocker === 'silent-shared-source'
+            ? 'Live - PC Audio waiting for music'
+            : 'Live - source trust provisional'
     });
   }
 
@@ -693,17 +926,12 @@ export class AudioEngine implements ListeningSource {
       mode: this.sourceMode
     };
 
-    this.sourceReadiness = buildSourceReadiness({
-      mode: this.sourceMode,
-      displayAudioGranted: this.displayAudioGranted,
-      calibrationTrust: this.calibrationTrust,
-      calibrationQuality: this.calibrationQuality,
-      frame: analysisFrame,
-      sourceEnded: this.sourceEnded,
-      firstSourceHeardAtMs: this.firstSourceHeardAtMs,
-      firstMusicLockAtMs: this.firstMusicLockAtMs,
-      stableAtMs: this.stableAtMs
-    });
+    this.sourceReadiness = this.buildCurrentSourceReadiness(analysisFrame);
+    this.startupStage = this.resolveStartupStage(this.sourceReadiness);
+    this.startupBlocker = this.resolveStartupBlocker(
+      analysisFrame,
+      this.sourceReadiness
+    );
 
     this.diagnostics = {
       source: this.sourceDescriptor,
@@ -728,6 +956,20 @@ export class AudioEngine implements ListeningSource {
       calibrationTrust: this.calibrationTrust,
       calibrationQuality: this.calibrationQuality,
       sourceReadiness: this.sourceReadiness,
+      startupStage: this.startupStage,
+      startupBlocker: this.startupBlocker,
+      workletPacketCount: this.workletPacketCount,
+      nonzeroRmsFrameCount: this.nonzeroRmsFrameCount,
+      zeroRmsFrameCount: this.zeroRmsFrameCount,
+      lastPacketAtMs: this.lastPacketAtMs,
+      currentSignalPresent: this.sourceReadiness.currentSignalPresent,
+      currentMusicLock: this.sourceReadiness.currentMusicLock,
+      lastSignalAtMs: this.sourceReadiness.lastSignalAtMs,
+      lastMusicLockAtMs: this.sourceReadiness.lastMusicLockAtMs,
+      timeSinceLastSignalMs: this.sourceReadiness.timeSinceLastSignalMs,
+      recentSignalFrameCount: this.sourceReadiness.recentSignalFrameCount,
+      recentMusicLockFrameCount: this.sourceReadiness.recentMusicLockFrameCount,
+      audioContextState: this.context?.state ?? null,
       rawRms: this.workletPacket.rms,
       rawPeak: this.workletPacket.peak,
       adaptiveCeiling: this.adaptiveCeiling,
@@ -1034,7 +1276,15 @@ export class AudioEngine implements ListeningSource {
       !this.sourceReadiness.musicLock
     ) {
       warnings.push(
-        'PC audio is shared, but a representative music signal has not been locked yet.'
+        this.startupBlocker === 'silent-shared-source'
+          ? 'PC Audio is connected, but no music is being received. Start playback in the shared source or share again with audio.'
+          : 'PC audio is shared, but a representative music signal has not been locked yet.'
+      );
+    }
+
+    if (calibrated && this.startupBlocker === 'no-worklet-frames') {
+      warnings.push(
+        'Browser shared the source, but VisuLive is not receiving audio frames.'
       );
     }
 
@@ -1190,6 +1440,8 @@ export class AudioEngine implements ListeningSource {
   private async handleExternalSourceEnded(kind: ListeningMode): Promise<void> {
     this.sourceEnded = true;
     await this.teardown();
+    this.startupStage = 'idle';
+    this.startupBlocker = 'source-ended';
     this.latestFrame = DEFAULT_LISTENING_FRAME;
     this.latestAnalysisFrame = DEFAULT_ANALYSIS_FRAME;
     this.diagnostics = {
@@ -1197,6 +1449,8 @@ export class AudioEngine implements ListeningSource {
       sourceMode: this.sourceMode,
       calibrationTrust: 'blocked',
       calibrationQuality: 'source-ended',
+      startupStage: this.startupStage,
+      startupBlocker: this.startupBlocker,
       sourceReadiness: {
         ...DEFAULT_SOURCE_READINESS,
         sourceEnded: true
@@ -1271,8 +1525,7 @@ export class AudioEngine implements ListeningSource {
     this.calibrationTrust = 'blocked';
     this.calibrationQuality = 'weak-signal';
     this.sourceReadiness = DEFAULT_SOURCE_READINESS;
-    this.firstSourceHeardAtMs = null;
-    this.firstMusicLockAtMs = null;
+    this.resetStartupDiagnostics();
     this.stableAtMs = null;
     this.sourceEnded = false;
     this.staticWarnings = [];

@@ -623,6 +623,7 @@ export function App() {
   const captureFolderStatusRef = useRef(INITIAL_CAPTURE_FOLDER_STATUS);
   const [proofWaveArmed, setProofWaveArmed] = useState<boolean>(false);
   const proofWaveArmedRef = useRef(false);
+  const proofSetupAutoStartingRef = useRef(false);
   const [runJournalStatus, setRunJournalStatus] =
     useState<RunJournalStatus>(INITIAL_RUN_JOURNAL_STATUS);
   const [replayError, setReplayError] = useState<string | null>(null);
@@ -1721,7 +1722,11 @@ export function App() {
           proofReady: diagnostics.sourceReadiness.proofReady,
           signalPresent: diagnostics.sourceReadiness.signalPresent,
           musicLock: diagnostics.sourceReadiness.musicLock,
-          sourcePresentScore: diagnostics.sourceReadiness.sourcePresentScore
+          sourcePresentScore: diagnostics.sourceReadiness.sourcePresentScore,
+          startupStage: diagnostics.startupStage,
+          startupBlocker: diagnostics.startupBlocker,
+          workletPacketCount: diagnostics.workletPacketCount,
+          nonzeroRmsFrameCount: diagnostics.nonzeroRmsFrameCount
         }
       )
     );
@@ -3295,10 +3300,28 @@ export function App() {
               ? `Proof Wave cannot start from this audio source: ${blockingReasons.join(' ')}`
               : 'Proof Wave cannot start because post-share audio readiness is not proof-grade.';
 
-          await audioRef.current?.stop();
           updateSessionInterventionSummary(INITIAL_SESSION_INTERVENTION_SUMMARY);
           setStartError(nextError);
           setReplayError(nextError);
+          setRunJournalStatus((current) => ({
+            ...current,
+            active: false,
+            proofWaveArmed: true,
+            runId: null,
+            proofMission: null,
+            proofRunState: 'waiting-for-source',
+            readiness: postStartReadiness,
+            proofValidity: {
+              verdict: 'exploratory',
+              currentProofEligible: false,
+              startedReady: false,
+              lastCheckedAt: new Date().toISOString(),
+              invalidations: [],
+              recoveryGuidance:
+                'Waiting for proof-grade music lock before starting serious proof.'
+            },
+            suppressedInterventionCount: 0
+          }));
           setAdvancedDrawerTab('backstage');
           return;
         }
@@ -3322,6 +3345,63 @@ export function App() {
       setReplayError(message);
     }
   };
+
+  useEffect(() => {
+    if (!proofWaveArmed || !proofWaveArmedRef.current) {
+      proofSetupAutoStartingRef.current = false;
+      return;
+    }
+
+    if (runJournalRef.current.journal || proofSetupAutoStartingRef.current) {
+      return;
+    }
+
+    if (status.phase !== 'live') {
+      return;
+    }
+
+    if (!currentProofReadiness.ready) {
+      setRunJournalStatus((current) => {
+        if (
+          current.proofRunState === 'waiting-for-source' &&
+          current.readiness?.ready === false
+        ) {
+          return current;
+        }
+
+        return {
+          ...current,
+          active: false,
+          proofWaveArmed: true,
+          proofRunState: 'waiting-for-source',
+          readiness: currentProofReadiness,
+          proofValidity: {
+            verdict: 'exploratory',
+            currentProofEligible: false,
+            startedReady: false,
+            lastCheckedAt: new Date().toISOString(),
+            invalidations: [],
+            recoveryGuidance:
+              'Waiting for proof-grade music lock before starting serious proof.'
+          }
+        };
+      });
+      return;
+    }
+
+    proofSetupAutoStartingRef.current = true;
+    setStartError(null);
+    setReplayError(null);
+    beginNoTouchSession();
+    startRunJournal(sourceMode, audioDiagnostics);
+    proofSetupAutoStartingRef.current = false;
+  }, [
+    audioDiagnostics,
+    currentProofReadiness,
+    proofWaveArmed,
+    sourceMode,
+    status.phase
+  ]);
 
   const buildDirectorCaptureContext = (
     captureDiagnostics: AudioDiagnostics,
@@ -4759,7 +4839,9 @@ export function App() {
           clipCount: 0,
           stillCount: 0,
           lastPersistedAt: null,
-          validityLabel: 'armed'
+          validityLabel: runJournalStatus.proofRunState === 'waiting-for-source'
+            ? 'waiting-for-source'
+            : 'armed'
         }
     : undefined;
   const momentLabDisabledReason = !isMomentLabAvailable

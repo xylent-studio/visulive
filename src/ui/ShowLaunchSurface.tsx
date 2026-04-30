@@ -119,9 +119,18 @@ export function ShowLaunchSurface({
               <strong>{audio.displayAudioGranted ? 'granted' : 'pending'}</strong>
             </div>
             <div>
+              <span>engine</span>
+              <strong>
+                {audio.workletPacketCount > 0 ? 'receiving frames' : 'waiting'}
+              </strong>
+            </div>
+            <div>
               <span>signal</span>
               <strong>
-                {audio.sourceReadiness.signalPresent ? 'heard' : 'waiting'}
+                {audio.sourceReadiness.currentSignalPresent ||
+                audio.sourceReadiness.signalPresent
+                  ? 'heard'
+                  : 'waiting'}
               </strong>
             </div>
             <div>
@@ -135,6 +144,13 @@ export function ShowLaunchSurface({
               <strong>{audio.calibrationTrust}</strong>
               <small>{audio.calibrationQuality}</small>
             </div>
+            <div>
+              <span>proof</span>
+              <strong>
+                {audio.sourceReadiness.proofReady ? 'ready' : 'waiting'}
+              </strong>
+              <small>{audio.startupBlocker}</small>
+            </div>
           </div>
         ) : null}
 
@@ -147,13 +163,20 @@ export function ShowLaunchSurface({
             }
           >
             {proofReadiness?.ready
-              ? `Proof Wave is ready for ${proofMissionLabel ?? proofScenarioKind ?? 'the selected mission'}. Start Show will create a current-proof candidate run.`
+              ? `Proof setup is ready for ${proofMissionLabel ?? proofScenarioKind ?? 'the selected mission'}. Start the track before Start Show for the cleanest calibration.`
               : `Proof Wave is armed but blocked: ${blockingProofReasons.join(' ')}`}
           </div>
         ) : null}
 
         {status.error ? (
           <div className="show-launch__error">{status.error}</div>
+        ) : null}
+        {(startRoute === 'pc-audio' || startRoute === 'combo') &&
+        !status.error ? (
+          <div className="show-launch__note">
+            For the cleanest PC Audio proof, start playback before Start Show. If
+            music starts later, VisuLive will wait and lock when it hears it.
+          </div>
         ) : null}
         {renderer.error ? (
           <div className="show-launch__error">{renderer.error}</div>

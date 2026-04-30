@@ -249,6 +249,20 @@ export function cloneReplayCaptureFrame(
       calibrationTrust: audio.calibrationTrust,
       calibrationQuality: audio.calibrationQuality,
       sourceReadiness: audio.sourceReadiness,
+      startupStage: audio.startupStage,
+      startupBlocker: audio.startupBlocker,
+      workletPacketCount: audio.workletPacketCount,
+      nonzeroRmsFrameCount: audio.nonzeroRmsFrameCount,
+      zeroRmsFrameCount: audio.zeroRmsFrameCount,
+      lastPacketAtMs: audio.lastPacketAtMs,
+      currentSignalPresent: audio.currentSignalPresent,
+      currentMusicLock: audio.currentMusicLock,
+      lastSignalAtMs: audio.lastSignalAtMs,
+      lastMusicLockAtMs: audio.lastMusicLockAtMs,
+      timeSinceLastSignalMs: audio.timeSinceLastSignalMs,
+      recentSignalFrameCount: audio.recentSignalFrameCount,
+      recentMusicLockFrameCount: audio.recentMusicLockFrameCount,
+      audioContextState: audio.audioContextState,
       roomMusicFloorActive: audio.roomMusicFloorActive,
       roomMusicDrive: audio.roomMusicDrive,
       aftermathEntryEvidence: audio.aftermathEntryEvidence,
@@ -1163,6 +1177,20 @@ function buildBootSummary(audio: AudioDiagnostics) {
     calibrationTrust: audio.calibrationTrust,
     calibrationQuality: audio.calibrationQuality,
     sourceReadiness: audio.sourceReadiness,
+    startupStage: audio.startupStage,
+    startupBlocker: audio.startupBlocker,
+    workletPacketCount: audio.workletPacketCount,
+    nonzeroRmsFrameCount: audio.nonzeroRmsFrameCount,
+    zeroRmsFrameCount: audio.zeroRmsFrameCount,
+    lastPacketAtMs: audio.lastPacketAtMs,
+    currentSignalPresent: audio.currentSignalPresent,
+    currentMusicLock: audio.currentMusicLock,
+    lastSignalAtMs: audio.lastSignalAtMs,
+    lastMusicLockAtMs: audio.lastMusicLockAtMs,
+    timeSinceLastSignalMs: audio.timeSinceLastSignalMs,
+    recentSignalFrameCount: audio.recentSignalFrameCount,
+    recentMusicLockFrameCount: audio.recentMusicLockFrameCount,
+    audioContextState: audio.audioContextState,
     noiseFloor: audio.noiseFloor,
     minimumCeiling: audio.minimumCeiling,
     calibrationPeak: audio.calibrationPeak,
@@ -1187,6 +1215,13 @@ function buildSourceSummary(
     sourceReadiness: audio.sourceReadiness,
     calibrationTrust: audio.calibrationTrust,
     calibrationQuality: audio.calibrationQuality,
+    startupStage: audio.startupStage,
+    startupBlocker: audio.startupBlocker,
+    workletPacketCount: audio.workletPacketCount,
+    nonzeroRmsFrameCount: audio.nonzeroRmsFrameCount,
+    zeroRmsFrameCount: audio.zeroRmsFrameCount,
+    currentSignalPresent: audio.currentSignalPresent,
+    currentMusicLock: audio.currentMusicLock,
     provenanceMismatch: Boolean(provenanceNote),
     provenanceNote
   };
@@ -4347,6 +4382,66 @@ function normalizeReplayFrameDiagnostics(
       diagnostics?.calibrationQuality
     ),
     sourceReadiness: normalizeSourceReadiness(diagnostics?.sourceReadiness),
+    startupStage: normalizeSourceStartupStage(diagnostics?.startupStage),
+    startupBlocker: normalizeSourceStartupBlocker(diagnostics?.startupBlocker),
+    workletPacketCount:
+      typeof diagnostics?.workletPacketCount === 'number'
+        ? diagnostics.workletPacketCount
+        : undefined,
+    nonzeroRmsFrameCount:
+      typeof diagnostics?.nonzeroRmsFrameCount === 'number'
+        ? diagnostics.nonzeroRmsFrameCount
+        : undefined,
+    zeroRmsFrameCount:
+      typeof diagnostics?.zeroRmsFrameCount === 'number'
+        ? diagnostics.zeroRmsFrameCount
+        : undefined,
+    lastPacketAtMs:
+      typeof diagnostics?.lastPacketAtMs === 'number'
+        ? diagnostics.lastPacketAtMs
+        : diagnostics?.lastPacketAtMs === null
+          ? null
+          : undefined,
+    currentSignalPresent:
+      typeof diagnostics?.currentSignalPresent === 'boolean'
+        ? diagnostics.currentSignalPresent
+        : undefined,
+    currentMusicLock:
+      typeof diagnostics?.currentMusicLock === 'boolean'
+        ? diagnostics.currentMusicLock
+        : undefined,
+    lastSignalAtMs:
+      typeof diagnostics?.lastSignalAtMs === 'number'
+        ? diagnostics.lastSignalAtMs
+        : diagnostics?.lastSignalAtMs === null
+          ? null
+          : undefined,
+    lastMusicLockAtMs:
+      typeof diagnostics?.lastMusicLockAtMs === 'number'
+        ? diagnostics.lastMusicLockAtMs
+        : diagnostics?.lastMusicLockAtMs === null
+          ? null
+          : undefined,
+    timeSinceLastSignalMs:
+      typeof diagnostics?.timeSinceLastSignalMs === 'number'
+        ? diagnostics.timeSinceLastSignalMs
+        : diagnostics?.timeSinceLastSignalMs === null
+          ? null
+          : undefined,
+    recentSignalFrameCount:
+      typeof diagnostics?.recentSignalFrameCount === 'number'
+        ? diagnostics.recentSignalFrameCount
+        : undefined,
+    recentMusicLockFrameCount:
+      typeof diagnostics?.recentMusicLockFrameCount === 'number'
+        ? diagnostics.recentMusicLockFrameCount
+        : undefined,
+    audioContextState:
+      typeof diagnostics?.audioContextState === 'string'
+        ? diagnostics.audioContextState
+        : diagnostics?.audioContextState === null
+          ? null
+          : undefined,
     roomMusicFloorActive:
       typeof diagnostics?.roomMusicFloorActive === 'boolean'
         ? diagnostics.roomMusicFloorActive
@@ -4401,6 +4496,31 @@ function normalizeCalibrationQuality(value: unknown) {
     : undefined;
 }
 
+function normalizeSourceStartupStage(value: unknown) {
+  return value === 'idle' ||
+    value === 'permission' ||
+    value === 'audio-track' ||
+    value === 'engine-frames' ||
+    value === 'signal' ||
+    value === 'music-lock' ||
+    value === 'proof-ready'
+    ? value
+    : undefined;
+}
+
+function normalizeSourceStartupBlocker(value: unknown) {
+  return value === 'none' ||
+    value === 'missing-display-audio' ||
+    value === 'no-worklet-frames' ||
+    value === 'silent-shared-source' ||
+    value === 'weak-signal' ||
+    value === 'clipped-startup' ||
+    value === 'source-ended' ||
+    value === 'audio-context-suspended'
+    ? value
+    : undefined;
+}
+
 function normalizeSourceReadiness(value: unknown) {
   if (!isObject(value)) {
     return undefined;
@@ -4410,6 +4530,8 @@ function normalizeSourceReadiness(value: unknown) {
     trackGranted: Boolean(value.trackGranted),
     signalPresent: Boolean(value.signalPresent),
     musicLock: Boolean(value.musicLock),
+    currentSignalPresent: Boolean(value.currentSignalPresent ?? value.signalPresent),
+    currentMusicLock: Boolean(value.currentMusicLock ?? value.musicLock),
     clipped: Boolean(value.clipped),
     sourceEnded: Boolean(value.sourceEnded),
     firstSourceHeardAtMs:
@@ -4420,6 +4542,34 @@ function normalizeSourceReadiness(value: unknown) {
       typeof value.firstMusicLockAtMs === 'number'
         ? value.firstMusicLockAtMs
         : null,
+    lastSignalAtMs:
+      typeof value.lastSignalAtMs === 'number'
+        ? value.lastSignalAtMs
+        : typeof value.firstSourceHeardAtMs === 'number'
+          ? value.firstSourceHeardAtMs
+          : null,
+    lastMusicLockAtMs:
+      typeof value.lastMusicLockAtMs === 'number'
+        ? value.lastMusicLockAtMs
+        : typeof value.firstMusicLockAtMs === 'number'
+          ? value.firstMusicLockAtMs
+          : null,
+    timeSinceLastSignalMs:
+      typeof value.timeSinceLastSignalMs === 'number'
+        ? value.timeSinceLastSignalMs
+        : null,
+    recentSignalFrameCount:
+      typeof value.recentSignalFrameCount === 'number'
+        ? value.recentSignalFrameCount
+        : Boolean(value.signalPresent)
+          ? 1
+          : 0,
+    recentMusicLockFrameCount:
+      typeof value.recentMusicLockFrameCount === 'number'
+        ? value.recentMusicLockFrameCount
+        : Boolean(value.musicLock)
+          ? 1
+          : 0,
     stableAtMs:
       typeof value.stableAtMs === 'number' ? value.stableAtMs : null,
     sourcePresentScore:
@@ -5654,6 +5804,60 @@ function normalizeReplayBootSummary(value: unknown): ReplayCaptureMetadata['boot
         : undefined,
     calibrationQuality: normalizeCalibrationQuality(value.calibrationQuality),
     sourceReadiness: normalizeSourceReadiness(value.sourceReadiness),
+    startupStage: normalizeSourceStartupStage(value.startupStage),
+    startupBlocker: normalizeSourceStartupBlocker(value.startupBlocker),
+    workletPacketCount:
+      typeof value.workletPacketCount === 'number' ? value.workletPacketCount : undefined,
+    nonzeroRmsFrameCount:
+      typeof value.nonzeroRmsFrameCount === 'number'
+        ? value.nonzeroRmsFrameCount
+        : undefined,
+    zeroRmsFrameCount:
+      typeof value.zeroRmsFrameCount === 'number' ? value.zeroRmsFrameCount : undefined,
+    lastPacketAtMs:
+      typeof value.lastPacketAtMs === 'number'
+        ? value.lastPacketAtMs
+        : value.lastPacketAtMs === null
+          ? null
+          : undefined,
+    currentSignalPresent:
+      typeof value.currentSignalPresent === 'boolean'
+        ? value.currentSignalPresent
+        : undefined,
+    currentMusicLock:
+      typeof value.currentMusicLock === 'boolean' ? value.currentMusicLock : undefined,
+    lastSignalAtMs:
+      typeof value.lastSignalAtMs === 'number'
+        ? value.lastSignalAtMs
+        : value.lastSignalAtMs === null
+          ? null
+          : undefined,
+    lastMusicLockAtMs:
+      typeof value.lastMusicLockAtMs === 'number'
+        ? value.lastMusicLockAtMs
+        : value.lastMusicLockAtMs === null
+          ? null
+          : undefined,
+    timeSinceLastSignalMs:
+      typeof value.timeSinceLastSignalMs === 'number'
+        ? value.timeSinceLastSignalMs
+        : value.timeSinceLastSignalMs === null
+          ? null
+          : undefined,
+    recentSignalFrameCount:
+      typeof value.recentSignalFrameCount === 'number'
+        ? value.recentSignalFrameCount
+        : undefined,
+    recentMusicLockFrameCount:
+      typeof value.recentMusicLockFrameCount === 'number'
+        ? value.recentMusicLockFrameCount
+        : undefined,
+    audioContextState:
+      typeof value.audioContextState === 'string'
+        ? value.audioContextState
+        : value.audioContextState === null
+          ? null
+          : undefined,
     noiseFloor: typeof value.noiseFloor === 'number' ? value.noiseFloor : 0,
     minimumCeiling:
       typeof value.minimumCeiling === 'number' ? value.minimumCeiling : 0,
@@ -5696,6 +5900,22 @@ function normalizeReplaySourceSummary(
         ? value.calibrationTrust
         : undefined,
     calibrationQuality: normalizeCalibrationQuality(value.calibrationQuality),
+    startupStage: normalizeSourceStartupStage(value.startupStage),
+    startupBlocker: normalizeSourceStartupBlocker(value.startupBlocker),
+    workletPacketCount:
+      typeof value.workletPacketCount === 'number' ? value.workletPacketCount : undefined,
+    nonzeroRmsFrameCount:
+      typeof value.nonzeroRmsFrameCount === 'number'
+        ? value.nonzeroRmsFrameCount
+        : undefined,
+    zeroRmsFrameCount:
+      typeof value.zeroRmsFrameCount === 'number' ? value.zeroRmsFrameCount : undefined,
+    currentSignalPresent:
+      typeof value.currentSignalPresent === 'boolean'
+        ? value.currentSignalPresent
+        : undefined,
+    currentMusicLock:
+      typeof value.currentMusicLock === 'boolean' ? value.currentMusicLock : undefined,
     provenanceMismatch: Boolean(value.provenanceMismatch),
     provenanceNote:
       typeof value.provenanceNote === 'string' ? value.provenanceNote : undefined

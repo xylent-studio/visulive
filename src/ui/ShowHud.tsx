@@ -52,6 +52,10 @@ export function ShowHud({
         : currentRouteId === 'demo'
           ? INPUT_ROUTE_DEFINITIONS.demo
           : INPUT_ROUTE_DEFINITIONS['this-computer'];
+  const proofWaitingForSource =
+    proofStatus?.active === true &&
+    proofStatus.runId === null &&
+    proofStatus.validityLabel === 'waiting-for-source';
 
   return (
     <div className="show-hud">
@@ -84,7 +88,11 @@ export function ShowHud({
           <>
             <div className="show-hud__pill">
               <span>proof</span>
-              <strong>{proofStatus.missionLabel ?? 'mission'}</strong>
+              <strong>
+                {proofWaitingForSource
+                  ? 'Waiting for music'
+                  : proofStatus.missionLabel ?? 'mission'}
+              </strong>
             </div>
             <div className="show-hud__pill">
               <span>elapsed</span>
@@ -97,12 +105,20 @@ export function ShowHud({
             </div>
             <div className="show-hud__pill">
               <span>no-touch</span>
-              <strong>{proofStatus.noTouchPassed ? 'clear' : 'running'}</strong>
+              <strong>
+                {proofWaitingForSource
+                  ? 'not started'
+                  : proofStatus.noTouchPassed
+                    ? 'clear'
+                    : 'running'}
+              </strong>
             </div>
             <div className="show-hud__pill">
               <span>evidence</span>
               <strong>
-                {proofStatus.clipCount} clips / {proofStatus.stillCount} stills
+                {proofWaitingForSource
+                  ? 'starts after lock'
+                  : `${proofStatus.clipCount} clips / ${proofStatus.stillCount} stills`}
               </strong>
             </div>
           </>
@@ -124,7 +140,7 @@ export function ShowHud({
             onClick={onFinishProofRun}
             type="button"
           >
-            Finish Proof Run
+            {proofWaitingForSource ? 'Cancel Proof Setup' : 'Finish Proof Run'}
           </button>
         ) : null}
         <button

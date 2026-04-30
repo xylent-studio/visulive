@@ -185,7 +185,7 @@ export const QUICK_START_PROFILES: Record<
   'pc-music': {
     id: 'pc-music',
     label: 'Music On This PC',
-    hint: 'Best starting point when this computer is already playing the music.',
+    hint: 'Best for proof when music is already playing and shared with audio enabled.',
     sourceMode: 'system-audio',
     preset: 'pulse',
     controls: {

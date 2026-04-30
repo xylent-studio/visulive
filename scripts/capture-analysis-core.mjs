@@ -2062,6 +2062,74 @@ function normalizeCaptureFramesChronology(frames, triggerTimestampMs) {
   };
 }
 
+function resolveStartupBlocker(metadata = {}, frames = []) {
+  const bootBlocker = metadata.bootSummary?.startupBlocker;
+  const sourceBlocker = metadata.sourceSummary?.startupBlocker;
+
+  if (typeof bootBlocker === 'string' && bootBlocker !== 'none') {
+    return bootBlocker;
+  }
+
+  if (typeof sourceBlocker === 'string' && sourceBlocker !== 'none') {
+    return sourceBlocker;
+  }
+
+  const frameBlocker = frames
+    .map((frame) => frame.diagnostics?.startupBlocker)
+    .find((blocker) => typeof blocker === 'string' && blocker !== 'none');
+
+  return frameBlocker ?? 'none';
+}
+
+function classifyStartupHealth({ metadata = {}, frames = [], peaks = {} }) {
+  const sourceMode = resolveSourceMode(metadata);
+  const readiness =
+    metadata.bootSummary?.sourceReadiness ?? metadata.sourceSummary?.sourceReadiness ?? null;
+  const displayAudioGranted = metadata.sourceSummary?.displayAudioGranted === true;
+  const startupBlocker = resolveStartupBlocker(metadata, frames);
+  const maxRawRms = peaks.rawRms ?? 0;
+  const maxRawPeak = peaks.rawPeak ?? 0;
+  const nonzeroFrameCount = frames.filter((frame) => {
+    const diagnostics = frame.diagnostics ?? {};
+    return (diagnostics.rawRms ?? 0) > 0 || (diagnostics.rawPeak ?? 0) > 0;
+  }).length;
+
+  if (startupBlocker === 'no-worklet-frames') {
+    return 'no-worklet-frames';
+  }
+
+  if (startupBlocker === 'source-ended') {
+    return 'source-dropout';
+  }
+
+  if (
+    readiness?.proofReady === true &&
+    sourceMode === 'system-audio' &&
+    maxRawRms <= 0 &&
+    maxRawPeak <= 0
+  ) {
+    return 'stale-lock';
+  }
+
+  if (
+    sourceMode === 'system-audio' &&
+    displayAudioGranted &&
+    nonzeroFrameCount === 0
+  ) {
+    return 'silent-share';
+  }
+
+  if (metadata.bootSummary?.calibrationQuality === 'weak-signal') {
+    return 'weak-intro';
+  }
+
+  if (readiness?.proofReady === true) {
+    return 'proof-grade';
+  }
+
+  return 'exploratory';
+}
+
 export function summarizeCapture(capture, filePath) {
   const metadata = capture.metadata ?? {};
   const chronology = normalizeCaptureFramesChronology(
@@ -2105,6 +2173,8 @@ export function summarizeCapture(capture, filePath) {
   const actCounts = new Map();
   const paletteStateCounts = new Map();
   const metrics = {
+    rawRms: buildMetricTracker(),
+    rawPeak: buildMetricTracker(),
     subPressure: buildMetricTracker(),
     bassBody: buildMetricTracker(),
     lowMidBody: buildMetricTracker(),
@@ -2804,6 +2874,8 @@ export function summarizeCapture(capture, filePath) {
     if (typeof diagnostics.beatIntervalMs === 'number' && diagnostics.beatIntervalMs > 0) {
       beatIntervals.push(diagnostics.beatIntervalMs);
     }
+    updateMetricTracker(metrics.rawRms, diagnostics.rawRms ?? 0);
+    updateMetricTracker(metrics.rawPeak, diagnostics.rawPeak ?? 0);
 
     for (const warning of diagnostics.warnings ?? []) {
       warnings.add(warning);
@@ -3346,6 +3418,11 @@ export function summarizeCapture(capture, filePath) {
     frames
   });
   const eventLatencyMs = eventTimingSummary.latencyMs;
+  const startupHealth = classifyStartupHealth({
+    metadata,
+    frames,
+    peaks: metricPeaks
+  });
   const qualityFlags = deriveQualityFlagsFromSummary({
     metadata: capture.metadata ?? {},
     visualSummary,
@@ -3448,6 +3525,30 @@ export function summarizeCapture(capture, filePath) {
   if (windowJudgement.multiEvent) {
     findings.push(
       `Auto capture was extended ${capture.metadata?.extensionCount ?? 0} times across ${capture.metadata?.triggerCount ?? 0} trigger hits. This moment likely spans more than one musical event.`
+    );
+  }
+
+  if (startupHealth === 'silent-share') {
+    findings.push(
+      'PC Audio was shared, but no nonzero audio frames were recorded. Start playback in the shared source before proof calibration.'
+    );
+  }
+
+  if (startupHealth === 'stale-lock') {
+    findings.push(
+      'Startup/source readiness is contradictory: the capture reports proof-ready music lock while raw audio stayed at zero.'
+    );
+  }
+
+  if (startupHealth === 'no-worklet-frames') {
+    findings.push(
+      'Browser sharing succeeded, but no AudioWorklet frames were recorded. Treat this as startup failure, not proof evidence.'
+    );
+  }
+
+  if (startupHealth === 'weak-intro') {
+    findings.push(
+      'Startup signal was weak. This can be exploratory, but serious proof should wait for a stable music lock.'
     );
   }
 
@@ -3712,6 +3813,7 @@ export function summarizeCapture(capture, filePath) {
       sourceHintSummary,
       longestRuns,
       qualityFlags,
+      startupHealth,
       eventTimingDisposition: eventTimingSummary.disposition,
       eventLatencyMs,
       beatInterval: {
@@ -4203,6 +4305,7 @@ function buildAggregateStats(summaries) {
   const playableMotifSceneSpread = new Map();
   const playableMotifSceneTransitionReasonSpread = new Map();
   const eventTimingDispositionSpread = new Map();
+  const startupHealthSpread = new Map();
   const qualityFlagCounts = new Map();
   const sourceHintTopSpread = new Map();
   const sourceHintReasonSpread = new Map();
@@ -4363,6 +4466,7 @@ function buildAggregateStats(summaries) {
       eventTimingDispositionSpread,
       summary.eventTimingDisposition ?? 'unknown'
     );
+    incrementCounter(startupHealthSpread, summary.startupHealth ?? 'not-recorded');
     for (const flag of summary.qualityFlags ?? []) {
       incrementCounter(qualityFlagCounts, flag);
     }
@@ -4623,6 +4727,9 @@ function buildAggregateStats(summaries) {
     .sort((left, right) => right[1] - left[1])
     .map(([value, count]) => `- ${value} (${count})`);
   const eventTimingDispositionLines = [...eventTimingDispositionSpread.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([value, count]) => `- ${value} (${count})`);
+  const startupHealthLines = [...startupHealthSpread.entries()]
     .sort((left, right) => right[1] - left[1])
     .map(([value, count]) => `- ${value} (${count})`);
   const qualityFlagLines = [...qualityFlagCounts.entries()]
@@ -4930,6 +5037,7 @@ function buildAggregateStats(summaries) {
     paletteStateLines,
     atmosphereMatterStateLines,
     eventTimingDispositionLines,
+    startupHealthLines,
     showFamilyLines: [...showFamilySpread.entries()]
       .sort((left, right) => right[1] - left[1])
       .map(([value, count]) => `- ${value} (${count})`),
@@ -5178,6 +5286,9 @@ export function buildCaptureSection(summary, workspaceRoot = process.cwd()) {
     `- Calibration p20 rms / p90 peak: ${formatNumber(metadata.bootSummary?.calibrationRmsPercentile20 ?? 0)} / ${formatNumber(metadata.bootSummary?.calibrationPeakPercentile90 ?? 0)}`,
     `- Calibration trust / quality: ${metadata.bootSummary?.calibrationTrust ?? 'not recorded'} / ${metadata.bootSummary?.calibrationQuality ?? 'not recorded'}`,
     `- Source readiness: track=${metadata.bootSummary?.sourceReadiness?.trackGranted === true ? 'yes' : metadata.bootSummary?.sourceReadiness ? 'no' : 'not recorded'} signal=${metadata.bootSummary?.sourceReadiness?.signalPresent === true ? 'yes' : metadata.bootSummary?.sourceReadiness ? 'no' : 'not recorded'} music-lock=${metadata.bootSummary?.sourceReadiness?.musicLock === true ? 'yes' : metadata.bootSummary?.sourceReadiness ? 'no' : 'not recorded'} proof-ready=${metadata.bootSummary?.sourceReadiness?.proofReady === true ? 'yes' : metadata.bootSummary?.sourceReadiness ? 'no' : 'not recorded'}`,
+    `- Startup stage / blocker / health: ${metadata.bootSummary?.startupStage ?? 'not recorded'} / ${metadata.bootSummary?.startupBlocker ?? 'not recorded'} / ${summary.startupHealth ?? 'not recorded'}`,
+    `- Worklet packets / nonzero / zero: ${metadata.bootSummary?.workletPacketCount ?? 'not recorded'} / ${metadata.bootSummary?.nonzeroRmsFrameCount ?? 'not recorded'} / ${metadata.bootSummary?.zeroRmsFrameCount ?? 'not recorded'}`,
+    `- Current signal / music lock: ${metadata.bootSummary?.currentSignalPresent === true ? 'yes' : metadata.bootSummary ? 'no' : 'not recorded'} / ${metadata.bootSummary?.currentMusicLock === true ? 'yes' : metadata.bootSummary ? 'no' : 'not recorded'}`,
     `- Noise floor / adaptive ceiling / minimum ceiling: ${formatNumber(metadata.bootSummary?.noiseFloor ?? 0)} / ${formatNumber(metadata.bootSummary?.adaptiveCeiling ?? 0)} / ${formatNumber(metadata.bootSummary?.minimumCeiling ?? 0)}`,
     `- Calibration peak: ${formatNumber(metadata.bootSummary?.calibrationPeak ?? 0)}`,
     '',
@@ -5550,6 +5661,11 @@ export function buildAggregateSection(summaries, options = {}) {
     `- Average quality transitions per capture: ${formatNumber(aggregateStats.averageQualityTransitionCount)}`,
     `- Source provenance mismatches: ${aggregateStats.provenanceMismatchCount}`,
     `- Saved proof still files: ${aggregateStats.proofStillSavedCount}`,
+    '',
+    '### Startup health',
+    ...(aggregateStats.startupHealthLines.length > 0
+      ? aggregateStats.startupHealthLines
+      : ['- Startup health was not recorded in this batch.']),
     '',
     '### Source-hint evidence',
     ...(aggregateStats.sourceHintRecordedCount > 0

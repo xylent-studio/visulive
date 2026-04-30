@@ -238,14 +238,40 @@ export type SourceReadiness = {
   trackGranted: boolean;
   signalPresent: boolean;
   musicLock: boolean;
+  currentSignalPresent: boolean;
+  currentMusicLock: boolean;
   clipped: boolean;
   sourceEnded: boolean;
   firstSourceHeardAtMs: number | null;
   firstMusicLockAtMs: number | null;
+  lastSignalAtMs: number | null;
+  lastMusicLockAtMs: number | null;
+  timeSinceLastSignalMs: number | null;
+  recentSignalFrameCount: number;
+  recentMusicLockFrameCount: number;
   stableAtMs: number | null;
   sourcePresentScore: number;
   proofReady: boolean;
 };
+
+export type SourceStartupStage =
+  | 'idle'
+  | 'permission'
+  | 'audio-track'
+  | 'engine-frames'
+  | 'signal'
+  | 'music-lock'
+  | 'proof-ready';
+
+export type SourceStartupBlocker =
+  | 'none'
+  | 'missing-display-audio'
+  | 'no-worklet-frames'
+  | 'silent-shared-source'
+  | 'weak-signal'
+  | 'clipped-startup'
+  | 'source-ended'
+  | 'audio-context-suspended';
 
 export type SourceDiagnostics = {
   source: SourceDescriptor;
@@ -270,6 +296,20 @@ export type SourceDiagnostics = {
   calibrationTrust: CalibrationTrust;
   calibrationQuality: CalibrationQuality;
   sourceReadiness: SourceReadiness;
+  startupStage: SourceStartupStage;
+  startupBlocker: SourceStartupBlocker;
+  workletPacketCount: number;
+  nonzeroRmsFrameCount: number;
+  zeroRmsFrameCount: number;
+  lastPacketAtMs: number | null;
+  currentSignalPresent: boolean;
+  currentMusicLock: boolean;
+  lastSignalAtMs: number | null;
+  lastMusicLockAtMs: number | null;
+  timeSinceLastSignalMs: number | null;
+  recentSignalFrameCount: number;
+  recentMusicLockFrameCount: number;
+  audioContextState: AudioContextState | 'closed' | null;
   rawRms: number;
   rawPeak: number;
   adaptiveCeiling: number;
@@ -434,14 +474,35 @@ export const DEFAULT_AUDIO_DIAGNOSTICS: AudioDiagnostics = {
     trackGranted: false,
     signalPresent: false,
     musicLock: false,
+    currentSignalPresent: false,
+    currentMusicLock: false,
     clipped: false,
     sourceEnded: false,
     firstSourceHeardAtMs: null,
     firstMusicLockAtMs: null,
+    lastSignalAtMs: null,
+    lastMusicLockAtMs: null,
+    timeSinceLastSignalMs: null,
+    recentSignalFrameCount: 0,
+    recentMusicLockFrameCount: 0,
     stableAtMs: null,
     sourcePresentScore: 0,
     proofReady: false
   },
+  startupStage: 'idle',
+  startupBlocker: 'none',
+  workletPacketCount: 0,
+  nonzeroRmsFrameCount: 0,
+  zeroRmsFrameCount: 0,
+  lastPacketAtMs: null,
+  currentSignalPresent: false,
+  currentMusicLock: false,
+  lastSignalAtMs: null,
+  lastMusicLockAtMs: null,
+  timeSinceLastSignalMs: null,
+  recentSignalFrameCount: 0,
+  recentMusicLockFrameCount: 0,
+  audioContextState: null,
   rawRms: 0,
   rawPeak: 0,
   adaptiveCeiling: 0.06,

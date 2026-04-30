@@ -5,6 +5,8 @@ import type {
   ListeningFrame,
   SourceReadiness,
   SourceHintFrame,
+  SourceStartupBlocker,
+  SourceStartupStage,
   SpectrumFrame
 } from '../types/audio';
 import type { UserControlState } from '../types/tuning';
@@ -194,6 +196,7 @@ export type ReplayProofRunState =
   | 'setup'
   | 'armed'
   | 'launching'
+  | 'waiting-for-source'
   | 'live'
   | 'finishing'
   | 'finalized'
@@ -347,6 +350,20 @@ export type ReplayFrameDiagnostics = {
   calibrationTrust?: CalibrationTrust;
   calibrationQuality?: CalibrationQuality;
   sourceReadiness?: SourceReadiness;
+  startupStage?: SourceStartupStage;
+  startupBlocker?: SourceStartupBlocker;
+  workletPacketCount?: number;
+  nonzeroRmsFrameCount?: number;
+  zeroRmsFrameCount?: number;
+  lastPacketAtMs?: number | null;
+  currentSignalPresent?: boolean;
+  currentMusicLock?: boolean;
+  lastSignalAtMs?: number | null;
+  lastMusicLockAtMs?: number | null;
+  timeSinceLastSignalMs?: number | null;
+  recentSignalFrameCount?: number;
+  recentMusicLockFrameCount?: number;
+  audioContextState?: string | null;
   roomMusicFloorActive: boolean;
   roomMusicDrive: number;
   aftermathEntryEvidence: number;
@@ -471,6 +488,20 @@ export type ReplayBootSummary = {
   calibrationTrust?: CalibrationTrust;
   calibrationQuality?: CalibrationQuality;
   sourceReadiness?: SourceReadiness;
+  startupStage?: SourceStartupStage;
+  startupBlocker?: SourceStartupBlocker;
+  workletPacketCount?: number;
+  nonzeroRmsFrameCount?: number;
+  zeroRmsFrameCount?: number;
+  lastPacketAtMs?: number | null;
+  currentSignalPresent?: boolean;
+  currentMusicLock?: boolean;
+  lastSignalAtMs?: number | null;
+  lastMusicLockAtMs?: number | null;
+  timeSinceLastSignalMs?: number | null;
+  recentSignalFrameCount?: number;
+  recentMusicLockFrameCount?: number;
+  audioContextState?: string | null;
   noiseFloor: number;
   minimumCeiling: number;
   calibrationPeak: number;
@@ -487,6 +518,13 @@ export type ReplaySourceSummary = {
   sourceReadiness?: SourceReadiness;
   calibrationTrust?: CalibrationTrust;
   calibrationQuality?: CalibrationQuality;
+  startupStage?: SourceStartupStage;
+  startupBlocker?: SourceStartupBlocker;
+  workletPacketCount?: number;
+  nonzeroRmsFrameCount?: number;
+  zeroRmsFrameCount?: number;
+  currentSignalPresent?: boolean;
+  currentMusicLock?: boolean;
   provenanceMismatch: boolean;
   provenanceNote?: string;
 };

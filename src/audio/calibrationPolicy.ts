@@ -29,10 +29,17 @@ export const DEFAULT_SOURCE_READINESS: SourceReadiness = {
   trackGranted: false,
   signalPresent: false,
   musicLock: false,
+  currentSignalPresent: false,
+  currentMusicLock: false,
   clipped: false,
   sourceEnded: false,
   firstSourceHeardAtMs: null,
   firstMusicLockAtMs: null,
+  lastSignalAtMs: null,
+  lastMusicLockAtMs: null,
+  timeSinceLastSignalMs: null,
+  recentSignalFrameCount: 0,
+  recentMusicLockFrameCount: 0,
   stableAtMs: null,
   sourcePresentScore: 0,
   proofReady: false
@@ -167,28 +174,55 @@ export function buildSourceReadiness(input: {
   sourceEnded: boolean;
   firstSourceHeardAtMs: number | null;
   firstMusicLockAtMs: number | null;
+  lastSignalAtMs?: number | null;
+  lastMusicLockAtMs?: number | null;
+  timeSinceLastSignalMs?: number | null;
+  recentSignalFrameCount?: number;
+  recentMusicLockFrameCount?: number;
   stableAtMs: number | null;
 }): SourceReadiness {
   const trackGranted =
     input.mode === 'room-mic' ? true : input.displayAudioGranted === true;
-  const signalPresent = hasSourceSignal(input.frame);
-  const musicLock = hasMusicLock(input.frame);
+  const currentSignalPresent = hasSourceSignal(input.frame);
+  const currentMusicLock = hasMusicLock(input.frame);
+  const recentSignalFrameCount = Math.max(
+    0,
+    input.recentSignalFrameCount ?? (currentSignalPresent ? 1 : 0)
+  );
+  const recentMusicLockFrameCount = Math.max(
+    0,
+    input.recentMusicLockFrameCount ?? (currentMusicLock ? 1 : 0)
+  );
+  const lastSignalAtMs =
+    input.lastSignalAtMs ?? (currentSignalPresent ? input.firstSourceHeardAtMs : null);
+  const lastMusicLockAtMs =
+    input.lastMusicLockAtMs ??
+    (currentMusicLock ? input.firstMusicLockAtMs : null);
+  const recentSignalPresent = currentSignalPresent || recentSignalFrameCount > 0;
+  const recentMusicLock = currentMusicLock || recentMusicLockFrameCount > 0;
   const clipped = input.frame.clipped || input.calibrationQuality === 'clipped-startup';
   const proofReady =
     input.calibrationTrust === 'stable' &&
     trackGranted &&
     !clipped &&
     input.sourceEnded !== true &&
-    (input.mode === 'room-mic' || musicLock || input.firstMusicLockAtMs !== null);
+    (input.mode === 'room-mic' || recentMusicLock);
 
   return {
     trackGranted,
-    signalPresent: signalPresent || input.firstSourceHeardAtMs !== null,
-    musicLock: musicLock || input.firstMusicLockAtMs !== null,
+    signalPresent: recentSignalPresent,
+    musicLock: recentMusicLock,
+    currentSignalPresent,
+    currentMusicLock,
     clipped,
     sourceEnded: input.sourceEnded,
     firstSourceHeardAtMs: input.firstSourceHeardAtMs,
     firstMusicLockAtMs: input.firstMusicLockAtMs,
+    lastSignalAtMs,
+    lastMusicLockAtMs,
+    timeSinceLastSignalMs: input.timeSinceLastSignalMs ?? null,
+    recentSignalFrameCount,
+    recentMusicLockFrameCount,
     stableAtMs: input.stableAtMs,
     sourcePresentScore: scoreSourcePresence(input.frame),
     proofReady

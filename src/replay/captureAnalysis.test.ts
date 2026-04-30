@@ -1500,6 +1500,110 @@ describe('capture analysis', () => {
     expect(aggregate).toContain('Missing benchmark capture path');
   });
 
+  it('classifies silent shared PC audio startup as non-proof evidence', () => {
+    const sourceReadiness = {
+      ...DEFAULT_AUDIO_DIAGNOSTICS.sourceReadiness,
+      trackGranted: true,
+      signalPresent: false,
+      musicLock: false,
+      proofReady: false,
+      sourcePresentScore: 0,
+      currentSignalPresent: false,
+      currentMusicLock: false,
+      recentSignalFrameCount: 0,
+      recentMusicLockFrameCount: 0
+    };
+    const frame = createCaptureFrame({
+      timestampMs: 1000,
+      showState: 'void',
+      performanceIntent: 'hold',
+      momentKind: 'none',
+      subPressure: 0,
+      body: 0,
+      accent: 0,
+      phraseTension: 0,
+      resonance: 0,
+      musicConfidence: 0,
+      peakConfidence: 0,
+      beatConfidence: 0,
+      dropImpact: 0,
+      sectionChange: 0,
+      releaseTail: 0
+    });
+    frame.diagnostics = {
+      ...frame.diagnostics,
+      rawRms: 0,
+      rawPeak: 0,
+      startupStage: 'engine-frames',
+      startupBlocker: 'silent-shared-source',
+      workletPacketCount: 24,
+      nonzeroRmsFrameCount: 0,
+      zeroRmsFrameCount: 24,
+      currentSignalPresent: false,
+      currentMusicLock: false,
+      sourceReadiness
+    };
+    const capture = buildReplayCapture(
+      [frame],
+      {
+        ...DEFAULT_AUDIO_DIAGNOSTICS,
+        sourceMode: 'system-audio',
+        calibrationTrust: 'provisional',
+        calibrationQuality: 'silent-system-audio',
+        displayAudioGranted: true,
+        displayTrackLabel: 'Chrome Tab',
+        deviceLabel: 'PC Audio',
+        rawRms: 0,
+        rawPeak: 0,
+        startupStage: 'engine-frames',
+        startupBlocker: 'silent-shared-source',
+        workletPacketCount: 24,
+        nonzeroRmsFrameCount: 0,
+        zeroRmsFrameCount: 24,
+        currentSignalPresent: false,
+        currentMusicLock: false,
+        sourceReadiness
+      },
+      {
+        backend: 'webgpu',
+        ready: true,
+        qualityTier: 'safe',
+        devicePixelRatio: 1,
+        cappedPixelRatio: 1,
+        fps: 60,
+        frameTimeMs: 16.7,
+        warnings: [],
+        visualTelemetry: DEFAULT_VISUAL_TELEMETRY
+      },
+      DEFAULT_USER_CONTROL_STATE,
+      {
+        label: 'silent-pc-audio',
+        captureMode: 'auto',
+        sourceMode: 'system-audio',
+        triggerKind: 'floor',
+        triggerReason: 'silent shared source',
+        triggerTimestampMs: 1000
+      }
+    );
+
+    const summary = summarizeCapture(
+      capture,
+      'C:/dev/GitHub/visulive/captures/silent-pc-audio.json'
+    );
+    const section = buildCaptureSection(summary, 'C:/dev/GitHub/visulive');
+    const aggregate = buildAggregateSection([summary]);
+
+    expect(summary.startupHealth).toBe('silent-share');
+    expect(summary.findings).toContain(
+      'PC Audio was shared, but no nonzero audio frames were recorded. Start playback in the shared source before proof calibration.'
+    );
+    expect(section).toContain(
+      '- Startup stage / blocker / health: engine-frames / silent-shared-source / silent-share'
+    );
+    expect(aggregate).toContain('### Startup health');
+    expect(aggregate).toContain('- silent-share (1)');
+  });
+
   it('reports spectrum source hints in per-capture and aggregate evidence', () => {
     const frame = createCaptureFrame({
       timestampMs: 1000,

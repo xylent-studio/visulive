@@ -370,6 +370,26 @@ export function DiagnosticsOverlay({
           <strong>{audio.sourceReadiness.musicLock ? 'yes' : 'no'}</strong>
         </div>
         <div>
+          <span>startup stage</span>
+          <strong>{audio.startupStage}</strong>
+        </div>
+        <div>
+          <span>startup blocker</span>
+          <strong>{audio.startupBlocker}</strong>
+        </div>
+        <div>
+          <span>worklet packets</span>
+          <strong>{audio.workletPacketCount}</strong>
+        </div>
+        <div>
+          <span>nonzero frames</span>
+          <strong>{audio.nonzeroRmsFrameCount}</strong>
+        </div>
+        <div>
+          <span>recent signal</span>
+          <strong>{audio.recentSignalFrameCount}</strong>
+        </div>
+        <div>
           <span>raw path</span>
           <strong>{audio.rawPathGranted ? 'clean' : 'compromised'}</strong>
         </div>
@@ -1099,6 +1119,11 @@ export function DiagnosticsOverlay({
           {formatNumber(audio.adaptiveCeiling)} trust={audio.calibrationTrust} quality=
           {audio.calibrationQuality} proof-ready=
           {audio.sourceReadiness.proofReady ? 'yes' : 'no'}
+        </div>
+        <div className="diagnostics-code">
+          startup: stage={audio.startupStage} blocker={audio.startupBlocker} packets=
+          {audio.workletPacketCount} nonzero={audio.nonzeroRmsFrameCount} recent-signal=
+          {audio.recentSignalFrameCount} recent-lock={audio.recentMusicLockFrameCount}
         </div>
         <div className="diagnostics-code">
           capture folder: {captureFolder.folderName ?? 'not selected'} | last saved: {captureFolder.lastSavedLabel ?? 'none'}

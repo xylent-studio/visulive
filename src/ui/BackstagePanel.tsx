@@ -718,6 +718,26 @@ export function BackstagePanel({
                 <strong>{audio.calibrationQuality}</strong> | music lock:{' '}
                 <strong>{audio.sourceReadiness.musicLock ? 'yes' : 'no'}</strong>
               </div>
+              <div className="backstage-note">
+                source ladder: share{' '}
+                <strong>{audio.displayAudioGranted ? 'granted' : 'pending'}</strong> |
+                engine{' '}
+                <strong>{audio.workletPacketCount > 0 ? 'frames' : 'waiting'}</strong> |
+                signal{' '}
+                <strong>
+                  {audio.sourceReadiness.currentSignalPresent ||
+                  audio.sourceReadiness.signalPresent
+                    ? 'heard'
+                    : 'waiting'}
+                </strong>{' '}
+                | proof{' '}
+                <strong>{audio.sourceReadiness.proofReady ? 'ready' : 'waiting'}</strong>
+              </div>
+              {audio.startupBlocker !== 'none' ? (
+                <div className="backstage-note backstage-note--error">
+                  startup blocker: <strong>{audio.startupBlocker}</strong>
+                </div>
+              ) : null}
               {audio.warnings.length > 0 ? (
                 <ul className="backstage-warnings">
                   {audio.warnings.slice(0, 3).map((warning) => (
@@ -762,6 +782,16 @@ export function BackstagePanel({
                       type="button"
                     >
                       Override To Exploratory
+                    </button>
+                  ) : null}
+                  {!runJournalStatus.active &&
+                  runJournalStatus.proofRunState === 'waiting-for-source' ? (
+                    <button
+                      className="backstage-action backstage-action--ghost"
+                      onClick={onFinishProofRun}
+                      type="button"
+                    >
+                      Cancel Proof Setup
                     </button>
                   ) : null}
                   <button
@@ -843,7 +873,9 @@ export function BackstagePanel({
                     ? `Run ${runJournalStatus.runId} | samples ${runJournalStatus.sampleCount} | markers ${runJournalStatus.markerCount} | clips ${runJournalStatus.clipCount} | stills ${runJournalStatus.checkpointStillCount}`
                     : runJournalStatus.runId
                       ? `Last run ${runJournalStatus.runId} | clips ${runJournalStatus.clipCount} | stills ${runJournalStatus.checkpointStillCount}`
-                      : 'Run journal will start after Start Show succeeds.'}
+                      : runJournalStatus.proofRunState === 'waiting-for-source'
+                        ? 'Proof setup is waiting for music lock. The run journal and no-touch clock have not started.'
+                        : 'Run journal will start after Start Show succeeds.'}
                 </div>
                 {runJournalStatus.runId ? (
                   <div className="backstage-note">

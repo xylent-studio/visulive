@@ -596,7 +596,7 @@ export const SHOW_START_ROUTE_DEFINITIONS: Record<
     label: 'PC Audio',
     shortLabel: 'PC',
     description:
-      'Best when the music is already playing on this computer and the cleanest direct feed should lead.',
+      'Best for proof. Start music first, then share a tab/window/screen with audio enabled.',
     recommended: true
   },
   microphone: {
