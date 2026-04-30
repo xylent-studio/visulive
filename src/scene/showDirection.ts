@@ -1525,9 +1525,17 @@ function deriveRingPosture(input: {
   }
 
   if (
+    input.motif === 'neon-portal' &&
+    input.cuePlan.worldMode === 'fan-sweep'
+  ) {
+    return input.cuePlan.family === 'reveal'
+      ? 'event-strike'
+      : 'background-scaffold';
+  }
+
+  if (
     input.cuePlan.ringAuthority === 'framing-architecture' &&
-    (input.motif === 'neon-portal' ||
-      input.cuePlan.worldMode === 'cathedral-rise' ||
+    (input.cuePlan.worldMode === 'cathedral-rise' ||
       input.signatureMomentKind === 'cathedral-open')
   ) {
     return 'cathedral-architecture';
@@ -2736,10 +2744,23 @@ export function deriveStageCuePlan(input: {
     frame.dropImpact >= 0.38 &&
     frame.sectionChange >= 0.28 &&
     frame.releaseTail < 0.22;
+  const systemAudioStrikeImpact =
+    frame.mode === 'system-audio' &&
+    frame.musicConfidence >= 0.42 &&
+    frame.peakConfidence >= 0.42 &&
+    frame.preDropTension >= 0.3 &&
+    frame.transientConfidence >= 0.46 &&
+    frame.dropImpact >= 0.34 &&
+    Math.max(frame.sectionChange, cueState.attack) >= 0.18 &&
+    frame.releaseTail < 0.28 &&
+    (frame.performanceIntent === 'ignite' ||
+      frame.performanceIntent === 'detonate' ||
+      frame.momentKind === 'strike');
   const ruptureLike =
     cueState.cueClass === 'rupture' ||
     systemAudioProgressiveImpact ||
     systemAudioDetonateImpact ||
+    systemAudioStrikeImpact ||
     (showAct === 'eclipse-rupture' &&
       ruptureAuthority >= 0.5 &&
       frame.dropImpact >= 0.38 &&

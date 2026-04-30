@@ -169,6 +169,38 @@ describe('showDirection', () => {
     expect(held.semanticEpisodeTransitionReason).toBe('hold');
   });
 
+  it('keeps fan-sweep neon portals out of static cathedral ring posture', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.74,
+      beatConfidence: 0.5,
+      transientConfidence: 0.36,
+      dropImpact: 0.12,
+      sectionChange: 0.18,
+      releaseTail: 0.06,
+      air: 0.36,
+      body: 0.38,
+      shimmer: 0.62,
+      harmonicColor: 0.62
+    };
+    const snapshot = deriveVisualMotifSnapshot({
+      frame,
+      cuePlan: {
+        ...DEFAULT_STAGE_CUE_PLAN,
+        family: 'reveal',
+        worldMode: 'fan-sweep',
+        ringAuthority: 'framing-architecture'
+      },
+      paletteBaseState: 'acid-lime',
+      paletteTransitionReason: 'hold'
+    });
+
+    expect(snapshot.kind).toBe('neon-portal');
+    expect(snapshot.ringPosture).toBe('event-strike');
+  });
+
   it('lets motif grammar choose readable hero forms instead of palette jitter', () => {
     const frame = {
       ...DEFAULT_LISTENING_FRAME,
@@ -1154,6 +1186,46 @@ describe('showDirection', () => {
     expect(plan.worldMode).toBe('collapse-well');
     expect(plan.compositorMode).toBe('flash');
     expect(plan.eventDensity).toBeGreaterThan(0.58);
+  });
+
+  it('spends transient PC-audio strike evidence instead of holding reveal wallpaper', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      showState: 'generative' as const,
+      performanceIntent: 'ignite' as const,
+      mode: 'system-audio' as const,
+      musicConfidence: 0.46,
+      peakConfidence: 0.46,
+      beatConfidence: 0.4,
+      preDropTension: 0.34,
+      transientConfidence: 0.53,
+      dropImpact: 0.35,
+      sectionChange: 0.22,
+      releaseTail: 0.04,
+      phraseTension: 0.4,
+      momentum: 0.36,
+      harmonicColor: 0.56,
+      shimmer: 0.44
+    };
+    const cueState = deriveVisualCue(frame, 'laser-bloom', {
+      preBeatLift: 0.28,
+      beatStrike: 0.5,
+      postBeatRelease: 0.06,
+      interBeatFloat: 0.22,
+      barTurn: 0.2,
+      phraseResolve: 0.1
+    });
+    const plan = deriveStageCuePlan({
+      frame,
+      cueState,
+      showAct: 'laser-bloom',
+      cueFamilySeconds: 0.6
+    });
+
+    expect(plan.family).toBe('rupture');
+    expect(plan.worldMode).toBe('collapse-well');
+    expect(plan.ringAuthority).toBe('event-platform');
+    expect(plan.visualMotif).toBe('rupture-scar');
   });
 
   it('spends strong PC-audio detonation evidence as rupture even outside the rupture act', () => {

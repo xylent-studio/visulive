@@ -3165,6 +3165,49 @@ export class HeroSystem {
       this.qualityProfile.auraOpacityMultiplier;
     this.membraneMaterial.opacity *= (0.78 + heroAdditiveClamp * 0.22) * heroOverfillClamp;
 
+    const ringPosture = this.visualMotifSnapshot.ringPosture;
+    const crownEventRing = ringPosture === 'event-strike' ? 1 : 0;
+    const crownResidueRing = ringPosture === 'residue-trace' ? 1 : 0;
+    const crownSuppressedRing = ringPosture === 'suppressed' ? 1 : 0;
+    const crownRoamDrive = THREE.MathUtils.clamp(
+      stageTourDrive * 0.46 +
+        heroRoamBoost * 0.16 +
+        heroMotionBias * 0.14 +
+        this.transientConfidence * 0.18 +
+        this.accent * 0.12 +
+        crownEventRing * 0.28 +
+        crownResidueRing * 0.16 +
+        ringBeltOverfill * 0.18 -
+        shotIsolate * 0.36 -
+        crownSuppressedRing * 0.72,
+      0,
+      1
+    );
+    const crownFrameX = THREE.MathUtils.clamp(
+      stageTourX * (0.72 + crownRoamDrive * 0.38) +
+        Math.sin(crownClock * 0.16 + this.phrasePhase * Math.PI * 2) *
+          crownRoamDrive *
+          (0.16 + crownEventRing * 0.12 + ringBeltOverfill * 0.08) +
+        ruptureTourSign * ruptureFamily * (0.12 + this.dropImpact * 0.14),
+      -0.68,
+      0.68
+    );
+    const crownFrameY = THREE.MathUtils.clamp(
+      stageTourY * (0.62 + crownRoamDrive * 0.32) +
+        Math.cos(crownClock * 0.12 + this.barPhase * Math.PI * 2) *
+          crownRoamDrive *
+          (0.1 + crownResidueRing * 0.08) -
+        ruptureTourSign * ruptureFamily * (0.08 + this.dropImpact * 0.1),
+      -0.42,
+      0.42
+    );
+
+    this.crownMesh.rotation.x =
+      Math.PI / 2 +
+      Math.sin(crownClock * 0.22) * shellOrbit * 0.18 +
+      crownFrameY * 0.28 +
+      crownEventRing * ruptureTourSign * 0.16 -
+      crownResidueRing * 0.08;
     this.crownMesh.rotation.z =
       elapsedSeconds * (0.22 + portal * 0.14 + cathedral * 0.08 + this.preDropTension * 0.08) +
       gazeX * 0.04 +
@@ -3173,13 +3216,27 @@ export class HeroSystem {
       shellDrift.x * 0.2;
     this.crownMesh.rotation.y = Math.cos(crownClock * 0.3) * shellTension * 0.18 + shellDrift.z * 0.12;
     this.crownMesh.position.set(
-      Math.sin(crownClock * 0.28) * shellOrbit * 0.18 + shellDrift.x * 0.58,
-      Math.cos(crownClock * 0.34) * shellBloom * 0.12 + shellDrift.y * 0.44,
+      Math.sin(crownClock * 0.28) * shellOrbit * 0.18 +
+        shellDrift.x * 0.58 +
+        crownFrameX,
+      Math.cos(crownClock * 0.34) * shellBloom * 0.12 +
+        shellDrift.y * 0.44 +
+        crownFrameY,
       shellBloom * 0.06 - shellTension * 0.1 + shellDrift.z * 0.48
     );
     this.crownMesh.scale.set(
-      1 + this.body * 0.06 + portalOpen * 0.34 + dropPulse * 0.24 + shellBloom * 0.18 + crownPulse * 0.08,
-      0.86 + eclipse * 0.22 + collapse * 0.28 + shellTension * 0.22,
+      1 +
+        this.body * 0.06 +
+        portalOpen * 0.34 +
+        dropPulse * 0.24 +
+        shellBloom * 0.18 +
+        crownPulse * 0.08 +
+        crownRoamDrive * 0.12,
+      0.86 +
+        eclipse * 0.22 +
+        collapse * 0.28 +
+        shellTension * 0.22 +
+        crownEventRing * 0.08,
       1
     );
     applyWeightedColor(
@@ -3267,6 +3324,15 @@ export class HeroSystem {
             glowOverdrive * 0.028)) *
       this.qualityProfile.auraOpacityMultiplier;
     this.crownMaterial.opacity *= (0.82 + heroAdditiveClamp * 0.18) * heroOverfillClamp;
+    this.crownMaterial.opacity *= THREE.MathUtils.clamp(
+      1 -
+        ringBeltOverfill * 0.18 -
+        crownSuppressedRing * 0.72 +
+        crownEventRing * 0.16 +
+        crownRoamDrive * 0.08,
+      0.22,
+      1.08
+    );
 
     this.heroAuraMesh.rotation.copy(this.heroGroup.rotation);
     this.heroAuraMesh.rotation.x += Math.sin(membraneClock * 0.28) * shellOrbit * 0.16;

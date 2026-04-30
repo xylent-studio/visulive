@@ -20,6 +20,7 @@ type PressureWave = {
   spin: number;
   tiltX: number;
   tiltY: number;
+  anchorX: number;
   driftX: number;
   driftY: number;
   depthBias: number;
@@ -205,6 +206,7 @@ export class PressureWaveSystem {
         spin: 0,
         tiltX: 0,
         tiltY: 0,
+        anchorX: 0,
         driftX: 0,
         driftY: 0,
         depthBias: 0,
@@ -288,7 +290,7 @@ export class PressureWaveSystem {
         growth *
           wave.spin *
           (groundSwell * 0.48 + torsionArc * 1.2 + ionCrown * 1.8);
-      const groupX = wave.driftX * driftBlend;
+      const groupX = wave.anchorX + wave.driftX * driftBlend;
       const groupY = wave.anchorY + wave.driftY * driftBlend + verticalOrbit;
       const groupZ =
         wave.anchorZ +
@@ -592,6 +594,29 @@ export class PressureWaveSystem {
     const driftNorm = ((signature >>> 7) % 1024) / 1023;
     const liftNorm = ((signature >>> 17) % 1024) / 1023;
     const depthNorm = ((signature >>> 27) % 32) / 31;
+    const anchorNorm = ((signature >>> 5) % 1024) / 1023;
+    const anchorDirection =
+      signature % 2 === 0
+        ? 1
+        : -1;
+    const actLean =
+      context.activeAct === 'matrix-storm'
+        ? -0.18
+        : context.activeAct === 'laser-bloom'
+          ? 0.16
+          : context.activeAct === 'eclipse-rupture'
+            ? 0.24
+            : context.activeAct === 'ghost-afterimage'
+              ? -0.12
+              : 0;
+    const stageAnchorX = THREE.MathUtils.clamp(
+      anchorDirection * THREE.MathUtils.lerp(0.28, 0.92, anchorNorm) +
+        actLean +
+        context.frame.dropImpact * 0.12 * anchorDirection -
+        context.frame.releaseTail * 0.08 * anchorDirection,
+      -1.08,
+      1.08
+    );
 
     wave.age = 0;
     wave.active = true;
@@ -609,8 +634,9 @@ export class PressureWaveSystem {
           (0.82 + context.intensity * 0.12);
         wave.tiltX = THREE.MathUtils.lerp(-0.08, 0.08, tiltXNorm);
         wave.tiltY = THREE.MathUtils.lerp(-0.12, 0.12, tiltYNorm);
-        wave.driftX = THREE.MathUtils.lerp(-0.16, 0.16, driftNorm);
-        wave.driftY = THREE.MathUtils.lerp(-0.08, 0.04, liftNorm);
+        wave.anchorX = stageAnchorX * 0.86;
+        wave.driftX = THREE.MathUtils.lerp(-0.46, 0.46, driftNorm);
+        wave.driftY = THREE.MathUtils.lerp(-0.14, 0.08, liftNorm);
         wave.depthBias = THREE.MathUtils.lerp(-0.18, 0.04, depthNorm);
         wave.expansion = 4.4 + context.intensity * 1.8;
         wave.anchorY = -0.22 - context.frame.body * 0.08;
@@ -625,8 +651,9 @@ export class PressureWaveSystem {
           (0.78 + context.intensity * 0.18);
         wave.tiltX = THREE.MathUtils.lerp(0.08, 0.24, tiltXNorm);
         wave.tiltY = THREE.MathUtils.lerp(-0.26, 0.26, tiltYNorm);
-        wave.driftX = THREE.MathUtils.lerp(-0.18, 0.18, driftNorm);
-        wave.driftY = THREE.MathUtils.lerp(0.02, 0.18, liftNorm);
+        wave.anchorX = stageAnchorX * 0.72;
+        wave.driftX = THREE.MathUtils.lerp(-0.52, 0.52, driftNorm);
+        wave.driftY = THREE.MathUtils.lerp(0.04, 0.28, liftNorm);
         wave.depthBias = THREE.MathUtils.lerp(-0.04, 0.18, depthNorm);
         wave.expansion = 2.8 + context.intensity * 1.26;
         wave.anchorY = 0.02 + context.frame.air * 0.06;
@@ -641,8 +668,9 @@ export class PressureWaveSystem {
           (0.74 + context.intensity * 0.18);
         wave.tiltX = THREE.MathUtils.lerp(-0.18, 0.18, tiltXNorm);
         wave.tiltY = THREE.MathUtils.lerp(-0.18, 0.18, tiltYNorm);
-        wave.driftX = THREE.MathUtils.lerp(-0.24, 0.24, driftNorm);
-        wave.driftY = THREE.MathUtils.lerp(-0.08, 0.12, liftNorm);
+        wave.anchorX = stageAnchorX;
+        wave.driftX = THREE.MathUtils.lerp(-0.58, 0.58, driftNorm);
+        wave.driftY = THREE.MathUtils.lerp(-0.12, 0.22, liftNorm);
         wave.depthBias = THREE.MathUtils.lerp(-0.1, 0.12, depthNorm);
         wave.expansion = 3.5 + context.intensity * 1.58;
         wave.anchorY = -0.08 + (liftNorm - 0.5) * 0.08;
@@ -653,7 +681,7 @@ export class PressureWaveSystem {
     }
 
     wave.group.visible = true;
-    wave.group.position.set(0, wave.anchorY, wave.anchorZ);
+    wave.group.position.set(wave.anchorX, wave.anchorY, wave.anchorZ);
     wave.group.rotation.set(Math.PI / 2, 0, 0);
     wave.waveMesh.scale.setScalar(1);
     wave.torusMesh.scale.setScalar(0.92);
