@@ -40,11 +40,13 @@ import {
   buildPaletteStateScores,
   chooseShowAct,
   choosePaletteState,
+  chooseVisualMotifKind,
   derivePaletteTransitionReason,
   deriveStageCuePlan,
   deriveVisualCue,
   deriveVisualMotifKind,
   deriveVisualMotifSnapshot,
+  semanticPaletteBaseForMotif,
   deriveTemporalWindows
 } from './direction/showDirection';
 import {
@@ -2090,9 +2092,22 @@ export class ObsidianBloomScene {
   ): void {
     const paletteTargetPeak = Math.max(...Object.values(cuePlan.paletteTargets));
     const paletteSpread = 1 - paletteTargetPeak;
-    const motifKind = deriveVisualMotifKind({
+    const rawMotifKind = deriveVisualMotifKind({
       frame,
       cuePlan
+    });
+    const currentMotifAgeSeconds = Math.max(
+      0,
+      elapsedSeconds - this.lastSemanticEpisodeChangeSeconds
+    );
+    const motifKind = chooseVisualMotifKind({
+      rawMotif: rawMotifKind,
+      currentMotif: this.visualMotifSnapshot.kind,
+      currentMotifAgeSeconds,
+      frame,
+      cuePlan,
+      signatureMomentKind: this.signatureMomentSnapshot.kind,
+      signatureMomentPhase: this.signatureMomentSnapshot.phase
     });
     const paletteVarietyPressure = THREE.MathUtils.clamp(
       paletteSpread * 0.48 +
@@ -2136,14 +2151,21 @@ export class ObsidianBloomScene {
       1.6
     );
     const scores = buildPaletteStateScores(frame, this.activeAct, cuePlan, this.tuning);
-    const motifBaseState = cuePlan.paletteBaseState ?? this.paletteState;
-    scores[motifBaseState] = Math.min(1, scores[motifBaseState] + 0.18);
+    const motifBaseState = semanticPaletteBaseForMotif(
+      motifKind,
+      cuePlan.paletteTargets
+    );
+    scores[motifBaseState] = Math.min(1, scores[motifBaseState] + 0.24);
+    scores[this.paletteState] = Math.min(
+      1,
+      scores[this.paletteState] + (this.visualMotifSnapshot.kind === motifKind ? 0.12 : 0.05)
+    );
     const nextPaletteState = choosePaletteState({
       currentState: this.paletteState,
       secondsSinceLastChange: elapsedSeconds - this.lastPaletteChangeSeconds,
       scores,
       minimumHoldSeconds: Math.max(
-        4.8,
+        5.2,
         cuePlan.paletteHoldSeconds +
           (frame.showState === 'surge'
             ? -0.45
@@ -2152,7 +2174,7 @@ export class ObsidianBloomScene {
               : frame.showState === 'generative'
               ? 0.2
               : 0) -
-          paletteEscapePressure * 0.42
+          paletteEscapePressure * 0.28
       ),
       switchThreshold: THREE.MathUtils.clamp(
         0.08 -
@@ -2160,9 +2182,9 @@ export class ObsidianBloomScene {
           frame.dropImpact * 0.05 -
           frame.releaseTail * 0.025 +
           cuePlan.paletteHoldSeconds * 0.004 -
-          paletteEscapePressure * 0.018,
-        0.045,
-        0.11
+          paletteEscapePressure * 0.01,
+        0.06,
+        0.12
       )
     });
 
@@ -2187,6 +2209,9 @@ export class ObsidianBloomScene {
       signatureMomentKind: this.signatureMomentSnapshot.kind,
       signatureMomentPhase: this.signatureMomentSnapshot.phase,
       currentEpisodeId: this.semanticEpisodeId,
+      currentMotif: this.visualMotifSnapshot.kind,
+      currentMotifAgeSeconds,
+      motif: motifKind,
       elapsedSeconds,
       lastEpisodeChangeSeconds: this.lastSemanticEpisodeChangeSeconds
     });

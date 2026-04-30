@@ -3469,6 +3469,12 @@ export function summarizeCapture(capture, filePath) {
     );
   }
 
+  if (qualityFlags.includes('legacyGlowSpend')) {
+    findings.push(
+      `Legacy glow spend stayed elevated (mean ${formatNumber(metricMeans.ambientGlowBudget)}), but perceptual washout stayed inside the acceptance band. Treat this as authored glow telemetry unless the stills look washed out.`
+    );
+  }
+
   if (qualityFlags.includes('lowPaletteVariation')) {
     findings.push(
       `Palette variation is still narrow (hero hue range ${formatNumber(heroHueRange)} / world hue range ${formatNumber(worldHueRange)}). The show is likely settling into one lane for too long.`
@@ -4038,8 +4044,9 @@ function deriveQualityFlagsFromSummary({
     flags.add('safeTierActive');
   }
 
-  if (visualSummary.ambientGlowMean > 0.16) {
-    flags.add('highAmbientGlow');
+  const elevatedGlowFlag = classifyElevatedGlow(visualSummary);
+  if (elevatedGlowFlag) {
+    flags.add(elevatedGlowFlag);
   }
 
   if (
@@ -4155,6 +4162,25 @@ function deriveQualityFlagsFromSummary({
   }
 
   return [...flags];
+}
+
+function classifyElevatedGlow(visualSummary) {
+  if ((visualSummary.ambientGlowMean ?? 0) <= 0.16) {
+    return undefined;
+  }
+
+  const washoutMean = visualSummary.perceptualWashoutRiskMean;
+  const washoutPeak = visualSummary.perceptualWashoutRiskPeak;
+  const hasPerceptualWashout =
+    typeof washoutMean === 'number' || typeof washoutPeak === 'number';
+
+  if (!hasPerceptualWashout) {
+    return 'highAmbientGlow';
+  }
+
+  return (washoutMean ?? 0) > 0.08 || (washoutPeak ?? 0) > 0.14
+    ? 'highAmbientGlow'
+    : 'legacyGlowSpend';
 }
 
 function buildAggregateStats(summaries) {

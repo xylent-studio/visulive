@@ -196,8 +196,8 @@ describe('PlayableMotifSystem', () => {
 
     expect(system.collectTelemetryInputs().activePlayableMotifScene).toBe('machine-tunnel');
     expect(system.collectTelemetryInputs().playableMotifSceneTransitionReason).toBe('hold');
-    expect(system.collectTelemetryInputs().playableMotifSceneDriver).toBe('motif');
-    expect(system.collectTelemetryInputs().playableMotifSceneIntentMatch).toBe(false);
+    expect(system.collectTelemetryInputs().playableMotifSceneDriver).toBe('hold');
+    expect(system.collectTelemetryInputs().playableMotifSceneIntentMatch).toBe(true);
   });
 
   it('routes gather passages to machine tunnel instead of another portal colorway', () => {

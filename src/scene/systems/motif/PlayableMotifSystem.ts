@@ -446,8 +446,12 @@ export class PlayableMotifSystem {
 
     const targetScene = resolveSceneFromContext(context);
     const reason = resolveTransitionReason(context, targetScene);
-    const sceneDriver = resolveSceneDriver(context, targetScene, this.activeScene);
+    const requestedSceneDriver = resolveSceneDriver(context, targetScene, this.activeScene);
     this.maybeTransitionScene(context, targetScene, reason);
+    const sceneDriver =
+      this.transitionReason === 'hold' && this.activeScene !== targetScene
+        ? 'hold'
+        : requestedSceneDriver;
 
     const ageSeconds = Math.max(0, context.elapsedSeconds - this.lastSceneChangeSeconds);
     const intensity = this.resolveIntensity(context, ageSeconds);
@@ -664,6 +668,10 @@ export class PlayableMotifSystem {
 
     if (driver === 'authority') {
       return scene === 'void-pressure' || scene === 'neon-cathedral';
+    }
+
+    if (driver === 'hold') {
+      return true;
     }
 
     return this.matchesMotif(scene, context.visualMotif);

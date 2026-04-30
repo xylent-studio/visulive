@@ -3716,6 +3716,7 @@ function deriveCaptureQualityFlags(input: {
     0,
     ...input.frames.map((frame) => frame.listeningFrame.releaseTail)
   );
+  const elevatedGlowFlag = classifyElevatedGlow(input.visualSummary);
 
   if (
     (!input.launchQuickStartProfileId && !input.quickStartProfileId) ||
@@ -3748,8 +3749,8 @@ function deriveCaptureQualityFlags(input: {
     flags.add('safeTierActive');
   }
 
-  if (input.visualSummary.ambientGlowMean > 0.16) {
-    flags.add('highAmbientGlow');
+  if (elevatedGlowFlag) {
+    flags.add(elevatedGlowFlag);
   }
 
   if (
@@ -3859,6 +3860,27 @@ function deriveCaptureQualityFlags(input: {
   }
 
   return [...flags];
+}
+
+function classifyElevatedGlow(
+  visualSummary: VisualTelemetrySummary
+): Extract<CaptureQualityFlag, 'highAmbientGlow' | 'legacyGlowSpend'> | undefined {
+  if (visualSummary.ambientGlowMean <= 0.16) {
+    return undefined;
+  }
+
+  const washoutMean = visualSummary.perceptualWashoutRiskMean;
+  const washoutPeak = visualSummary.perceptualWashoutRiskPeak;
+  const hasPerceptualWashout =
+    typeof washoutMean === 'number' || typeof washoutPeak === 'number';
+
+  if (!hasPerceptualWashout) {
+    return 'highAmbientGlow';
+  }
+
+  return (washoutMean ?? 0) > 0.08 || (washoutPeak ?? 0) > 0.14
+    ? 'highAmbientGlow'
+    : 'legacyGlowSpend';
 }
 
 export function parseReplayCapture(raw: string): ReplayCapture {

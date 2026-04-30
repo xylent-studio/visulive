@@ -1227,6 +1227,7 @@ export type CaptureQualityFlag =
   | 'multiEventWindow'
   | 'safeTierActive'
   | 'highAmbientGlow'
+  | 'legacyGlowSpend'
   | 'lowPaletteVariation'
   | 'undercommittedDrop'
   | 'weakPhraseRelease'

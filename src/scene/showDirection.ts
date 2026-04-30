@@ -38,7 +38,7 @@ function paletteSpreadOf(targets: Record<PaletteState, number>): number {
   return 1 - Math.max(...Object.values(targets));
 }
 
-function semanticPaletteBaseForMotif(
+export function semanticPaletteBaseForMotif(
   motif: VisualMotifKind,
   targets: Record<PaletteState, number>
 ): PaletteState {
@@ -271,6 +271,7 @@ function chooseScoredState<TState extends string>(input: {
   states: readonly TState[];
   minimumHoldSeconds: number;
   switchThreshold: number;
+  earlySwitchThresholdMultiplier?: number;
   fatigueProfiles?: Partial<
     Record<
       TState,
@@ -301,7 +302,8 @@ function chooseScoredState<TState extends string>(input: {
   }
 
   if (input.secondsSinceLastChange < input.minimumHoldSeconds) {
-    return winnerScore > currentScore + effectiveSwitchThreshold * 2
+    return winnerScore >
+      currentScore + effectiveSwitchThreshold * (input.earlySwitchThresholdMultiplier ?? 2)
       ? winner
       : input.currentState;
   }
@@ -1208,6 +1210,7 @@ export function choosePaletteState(input: {
     states: PALETTE_STATES,
     minimumHoldSeconds: input.minimumHoldSeconds ?? 2.8,
     switchThreshold: input.switchThreshold ?? 0.09,
+    earlySwitchThresholdMultiplier: 3.25,
     fatigueProfiles: {
       'tron-blue': {
         afterSeconds: 3.8,
@@ -1299,6 +1302,98 @@ export function deriveVisualMotifKind(input: {
   return frame.shimmer > 0.42 || frame.harmonicColor > 0.58
     ? 'neon-portal'
     : 'void-anchor';
+}
+
+export function chooseVisualMotifKind(input: {
+  rawMotif: VisualMotifKind;
+  currentMotif?: VisualMotifKind;
+  currentMotifAgeSeconds?: number;
+  frame: Pick<
+    ListeningFrame,
+    | 'performanceIntent'
+    | 'dropImpact'
+    | 'sectionChange'
+    | 'releaseTail'
+    | 'musicConfidence'
+    | 'air'
+    | 'body'
+  >;
+  cuePlan: Pick<
+    StageCuePlan,
+    'family' | 'dominance' | 'worldMode' | 'worldWeight' | 'transformIntent'
+  >;
+  signatureMomentKind?: string;
+  signatureMomentPhase?: string;
+}): VisualMotifKind {
+  const currentMotif = input.currentMotif;
+
+  if (!currentMotif || currentMotif === 'void-anchor' || currentMotif === input.rawMotif) {
+    return input.rawMotif;
+  }
+
+  const currentAge = Math.max(0, input.currentMotifAgeSeconds ?? Number.POSITIVE_INFINITY);
+  const signatureActive =
+    input.signatureMomentKind &&
+    input.signatureMomentKind !== 'none' &&
+    input.signatureMomentPhase !== 'idle' &&
+    input.signatureMomentPhase !== 'clear';
+  const hardRupture =
+    input.rawMotif === 'rupture-scar' &&
+    (input.frame.performanceIntent === 'detonate' ||
+      input.frame.dropImpact > 0.52 ||
+      (input.cuePlan.family === 'rupture' &&
+        input.cuePlan.worldMode === 'collapse-well' &&
+        (input.frame.dropImpact > 0.34 || input.frame.sectionChange > 0.24)));
+  const releaseInterrupt =
+    (input.rawMotif === 'ghost-residue' ||
+      input.rawMotif === 'silence-constellation') &&
+    (input.frame.releaseTail > 0.28 ||
+      input.cuePlan.family === 'release' ||
+      input.cuePlan.family === 'haunt');
+  const neonInterrupt =
+    input.rawMotif === 'neon-portal' &&
+    input.frame.dropImpact < 0.54 &&
+    (input.cuePlan.worldMode === 'cathedral-rise' ||
+      input.cuePlan.family === 'reveal' ||
+      input.frame.sectionChange > 0.28 ||
+      input.frame.air > input.frame.body + 0.16);
+  const authorityInterrupt =
+    input.rawMotif === 'world-takeover' &&
+    (input.cuePlan.dominance === 'world' || input.cuePlan.worldWeight > 0.78);
+  const minHoldSeconds =
+    currentMotif === 'rupture-scar'
+      ? 1.6
+      : currentMotif === 'ghost-residue' || currentMotif === 'silence-constellation'
+        ? 2.2
+        : currentMotif === 'neon-portal' || currentMotif === 'world-takeover'
+          ? 1.35
+          : 0.9;
+  const canInterrupt =
+    hardRupture ||
+    releaseInterrupt ||
+    authorityInterrupt ||
+    (neonInterrupt && (currentMotif !== 'rupture-scar' || currentAge > 1.15)) ||
+    Boolean(signatureActive && currentAge > 0.9);
+
+  if (currentAge < minHoldSeconds && !canInterrupt) {
+    return currentMotif;
+  }
+
+  if (input.rawMotif === 'rupture-scar' && !hardRupture) {
+    return currentMotif;
+  }
+
+  if (
+    currentMotif === 'rupture-scar' &&
+    input.rawMotif !== 'ghost-residue' &&
+    input.rawMotif !== 'silence-constellation' &&
+    !neonInterrupt &&
+    currentAge < 1.9
+  ) {
+    return currentMotif;
+  }
+
+  return input.rawMotif;
 }
 
 export function derivePaletteTransitionReason(input: {
@@ -1502,12 +1597,26 @@ export function deriveVisualMotifSnapshot(input: {
   signatureMomentPhase?: string;
   currentEpisodeId?: string;
   currentEpisodeAgeSeconds?: number;
+  currentMotif?: VisualMotifKind;
+  currentMotifAgeSeconds?: number;
+  motif?: VisualMotifKind;
   elapsedSeconds?: number;
   lastEpisodeChangeSeconds?: number;
 }): VisualMotifSnapshot {
-  const motif = deriveVisualMotifKind({
+  const rawMotif =
+    input.motif ??
+    deriveVisualMotifKind({
+      frame: input.frame,
+      cuePlan: input.cuePlan
+    });
+  const motif = chooseVisualMotifKind({
+    rawMotif,
+    currentMotif: input.currentMotif,
+    currentMotifAgeSeconds: input.currentMotifAgeSeconds,
     frame: input.frame,
-    cuePlan: input.cuePlan
+    cuePlan: input.cuePlan,
+    signatureMomentKind: input.signatureMomentKind,
+    signatureMomentPhase: input.signatureMomentPhase
   });
   const targetDominance = Math.max(...Object.values(input.cuePlan.paletteTargets));
   const targetSpread = paletteSpreadOf(input.cuePlan.paletteTargets);

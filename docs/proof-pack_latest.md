@@ -1,105 +1,100 @@
 # VisuLive Proof Pack
 
-Generated: 2026-04-30T02:13:51.365Z
+Generated: 2026-04-30T02:49:59.235Z
 Source report: C:\dev\GitHub\visulive\captures\reports\capture-analysis_latest.md
-Report timestamp: 2026-04-30T02:13:18.755Z
-Report capture count: 77
+Report timestamp: 2026-04-30T02:49:48.469Z
+Report capture count: 8
 
 ## Executive Read
-- Captures analyzed: 77
-- Current-proof-eligible captures: 49
-- Safe-tier captures: 49/49
-- Screenshot references: 317
+- Captures analyzed: 8
+- Current-proof-eligible captures: 8
+- Safe-tier captures: 8/8
+- Screenshot references: 109
 - Strong evidence picks: 5
 - Weak evidence picks: 5
 
 ## Evidence Freshness
 - Attached source capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-30T01:57:04.001Z
-- Current batch capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z
-- Current review capture date range: 2026-04-28T21:03:42.763Z -> 2026-04-30T01:57:04.001Z
+- Current batch capture date range: 2026-04-30T01:54:48.505Z -> 2026-04-30T01:57:04.001Z
+- Current review capture date range: 2026-04-30T01:54:48.505Z -> 2026-04-30T01:57:04.001Z
 - Historical baseline capture date range: 2026-04-09T06:51:04.103Z -> 2026-04-09T14:22:43.998Z
 - Current branch proof cutoff: 2026-04-23T08:28:02.000Z
 - Serious proof max age: 7 day(s)
 - Current branch proof freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - Screenshot review freshness: pass - Screenshot references satisfy the current proof cutoff and freshness window.
-- Screenshot date range: 2026-04-28T23:29:06.062Z -> 2026-04-30T01:57:21.764Z
+- Screenshot date range: 2026-04-30T01:54:46.398Z -> 2026-04-30T01:57:21.764Z
 
 ## Validation Gates
 - current-branch freshness: pass - Current review captures satisfy the current branch proof cutoff and freshness window.
 - safe-tier discipline: pass - All analyzed captures are safe-tier.
-- cue diversity: pass - 7 cue class(es) inferred from current captures.
+- cue diversity: pass - 5 cue class(es) inferred from current captures.
 - chamber participation: pass - The pack contains chamber families beyond the default shell.
 - compositor consequence: pass - At least one capture shows visible event-glow spend.
 - build identity: pass - All current captures include valid build identity.
 - scenario validation: pass - Current capture scenarios are validated or unrecorded.
-- proof-pack completeness: pass - 317 current screenshot reference(s) are available and all captures are attributable to a valid build.
-- no-touch autonomy: pass - 32 capture(s) cleared the no-touch proof window.
-- authority split validation: pass - authority-ready 49/49; world 0.937; chamber 0.944; hierarchy 0.792; hero coverage 0.059; legacy glow 90.2%; perceptual washout 0.000; risks hero/chamber/world/washout 0/0/0/0.
-- primary authority proof: pass - 21 no-touch primary benchmark capture(s) show world/chamber authority.
-- silence dignity: pass - 4 capture(s) preserved quiet-state regime evidence.
-- world authority delivery: pass - 49 capture(s) show shared or dominant world authority.
-- operator trust: pass - 15 operator-trust scenario capture(s) are attached.
+- proof-pack completeness: pass - 109 current screenshot reference(s) are available and all captures are attributable to a valid build.
+- no-touch autonomy: pass - 4 capture(s) cleared the no-touch proof window.
+- authority split validation: pass - authority-ready 8/8; world 0.863; chamber 0.866; hierarchy 0.816; hero coverage 0.067; legacy glow 74.0%; perceptual washout 0.003; risks hero/chamber/world/washout 0/0/0/0.
+- primary authority proof: pass - 4 no-touch primary benchmark capture(s) show world/chamber authority.
+- silence dignity: pass - 2 capture(s) preserved quiet-state regime evidence.
+- world authority delivery: pass - 8 capture(s) show shared or dominant world authority.
+- operator trust: fail - No current operator-trust scenario is attached to this pack yet.
 - run artifact integrity: pass - Run journals/manifests do not report artifact-integrity failures.
-- missed capture opportunities: fail - 18 meaningful run marker(s) were not matched to saved clips.
-- scenario coverage: fail - Current scenarios present: operator-trust, primary-benchmark; historical baselines: primary-benchmark, room-floor
+- missed capture opportunities: pass - All serious run markers that should have produced clips were matched.
+- scenario coverage: fail - Current scenarios present: primary-benchmark; historical baselines: primary-benchmark, room-floor
 
 ## Scenario Coverage
 ### Current scenarios
-- `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 34 capture(s)
+- `primary-benchmark`: 8 capture(s)
 
 ### Current Proof Missions
-- `operator-trust`: 15 capture(s)
-- `primary-benchmark`: 34 capture(s)
+- `primary-benchmark`: 8 capture(s)
 
 ### Historical baselines
 - `primary-benchmark`: 1 capture(s)
 - `room-floor`: 1 capture(s)
 
-- Current review captures: 49
+- Current review captures: 8
 - Unclassified current captures: 0
 - Historical baseline captures: 2
-- No-touch captures: 49
-- Qualified no-touch windows: 32
-- Quiet-state evidence: 4
-- World-authority evidence: 49
-- Primary no-touch authority evidence: 21
-- Operator-trust evidence: 15
+- No-touch captures: 8
+- Qualified no-touch windows: 4
+- Quiet-state evidence: 2
+- World-authority evidence: 8
+- Primary no-touch authority evidence: 4
+- Operator-trust evidence: 0
 
 ## Cue Spread
-- `laser-burst`: 13 capture(s)
-- `gather`: 8 capture(s)
-- `orbit-widen`: 8 capture(s)
-- `collapse`: 7 capture(s)
-- `fan-sweep`: 7 capture(s)
-- `hold`: 5 capture(s)
-- `residue`: 1 capture(s)
+- `hold`: 2 capture(s)
+- `fan-sweep`: 2 capture(s)
+- `orbit-widen`: 2 capture(s)
+- `gather`: 1 capture(s)
+- `laser-burst`: 1 capture(s)
 
 ## Authority Split Read
-- Authority-ready captures: 49/49
-- World-authority evidence: 49/49
-- Chamber presence mean: 0.944 (target >= 0.240)
-- World dominance delivered mean: 0.937 (target >= 0.280)
-- Frame hierarchy mean: 0.792 (target >= 0.620)
-- Hero coverage mean: 0.059 (target <= 0.320)
-- Legacy glow-spend rate: 90.2% (legacy watch target <= 12.0%)
-- Perceptual washout risk: 0.000 (release-blocking target <= 0.120)
-- Risk counts: hero monopoly 0/49; low chamber 0/49; weak world 0/49; legacy glow 46/49; perceptual washout 0/49
+- Authority-ready captures: 8/8
+- World-authority evidence: 8/8
+- Chamber presence mean: 0.866 (target >= 0.240)
+- World dominance delivered mean: 0.863 (target >= 0.280)
+- Frame hierarchy mean: 0.816 (target >= 0.620)
+- Hero coverage mean: 0.067 (target <= 0.320)
+- Legacy glow-spend rate: 74.0% (legacy watch target <= 12.0%)
+- Perceptual washout risk: 0.003 (release-blocking target <= 0.120)
+- Risk counts: hero monopoly 0/8; low chamber 0/8; weak world 0/8; legacy glow 7/8; perceptual washout 0/8
 ### World authority state spread
-- `dominant`: 30 capture(s)
-- `shared`: 19 capture(s)
+- `shared`: 5 capture(s)
+- `dominant`: 3 capture(s)
 
 ## Chamber Authority
-- `liquid-pressure-core`: 25 capture(s)
-- `cathedral-rings`: 11 capture(s)
-- `portal-iris`: 7 capture(s)
-- `spectral-plume`: 6 capture(s)
+- `cathedral-rings`: 5 capture(s)
+- `liquid-pressure-core`: 2 capture(s)
+- `spectral-plume`: 1 capture(s)
 
 ## Compositor Consequence
-- `consequence`: 49 capture(s)
+- `consequence`: 8 capture(s)
 
 ## Signature Moments
-- `none`: weighted presence 46.15
+- `none`: weighted presence 5.15
 - `silence-constellation`: weighted presence 1.32
 - `cathedral-open`: weighted presence 0.85
 - `collapse-scar`: weighted presence 0.67
@@ -108,17 +103,17 @@ Report capture count: 77
 - `contrast-mythic`: weighted presence 2.07
 - `ambient-premium`: weighted presence 2.00
 - `maximal-neon`: weighted presence 1.93
-- Signature moment evidence: 6/49 capture(s)
-- Active rate / intensity mean / peak: 5.8% / 0.021 / 0.984
-- Aftermath clearance / post consequence / post overprocess risk: 0.992 / 0.013 / 0.008
-- Perceptual colorfulness / washout risk / compositor risk: 0.073 / 0.000 / 0.015
+- Signature moment evidence: 6/8 capture(s)
+- Active rate / intensity mean / peak: 35.6% / 0.127 / 0.984
+- Aftermath clearance / post consequence / post overprocess risk: 0.951 / 0.077 / 0.050
+- Perceptual colorfulness / washout risk / compositor risk: 0.444 / 0.003 / 0.090
 
 ## Spend Governance
-- `earned`: weighted presence 44.29
-- `withheld`: weighted presence 4.71
-- Legacy glow-spend risk: 90.2%
-- Large hero frequency: 2/49 capture(s)
-- Ring authority mean: 0.934
+- `earned`: weighted presence 6.07
+- `withheld`: weighted presence 1.93
+- Legacy glow-spend risk: 74.0%
+- Large hero frequency: 1/8 capture(s)
+- Ring authority mean: 0.734
 
 ## Strong Evidence
 - `auto_operator-trust-clear_2026-04-29_21-55-35.json`
@@ -138,79 +133,79 @@ Report capture count: 77
   - spend: earned; legacy glow 34.0%; hero scale peak 1.250
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn
-- `auto_authority-turn_2026-04-28_19-54-09.json`
-  - score: 8.47
-  - trigger/event: authority-turn / cathedral-rise
-  - route/world/look: this-computer / portal-chamber / machine-halo
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 95279fd / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: collapse
-  - dominant act: laser-bloom
-  - dominant chamber family: portal-iris
-  - authority: world 0.992; chamber 1.000; hierarchy 0.769; hero coverage 0.057
-  - compositor: event glow 0.919 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
-  - interventions: 0; no-touch window passed
-  - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_19-54-17.json`
-  - score: 8.47
-  - trigger/event: authority-turn / strike-burst
+  - flags: safeTierActive, legacyGlowSpend, ringOverdrawRisk, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn
+- `auto_drop_2026-04-29_21-57-03.json`
+  - score: 7.99
+  - trigger/event: drop / strike-burst
   - route/world/look: this-computer / storm-crown / acid-flare
   - proof scenario: Primary benchmark
-  - build: 1.0.0 / 95279fd / stable (valid)
+  - build: 1.0.0 / e37b2ba / stable (valid)
   - scenario validation: primary-benchmark -> primary-benchmark (validated)
   - capability: full-autonomous
   - canonical cue class: laser-burst
   - dominant act: laser-bloom
-  - dominant chamber family: portal-iris
-  - authority: world 0.989; chamber 1.000; hierarchy 0.778; hero coverage 0.055
-  - compositor: event glow 0.920 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.999; chamber 1.000; hierarchy 0.809; hero coverage 0.091
+  - compositor: event glow 0.920 mean / 0.920 peak; bloom 0.620 mean / 0.639 peak
+  - signature: none / contrast-mythic; washout 0.008
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_19-33-45.json`
-  - score: 8.38
+  - flags: oversizedWindow, multiEventWindow, safeTierActive, legacyGlowSpend, ringOverdrawRisk, randomFeelingPaletteChurn, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn, sceneMotifMismatch, sceneIntentMismatch, sceneProfileMismatch
+- `auto_authority-turn_2026-04-29_21-56-53.json`
+  - score: 7.94
   - trigger/event: authority-turn / strike-burst
   - route/world/look: this-computer / portal-chamber / machine-halo
   - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
+  - build: 1.0.0 / e37b2ba / stable (valid)
   - scenario validation: primary-benchmark -> primary-benchmark (validated)
   - capability: full-autonomous
-  - canonical cue class: collapse
+  - canonical cue class: fan-sweep
   - dominant act: laser-bloom
-  - dominant chamber family: liquid-pressure-core
-  - authority: world 0.993; chamber 1.000; hierarchy 0.775; hero coverage 0.060
-  - compositor: event glow 0.920 mean / 0.920 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.992; chamber 0.986; hierarchy 0.782; hero coverage 0.061
+  - compositor: event glow 0.898 mean / 0.919 peak; bloom 0.620 mean / 0.630 peak
+  - signature: none / contrast-mythic; washout 0.002
   - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_20-39-11.json`
-  - score: 8.36
-  - trigger/event: authority-turn / strike-burst
-  - route/world/look: this-computer / portal-chamber / machine-halo
-  - proof scenario: Operator trust
-  - build: 1.0.0 / afa9c7d / stable (valid)
-  - scenario validation: operator-trust -> operator-trust (validated)
+  - flags: safeTierActive, legacyGlowSpend, ringOverdrawRisk, randomFeelingPaletteChurn, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn, sceneMotifMismatch, sceneIntentMismatch, sceneProfileMismatch, sameySceneSilhouette
+- `auto_authority-turn_2026-04-29_21-55-51.json`
+  - score: 7.71
+  - trigger/event: authority-turn / ghost-trace
+  - route/world/look: this-computer / eclipse-chamber / ember-veil
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
   - capability: full-autonomous
-  - canonical cue class: collapse
+  - canonical cue class: fan-sweep
   - dominant act: laser-bloom
-  - dominant chamber family: liquid-pressure-core
-  - authority: world 0.991; chamber 1.000; hierarchy 0.771; hero coverage 0.040
-  - compositor: event glow 0.898 mean / 0.918 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
+  - dominant chamber family: cathedral-rings
+  - authority: world 1.000; chamber 1.000; hierarchy 0.797; hero coverage 0.076
+  - compositor: event glow 0.875 mean / 0.918 peak; bloom 0.508 mean / 0.632 peak
+  - signature: none / maximal-neon; washout 0.001
+  - spend: withheld; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window passed
   - safe tier: yes
-  - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
+  - flags: safeTierActive, legacyGlowSpend, ringOverdrawRisk, ambiguousHeroSilhouette
+- `auto_authority-turn_2026-04-29_21-54-55.json`
+  - score: 7.54
+  - trigger/event: authority-turn / strike-burst
+  - route/world/look: this-computer / storm-crown / acid-flare
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: gather
+  - dominant act: matrix-storm
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.764; chamber 0.806; hierarchy 0.830; hero coverage 0.039
+  - compositor: event glow 0.656 mean / 0.883 peak; bloom 0.565 mean / 0.654 peak
+  - signature: none / ambient-premium; washout 0.000
+  - spend: earned; legacy glow 57.7%; hero scale peak 1.150
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: safeTierActive, randomFeelingPaletteChurn, unearnedHeroFormSwitch, sceneChurn, sceneMotifMismatch, sceneIntentMismatch, sceneProfileMismatch
 
 ## Weak Evidence
 - `auto_authority-turn_2026-04-29_21-54-46.json`
@@ -231,397 +226,189 @@ Report capture count: 77
   - interventions: 0; no-touch window not proven
   - safe tier: yes
   - flags: safeTierActive, lowPaletteVariation, ambiguousHeroSilhouette, sceneChurn
-- `auto_authority-turn_2026-04-28_20-37-06.json`
-  - score: 5.19
-  - trigger/event: authority-turn / void
-  - route/world/look: this-computer / haunted-residue / ghost-signal
-  - proof scenario: Operator trust
-  - build: 1.0.0 / afa9c7d / stable (valid)
-  - scenario validation: operator-trust -> operator-trust (validated)
-  - capability: full-autonomous
-  - canonical cue class: hold
-  - dominant act: matrix-storm
-  - dominant chamber family: spectral-plume
-  - authority: world 0.488; chamber 0.509; hierarchy 0.823; hero coverage 0.024
-  - compositor: event glow 0.333 mean / 0.466 peak; bloom 0.398 mean / 0.520 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: withheld; legacy glow 0.0%; hero scale peak 0.987
-  - interventions: 0; no-touch window not proven
-  - safe tier: yes
-  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_19-29-03.json`
-  - score: 5.22
-  - trigger/event: authority-turn / void
-  - route/world/look: this-computer / haunted-residue / ghost-signal
+- `auto_drop_2026-04-29_21-55-17.json`
+  - score: 6.84
+  - trigger/event: drop / strike-burst
+  - route/world/look: this-computer / storm-crown / acid-flare
   - proof scenario: Primary benchmark
-  - build: 1.0.0 / 6df04ef / stable (valid)
+  - build: 1.0.0 / e37b2ba / stable (valid)
   - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: hold
-  - dominant act: matrix-storm
-  - dominant chamber family: spectral-plume
-  - authority: world 0.491; chamber 0.513; hierarchy 0.822; hero coverage 0.028
-  - compositor: event glow 0.341 mean / 0.467 peak; bloom 0.405 mean / 0.520 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: withheld; legacy glow 0.0%; hero scale peak 0.987
-  - interventions: 0; no-touch window not proven
-  - safe tier: yes
-  - flags: safeTierActive, lowPaletteVariation, ringOverdrawRisk, sameySceneSilhouette
-- `auto_authority-turn_2026-04-28_19-48-15.json`
-  - score: 5.76
-  - trigger/event: authority-turn / generative
-  - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Primary benchmark
-  - build: 1.0.0 / 95279fd / stable (valid)
-  - scenario validation: primary-benchmark -> primary-benchmark (validated)
-  - capability: full-autonomous
-  - canonical cue class: hold
-  - dominant act: matrix-storm
-  - dominant chamber family: spectral-plume
-  - authority: world 0.648; chamber 0.695; hierarchy 0.815; hero coverage 0.064
-  - compositor: event glow 0.402 mean / 0.586 peak; bloom 0.485 mean / 0.707 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 43.0%; hero scale peak 1.150
-  - interventions: 0; no-touch window not proven
-  - safe tier: yes
-  - flags: safeTierActive, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
-- `auto_governance-risk_2026-04-28_20-37-14.json`
-  - score: 6.19
-  - trigger/event: governance-risk / ghost-trace
-  - route/world/look: this-computer / eclipse-chamber / ember-veil
-  - proof scenario: Operator trust
-  - build: 1.0.0 / afa9c7d / stable (valid)
-  - scenario validation: operator-trust -> operator-trust (validated)
   - capability: full-autonomous
   - canonical cue class: orbit-widen
   - dominant act: matrix-storm
-  - dominant chamber family: cathedral-rings
-  - authority: world 0.913; chamber 0.930; hierarchy 0.811; hero coverage 0.071
-  - compositor: event glow 0.698 mean / 0.802 peak; bloom 0.740 mean / 0.740 peak
-  - signature: none / contrast-mythic; washout 0.000
-  - spend: earned; legacy glow 88.3%; hero scale peak 1.250
+  - dominant chamber family: liquid-pressure-core
+  - authority: world 0.978; chamber 1.000; hierarchy 0.817; hero coverage 0.083
+  - compositor: event glow 0.866 mean / 0.909 peak; bloom 0.637 mean / 0.655 peak
+  - signature: none / contrast-mythic; washout 0.001
+  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
   - interventions: 0; no-touch window not proven
   - safe tier: yes
-  - flags: safeTierActive, highAmbientGlow, ringOverdrawRisk, ambiguousHeroSilhouette, sameySceneSilhouette
+  - flags: oversizedWindow, multiEventWindow, safeTierActive, legacyGlowSpend, ringOverdrawRisk, unearnedHeroFormSwitch, ambiguousHeroSilhouette, sceneChurn, sceneMotifMismatch, sceneIntentMismatch, sceneProfileMismatch
+- `auto_signature-moment-peak_2026-04-29_21-55-04.json`
+  - score: 7.01
+  - trigger/event: signature-moment-peak / strike-burst
+  - route/world/look: this-computer / storm-crown / acid-flare
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: orbit-widen
+  - dominant act: matrix-storm
+  - dominant chamber family: liquid-pressure-core
+  - authority: world 0.988; chamber 1.000; hierarchy 0.810; hero coverage 0.074
+  - compositor: event glow 0.851 mean / 0.906 peak; bloom 0.618 mean / 0.656 peak
+  - signature: cathedral-open / maximal-neon; washout 0.012
+  - spend: earned; legacy glow 100.0%; hero scale peak 1.140
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: oversizedWindow, multiEventWindow, safeTierActive, highAmbientGlow, ringOverdrawRisk, unearnedHeroFormSwitch, ambiguousHeroSilhouette
+- `auto_authority-turn_2026-04-29_21-54-55.json`
+  - score: 7.54
+  - trigger/event: authority-turn / strike-burst
+  - route/world/look: this-computer / storm-crown / acid-flare
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: gather
+  - dominant act: matrix-storm
+  - dominant chamber family: cathedral-rings
+  - authority: world 0.764; chamber 0.806; hierarchy 0.830; hero coverage 0.039
+  - compositor: event glow 0.656 mean / 0.883 peak; bloom 0.565 mean / 0.654 peak
+  - signature: none / ambient-premium; washout 0.000
+  - spend: earned; legacy glow 57.7%; hero scale peak 1.150
+  - interventions: 0; no-touch window not proven
+  - safe tier: yes
+  - flags: safeTierActive, randomFeelingPaletteChurn, unearnedHeroFormSwitch, sceneChurn, sceneMotifMismatch, sceneIntentMismatch, sceneProfileMismatch
+- `auto_authority-turn_2026-04-29_21-55-51.json`
+  - score: 7.71
+  - trigger/event: authority-turn / ghost-trace
+  - route/world/look: this-computer / eclipse-chamber / ember-veil
+  - proof scenario: Primary benchmark
+  - build: 1.0.0 / e37b2ba / stable (valid)
+  - scenario validation: primary-benchmark -> primary-benchmark (validated)
+  - capability: full-autonomous
+  - canonical cue class: fan-sweep
+  - dominant act: laser-bloom
+  - dominant chamber family: cathedral-rings
+  - authority: world 1.000; chamber 1.000; hierarchy 0.797; hero coverage 0.076
+  - compositor: event glow 0.875 mean / 0.918 peak; bloom 0.508 mean / 0.632 peak
+  - signature: none / maximal-neon; washout 0.001
+  - spend: withheld; legacy glow 100.0%; hero scale peak 1.140
+  - interventions: 0; no-touch window passed
+  - safe tier: yes
+  - flags: safeTierActive, legacyGlowSpend, ringOverdrawRisk, ambiguousHeroSilhouette
 
 ## Screenshot Review Set
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_156765.png` (511 KB, modified 2026-04-30T01:57:21.764Z)
+- `run_20260429_215441_sxbzs9__safety_156765.png` (511 KB, modified 2026-04-30T01:57:21.764Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_151869.png` (612 KB, modified 2026-04-30T01:57:19.793Z)
+- `run_20260429_215441_sxbzs9__safety_151869.png` (612 KB, modified 2026-04-30T01:57:19.793Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_152851.png` (651 KB, modified 2026-04-30T01:57:17.119Z)
+- `run_20260429_215441_sxbzs9__signature_152851.png` (651 KB, modified 2026-04-30T01:57:17.119Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_150035.png` (482 KB, modified 2026-04-30T01:57:14.321Z)
+- `run_20260429_215441_sxbzs9__signature_150035.png` (482 KB, modified 2026-04-30T01:57:14.321Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_146568.png` (437 KB, modified 2026-04-30T01:57:10.915Z)
+- `run_20260429_215441_sxbzs9__safety_146568.png` (437 KB, modified 2026-04-30T01:57:10.915Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_143933.png` (465 KB, modified 2026-04-30T01:57:07.876Z)
+- `run_20260429_215441_sxbzs9__safety_143933.png` (465 KB, modified 2026-04-30T01:57:07.876Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_116029.png` (567 KB, modified 2026-04-30T01:57:05.686Z)
+- `run_20260429_215441_sxbzs9__safety_116029.png` (567 KB, modified 2026-04-30T01:57:05.686Z)
+- `auto_drop_2026-04-29_21-57-03__peak.png` (584 KB, modified 2026-04-30T01:57:03.857Z)
+- `auto_drop_2026-04-29_21-57-03__pre.png` (649 KB, modified 2026-04-30T01:57:03.530Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_137512.png` (750 KB, modified 2026-04-30T01:57:02.813Z)
+- `run_20260429_215441_sxbzs9__signature_137512.png` (750 KB, modified 2026-04-30T01:57:02.813Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_135304.png` (727 KB, modified 2026-04-30T01:56:59.776Z)
+- `run_20260429_215441_sxbzs9__signature_135304.png` (727 KB, modified 2026-04-30T01:56:59.776Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_103581.png` (506 KB, modified 2026-04-30T01:56:55.910Z)
+- `run_20260429_215441_sxbzs9__safety_103581.png` (506 KB, modified 2026-04-30T01:56:55.910Z)
+- `auto_authority-turn_2026-04-29_21-56-53__authority.png` (808 KB, modified 2026-04-30T01:56:55.471Z)
+- `auto_authority-turn_2026-04-29_21-56-53__peak.png` (874 KB, modified 2026-04-30T01:56:54.847Z)
+- `auto_authority-turn_2026-04-29_21-56-53__pre.png` (1077 KB, modified 2026-04-30T01:56:54.180Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_121149.png` (1078 KB, modified 2026-04-30T01:56:52.937Z)
+- `run_20260429_215441_sxbzs9__signature_121149.png` (1078 KB, modified 2026-04-30T01:56:52.937Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_119709.png` (1081 KB, modified 2026-04-30T01:56:49.882Z)
+- `run_20260429_215441_sxbzs9__signature_119709.png` (1081 KB, modified 2026-04-30T01:56:49.882Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_117256.png` (848 KB, modified 2026-04-30T01:56:41.252Z)
+- `run_20260429_215441_sxbzs9__signature_117256.png` (848 KB, modified 2026-04-30T01:56:41.252Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_97288.png` (602 KB, modified 2026-04-30T01:56:38.445Z)
+- `run_20260429_215441_sxbzs9__safety_97288.png` (602 KB, modified 2026-04-30T01:56:38.445Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_104189.png` (819 KB, modified 2026-04-30T01:56:35.408Z)
+- `run_20260429_215441_sxbzs9__signature_104189.png` (819 KB, modified 2026-04-30T01:56:35.408Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_101811.png` (669 KB, modified 2026-04-30T01:56:32.467Z)
+- `run_20260429_215441_sxbzs9__signature_101811.png` (669 KB, modified 2026-04-30T01:56:32.467Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_99101.png` (837 KB, modified 2026-04-30T01:56:23.538Z)
+- `run_20260429_215441_sxbzs9__signature_99101.png` (837 KB, modified 2026-04-30T01:56:23.538Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_87485.png` (770 KB, modified 2026-04-30T01:56:20.581Z)
+- `run_20260429_215441_sxbzs9__safety_87485.png` (770 KB, modified 2026-04-30T01:56:20.581Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_93789.png` (808 KB, modified 2026-04-30T01:56:17.766Z)
+- `run_20260429_215441_sxbzs9__authority_93789.png` (808 KB, modified 2026-04-30T01:56:17.766Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_88317.png` (664 KB, modified 2026-04-30T01:56:14.679Z)
+- `run_20260429_215441_sxbzs9__signature_88317.png` (664 KB, modified 2026-04-30T01:56:14.679Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_76381.png` (702 KB, modified 2026-04-30T01:56:11.692Z)
+- `run_20260429_215441_sxbzs9__safety_76381.png` (702 KB, modified 2026-04-30T01:56:11.692Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_72541.png` (689 KB, modified 2026-04-30T01:56:03.237Z)
+- `run_20260429_215441_sxbzs9__signature_72541.png` (689 KB, modified 2026-04-30T01:56:03.237Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_70429.png` (662 KB, modified 2026-04-30T01:55:55.114Z)
+- `run_20260429_215441_sxbzs9__signature_70429.png` (662 KB, modified 2026-04-30T01:55:55.114Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_68936.png` (741 KB, modified 2026-04-30T01:55:52.846Z)
+- `run_20260429_215441_sxbzs9__signature_68936.png` (741 KB, modified 2026-04-30T01:55:52.846Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_61267.png` (773 KB, modified 2026-04-30T01:55:50.433Z)
+- `run_20260429_215441_sxbzs9__authority_61267.png` (773 KB, modified 2026-04-30T01:55:50.433Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_47208.png` (765 KB, modified 2026-04-30T01:55:47.712Z)
+- `run_20260429_215441_sxbzs9__authority_47208.png` (765 KB, modified 2026-04-30T01:55:47.712Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_61267.png` (895 KB, modified 2026-04-30T01:55:45.460Z)
+- `run_20260429_215441_sxbzs9__safety_61267.png` (895 KB, modified 2026-04-30T01:55:45.460Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_56883.png` (916 KB, modified 2026-04-30T01:55:42.132Z)
+- `run_20260429_215441_sxbzs9__signature_56883.png` (916 KB, modified 2026-04-30T01:55:42.132Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_55731.png` (696 KB, modified 2026-04-30T01:55:39.505Z)
+- `run_20260429_215441_sxbzs9__signature_55731.png` (696 KB, modified 2026-04-30T01:55:39.505Z)
+- `auto_operator-trust-clear_2026-04-29_21-55-35__quiet.png` (1059 KB, modified 2026-04-30T01:55:37.255Z)
+- `auto_operator-trust-clear_2026-04-29_21-55-35__pre.png` (738 KB, modified 2026-04-30T01:55:36.790Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__trust_51219.png` (1110 KB, modified 2026-04-30T01:55:36.730Z)
+- `run_20260429_215441_sxbzs9__trust_51219.png` (1110 KB, modified 2026-04-30T01:55:36.730Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_35112.png` (680 KB, modified 2026-04-30T01:55:33.263Z)
+- `run_20260429_215441_sxbzs9__authority_35112.png` (680 KB, modified 2026-04-30T01:55:33.263Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_45149.png` (876 KB, modified 2026-04-30T01:55:30.325Z)
+- `run_20260429_215441_sxbzs9__safety_45149.png` (876 KB, modified 2026-04-30T01:55:30.325Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_40307.png` (832 KB, modified 2026-04-30T01:55:27.307Z)
+- `run_20260429_215441_sxbzs9__signature_40307.png` (832 KB, modified 2026-04-30T01:55:27.307Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_40520.png` (523 KB, modified 2026-04-30T01:55:24.166Z)
+- `run_20260429_215441_sxbzs9__authority_40520.png` (523 KB, modified 2026-04-30T01:55:24.166Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_37171.png` (726 KB, modified 2026-04-30T01:55:21.443Z)
+- `run_20260429_215441_sxbzs9__signature_37171.png` (726 KB, modified 2026-04-30T01:55:21.443Z)
+- `auto_drop_2026-04-29_21-55-17__quiet.png` (750 KB, modified 2026-04-30T01:55:19.062Z)
+- `auto_drop_2026-04-29_21-55-17__authority.png` (676 KB, modified 2026-04-30T01:55:18.554Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_34216.png` (769 KB, modified 2026-04-30T01:55:18.144Z)
+- `run_20260429_215441_sxbzs9__safety_34216.png` (769 KB, modified 2026-04-30T01:55:18.144Z)
+- `auto_drop_2026-04-29_21-55-17__pre.png` (738 KB, modified 2026-04-30T01:55:17.905Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_31581.png` (892 KB, modified 2026-04-30T01:55:15.351Z)
+- `run_20260429_215441_sxbzs9__safety_31581.png` (892 KB, modified 2026-04-30T01:55:15.351Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_28872.png` (897 KB, modified 2026-04-30T01:55:12.511Z)
+- `run_20260429_215441_sxbzs9__safety_28872.png` (897 KB, modified 2026-04-30T01:55:12.511Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_23293.png` (779 KB, modified 2026-04-30T01:55:09.622Z)
+- `run_20260429_215441_sxbzs9__signature_23293.png` (779 KB, modified 2026-04-30T01:55:09.622Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_22760.png` (921 KB, modified 2026-04-30T01:55:06.903Z)
+- `run_20260429_215441_sxbzs9__authority_22760.png` (921 KB, modified 2026-04-30T01:55:06.903Z)
+- `auto_signature-moment-peak_2026-04-29_21-55-04__safety.png` (628 KB, modified 2026-04-30T01:55:05.558Z)
+- `auto_signature-moment-peak_2026-04-29_21-55-04__quiet.png` (779 KB, modified 2026-04-30T01:55:04.960Z)
+- `auto_signature-moment-peak_2026-04-29_21-55-04__pre.png` (602 KB, modified 2026-04-30T01:55:04.602Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_20168.png` (667 KB, modified 2026-04-30T01:55:04.252Z)
+- `run_20260429_215441_sxbzs9__signature_20168.png` (667 KB, modified 2026-04-30T01:55:04.252Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__safety_16424.png` (642 KB, modified 2026-04-30T01:55:01.068Z)
+- `run_20260429_215441_sxbzs9__safety_16424.png` (642 KB, modified 2026-04-30T01:55:01.068Z)
+- `auto_authority-turn_2026-04-29_21-54-55__peak.png` (495 KB, modified 2026-04-30T01:54:56.685Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_11987.png` (442 KB, modified 2026-04-30T01:54:56.647Z)
+- `run_20260429_215441_sxbzs9__authority_11987.png` (442 KB, modified 2026-04-30T01:54:56.647Z)
+- `auto_authority-turn_2026-04-29_21-54-55__pre.png` (416 KB, modified 2026-04-30T01:54:56.248Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__checkpoint_2173.png` (435 KB, modified 2026-04-30T01:54:53.495Z)
+- `run_20260429_215441_sxbzs9__checkpoint_2173.png` (435 KB, modified 2026-04-30T01:54:53.495Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__authority_2173.png` (431 KB, modified 2026-04-30T01:54:50.049Z)
+- `run_20260429_215441_sxbzs9__authority_2173.png` (431 KB, modified 2026-04-30T01:54:50.049Z)
+- `auto_authority-turn_2026-04-29_21-54-46__quiet.png` (323 KB, modified 2026-04-30T01:54:48.472Z)
+- `auto_authority-turn_2026-04-29_21-54-46__pre.png` (334 KB, modified 2026-04-30T01:54:47.725Z)
 - `run_20260429_215441_sxbzs9/run_20260429_215441_sxbzs9__signature_2173.png` (334 KB, modified 2026-04-30T01:54:46.398Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_471155.png` (437 KB, modified 2026-04-29T00:44:54.021Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_464275.png` (1070 KB, modified 2026-04-29T00:44:51.297Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_461181.png` (980 KB, modified 2026-04-29T00:44:42.764Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_453245.png` (959 KB, modified 2026-04-29T00:44:39.708Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_451165.png` (865 KB, modified 2026-04-29T00:44:37.942Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_443688.png` (895 KB, modified 2026-04-29T00:44:30.632Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_436157.png` (552 KB, modified 2026-04-29T00:44:23.004Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_429480.png` (520 KB, modified 2026-04-29T00:44:14.615Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_424168.png` (867 KB, modified 2026-04-29T00:44:11.354Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_415720.png` (981 KB, modified 2026-04-29T00:44:02.863Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_407549.png` (539 KB, modified 2026-04-29T00:43:54.393Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_399336.png` (889 KB, modified 2026-04-29T00:43:46.104Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_389544.png` (955 KB, modified 2026-04-29T00:43:37.852Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_382643.png` (935 KB, modified 2026-04-29T00:43:29.532Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_373160.png` (672 KB, modified 2026-04-29T00:43:19.897Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_364765.png` (1258 KB, modified 2026-04-29T00:43:11.685Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_356403.png` (997 KB, modified 2026-04-29T00:43:03.196Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_353555.png` (859 KB, modified 2026-04-29T00:42:54.694Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_345128.png` (962 KB, modified 2026-04-29T00:42:52.080Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_337277.png` (883 KB, modified 2026-04-29T00:42:43.924Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_328829.png` (875 KB, modified 2026-04-29T00:42:35.610Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_320669.png` (680 KB, modified 2026-04-29T00:42:27.220Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_312285.png` (625 KB, modified 2026-04-29T00:42:18.877Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_309128.png` (620 KB, modified 2026-04-29T00:42:10.477Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_299549.png` (795 KB, modified 2026-04-29T00:42:07.747Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_292691.png` (1125 KB, modified 2026-04-29T00:41:59.503Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_284648.png` (466 KB, modified 2026-04-29T00:41:51.220Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_274237.png` (759 KB, modified 2026-04-29T00:41:43.169Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_267901.png` (1011 KB, modified 2026-04-29T00:41:34.924Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_263229.png` (657 KB, modified 2026-04-29T00:41:26.536Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_259709.png` (676 KB, modified 2026-04-29T00:41:21.770Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_257683.png` (594 KB, modified 2026-04-29T00:41:19.090Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_254632.png` (671 KB, modified 2026-04-29T00:41:16.540Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_246429.png` (723 KB, modified 2026-04-29T00:41:13.388Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_237725.png` (709 KB, modified 2026-04-29T00:41:05.170Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_230536.png` (595 KB, modified 2026-04-29T00:40:57.020Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_219123.png` (1209 KB, modified 2026-04-29T00:40:42.174Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_211059.png` (911 KB, modified 2026-04-29T00:40:39.389Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_208691.png` (514 KB, modified 2026-04-29T00:40:31.000Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_202504.png` (448 KB, modified 2026-04-29T00:40:29.120Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_199763.png` (693 KB, modified 2026-04-29T00:40:20.714Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_196680.png` (746 KB, modified 2026-04-29T00:40:18.008Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_194184.png` (1371 KB, modified 2026-04-29T00:40:14.929Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_191357.png` (691 KB, modified 2026-04-29T00:40:12.440Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_188307.png` (668 KB, modified 2026-04-29T00:40:09.714Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_179912.png` (655 KB, modified 2026-04-29T00:40:06.854Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_177768.png` (573 KB, modified 2026-04-29T00:39:58.510Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_175389.png` (535 KB, modified 2026-04-29T00:39:56.143Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_172509.png` (868 KB, modified 2026-04-29T00:39:53.696Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_170237.png` (480 KB, modified 2026-04-29T00:39:51.010Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_161949.png` (941 KB, modified 2026-04-29T00:39:48.448Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_159336.png` (868 KB, modified 2026-04-29T00:39:40.044Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_150909.png` (866 KB, modified 2026-04-29T00:39:37.537Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_142429.png` (638 KB, modified 2026-04-29T00:39:29.001Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_133363.png` (832 KB, modified 2026-04-29T00:39:20.876Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_130376.png` (869 KB, modified 2026-04-29T00:39:11.337Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_121075.png` (670 KB, modified 2026-04-29T00:39:08.590Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_119048.png` (436 KB, modified 2026-04-29T00:39:00.141Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_111016.png` (673 KB, modified 2026-04-29T00:38:57.584Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_107837.png` (413 KB, modified 2026-04-29T00:38:49.145Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_106184.png` (750 KB, modified 2026-04-29T00:38:46.745Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_102067.png` (513 KB, modified 2026-04-29T00:38:43.643Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_92989.png` (863 KB, modified 2026-04-29T00:38:40.861Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_91987.png` (966 KB, modified 2026-04-29T00:38:32.887Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_83965.png` (798 KB, modified 2026-04-29T00:38:30.257Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_80040.png` (1072 KB, modified 2026-04-29T00:38:21.958Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_78739.png` (697 KB, modified 2026-04-29T00:38:19.539Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_68115.png` (873 KB, modified 2026-04-29T00:38:17.108Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_62109.png` (681 KB, modified 2026-04-29T00:38:08.660Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_54173.png` (978 KB, modified 2026-04-29T00:38:00.502Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__trust_49640.png` (1013 KB, modified 2026-04-29T00:37:51.373Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_47464.png` (707 KB, modified 2026-04-29T00:37:48.102Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_43389.png` (680 KB, modified 2026-04-29T00:37:45.633Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_42397.png` (1115 KB, modified 2026-04-29T00:37:43.272Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_39560.png` (781 KB, modified 2026-04-29T00:37:40.798Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_35112.png` (1069 KB, modified 2026-04-29T00:37:38.040Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_28776.png` (1069 KB, modified 2026-04-29T00:37:35.635Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_20189.png` (729 KB, modified 2026-04-29T00:37:27.228Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_19229.png` (617 KB, modified 2026-04-29T00:37:19.577Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_14173.png` (1022 KB, modified 2026-04-29T00:37:14.569Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_9789.png` (919 KB, modified 2026-04-29T00:37:11.812Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_8349.png` (444 KB, modified 2026-04-29T00:37:09.246Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__checkpoint_2173.png` (428 KB, modified 2026-04-29T00:37:06.335Z)
-- `run_20260428_203658_8yovza/run_20260428_203658_8yovza__authority_2173.png` (374 KB, modified 2026-04-29T00:37:02.814Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_509789.png` (443 KB, modified 2026-04-28T23:56:39.997Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_508467.png` (488 KB, modified 2026-04-28T23:56:38.807Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_507005.png` (826 KB, modified 2026-04-28T23:56:36.932Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_505384.png` (535 KB, modified 2026-04-28T23:56:35.322Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_498429.png` (904 KB, modified 2026-04-28T23:56:34.601Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_495667.png` (796 KB, modified 2026-04-28T23:56:25.653Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_494333.png` (942 KB, modified 2026-04-28T23:56:24.212Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_493011.png` (952 KB, modified 2026-04-28T23:56:23.219Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_491805.png` (852 KB, modified 2026-04-28T23:56:22.111Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_490397.png` (786 KB, modified 2026-04-28T23:56:20.254Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_489160.png` (761 KB, modified 2026-04-28T23:56:19.204Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_487165.png` (517 KB, modified 2026-04-28T23:56:17.012Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_479155.png` (669 KB, modified 2026-04-28T23:56:15.062Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_477864.png` (511 KB, modified 2026-04-28T23:56:07.710Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_470952.png` (913 KB, modified 2026-04-28T23:56:06.838Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_462707.png` (990 KB, modified 2026-04-28T23:55:58.442Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_453235.png` (799 KB, modified 2026-04-28T23:55:48.806Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_446909.png` (998 KB, modified 2026-04-28T23:55:42.091Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_442205.png` (905 KB, modified 2026-04-28T23:55:33.275Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_434899.png` (896 KB, modified 2026-04-28T23:55:30.511Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_427315.png` (1268 KB, modified 2026-04-28T23:55:23.023Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_417971.png` (682 KB, modified 2026-04-28T23:55:13.797Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_410856.png` (827 KB, modified 2026-04-28T23:55:06.855Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_399624.png` (777 KB, modified 2026-04-28T23:54:55.181Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_392371.png` (1117 KB, modified 2026-04-28T23:54:48.096Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_388776.png` (449 KB, modified 2026-04-28T23:54:38.682Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_381747.png` (1036 KB, modified 2026-04-28T23:54:37.635Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_379795.png` (883 KB, modified 2026-04-28T23:54:29.622Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_374600.png` (861 KB, modified 2026-04-28T23:54:28.642Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_363709.png` (747 KB, modified 2026-04-28T23:54:19.343Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_358120.png` (660 KB, modified 2026-04-28T23:54:12.342Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_356435.png` (936 KB, modified 2026-04-28T23:54:06.634Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_350269.png` (432 KB, modified 2026-04-28T23:54:05.316Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_343357.png` (562 KB, modified 2026-04-28T23:53:59.116Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_341875.png` (743 KB, modified 2026-04-28T23:53:51.783Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_340381.png` (566 KB, modified 2026-04-28T23:53:50.278Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_333555.png` (604 KB, modified 2026-04-28T23:53:49.300Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_326632.png` (1274 KB, modified 2026-04-28T23:53:42.389Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_321875.png` (578 KB, modified 2026-04-28T23:53:32.135Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_313747.png` (823 KB, modified 2026-04-28T23:53:29.345Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_306739.png` (636 KB, modified 2026-04-28T23:53:22.188Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_299400.png` (746 KB, modified 2026-04-28T23:53:14.974Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_296349.png` (843 KB, modified 2026-04-28T23:53:07.229Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_293533.png` (725 KB, modified 2026-04-28T23:53:03.379Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_286557.png` (711 KB, modified 2026-04-28T23:53:02.132Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_284072.png` (1017 KB, modified 2026-04-28T23:52:53.977Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_277171.png` (810 KB, modified 2026-04-28T23:52:52.958Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_269640.png` (681 KB, modified 2026-04-28T23:52:45.319Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_261128.png` (408 KB, modified 2026-04-28T23:52:36.720Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_248211.png` (384 KB, modified 2026-04-28T23:52:23.707Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_237267.png` (519 KB, modified 2026-04-28T23:52:12.842Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_235944.png` (629 KB, modified 2026-04-28T23:52:05.776Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_234664.png` (601 KB, modified 2026-04-28T23:52:04.759Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_227720.png` (723 KB, modified 2026-04-28T23:52:03.506Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_225587.png` (453 KB, modified 2026-04-28T23:51:55.469Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_218483.png` (727 KB, modified 2026-04-28T23:51:54.396Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_217117.png` (723 KB, modified 2026-04-28T23:51:47.511Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_210120.png` (837 KB, modified 2026-04-28T23:51:46.051Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_202248.png` (774 KB, modified 2026-04-28T23:51:38.126Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_200765.png` (552 KB, modified 2026-04-28T23:51:30.632Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_193843.png` (555 KB, modified 2026-04-28T23:51:29.511Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_192616.png` (771 KB, modified 2026-04-28T23:51:22.474Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_184957.png` (756 KB, modified 2026-04-28T23:51:20.643Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_183763.png` (490 KB, modified 2026-04-28T23:51:13.803Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_176488.png` (772 KB, modified 2026-04-28T23:51:11.986Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_174792.png` (506 KB, modified 2026-04-28T23:51:04.729Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_173437.png` (724 KB, modified 2026-04-28T23:51:03.247Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_166493.png` (870 KB, modified 2026-04-28T23:51:02.308Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_159176.png` (779 KB, modified 2026-04-28T23:50:54.721Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_152168.png` (920 KB, modified 2026-04-28T23:50:48.109Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_150451.png` (843 KB, modified 2026-04-28T23:50:40.455Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_143272.png` (485 KB, modified 2026-04-28T23:50:39.116Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_141864.png` (698 KB, modified 2026-04-28T23:50:32.152Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_140520.png` (668 KB, modified 2026-04-28T23:50:30.390Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_133395.png` (557 KB, modified 2026-04-28T23:50:29.087Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_131240.png` (540 KB, modified 2026-04-28T23:50:21.193Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_129597.png` (676 KB, modified 2026-04-28T23:50:19.470Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_127400.png` (646 KB, modified 2026-04-28T23:50:17.215Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_120413.png` (462 KB, modified 2026-04-28T23:50:16.233Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_118941.png` (597 KB, modified 2026-04-28T23:50:09.032Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_117395.png` (723 KB, modified 2026-04-28T23:50:07.452Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_110280.png` (1199 KB, modified 2026-04-28T23:50:05.823Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_108776.png` (617 KB, modified 2026-04-28T23:49:58.625Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_101768.png` (736 KB, modified 2026-04-28T23:49:57.359Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_94792.png` (646 KB, modified 2026-04-28T23:49:50.209Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_88317.png` (571 KB, modified 2026-04-28T23:49:43.579Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_86504.png` (550 KB, modified 2026-04-28T23:49:36.343Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_79571.png` (551 KB, modified 2026-04-28T23:49:35.303Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_78099.png` (474 KB, modified 2026-04-28T23:49:28.154Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_71197.png` (633 KB, modified 2026-04-28T23:49:27.020Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_69533.png` (683 KB, modified 2026-04-28T23:49:19.406Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_62259.png` (1162 KB, modified 2026-04-28T23:49:17.954Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_54461.png` (475 KB, modified 2026-04-28T23:49:10.100Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_52552.png` (583 KB, modified 2026-04-28T23:49:02.517Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_51357.png` (678 KB, modified 2026-04-28T23:49:01.642Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_45213.png` (491 KB, modified 2026-04-28T23:48:58.974Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_43731.png` (659 KB, modified 2026-04-28T23:48:53.837Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_42344.png` (510 KB, modified 2026-04-28T23:48:52.639Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_40840.png` (523 KB, modified 2026-04-28T23:48:50.732Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_33896.png` (1422 KB, modified 2026-04-28T23:48:49.964Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__checkpoint_26216.png` (394 KB, modified 2026-04-28T23:48:42.133Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_18120.png` (448 KB, modified 2026-04-28T23:48:33.983Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_15699.png` (544 KB, modified 2026-04-28T23:48:25.895Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_13096.png` (779 KB, modified 2026-04-28T23:48:23.225Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_11667.png` (403 KB, modified 2026-04-28T23:48:22.099Z)
-- `run_20260428_194808_ot6j46/run_20260428_194808_ot6j46__authority_2067.png` (324 KB, modified 2026-04-28T23:48:12.730Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_366717.png` (606 KB, modified 2026-04-28T23:35:04.315Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_365107.png` (605 KB, modified 2026-04-28T23:35:02.981Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_363624.png` (713 KB, modified 2026-04-28T23:35:01.780Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_362216.png` (447 KB, modified 2026-04-28T23:34:59.790Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_360627.png` (893 KB, modified 2026-04-28T23:34:58.789Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_353341.png` (998 KB, modified 2026-04-28T23:34:57.369Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_352029.png` (713 KB, modified 2026-04-28T23:34:49.535Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_343987.png` (897 KB, modified 2026-04-28T23:34:47.548Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_342728.png` (949 KB, modified 2026-04-28T23:34:40.522Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_341224.png` (956 KB, modified 2026-04-28T23:34:38.748Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_339485.png` (1127 KB, modified 2026-04-28T23:34:37.124Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_337736.png` (845 KB, modified 2026-04-28T23:34:35.326Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_335603.png` (788 KB, modified 2026-04-28T23:34:33.402Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_334099.png` (1161 KB, modified 2026-04-28T23:34:32.093Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_325149.png` (785 KB, modified 2026-04-28T23:34:28.310Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_323005.png` (458 KB, modified 2026-04-28T23:34:20.534Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_321704.png` (731 KB, modified 2026-04-28T23:34:19.409Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_320552.png` (952 KB, modified 2026-04-28T23:34:18.174Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_313533.png` (581 KB, modified 2026-04-28T23:34:17.054Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_306589.png` (422 KB, modified 2026-04-28T23:34:10.124Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_305288.png` (511 KB, modified 2026-04-28T23:34:03.072Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_303635.png` (574 KB, modified 2026-04-28T23:34:01.187Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_296712.png` (498 KB, modified 2026-04-28T23:34:00.322Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_287805.png` (583 KB, modified 2026-04-28T23:33:51.233Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_286376.png` (700 KB, modified 2026-04-28T23:33:43.963Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_278739.png` (751 KB, modified 2026-04-28T23:33:42.704Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_268829.png` (964 KB, modified 2026-04-28T23:33:32.160Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_261768.png` (956 KB, modified 2026-04-28T23:33:25.087Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_254696.png` (969 KB, modified 2026-04-28T23:33:18.250Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_246685.png` (1072 KB, modified 2026-04-28T23:33:09.916Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_242675.png` (761 KB, modified 2026-04-28T23:33:02.922Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_230003.png` (836 KB, modified 2026-04-28T23:32:53.322Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_216840.png` (931 KB, modified 2026-04-28T23:32:40.349Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_213629.png` (615 KB, modified 2026-04-28T23:32:30.965Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_206579.png` (1331 KB, modified 2026-04-28T23:32:30.186Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_204381.png` (975 KB, modified 2026-04-28T23:32:21.953Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_196371.png` (757 KB, modified 2026-04-28T23:32:19.490Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_189181.png` (883 KB, modified 2026-04-28T23:32:12.272Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_181736.png` (681 KB, modified 2026-04-28T23:32:05.011Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_174664.png` (861 KB, modified 2026-04-28T23:31:57.850Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_167667.png` (646 KB, modified 2026-04-28T23:31:50.791Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_160627.png` (626 KB, modified 2026-04-28T23:31:43.880Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_157299.png` (794 KB, modified 2026-04-28T23:31:34.656Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_150397.png` (581 KB, modified 2026-04-28T23:31:33.769Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_149043.png` (654 KB, modified 2026-04-28T23:31:26.539Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_147187.png` (612 KB, modified 2026-04-28T23:31:24.714Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_140136.png` (587 KB, modified 2026-04-28T23:31:23.436Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_133160.png` (594 KB, modified 2026-04-28T23:31:16.672Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_125949.png` (426 KB, modified 2026-04-28T23:31:09.073Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_119069.png` (567 KB, modified 2026-04-28T23:31:01.674Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_112040.png` (752 KB, modified 2026-04-28T23:30:55.212Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_110429.png` (562 KB, modified 2026-04-28T23:30:47.958Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_102547.png` (838 KB, modified 2026-04-28T23:30:45.714Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_95581.png` (671 KB, modified 2026-04-28T23:30:38.821Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_89309.png` (904 KB, modified 2026-04-28T23:30:26.665Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_82269.png` (813 KB, modified 2026-04-28T23:30:25.884Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_79763.png` (920 KB, modified 2026-04-28T23:30:17.407Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_72819.png` (473 KB, modified 2026-04-28T23:30:16.251Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_69693.png` (868 KB, modified 2026-04-28T23:30:07.328Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_68349.png` (858 KB, modified 2026-04-28T23:30:06.316Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_66429.png` (711 KB, modified 2026-04-28T23:30:04.334Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_64904.png` (863 KB, modified 2026-04-28T23:30:02.501Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_63379.png` (828 KB, modified 2026-04-28T23:30:00.898Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_61565.png` (777 KB, modified 2026-04-28T23:29:59.168Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_60296.png` (636 KB, modified 2026-04-28T23:29:58.150Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_44659.png` (435 KB, modified 2026-04-28T23:29:48.033Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_35976.png` (548 KB, modified 2026-04-28T23:29:39.236Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_34568.png` (849 KB, modified 2026-04-28T23:29:32.370Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_27549.png` (504 KB, modified 2026-04-28T23:29:31.140Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_26077.png` (812 KB, modified 2026-04-28T23:29:24.032Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_23997.png` (878 KB, modified 2026-04-28T23:29:21.670Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_22739.png` (1057 KB, modified 2026-04-28T23:29:20.383Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_21309.png` (781 KB, modified 2026-04-28T23:29:18.926Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_19795.png` (832 KB, modified 2026-04-28T23:29:17.398Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_18472.png` (688 KB, modified 2026-04-28T23:29:15.970Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_17235.png` (596 KB, modified 2026-04-28T23:29:14.979Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_15560.png` (684 KB, modified 2026-04-28T23:29:13.628Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__checkpoint_14269.png` (656 KB, modified 2026-04-28T23:29:12.363Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_12349.png` (919 KB, modified 2026-04-28T23:29:10.013Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_10632.png` (481 KB, modified 2026-04-28T23:29:08.544Z)
-- `run_20260428_192855_gnmlg1/run_20260428_192855_gnmlg1__authority_2173.png` (357 KB, modified 2026-04-28T23:29:06.062Z)
+- `run_20260429_215441_sxbzs9__signature_2173.png` (334 KB, modified 2026-04-30T01:54:46.398Z)
 
 ## Notes
 - This harness scores evidence captures, not raw PNG pixels.

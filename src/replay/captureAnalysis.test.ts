@@ -802,6 +802,83 @@ describe('capture analysis', () => {
     expect(summary.visualSummary?.heroFormSwitchesPerMinute).toBeCloseTo(20, 3);
   });
 
+  it('separates legacy glow spend from perceptual washout', () => {
+    const legacyGlow = summarizeCapture(
+      {
+        metadata: {
+          label: 'legacy-glow-spend',
+          captureMode: 'auto',
+          triggerKind: 'authority-turn',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'safe',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              ambientGlowBudget: 0.42,
+              perceptualWashoutRisk: 0.02
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 3000,
+            visualTelemetry: {
+              ambientGlowBudget: 0.38,
+              perceptualWashoutRisk: 0.03
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/legacy-glow-spend.json'
+    );
+    const washedOut = summarizeCapture(
+      {
+        metadata: {
+          label: 'washed-out-glow',
+          captureMode: 'auto',
+          triggerKind: 'authority-turn',
+          sourceLabel: 'PC Audio',
+          sourceMode: 'system-audio',
+          rendererBackend: 'webgpu',
+          qualityTier: 'safe',
+          rawPathGranted: true,
+          controls: DEFAULT_USER_CONTROL_STATE,
+          quickStartProfileId: 'pc-music',
+          quickStartProfileLabel: 'Music On This PC'
+        },
+        frames: [
+          createCaptureFrame({
+            timestampMs: 1000,
+            visualTelemetry: {
+              ambientGlowBudget: 0.42,
+              perceptualWashoutRisk: 0.16
+            }
+          }),
+          createCaptureFrame({
+            timestampMs: 3000,
+            visualTelemetry: {
+              ambientGlowBudget: 0.38,
+              perceptualWashoutRisk: 0.17
+            }
+          })
+        ]
+      },
+      'C:/dev/GitHub/visulive/captures/washed-out-glow.json'
+    );
+    const section = buildCaptureSection(legacyGlow, 'C:/dev/GitHub/visulive');
+
+    expect(legacyGlow.qualityFlags).toContain('legacyGlowSpend');
+    expect(legacyGlow.qualityFlags).not.toContain('highAmbientGlow');
+    expect(washedOut.qualityFlags).toContain('highAmbientGlow');
+    expect(section).toContain('Legacy glow spend stayed elevated');
+  });
+
   it('reports playable motif scene coherence separately from signature moments', () => {
     const summary = summarizeCapture(
       {

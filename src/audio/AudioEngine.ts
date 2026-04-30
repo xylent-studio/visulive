@@ -787,18 +787,27 @@ export class AudioEngine implements ListeningSource {
       return;
     }
 
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const inputs = devices
-      .filter((device) => device.kind === 'audioinput')
-      .map((device, index) => ({
-        id: device.deviceId || `room-mic-${index}`,
-        kind: 'room-mic' as const,
-        label: device.label || `Microphone ${index + 1}`,
-        available: true
-      }));
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const inputs = devices
+        .filter((device) => device.kind === 'audioinput')
+        .map((device, index) => ({
+          id: device.deviceId || `room-mic-${index}`,
+          kind: 'room-mic' as const,
+          label: device.label || `Microphone ${index + 1}`,
+          available: true
+        }));
 
-    this.availableInputs =
-      inputs.length > 0 ? inputs : [DEFAULT_SOURCE_DESCRIPTOR];
+      this.availableInputs =
+        inputs.length > 0 ? inputs : [DEFAULT_SOURCE_DESCRIPTOR];
+    } catch {
+      const warning =
+        'Audio input list could not be refreshed; default input routing remains available.';
+      this.availableInputs = [DEFAULT_SOURCE_DESCRIPTOR];
+      if (!this.staticWarnings.includes(warning)) {
+        this.staticWarnings.push(warning);
+      }
+    }
   }
 
   private buildMicSupportWarnings(

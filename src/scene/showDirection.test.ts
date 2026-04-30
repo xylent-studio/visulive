@@ -7,6 +7,7 @@ import {
   buildPaletteFrame,
   chooseShowAct,
   choosePaletteState,
+  chooseVisualMotifKind,
   deriveStageCuePlan,
   deriveVisualCue,
   deriveVisualMotifKind,
@@ -207,6 +208,57 @@ describe('showDirection', () => {
     expect(plan.heroFormReason).toBe('motif-change');
   });
 
+  it('holds a luminous motif through brief non-urgent rupture flicker', () => {
+    const frame = {
+      ...DEFAULT_LISTENING_FRAME,
+      mode: 'system-audio' as const,
+      performanceIntent: 'ignite' as const,
+      musicConfidence: 0.72,
+      dropImpact: 0.3,
+      sectionChange: 0.22,
+      releaseTail: 0.03,
+      air: 0.42,
+      body: 0.36
+    };
+
+    expect(
+      chooseVisualMotifKind({
+        rawMotif: 'rupture-scar',
+        currentMotif: 'neon-portal',
+        currentMotifAgeSeconds: 0.62,
+        frame,
+        cuePlan: {
+          family: 'gather',
+          dominance: 'hybrid',
+          worldMode: 'aperture-cage',
+          worldWeight: 0.68,
+          transformIntent: 'compress'
+        }
+      })
+    ).toBe('neon-portal');
+
+    expect(
+      chooseVisualMotifKind({
+        rawMotif: 'rupture-scar',
+        currentMotif: 'neon-portal',
+        currentMotifAgeSeconds: 0.62,
+        frame: {
+          ...frame,
+          performanceIntent: 'detonate',
+          dropImpact: 0.72,
+          sectionChange: 0.34
+        },
+        cuePlan: {
+          family: 'rupture',
+          dominance: 'world',
+          worldMode: 'collapse-well',
+          worldWeight: 0.9,
+          transformIntent: 'collapse'
+        }
+      })
+    ).toBe('rupture-scar');
+  });
+
   it('keeps palette changes deliberate until a strong new winner appears', () => {
     const frame: Parameters<typeof buildPaletteStateScores>[0] = {
       ...DEFAULT_LISTENING_FRAME,
@@ -253,6 +305,24 @@ describe('showDirection', () => {
     });
 
     expect(switched).toBe('acid-lime');
+  });
+
+  it('resists early base-palette flips from close challengers', () => {
+    const held = choosePaletteState({
+      currentState: 'acid-lime',
+      secondsSinceLastChange: 0.7,
+      scores: {
+        'void-cyan': 0.18,
+        'tron-blue': 0.63,
+        'acid-lime': 0.5,
+        'solar-magenta': 0.36,
+        'ghost-white': 0.12
+      },
+      minimumHoldSeconds: 5.2,
+      switchThreshold: 0.06
+    });
+
+    expect(held).toBe('acid-lime');
   });
 
   it('keeps act changes deliberate until a stronger act wins', () => {
