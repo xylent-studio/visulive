@@ -49,6 +49,7 @@ The current stable stack is:
 - Netlify site name: `visulive-xylent-studio`
 - DNS provider: Cloudflare
 - public hostname: `visulive.xylent.studio`
+- stable release log: [stable-release-log.md](C:/dev/GitHub/visulive/docs/stable-release-log.md)
 
 The canonical future frontier target shape is:
 
